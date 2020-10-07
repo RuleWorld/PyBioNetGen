@@ -1,8 +1,8 @@
 import cement, os
-from cement import App, TestApp, init_defaults
+from cement import init_defaults
 from cement.core.exc import CaughtSignal
 from .core.exc import BioNetGenError
-from .controllers.base import Base
+from .core.main import runCLI
 
 # configuration defaults
 # TODO: we want to install the appropriate BNG distro on setup 
@@ -26,16 +26,23 @@ class BNGBase(cement.Controller):
                                         default=".",
                                         help="Directory to save the results into, default is '.'")),
                 (['-s','--sedml'],dict(type=str,
+                                       default=CONFIG['bionetgen']['bngpath'],
                                        help="Optional path to SED-ML file, if available the simulation \
                                              protocol described in SED-ML will be ran")),
                 (['-bp','--bngpath'],dict(type=str,
+                                          default=None,
                                           help="Optional path to BioNetGen folder you want the CLI to use")),
                 # TODO: Auto-load in BioNetGen version here
                 (['-v','--version'],dict(action="version",
                                          version="0.0.1")),
         ]
 
-class BioNetGen(App):
+    @cement.ex(hide=True)
+    def _default(self):
+        args = self.app.pargs
+        runCLI(args)
+
+class BioNetGen(cement.App):
     """BioNetGen CLI primary application."""
 
     class Meta:
