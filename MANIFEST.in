@@ -3,3 +3,4 @@ include setup.cfg
 include README.md CHANGELOG.md LICENSE.md
 include *.txt
 recursive-include bionetgen/templates *
+recursive-include bionetgen/bng *

@@ -19,7 +19,8 @@ setup(
     url='https://github.com/ASinanSaglam/BNG_cli',
     license='unlicensed',
     packages=find_packages(exclude=['ez_setup', 'tests*']),
-    package_data={'bionetgen': ['templates/*']},
+    package_data={'bionetgen': ['bng/*']},
+    zip_safe=False,
     include_package_data=True,
     entry_points="""
         [console_scripts]

@@ -6,23 +6,14 @@ bionetgen:
 ### Toggle application level debug (does not toggle framework debugging)
 # debug: false
 
-### Where external (third-party) plugins are loaded from
-# plugin_dir: /var/lib/bionetgen/plugins/
-
 ### Where all plugin configurations are loaded from
 # plugin_config_dir: /etc/bionetgen/plugins.d/
-
-### Where external templates are loaded from
-# template_dir: /var/lib/bionetgen/templates/
 
 ### The log handler label
 # log_handler: colorlog
 
-### The output handler label
-# output_handler: jinja2
-
-### sample foo option
-# foo: bar
+### sample bngpath option
+# bngpath: /path/to/my/bng/
 
 
 log.colorlog:

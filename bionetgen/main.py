@@ -1,13 +1,39 @@
-
+import cement, os
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 from .core.exc import BioNetGenError
 from .controllers.base import Base
 
 # configuration defaults
+# TODO: we want to install the appropriate BNG distro on setup 
+# and not include it w/ the package. For now, this will do 
+# for testing purposes
 CONFIG = init_defaults('bionetgen')
-CONFIG['bionetgen']['foo'] = 'bar'
+CONFIG['bionetgen']['bngpath'] = os.path.join(os.path.dirname(__file__), "bng")
 
+class BNGBase(cement.Controller):
+    ''' Base controller for BioNetGen CLI '''
+
+    class Meta:
+        label = "base"
+        description = "A simple CLI to bionetgen <https://bionetgen.org>. Note that you need Perl installed."
+        help = "bionetgen"
+        arguments = [
+                (['-i', '--input'],dict(type=str,
+                                        required=True,
+                                        help="Path to BNGL or SBML file")), 
+                (['-o','--output'],dict(type=str, 
+                                        default=".",
+                                        help="Directory to save the results into, default is '.'")),
+                (['-s','--sedml'],dict(type=str,
+                                       help="Optional path to SED-ML file, if available the simulation \
+                                             protocol described in SED-ML will be ran")),
+                (['-bp','--bngpath'],dict(type=str,
+                                          help="Optional path to BioNetGen folder you want the CLI to use")),
+                # TODO: Auto-load in BioNetGen version here
+                (['-v','--version'],dict(action="version",
+                                         version="0.0.1")),
+        ]
 
 class BioNetGen(App):
     """BioNetGen CLI primary application."""
@@ -25,7 +51,6 @@ class BioNetGen(App):
         extensions = [
             'yaml',
             'colorlog',
-            'jinja2',
         ]
 
         # configuration handler
@@ -37,20 +62,10 @@ class BioNetGen(App):
         # set the log handler
         log_handler = 'colorlog'
 
-        # set the output handler
-        output_handler = 'jinja2'
-
         # register handlers
         handlers = [
-            Base
+            BNGBase
         ]
-
-
-class BioNetGenTest(TestApp,BioNetGen):
-    """A sub-class of BioNetGen that is better suited for testing."""
-
-    class Meta:
-        label = 'bionetgen'
 
 
 def main():
