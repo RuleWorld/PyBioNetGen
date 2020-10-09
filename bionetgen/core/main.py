@@ -16,7 +16,11 @@ class BNGCLI:
         # setting up bng2.pl
         self.bng_exec = os.path.join(self.bngpath, "BNG2.pl")
         assert os.path.exists(self.bng_exec), "BNG2.pl is not found!"
-        os.environ['BNGPATH'] = self.bngpath
+        if "BNGPATH" in os.environ:
+            self.old_bngpath = os.environ["BNGPATH"]
+        else:
+            self.old_bngpath = None
+        os.environ["BNGPATH"] = self.bngpath
 
     def set_output(self, output):
         # setting up output area
@@ -31,3 +35,6 @@ class BNGCLI:
     def run(self):
         # run BNG2.pl
         rc = subprocess.run(["perl", self.bng_exec, self.inp_path])
+        # set BNGPATH back
+        if self.old_bngpath is not None:
+            os.environ["BNGPATH"] = self.old_bngpath
