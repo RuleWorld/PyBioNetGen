@@ -6,20 +6,37 @@ VERSION = get_version()
 
 #### BNG DOWNLOAD START ####
 # Handle BNG download and inclusion
-# first OS check
-import platform
+import platform,json
+import urllib.request
+# let's pull URLs for each distribution
+# in the latest distribution
+rls_url = "https://api.github.com/repos/RuleWorld/bionetgen/releases/latest"
+rls_resp = urllib.request.urlopen(rls_url)
+rls_json_txt = rls_resp.read()
+rls_json = json.loads(rls_json_txt)
+assets = rls_json['assets']
+for asset in assets:
+    browser_url = asset['browser_download_url']
+    if 'linux' in browser_url:
+        linux_url = browser_url
+    elif 'mac' in browser_url:
+        mac_url = browser_url
+    elif 'win' in browser_url:
+        windows_url = browser_url
+
+# next set the correct URL for platform
 system = platform.system() 
-# TODO: Need to pull the latest links automatically
 if system == "Linux":
-    bng_url = "https://github.com/RuleWorld/bionetgen/releases/download/BioNetGen-2.5.1/BioNetGen-2.5.1-linux.tgz"
+    bng_url = linux_url
 elif system == "Windows":
-    bng_url = "https://github.com/RuleWorld/bionetgen/releases/download/BioNetGen-2.5.1/BioNetGen-2.5.1-win.tgz"
+    bng_url = windows_url
 elif system == "Darwin":
-    bng_url = "https://github.com/RuleWorld/bionetgen/releases/download/BioNetGen-2.5.1/BioNetGen-2.5.1-mac.tgz"
+    bng_url = mac_url
 else:
     print("Setup doesn't know your system! {} \
             BioNetGen won't be installed".format(system))
     bng_url = None
+
 # next download and place the appropriate files
 bng_downloaded = False
 if bng_url is not None:
@@ -28,7 +45,6 @@ if bng_url is not None:
     to_move = ["BNG2.pl", "bin", "Perl2", "VERSION"]
     # import file and download libraries
     import os,shutil
-    import urllib.request
     ext = bng_url.split(".")[-1]
     fname = "bng.{}".format(ext)
     # download bng distro
