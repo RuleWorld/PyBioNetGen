@@ -16,6 +16,7 @@ class BNGCLI:
         # setting up bng2.pl
         self.bng_exec = os.path.join(self.bngpath, "BNG2.pl")
         assert os.path.exists(self.bng_exec), "BNG2.pl is not found!"
+        os.environ['BNGPATH'] = self.bngpath
 
     def set_output(self, output):
         # setting up output area
