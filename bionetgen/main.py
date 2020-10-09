@@ -1,6 +1,8 @@
 import cement, os
 from cement import init_defaults
 from cement.core.exc import CaughtSignal
+from cement.utils.version import get_version_banner
+from .core.version import get_version
 from .core.exc import BioNetGenError
 from .core.main import runCLI
 
