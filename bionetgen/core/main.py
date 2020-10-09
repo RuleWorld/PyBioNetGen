@@ -1,8 +1,8 @@
 import os, subprocess
 
 def runCLI(args):
-    cli_obj = BNGCLI(args)
-    cli_obj.run()
+    cli = BNGCLI(args)
+    cli.run()
 
 class BNGCLI:
     def __init__(self, args):
