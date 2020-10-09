@@ -25,7 +25,7 @@ bng_downloaded = False
 if bng_url is not None:
     # this lists the stuff in bng distribution 
     # to move in our python package
-    to_move = ["BNG2.pl", "bin", "Perl2"]
+    to_move = ["BNG2.pl", "bin", "Perl2", "VERSION"]
     # import file and download libraries
     import os,shutil
     import urllib.request
