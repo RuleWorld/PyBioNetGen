@@ -25,12 +25,12 @@ class BNGBase(cement.Controller):
                 (['-o','--output'],dict(type=str, 
                                         default=".",
                                         help="Directory to save the results into, default is '.'")),
-                (['-s','--sedml'],dict(type=str,
-                                       default=CONFIG['bionetgen']['bngpath'],
-                                       help="Optional path to SED-ML file, if available the simulation \
-                                             protocol described in SED-ML will be ran")),
+                # (['-s','--sedml'],dict(type=str,
+                #                        default=CONFIG['bionetgen']['bngpath'],
+                #                        help="Optional path to SED-ML file, if available the simulation \
+                #                              protocol described in SED-ML will be ran")),
                 (['-bp','--bngpath'],dict(type=str,
-                                          default=None,
+                                          default=CONFIG['bionetgen']['bngpath'],
                                           help="Optional path to BioNetGen folder you want the CLI to use")),
                 # TODO: Auto-load in BioNetGen version here
                 (['-v','--version'],dict(action="version",
