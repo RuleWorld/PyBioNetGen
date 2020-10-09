@@ -73,6 +73,7 @@ if bng_url is not None:
         # TODO: handle zip/windows case
 
 if bng_downloaded:
+    # TODO: only add if not there
     with open("MANIFEST.in", "a") as f:
         f.write("recursive-include bionetgen/bng *")
 #### BNG DOWNLOAD DONE ####
