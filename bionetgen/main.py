@@ -10,6 +10,10 @@ from .core.main import runCLI
 # for testing purposes
 CONFIG = init_defaults('bionetgen')
 CONFIG['bionetgen']['bngpath'] = os.path.join(os.path.dirname(__file__), "bng")
+VERSION_BANNER= """
+BioNetGen simple command line interface {}
+{}
+""".format(get_version(), get_version_banner())
 
 class BNGBase(cement.Controller):
     ''' Base controller for BioNetGen CLI '''
@@ -34,7 +38,7 @@ class BNGBase(cement.Controller):
                                           help="Optional path to BioNetGen folder you want the CLI to use")),
                 # TODO: Auto-load in BioNetGen version here
                 (['-v','--version'],dict(action="version",
-                                         version="0.0.1")),
+                                         version=VERSION_BANNER)),
         ]
 
     @cement.ex(hide=True)
