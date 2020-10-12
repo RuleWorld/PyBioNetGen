@@ -1,18 +1,27 @@
 import os, subprocess
 
+def run(inp, out):
+    lib_path = os.path.split(os.path.dirname(__file__))[0]
+    bngpath = os.path.join(lib_path, "bng")
+    cli = BNGCLI(inp, out, bngpath)
+    cli.run()
+
 def runCLI(args):
-    cli = BNGCLI(args)
+    inp_file = args.input
+    output = args.output
+    bngpath = args.bngpath 
+    cli = BNGCLI(inp_file, output, bngpath)
     cli.run()
 
 class BNGCLI:
-    def __init__(self, args):
-        self.inp_file = args.input
+    def __init__(self, inp_file, output, bngpath):
+        self.inp_file = inp_file
         # ensure correct path to the input file
         self.inp_path = os.path.abspath(self.inp_file)
         # pull other arugments out
-        self.set_output(args.output)
-        # sedml_file = args.sedml
-        self.bngpath = args.bngpath
+        self.set_output(output)
+        # sedml_file = sedml
+        self.bngpath = bngpath
         # setting up bng2.pl
         self.bng_exec = os.path.join(self.bngpath, "BNG2.pl")
         assert os.path.exists(self.bng_exec), "BNG2.pl is not found!"
