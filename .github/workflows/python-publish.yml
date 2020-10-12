@@ -3,7 +3,10 @@
 
 name: Test and upload BNG CLI
 
-on: push
+on: 
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
