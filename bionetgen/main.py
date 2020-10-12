@@ -7,11 +7,9 @@ from .core.exc import BioNetGenError
 from .core.main import runCLI
 
 # configuration defaults
-# TODO: we want to install the appropriate BNG distro on setup 
-# and not include it w/ the package. For now, this will do 
-# for testing purposes
 CONFIG = init_defaults('bionetgen')
 CONFIG['bionetgen']['bngpath'] = os.path.join(os.path.dirname(__file__), "bng")
+# version banner
 VERSION_BANNER= """
 BioNetGen simple command line interface {}
 {}
@@ -43,6 +41,9 @@ class BNGBase(cement.Controller):
                                          version=VERSION_BANNER)),
         ]
 
+    # This overwrites the default behavior 
+    # and runs the CLI object from core 
+    # which in turn just calls BNG2.pl 
     @cement.ex(hide=True)
     def _default(self):
         args = self.app.pargs

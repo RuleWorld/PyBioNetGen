@@ -1,15 +1,30 @@
 import os, subprocess
 
 def run(inp, out):
+    '''
+    Convenience function to run BNG2.pl from python
+
+    Usage: run(path_to_input_file, output_folder)
+
+    path_to_input_file: this has to point to a BNGL file
+
+    output_folder: this points to a folder to put 
+    the results into. If it doesn't exist, it will be 
+    created.
+    '''
+    # pull bngpath relative to our file name
     lib_path = os.path.split(os.path.dirname(__file__))[0]
     bngpath = os.path.join(lib_path, "bng")
+    # instantiate a CLI object with the info
     cli = BNGCLI(inp, out, bngpath)
     cli.run()
 
 def runCLI(args):
+    # this pulls out the arguments
     inp_file = args.input
     output = args.output
     bngpath = args.bngpath 
+    # and instantiates the CLI object
     cli = BNGCLI(inp_file, output, bngpath)
     cli.run()
 
