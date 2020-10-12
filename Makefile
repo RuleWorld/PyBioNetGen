@@ -14,6 +14,9 @@ virtualenv:
 docker: clean
 	docker build -t bionetgen:latest .
 
+test: 
+	python -m pytest tests/
+
 dist: clean
 	rm -rf dist/*
 	python setup.py sdist

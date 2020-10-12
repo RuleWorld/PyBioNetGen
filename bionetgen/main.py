@@ -81,6 +81,12 @@ class BioNetGen(cement.App):
             BNGBase
         ]
 
+class BioNetGenTest(cement.TestApp,BioNetGen):
+    """ A sub-class of BioNetGen for testing """
+
+    class Meta:
+        label = "bionetgen"
+
 
 def main():
     with BioNetGen() as app:
