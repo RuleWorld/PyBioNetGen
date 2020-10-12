@@ -1,11 +1,9 @@
 # This workflows will upload a Python Package using Twine when a release is created
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
-name: Upload Python Package
+name: Test and upload BNG CLI
 
-on:
-  release:
-    types: [created]
+on: push
 
 jobs:
   deploy:
@@ -25,10 +23,10 @@ jobs:
     - name: Test with PyTest
       run: |
         pytest
-        #     - name: Build and publish
-        #       env:
-        #         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        #         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        #       run: |
-        #         python setup.py sdist bdist_wheel
-        #         twine upload dist/*
+#   - name: Build and publish
+#     env:
+#       TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#       TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#     run: |
+#       python setup.py sdist bdist_wheel
+#       twine upload dist/*
