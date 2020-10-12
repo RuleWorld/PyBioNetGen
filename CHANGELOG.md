@@ -5,3 +5,6 @@ Working CLI.
 
 ## 0.0.2 
 Added Mac/Linux supported, latest BNG version downloading, working environment variable setup. 
+
+## 0.0.3
+CI and everything working
