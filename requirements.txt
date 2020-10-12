@@ -1,8 +1,6 @@
-numpy>=1.19.0
-libroadrunner>=2.0.0
+numpy>=1.14.0
 cement>=3.0.4
 pyyaml
 colorlog
 xmltodict==0.12.0
 h5py==2.10.0
-pandas==0.25.1
