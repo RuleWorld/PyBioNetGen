@@ -11,14 +11,6 @@ virtualenv:
 	@echo "VirtualENV Setup Complete. Now run: source env/bin/activate"
 	@echo
 
-test:
-	python -m pytest \
-		-v \
-		--cov=bionetgen \
-		--cov-report=term \
-		--cov-report=html:coverage-report \
-		tests/
-
 docker: clean
 	docker build -t bionetgen:latest .
 
