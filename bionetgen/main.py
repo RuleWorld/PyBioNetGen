@@ -34,7 +34,7 @@ class BNGBase(cement.Controller):
         help = "bionetgen"
         arguments = [
                 (['-i', '--input'],dict(type=str,
-                                        required=True,
+                                        default=None,
                                         help="Path to BNGL or SBML file")), 
                 (['-o','--output'],dict(type=str, 
                                         default=".",
@@ -57,7 +57,11 @@ class BNGBase(cement.Controller):
     @cement.ex(hide=True)
     def _default(self):
         args = self.app.pargs
-        runCLI(args)
+        if args.input is None:
+            # TODO: improve this behavior by showing help after automatically
+            print("Please give an input BNGL file with the -i option, see -h or --help to see help, quitting")
+        else:
+            runCLI(args)
 
     @cement.ex(
             help="Starts a Jupyter notebook to help run and analyze \
