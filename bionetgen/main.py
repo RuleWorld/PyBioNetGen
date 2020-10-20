@@ -1,4 +1,4 @@
-import cement, os, platform
+import cement, os, platform, subprocess
 from cement import init_defaults
 from cement.core.exc import CaughtSignal
 from cement.utils.version import get_version_banner
@@ -16,7 +16,9 @@ elif system == "Darwin":
     bng_name = "bng-mac"
 # configuration defaults
 CONFIG = init_defaults('bionetgen')
-CONFIG['bionetgen']['bngpath'] = os.path.join(os.path.dirname(__file__), bng_name)
+lib_path = os.path.dirname(__file__)
+CONFIG['bionetgen']['bngpath'] = os.path.join(lib_path, bng_name)
+CONFIG['bionetgen']['notebook'] = os.path.join(lib_path, "assets", "bionetgen.ipynb")
 # version banner
 VERSION_BANNER= """
 BioNetGen simple command line interface {}
@@ -56,6 +58,15 @@ class BNGBase(cement.Controller):
     def _default(self):
         args = self.app.pargs
         runCLI(args)
+
+    @cement.ex(
+            help="Starts a Jupyter notebook to help run and analyze \
+                  bionetgen models",
+    )
+    def notebook(self):
+        """ Notebook subcommand that boots up a Jupyter notebook """
+        rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]])
+
 
 class BioNetGen(cement.App):
     """BioNetGen CLI primary application."""
