@@ -11,3 +11,6 @@ CI and everything working
 
 ## 0.0.4
 The library now returns results and doesn't need an output folder
+
+## 0.0.5
+Now bundling Linux/Mac binaries with the package, removed translator binary from the bundle to keep package size within limits
