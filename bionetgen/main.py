@@ -1,4 +1,4 @@
-import cement, os
+import cement, os, platform
 from cement import init_defaults
 from cement.core.exc import CaughtSignal
 from cement.utils.version import get_version_banner
@@ -6,9 +6,19 @@ from .core.version import get_version
 from .core.exc import BioNetGenError
 from .core.main import runCLI
 
+# determine what bng we are using
+system = platform.system() 
+if system == "Linux":
+    bng_name = "bng-linux"
+elif system == "Windows":
+    bng_name = "bng-win"
+elif system == "Darwin":
+    bng_name = "bng-mac"
+# get bng path
+bngpath = os.path.join(lib_path, bng_name)
 # configuration defaults
 CONFIG = init_defaults('bionetgen')
-CONFIG['bionetgen']['bngpath'] = os.path.join(os.path.dirname(__file__), "bng")
+CONFIG['bionetgen']['bngpath'] = os.path.join(os.path.dirname(__file__), bng_name)
 # version banner
 VERSION_BANNER= """
 BioNetGen simple command line interface {}
