@@ -1,7 +1,7 @@
-import os, subprocess
+import os, subprocess, shutil
 from bionetgen.core import BNGResult
 
-def run(inp, out):
+def run(inp, out=None):
     '''
     Convenience function to run BNG2.pl from python
 
@@ -13,12 +13,21 @@ def run(inp, out):
     the results into. If it doesn't exist, it will be 
     created.
     '''
+    # if out is None we make a temp directory
+    if out is None:
+        temp = True
+        out = tempfile.mkdtemp()
+    else:
+        temp = False
     # pull bngpath relative to our file name
     lib_path = os.path.split(os.path.dirname(__file__))[0]
     bngpath = os.path.join(lib_path, "bng")
     # instantiate a CLI object with the info
     cli = BNGCLI(inp, out, bngpath)
     cli.run()
+    # if we used a temporary directory, clean up
+    if temp: 
+        shutil.rmtree(out)
     return cli.result
 
 def runCLI(args):
