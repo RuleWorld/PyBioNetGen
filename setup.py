@@ -1,6 +1,6 @@
-
 from setuptools import setup, find_packages
 from bionetgen.core.version import get_version
+import itertools as itt
 
 VERSION = get_version()
 
@@ -45,7 +45,7 @@ for iurl, bng_url in enumerate([linux_url, mac_url]):
 
     # this lists the stuff in bng distribution 
     # to move in our python package
-    to_move = ["BNG2.pl", "bin", "Perl2", "VERSION"]
+    to_move = [["BNG2.pl"], ["bin","NFsim"], ["bin", "run_network"], ["bin","sundials-config"], ["Perl2"], ["VERSION"]]
     # import file and download libraries
     import os,shutil
     ext = bng_url.split(".")[-1]
@@ -68,9 +68,14 @@ for iurl, bng_url in enumerate([linux_url, mac_url]):
         if os.path.isdir(bng_path_to_move):
             shutil.rmtree(bng_path_to_move)
         os.mkdir(bng_path_to_move)
+        os.mkdir(os.path.join(bng_path_to_move, "bin"))
         # move items in
         for item in to_move:
-            shutil.move(os.path.join(fold_name, item), os.path.join(bng_path_to_move, "."))
+            item_list = [fold_name] + item
+            item_path = list(itt.accumulate(item_list, lambda x,y: os.path.join(x,y)))[-1]
+            to_move_item = [bng_path_to_move] + item
+            to_move_path = list(itt.accumulate(to_move_item, lambda x,y: os.path.join(x,y)))[-1]
+            shutil.move(item_path, to_move_path)
         # we got bionetgen in
         bng_downloaded = True
         # Done unpacking, remove useless files
