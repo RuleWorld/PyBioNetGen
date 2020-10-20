@@ -20,3 +20,6 @@ Bugfixing useless line that crashes the CLI
 
 ## 0.0.7
 Adding notebook subcommand for testing a Jupyter notebook, added a starter notebook
+
+## 0.0.8
+Adding Windows support
