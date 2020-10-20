@@ -17,3 +17,6 @@ Now bundling Linux/Mac binaries with the package, removed translator binary from
 
 ## 0.0.6
 Bugfixing useless line that crashes the CLI
+
+## 0.0.7
+Adding notebook subcommand for testing a Jupyter notebook, added a starter notebook
