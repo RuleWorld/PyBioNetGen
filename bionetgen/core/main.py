@@ -1,4 +1,5 @@
 import os, subprocess
+from bionetgen.core import BNGResult
 
 def run(inp, out):
     '''
@@ -18,6 +19,7 @@ def run(inp, out):
     # instantiate a CLI object with the info
     cli = BNGCLI(inp, out, bngpath)
     cli.run()
+    return cli.result
 
 def runCLI(args):
     # this pulls out the arguments
@@ -45,6 +47,7 @@ class BNGCLI:
         else:
             self.old_bngpath = None
         os.environ["BNGPATH"] = self.bngpath
+        self.result = None
 
     def set_output(self, output):
         # setting up output area
@@ -59,6 +62,9 @@ class BNGCLI:
     def run(self):
         # run BNG2.pl
         rc = subprocess.run(["perl", self.bng_exec, self.inp_path])
+        # load in the result 
+        self.result = BNGResult(os.getcwd())
         # set BNGPATH back
         if self.old_bngpath is not None:
             os.environ["BNGPATH"] = self.old_bngpath
+
