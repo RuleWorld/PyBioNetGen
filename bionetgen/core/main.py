@@ -1,4 +1,4 @@
-import os, subprocess, shutil
+import os, subprocess, shutil, tempfile
 from bionetgen.core import BNGResult
 
 def run(inp, out=None):
@@ -17,6 +17,7 @@ def run(inp, out=None):
     if out is None:
         temp = True
         out = tempfile.mkdtemp()
+        cur_dir = os.getcwd()
     else:
         temp = False
     # pull bngpath relative to our file name
@@ -28,6 +29,7 @@ def run(inp, out=None):
     # if we used a temporary directory, clean up
     if temp: 
         shutil.rmtree(out)
+        os.chdir(cur_dir)
     return cli.result
 
 def runCLI(args):
@@ -76,4 +78,3 @@ class BNGCLI:
         # set BNGPATH back
         if self.old_bngpath is not None:
             os.environ["BNGPATH"] = self.old_bngpath
-
