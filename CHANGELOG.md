@@ -8,3 +8,6 @@ Added Mac/Linux supported, latest BNG version downloading, working environment v
 
 ## 0.0.3
 CI and everything working
+
+## 0.0.4
+The library now returns results and doesn't need an output folder
