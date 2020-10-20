@@ -14,8 +14,6 @@ elif system == "Windows":
     bng_name = "bng-win"
 elif system == "Darwin":
     bng_name = "bng-mac"
-# get bng path
-bngpath = os.path.join(lib_path, bng_name)
 # configuration defaults
 CONFIG = init_defaults('bionetgen')
 CONFIG['bionetgen']['bngpath'] = os.path.join(os.path.dirname(__file__), bng_name)
