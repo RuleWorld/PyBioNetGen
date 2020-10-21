@@ -141,4 +141,12 @@ setup(
         [console_scripts]
         bionetgen = bionetgen.main:main
     """,
+    install_requires=[
+        "cement",
+        "nbopen",
+        "numpy",
+        "pyyaml",
+        "colorlog",
+        "xmltodict",
+    ]
 )
