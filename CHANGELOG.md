@@ -23,3 +23,6 @@ Adding notebook subcommand for testing a Jupyter notebook, added a starter noteb
 
 ## 0.0.8
 Adding Windows support
+
+## 0.0.9
+Adding a better notebook, windows support tests done
