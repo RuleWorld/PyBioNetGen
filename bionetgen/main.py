@@ -69,6 +69,7 @@ class BNGBase(cement.Controller):
     )
     def notebook(self):
         """ Notebook subcommand that boots up a Jupyter notebook """
+        os.environ["BNG_NOTEBOOK_CURR_DIR"] = os.getcwd()
         rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]])
 
 
