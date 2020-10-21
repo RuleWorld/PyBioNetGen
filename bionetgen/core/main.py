@@ -39,6 +39,7 @@ def run(inp, out=None):
     if temp: 
         shutil.rmtree(out)
         os.chdir(cur_dir)
+    print(cli.result.process_return.stdout)
     return cli.result
 
 def runCLI(args):
@@ -81,9 +82,10 @@ class BNGCLI:
 
     def run(self):
         # run BNG2.pl
-        rc = subprocess.run(["perl", self.bng_exec, self.inp_path])
+        rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=subprocess.PIPE)
         # load in the result 
         self.result = BNGResult(os.getcwd())
+        BNGResult.process_return = rc
         # set BNGPATH back
         if self.old_bngpath is not None:
             os.environ["BNGPATH"] = self.old_bngpath

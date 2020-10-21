@@ -26,3 +26,6 @@ Adding Windows support
 
 ## 0.0.9
 Adding a better notebook, windows support tests done
+
+## 0.1.0
+Notebook command now writes a new one in the folder that it was called from, added a template to also allow for -i to be used for the resulting notebook

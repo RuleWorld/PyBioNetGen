@@ -5,6 +5,7 @@ from cement.utils.version import get_version_banner
 from .core.version import get_version
 from .core.exc import BioNetGenError
 from .core.main import runCLI
+from .core.notebook import BNGNotebook
 
 # determine what bng we are using
 system = platform.system() 
@@ -18,7 +19,10 @@ elif system == "Darwin":
 CONFIG = init_defaults('bionetgen')
 lib_path = os.path.dirname(__file__)
 CONFIG['bionetgen']['bngpath'] = os.path.join(lib_path, bng_name)
-CONFIG['bionetgen']['notebook'] = os.path.join(lib_path, "assets", "bionetgen.ipynb")
+CONFIG['bionetgen']['notebook'] = {}
+CONFIG['bionetgen']['notebook']["path"] = os.path.join(lib_path, "assets", "bionetgen.ipynb")
+CONFIG['bionetgen']['notebook']["template"] = os.path.join(lib_path, "assets", "bionetgen-temp.ipynb")
+CONFIG["bionetgen"]["notebook"]["name"] = "bng-notebook.ipynb"
 # version banner
 VERSION_BANNER= """
 BioNetGen simple command line interface {}
@@ -69,8 +73,17 @@ class BNGBase(cement.Controller):
     )
     def notebook(self):
         """ Notebook subcommand that boots up a Jupyter notebook """
-        os.environ["BNG_NOTEBOOK_CURR_DIR"] = os.getcwd()
-        rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]])
+        args = self.app.pargs
+        if args.input is not None:
+            # we want to use the template to write a custom notebok
+            notebook = BNGNotebook(CONFIG["bionetgen"]["notebook"]["template"], INPUT_ARG=args.input)
+        else:
+            # just use the basic notebook
+            notebook = BNGNotebook(CONFIG["bionetgen"]["notebook"]["path"])
+        # write the notebook out
+        notebook.write(CONFIG["bionetgen"]["notebook"]["name"])
+        # open the notebook with nbopen
+        rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]["name"]])
 
 
 class BioNetGen(cement.App):
