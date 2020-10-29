@@ -32,3 +32,6 @@ Notebook command now writes a new one in the folder that it was called from, add
 
 ## 0.1.1
 Adding XML-API to the library. Currently it is essentially completely separate
+
+## 0.1.2
+some bugfixes to XML-API
