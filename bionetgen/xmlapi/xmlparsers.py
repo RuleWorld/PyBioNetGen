@@ -1,4 +1,4 @@
-from BNGSim.pattern import Pattern, Molecule, Component, Bonds
+from .pattern import Pattern, Molecule, Component, Bonds
 
 ###### XMLObjs ###### 
 class XMLObj:

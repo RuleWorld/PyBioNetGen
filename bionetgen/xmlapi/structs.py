@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from BNGSim.xmlparsers import ObsXML, MolTypeXML, RuleXML, FuncXML, SpeciesXML
+from .xmlparsers import ObsXML, MolTypeXML, RuleXML, FuncXML, SpeciesXML
 
 ###### MODEL STRUCTURES ###### 
 # Objects in the model
