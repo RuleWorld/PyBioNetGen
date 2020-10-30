@@ -111,12 +111,12 @@ for iurl,bng_url in enumerate([linux_url, mac_url, windows_url]):
         os.remove(fname)
         shutil.rmtree(fold_name)
 
-if bng_downloaded:
-    # TODO: only add if not there
-    with open("MANIFEST.in", "a") as f:
-        f.write("recursive-include bionetgen/bng-linux *\n")
-        f.write("recursive-include bionetgen/bng-mac *\n")
-        f.write("recursive-include bionetgen/bng-win *\n")
+# if bng_downloaded:
+#     # TODO: only add if not there
+#     with open("MANIFEST.in", "a") as f:
+#         f.write("recursive-include bionetgen/bng-linux *\n")
+#         f.write("recursive-include bionetgen/bng-mac *\n")
+#         f.write("recursive-include bionetgen/bng-win *\n")
 #### BNG DOWNLOAD DONE ####
 
 f = open('README.md', 'r')

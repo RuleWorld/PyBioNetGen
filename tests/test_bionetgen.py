@@ -1,6 +1,9 @@
-import os
+import os, shutil
 from pytest import raises
+import bionetgen as bng
 from bionetgen.main import BioNetGenTest
+
+tfold = os.path.dirname(__file__)
 
 def test_bionetgen_help():
     # test basic command help
@@ -19,3 +22,8 @@ def test_bionetgen_input(tmp):
         assert app.exit_code == 0
         file_list = os.listdir(tmp.dir)
         assert file_list.sort() == to_match.sort()
+
+def test_bionetgen_model(tmp):
+    os.chdir(tfold)
+    fpath = os.path.abspath("test.bngl")
+    m = bng.bngmodel(fpath)

@@ -17,7 +17,7 @@ lib_path = os.path.split(lib_path)[0]
 def_bng_path = os.path.join(lib_path, bng_name)
 
 ###### CORE OBJECT AND PARSING FRONT-END ######
-class model:
+class bngmodel:
     '''
     The full model
     '''
