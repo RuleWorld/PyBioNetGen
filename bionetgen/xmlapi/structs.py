@@ -6,6 +6,8 @@ from .xmlparsers import ObsXML, MolTypeXML, RuleXML, FuncXML, SpeciesXML
 class ModelBlock:
     def __init__(self):
         self._item_dict = OrderedDict()
+        self._recompile = False
+        self._changes = {}
 
     def __len__(self):
         return len(self._item_dict)
@@ -36,6 +38,10 @@ class ModelBlock:
 
     def __contains__(self, key):
         return key in self._item_dict
+    
+    def reset_compilation_tags(self):
+        self._recompile = False
+        self._changes = {}
 
     def add_item(self, item_tpl):
         # TODO: try adding evaluation of the parameter here
@@ -49,6 +55,7 @@ class ModelBlock:
         except:
             print("can't set {} to {}".format(name, value))
             pass
+        self._recompile = True
 
     def add_items(self, item_list):
         for item in item_list:
@@ -83,6 +90,7 @@ class Parameters(ModelBlock):
                 except:
                     self._item_dict[name] = value
         if changed:
+            self._changes[name] = new_value
             self.__dict__[name] = new_value
         else:
             self.__dict__[name] = value
@@ -104,6 +112,7 @@ class Parameters(ModelBlock):
         except:
             print("can't set {} to {}".format(name, value))
             pass
+        self._recompile = True
 
     def parse_xml_block(self, block_xml):
         # 
@@ -162,6 +171,7 @@ class Species(ModelBlock):
             k = list(self._item_dict.keys())[key]
             self._item_dict[k] = value
             return
+        self._recompile = True
         self._item_dict[key] = value
 
     def __contains__(self, key):
@@ -197,6 +207,7 @@ class MoleculeTypes(ModelBlock):
     def add_item(self, item_tpl):
         name, = item_tpl
         self._item_dict[name] = ""
+        self._recompile = True
 
     def __getitem__(self, key):
         if isinstance(key, str):
@@ -212,6 +223,7 @@ class MoleculeTypes(ModelBlock):
     def __setitem__(self, key, value):
         for ikey in self._item_dict:
             if key == str(ikey):
+                self._recompile = True
                 self._item_dict[ikey] = value
 
     def __contains__(self, key):
@@ -250,6 +262,8 @@ class Observables(ModelBlock):
     def __setattr__(self, name, value):
         if hasattr(self, "_item_dict"):
             if name in self._item_dict.keys():
+                self._recompile = True
+                self._changes[name] = value
                 self._item_dict[name][1] = value
         self.__dict__[name] = value
 
@@ -261,6 +275,7 @@ class Observables(ModelBlock):
         except:
             print("can't set {} to {}".format(name, obj))
             pass
+        self._recompile = True
 
     def __str__(self):
         # overwrites what the method returns when 
@@ -344,6 +359,7 @@ class Compartments(ModelBlock):
 
     def add_item(self, item_tpl):
         name, dim, size, outside = item_tpl
+        self._recompile = True
         self._item_dict[name] = [dim, size, outside]
 
     def parse_xml_block(self, block_xml):

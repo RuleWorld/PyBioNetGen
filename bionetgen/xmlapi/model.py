@@ -35,6 +35,20 @@ class bngmodel:
         self.model_name = ""
         self.parse_model(bngl_model)
 
+    @property
+    def recompile(self):
+        recompile = False
+        for block in self.active_blocks:
+            recompile = recompile or getattr(self, block)._recompile
+        return recompile
+
+    @property
+    def changes(self):
+        changes = {}
+        for block in self.active_blocks:
+            changes[block] = getattr(self, block)._changes
+        return changes 
+
     def __str__(self):
         '''
         write the model to str
@@ -67,13 +81,19 @@ class bngmodel:
             if model_file is not None:
                 print("Parsing XML")
                 self.parse_xml(model_file)
+                self.reset_compilation_tags()
             else:
                 print("XML file doesn't exist")
         elif model_file.endswith(".xml"):
             self.parse_xml(model_file)
+            self.reset_compilation_tags()
         else:
             print("The extension of {} is not supported".format(model_file))
             raise NotImplemented
+
+    def reset_compilation_tags(self):
+        for block in self.active_blocks:
+            getattr(self, block).reset_compilation_tags()
 
     def generate_xml(self, model_file):
         cur_dir = os.getcwd()
@@ -111,6 +131,7 @@ class bngmodel:
             # read and strip actions
             mlines = mf.readlines()
             stripped_lines = filter(lambda x: self._not_action(x), mlines)
+        # TODO: read stripped lines and store the actions
         # open new file and write just the model
         stripped_model = os.path.join(folder, model_file)
         with open(stripped_model, 'w') as sf:
