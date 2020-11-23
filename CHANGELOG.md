@@ -38,3 +38,6 @@ some bugfixes to XML-API
 
 ## 0.1.3
 Adding simulator interface
+
+## 0.1.4
+simulator bugfixes

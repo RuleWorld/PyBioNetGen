@@ -226,7 +226,7 @@ class bngmodel:
         with open(file_name, 'w') as f:
             f.write(model_str)
 
-    def write_xml(self, file_name):
+    def write_xml(self, file_name, xml_type="bngxml"):
         '''
         write new XML to file by calling BNG2.pl again
         '''
@@ -239,21 +239,45 @@ class bngmodel:
             f.write(str(self))
         # run with --xml 
         # TODO: Make output supression an option somewhere
-        rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"])
-        if rc.returncode == 1:
-            print("XML generation failed")
-            # go back to our original location
-            os.chdir(cur_dir)
-        else:
-            # we should now have the XML file 
-            fpath = os.path.join(cur_dir, file_name)
-            shutil.copy("temp.xml", fpath)
-            os.chdir(cur_dir)
+        if xml_type == "bngxml":
+            rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"])
+            if rc.returncode == 1:
+                print("XML generation failed")
+                # go back to our original location
+                os.chdir(cur_dir)
+            else:
+                # we should now have the XML file 
+                fpath = os.path.join(cur_dir, file_name)
+                shutil.copy("temp.xml", fpath)
+                os.chdir(cur_dir)
+        elif xml_type == "sbml":
+            rc = subprocess.run(["perl",self.bngexec, "temp.bngl"])
+            if rc.returncode == 1:
+                print("SBML generation failed")
+                # go back to our original location
+                os.chdir(cur_dir)
+            else:
+                # we should now have the SBML file 
+                fpath = os.path.join(cur_dir, file_name)
+                shutil.copy("temp_sbml.xml", fpath)
+                os.chdir(cur_dir)
+        else: 
+            print("XML type {} not recognized".format(xml_type))
+
         shutil.rmtree(temp_folder)
 
     def setup_simulator(self, sim_type="libRR"):
+        # we need to add writeSBML action for now
+        self.add_action("generate_network", [("overwrite",1)])
+        self.add_action("writeSBML", [])
+        # temporary file
         tfile, tpath = tempfile.mkstemp()
-        self.write_xml(tpath)
+        # write the sbml 
+        self.write_xml(tpath, xml_type="sbml")
+        # TODO: Only clear the writeSBML action
+        # by adding a mechanism to do so
+        self.actions.clear_actions()
+        # get the simulator
         self.simulator = bionetgen.sim_getter(tpath, sim_type)
         os.remove(tpath)
         return self.simulator

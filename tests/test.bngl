@@ -127,7 +127,3 @@ simulate_ode({t_end=>100,n_steps=>50})
 
 # resetConcentrations()
 # simulate_ssa({suffix=>ssa,t_end=>100,n_steps=>50})
-
-
-
-
