@@ -1,3 +1,4 @@
+import bionetgen
 import re, functools, subprocess, os, xmltodict, sys, shutil, tempfile
 from .utils import find_BNG_path
 from .structs import Parameters, Species, MoleculeTypes, Observables, Functions, Compartments, Rules, Actions
@@ -77,13 +78,14 @@ class bngmodel:
             # TODO: Strip actions into a temp file
             # then run the gen xml 
             print("Attempting to generate XML")
-            model_file = self.generate_xml(model_file)
+            model_file, tfolder = self.generate_xml(model_file)
             if model_file is not None:
                 print("Parsing XML")
                 self.parse_xml(model_file)
                 self.reset_compilation_tags()
             else:
                 print("XML file doesn't exist")
+            shutil.rmtree(tfolder)
         elif model_file.endswith(".xml"):
             self.parse_xml(model_file)
             self.reset_compilation_tags()
@@ -109,6 +111,7 @@ class bngmodel:
             print("XML generation failed")
             # go back to our original location
             os.chdir(cur_dir)
+            shutil.rmtree(temp_folder)
             return None
         else:
             # we should now have the XML file 
@@ -117,7 +120,7 @@ class bngmodel:
             xml_file = model_name + ".xml"
             # go back to our original location
             os.chdir(cur_dir)
-            return os.path.join(path, xml_file)
+            return os.path.join(path, xml_file), path
 
     def strip_actions(self, model_path, folder):
         '''
@@ -246,14 +249,20 @@ class bngmodel:
             fpath = os.path.join(cur_dir, file_name)
             shutil.copy("temp.xml", fpath)
             os.chdir(cur_dir)
+        shutil.rmtree(temp_folder)
+
+    def setup_simulator(self, sim_type="libRR"):
+        tfile, tpath = tempfile.mkstemp()
+        self.write_xml(tpath)
+        self.simulator = bionetgen.sim_getter(tpath, sim_type)
+        os.remove(tpath)
+        return self.simulator
+
 ###### CORE OBJECT AND PARSING FRONT-END ######
 
 if __name__ == "__main__":
-    # model = BNGModel("test.bngl")
-    # import IPython
-    # IPython.embed()
-    # with open("test.bngl", 'w') as f:
-    #     f.write(str(model))
+    # this is to run through a set of 
+    # bngl files under the folder validation
     os.chdir("validation")
     bngl_list = os.listdir(os.getcwd())
     bngl_list = filter(lambda x: x.endswith(".bngl"), bngl_list)
@@ -265,11 +274,3 @@ if __name__ == "__main__":
         if rc.returncode == 1:
             print("issues with the written bngl")
             sys.exit()
-    # with open("test_res.txt", "w") as f:
-    #     for bngl in bngl_list:
-    #         print("Working on {}".format(bngl))
-    #         try:
-    #             m = BNGModel(bngl)
-    #         except:
-    #             f.write(("Failed at {}\n".format(bngl)))
-    #             # IPython.embed()
