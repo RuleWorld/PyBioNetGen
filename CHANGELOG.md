@@ -35,3 +35,6 @@ Adding XML-API to the library. Currently it is essentially completely separate
 
 ## 0.1.2
 some bugfixes to XML-API
+
+## 0.1.3
+Adding simulator interface
