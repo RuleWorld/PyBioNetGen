@@ -1,21 +1,9 @@
-import bionetgen
+import bionetgen as bng
 import re, functools, subprocess, os, xmltodict, sys, shutil, tempfile
 from .utils import find_BNG_path
 from .structs import Parameters, Species, MoleculeTypes, Observables, Functions, Compartments, Rules, Actions
 
-# determine what bng we are using
-import platform
-system = platform.system() 
-if system == "Linux":
-    bng_name = "bng-linux"
-elif system == "Windows":
-    bng_name = "bng-win"
-elif system == "Darwin":
-    bng_name = "bng-mac"
-# configuration defaults
-lib_path = os.path.dirname(__file__)
-lib_path = os.path.split(lib_path)[0]
-def_bng_path = os.path.join(lib_path, bng_name)
+def_bng_path = bng.defaults.bng_path
 
 ###### CORE OBJECT AND PARSING FRONT-END ######
 class bngmodel:
@@ -106,7 +94,7 @@ class bngmodel:
         # run with --xml 
         os.chdir(temp_folder)
         # TODO: Make output supression an option somewhere
-        rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl])
+        rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
         if rc.returncode == 1:
             print("XML generation failed")
             # go back to our original location
@@ -209,7 +197,7 @@ class bngmodel:
         # And that's the end of parsing
         print("XML parsed")
 
-    def add_action(self, action_type, action_args):
+    def add_action(self, action_type, action_args=[]):
         # add actions block and to active list
         if not hasattr(self, "actions"):
             self.actions = Actions()
@@ -240,7 +228,7 @@ class bngmodel:
         # run with --xml 
         # TODO: Make output supression an option somewhere
         if xml_type == "bngxml":
-            rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"])
+            rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], stdout=bng.defaults.stdout)
             if rc.returncode == 1:
                 print("XML generation failed")
                 # go back to our original location
@@ -251,7 +239,7 @@ class bngmodel:
                 shutil.copy("temp.xml", fpath)
                 os.chdir(cur_dir)
         elif xml_type == "sbml":
-            rc = subprocess.run(["perl",self.bngexec, "temp.bngl"])
+            rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], stdout=bng.defaults.stdout)
             if rc.returncode == 1:
                 print("SBML generation failed")
                 # go back to our original location
@@ -278,7 +266,7 @@ class bngmodel:
         # by adding a mechanism to do so
         self.actions.clear_actions()
         # get the simulator
-        self.simulator = bionetgen.sim_getter(tpath, sim_type)
+        self.simulator = bng.sim_getter(tpath, sim_type)
         os.remove(tpath)
         return self.simulator
 

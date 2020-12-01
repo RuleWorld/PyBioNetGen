@@ -1,33 +1,12 @@
 import cement, os, platform, subprocess
-from cement import init_defaults
+import bionetgen as bng
 from cement.core.exc import CaughtSignal
-from cement.utils.version import get_version_banner
-from .core.version import get_version
 from .core.exc import BioNetGenError
 from .core.main import runCLI
 from .core.notebook import BNGNotebook
 
-# determine what bng we are using
-system = platform.system() 
-if system == "Linux":
-    bng_name = "bng-linux"
-elif system == "Windows":
-    bng_name = "bng-win"
-elif system == "Darwin":
-    bng_name = "bng-mac"
-# configuration defaults
-CONFIG = init_defaults('bionetgen')
-lib_path = os.path.dirname(__file__)
-CONFIG['bionetgen']['bngpath'] = os.path.join(lib_path, bng_name)
-CONFIG['bionetgen']['notebook'] = {}
-CONFIG['bionetgen']['notebook']["path"] = os.path.join(lib_path, "assets", "bionetgen.ipynb")
-CONFIG['bionetgen']['notebook']["template"] = os.path.join(lib_path, "assets", "bionetgen-temp.ipynb")
-CONFIG["bionetgen"]["notebook"]["name"] = "bng-notebook.ipynb"
-# version banner
-VERSION_BANNER= """
-BioNetGen simple command line interface {}
-{}
-""".format(get_version(), get_version_banner())
+CONFIG = bng.defaults.config
+VERSION_BANNER = bng.defaults.banner
 
 class BNGBase(cement.Controller):
     ''' Base controller for BioNetGen CLI '''
@@ -83,7 +62,7 @@ class BNGBase(cement.Controller):
         # write the notebook out
         notebook.write(CONFIG["bionetgen"]["notebook"]["name"])
         # open the notebook with nbopen
-        rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]["name"]])
+        rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]["name"]], stdout=bng.defaults.stdout)
 
 
 class BioNetGen(cement.App):

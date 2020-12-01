@@ -1,4 +1,5 @@
 import os, subprocess, shutil, tempfile, platform
+import bionetgen as bng
 from bionetgen.core import BNGResult
 
 def run(inp, out=None):
@@ -82,7 +83,7 @@ class BNGCLI:
 
     def run(self):
         # run BNG2.pl
-        rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=subprocess.PIPE)
+        rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=bng.defaults.stdout)
         # load in the result 
         self.result = BNGResult(os.getcwd())
         BNGResult.process_return = rc

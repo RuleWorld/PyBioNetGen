@@ -1,4 +1,5 @@
 import os, subprocess
+import bionetgen as bng
 from distutils import spawn
 
 def find_BNG_path(BNGPATH=None):
@@ -29,7 +30,7 @@ def find_BNG_path(BNGPATH=None):
     return BNGPATH, bngexec
 
 def test_bngexec(bngexec):
-    rc = subprocess.run(["perl", bngexec])
+    rc = subprocess.run(["perl", bngexec], stdout=bng.defaults.stdout)
     if rc.returncode == 0:
         return True
     else:
