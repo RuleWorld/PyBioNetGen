@@ -41,3 +41,6 @@ Adding simulator interface
 
 ## 0.1.4
 simulator bugfixes
+
+## 0.1.5
+better simulator setup, new defaults system and by default supress stdout 
