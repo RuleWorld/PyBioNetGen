@@ -1,4 +1,4 @@
-import os, subprocess, shutil, tempfile, platform
+import os, subprocess, shutil, tempfile
 import bionetgen as bng
 from bionetgen.core import BNGResult
 
@@ -21,20 +21,8 @@ def run(inp, out=None):
         cur_dir = os.getcwd()
     else:
         temp = False
-    # pull bngpath relative to our file name
-    lib_path = os.path.split(os.path.dirname(__file__))[0]
-    # determine what bng we are using
-    system = platform.system() 
-    if system == "Linux":
-        bng_name = "bng-linux"
-    elif system == "Windows":
-        bng_name = "bng-win"
-    elif system == "Darwin":
-        bng_name = "bng-mac"
-    # get bng path
-    bngpath = os.path.join(lib_path, bng_name)
     # instantiate a CLI object with the info
-    cli = BNGCLI(inp, out, bngpath)
+    cli = BNGCLI(inp, out, bng.defaults.bng_path)
     cli.run()
     # if we used a temporary directory, clean up
     if temp: 

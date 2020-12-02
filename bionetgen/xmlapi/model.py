@@ -255,19 +255,29 @@ class bngmodel:
         shutil.rmtree(temp_folder)
 
     def setup_simulator(self, sim_type="libRR"):
-        # we need to add writeSBML action for now
-        self.add_action("generate_network", [("overwrite",1)])
-        self.add_action("writeSBML", [])
-        # temporary file
-        tfile, tpath = tempfile.mkstemp()
-        # write the sbml 
-        self.write_xml(tpath, xml_type="sbml")
-        # TODO: Only clear the writeSBML action
-        # by adding a mechanism to do so
-        self.actions.clear_actions()
-        # get the simulator
-        self.simulator = bng.sim_getter(tpath, sim_type)
-        os.remove(tpath)
+        '''
+        Sets up a simulator attribute that is a generic front-end
+        to all other simulators. At the moment only libroadrunner
+        is supported
+        '''
+        if sim_type == "libRR":
+            # we need to add writeSBML action for now
+            self.add_action("generate_network", [("overwrite",1)])
+            self.add_action("writeSBML", [])
+            # temporary file
+            tfile, tpath = tempfile.mkstemp()
+            # write the sbml 
+            self.write_xml(tpath, xml_type="sbml")
+            # TODO: Only clear the writeSBML action
+            # by adding a mechanism to do so
+            self.actions.clear_actions()
+            # get the simulator
+            self.simulator = bng.sim_getter(tpath, sim_type)
+            os.remove(tpath)
+        else:
+            print("Sim type {} is not recognized, only libroadrunner \
+                   is supported currently by passing libRR to \
+                   sim_type keyword argument".format(sim_type))
         return self.simulator
 
 ###### CORE OBJECT AND PARSING FRONT-END ######

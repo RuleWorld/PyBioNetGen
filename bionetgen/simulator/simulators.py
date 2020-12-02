@@ -12,6 +12,11 @@ class libRRSimulator:
     
     @property
     def model_file(self):
+        '''
+        model file attribute that stores 
+        the path to the original model file
+        and also sets up the simulator
+        '''
         return self._model_file
     
     @model_file.setter
@@ -21,6 +26,12 @@ class libRRSimulator:
 
     @property
     def simulator(self):
+        '''
+        simulator attribute that stores
+        the instantiated simulator object
+        and also saves the SBML text in the 
+        sbml attribute
+        '''
         return self._simulator
 
     @simulator.setter
@@ -34,6 +45,11 @@ class libRRSimulator:
 
     @property
     def sbml(self):
+        '''
+        sbml attribute which is just the SBML
+        string with which the libRR instance 
+        is instantiated with 
+        '''
         return self._sbml
     
     @sbml.setter
@@ -41,5 +57,9 @@ class libRRSimulator:
         self._sbml = librr.getCurrentSBML()
 
     def simulate(self, *args, **kwargs):
+        '''
+        generic simulate front-end that passes the 
+        args and kwargs to the underlying simulator object
+        '''
         return self.simulator.simulate(*args, **kwargs)
 
