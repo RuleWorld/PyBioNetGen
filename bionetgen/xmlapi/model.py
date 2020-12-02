@@ -251,7 +251,7 @@ class bngmodel:
                 os.chdir(cur_dir)
         else: 
             print("XML type {} not recognized".format(xml_type))
-
+        # we need to remove the temporary folder
         shutil.rmtree(temp_folder)
 
     def setup_simulator(self, sim_type="libRR"):

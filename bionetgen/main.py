@@ -5,6 +5,7 @@ from .core.exc import BioNetGenError
 from .core.main import runCLI
 from .core.notebook import BNGNotebook
 
+# pull defaults 
 CONFIG = bng.defaults.config
 VERSION_BANNER = bng.defaults.banner
 
