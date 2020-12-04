@@ -44,3 +44,6 @@ simulator bugfixes
 
 ## 0.1.5
 better simulator setup, new defaults system and by default supress stdout 
+
+## 0.1.6
+uptick to get BNG 2.5.2
