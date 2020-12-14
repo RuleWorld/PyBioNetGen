@@ -3,4 +3,4 @@ cement>=3.0.4
 pyyaml
 colorlog
 nbopen
-xmltodict==0.12.0
+xmltodict>=0.12.0
