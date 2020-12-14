@@ -47,3 +47,6 @@ better simulator setup, new defaults system and by default supress stdout
 
 ## 0.1.6
 uptick to get BNG 2.5.2
+
+## 0.1.7
+uptick for changed xmltodict version to allow later pythons to install the library
