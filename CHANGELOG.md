@@ -50,3 +50,6 @@ uptick to get BNG 2.5.2
 
 ## 0.1.7
 uptick for changed xmltodict version to allow later pythons to install the library
+
+## 0.1.8
+adding rudimentary plotting for gdat/cdat files

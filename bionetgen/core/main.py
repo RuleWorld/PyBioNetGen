@@ -1,6 +1,7 @@
 import os, subprocess, shutil, tempfile
 import bionetgen as bng
 from bionetgen.core import BNGResult
+from bionetgen.core import BNGPlotter
 
 def run(inp, out=None):
     '''
@@ -78,3 +79,14 @@ class BNGCLI:
         # set BNGPATH back
         if self.old_bngpath is not None:
             os.environ["BNGPATH"] = self.old_bngpath
+
+def plotDAT(inp, out="."):
+    # if we want to plot directly into the folder
+    # we are in we need to get the path correctly
+    if out == ".":
+        path, fname = os.path.split(inp)
+        fnoext, ext = os.path.splitext(fname)
+        out = os.path.join(path, "{}.png".format(fnoext))
+    # use the plotter object to get the plot
+    plotter = BNGPlotter(inp, out)
+    plotter.plot()

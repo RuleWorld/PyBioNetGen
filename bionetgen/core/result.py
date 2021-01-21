@@ -5,12 +5,21 @@ class BNGResult:
     '''
     Class that loads in gdat files found in a folder
     '''
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, path=None, direct_path=None):
         self.results = {}
         self.names = {} 
-        self.find_gdat_files() 
-        self.load_results()
+        if direct_path is not None:
+            path, fname = os.path.split(direct_path)
+            fnoext, fext = os.path.splitext(fname)
+            self.names[fnoext] = direct_path
+            self.results[fnoext] = self.load_dat(direct_path)
+        elif path is not None:
+            self.path = path
+            self.find_gdat_files() 
+            self.load_results()
+        else:
+            print("BNGResult needs either a path or a direct path kwarg to load gdat/cdat files from")
+            os.sys.exit()
 
     def find_gdat_files(self):
         files = os.listdir(self.path)
@@ -22,9 +31,9 @@ class BNGResult:
     def load_results(self):
         for name in self.names: 
             gdat_path = os.path.join(self.path, self.names[name])
-            self.results[name] = self.load_gdat(gdat_path)
+            self.results[name] = self.load_dat(gdat_path)
 
-    def load_gdat(self, path, dformat="f8"):
+    def load_dat(self, path, dformat="f8"):
         '''
         This function takes a path to a gdat/cdat file as a string and loads that 
         file into a numpy structured array, including the correct header info.

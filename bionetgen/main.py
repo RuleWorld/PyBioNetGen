@@ -3,6 +3,7 @@ import bionetgen as bng
 from cement.core.exc import CaughtSignal
 from .core.exc import BioNetGenError
 from .core.main import runCLI
+from .core.main import plotDAT 
 from .core.notebook import BNGNotebook
 
 # pull defaults 
@@ -65,6 +66,18 @@ class BNGBase(cement.Controller):
         # open the notebook with nbopen
         rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]["name"]], stdout=bng.defaults.stdout)
 
+    @cement.ex(
+            help="Rudimentary plotting of gdat/cdat files",
+    )
+    def plot(self):
+        """ Notebook subcommand that boots up a Jupyter notebook """
+        args = self.app.pargs
+        if args.input is not None:
+            # we need to have gdat/cdat files
+            assert args.input.endswith(".gdat") or args.input.endswith(".cdat"), "Input file has to be either a gdat or a cdat file"
+            plotDAT(args.input, args.output)
+        else:
+            print("Please give an input BNGL file with the -i option, see -h or --help to see help, quitting")
 
 class BioNetGen(cement.App):
     """BioNetGen CLI primary application."""

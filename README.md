@@ -4,15 +4,19 @@
 
 ## Installation
 
+Currently this library is in testing so it's in test PyPI and not directly installable via pip from there. Use the following to get the library
+
 ```
-$ pip install -r requirements.txt
-
-$ pip install setup.py
+$ pip install -i https://test.pypi.org/simple bionetgen
 ```
 
-## Development
+### Features 
 
-This project includes a number of helpers in the `Makefile` to streamline common development tasks.
+This library comes with a command line interface (CLI) entrypoint as well as a functional library that can be imported. The CLI can be used to run BNGL models, generate Jupyter notebooks and do rudimentary plotting. 
+
+The library provides a simple BNGL model runner as well as a model object that can be manipulated and used to get libRoadRunner simulators for the model. 
+
+The model object requires a system call to BioNetGen so the initialization can be relatively costly, in case you would like to use it for parallel applications, use the libRR simulator for those. 
 
 ### Environment Setup
 
@@ -35,29 +39,6 @@ $ bionetgen --help
 
 $ make test
 ```
-
-
-### Releasing to PyPi
-
-Before releasing to PyPi, you must configure your login credentials:
-
-**~/.pypirc**:
-
-```
-[pypi]
-username = YOUR_USERNAME
-password = YOUR_PASSWORD
-```
-
-Then use the included helper function via the `Makefile`:
-
-```
-$ make dist
-
-$ make dist-upload
-```
-
-## Deployments
 
 ### Docker
 
