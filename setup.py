@@ -79,6 +79,7 @@ for iurl,bng_url in enumerate([linux_url, mac_url, windows_url]):
         # we got bionetgen in
         bng_downloaded = True
         # Done unpacking, remove useless files
+        bng_arch.close()
         os.remove(fname)
         shutil.rmtree(fold_name)
     if iurl == 2:
@@ -108,6 +109,7 @@ for iurl,bng_url in enumerate([linux_url, mac_url, windows_url]):
         # we got bionetgen in
         bng_downloaded = True
         # Done unpacking, remove useless files
+        bng_arch.close()
         os.remove(fname)
         shutil.rmtree(fold_name)
 
