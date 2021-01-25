@@ -85,7 +85,7 @@ class BNGBase(cement.Controller):
                                     "type": str}),
                 (["--legend"],{"help":"To plot the legend or not (default: False)",
                                    "default": False,
-                                   "type": bool,
+                                   "action": "store_true",
                                    "required": False})
             ]
     )

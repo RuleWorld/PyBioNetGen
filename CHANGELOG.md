@@ -56,3 +56,9 @@ adding rudimentary plotting for gdat/cdat files
 
 ## 0.1.9
 major changes to how the command line is called, going full subcommand based structure
+
+## 0.2.0
+minor behavior change to plot subcommand --legend option
+
+## 0.2.1
+bugfix to previous change
