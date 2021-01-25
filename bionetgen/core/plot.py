@@ -8,12 +8,14 @@ class BNGPlotter:
     '''
     Class that does basic plotting for gdat/cdat files
     '''
-    def __init__(self, inp, out):
+    def __init__(self, inp, out, **kwargs):
         # read input and output paths
         self.inp = inp
         self.out = out
         # load in the result
         self.result = BNGResult(direct_path=inp)
+        # get the keyword arguments
+        self.kwargs = kwargs
 
     def plot(self):
         # get the data out of result object
@@ -27,15 +29,15 @@ class BNGPlotter:
         for name in names:
             if name == "time": 
                 continue
-            ax = sbrn.lineplot(self.data["time"], self.data[name], label=name)
+            ax = sbrn.lineplot(x=self.data["time"], y=self.data[name], label=name)
             ctr += 1
             # if there are a lot of lines the legend makes 
             # everything unreadable
-            if ctr > 5:
-                ax.get_legend().remove()
         # labels and title
         _ = plt.xlabel("time")
-        _ = plt.ylabel("species")
+        _ = plt.ylabel("concentration")
         _ = plt.title(fnoext)
+        if self.kwargs.get("legend", False):
+            plt.legend()
         # save the figure
         plt.savefig(self.out)

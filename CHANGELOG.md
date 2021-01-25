@@ -53,3 +53,6 @@ uptick for changed xmltodict version to allow later pythons to install the libra
 
 ## 0.1.8
 adding rudimentary plotting for gdat/cdat files
+
+## 0.1.9
+major changes to how the command line is called, going full subcommand based structure

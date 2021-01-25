@@ -80,7 +80,7 @@ class BNGCLI:
         if self.old_bngpath is not None:
             os.environ["BNGPATH"] = self.old_bngpath
 
-def plotDAT(inp, out="."):
+def plotDAT(inp, out=".", kw=dict()):
     # if we want to plot directly into the folder
     # we are in we need to get the path correctly
     if out == ".":
@@ -88,5 +88,5 @@ def plotDAT(inp, out="."):
         fnoext, ext = os.path.splitext(fname)
         out = os.path.join(path, "{}.png".format(fnoext))
     # use the plotter object to get the plot
-    plotter = BNGPlotter(inp, out)
+    plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()

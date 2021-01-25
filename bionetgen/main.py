@@ -18,39 +18,46 @@ class BNGBase(cement.Controller):
         description = "A simple CLI to bionetgen <https://bionetgen.org>. Note that you need Perl installed."
         help = "bionetgen"
         arguments = [
-                (['-i', '--input'],dict(type=str,
-                                        default=None,
-                                        help="Path to BNGL or SBML file")), 
-                (['-o','--output'],dict(type=str, 
-                                        default=".",
-                                        help="Directory to save the results into, default is '.'")),
-                # (['-s','--sedml'],dict(type=str,
-                #                        default=CONFIG['bionetgen']['bngpath'],
-                #                        help="Optional path to SED-ML file, if available the simulation \
-                #                              protocol described in SED-ML will be ran")),
                 (['-bp','--bngpath'],dict(type=str,
                                           default=CONFIG['bionetgen']['bngpath'],
                                           help="Optional path to BioNetGen folder you want the CLI to use")),
                 # TODO: Auto-load in BioNetGen version here
                 (['-v','--version'],dict(action="version",
                                          version=VERSION_BANNER)),
+                # (['-s','--sedml'],dict(type=str,
+                #                        default=CONFIG['bionetgen']['bngpath'],
+                #                        help="Optional path to SED-ML file, if available the simulation \
+                #                              protocol described in SED-ML will be ran")),
         ]
 
     # This overwrites the default behavior 
     # and runs the CLI object from core 
     # which in turn just calls BNG2.pl 
-    @cement.ex(hide=True)
-    def _default(self):
+    @cement.ex(
+            help="Runs a given model using BNG2.pl",
+            arguments=[
+                (["-i","--input"],{"help":"Path to BNGL file (required)",
+                                   "default": None,
+                                   "type": str,
+                                   "required": True}),
+                (["-o","--output"],{"help":"Optional path to output folder (default: \".\"",
+                                    "default": ".",
+                                    "type": str})
+            ]
+    )
+    def run(self):
         args = self.app.pargs
-        if args.input is None:
-            # TODO: improve this behavior by showing help after automatically
-            print("Please give an input BNGL file with the -i option, see -h or --help to see help, quitting")
-        else:
-            runCLI(args)
+        runCLI(args)
 
     @cement.ex(
             help="Starts a Jupyter notebook to help run and analyze \
                   bionetgen models",
+            arguments=[
+                (["-i","--input"],{"help":"Path to BNGL file to use with notebook",
+                                   "default": None,
+                                   "type": str,
+                                   "required": False}),
+            ]
     )
     def notebook(self):
         """ Notebook subcommand that boots up a Jupyter notebook """
@@ -68,16 +75,26 @@ class BNGBase(cement.Controller):
 
     @cement.ex(
             help="Rudimentary plotting of gdat/cdat files",
+            arguments=[
+                (["-i","--input"],{"help":"Path to .gdat/.cdat file to use plot",
+                                   "default": None,
+                                   "type": str,
+                                   "required": True}),
+                (["-o","--output"],{"help":"Optional path for the plot (default: \"$model_name.png\"",
+                                    "default": ".",
+                                    "type": str}),
+                (["--legend"],{"help":"To plot the legend or not (default: False)",
+                                   "default": False,
+                                   "type": bool,
+                                   "required": False})
+            ]
     )
     def plot(self):
         """ Notebook subcommand that boots up a Jupyter notebook """
         args = self.app.pargs
-        if args.input is not None:
-            # we need to have gdat/cdat files
-            assert args.input.endswith(".gdat") or args.input.endswith(".cdat"), "Input file has to be either a gdat or a cdat file"
-            plotDAT(args.input, args.output)
-        else:
-            print("Please give an input BNGL file with the -i option, see -h or --help to see help, quitting")
+        # we need to have gdat/cdat files
+        assert args.input.endswith(".gdat") or args.input.endswith(".cdat"), "Input file has to be either a gdat or a cdat file"
+        plotDAT(args.input, args.output, kw=dict(args._get_kwargs()))
 
 class BioNetGen(cement.App):
     """BioNetGen CLI primary application."""
