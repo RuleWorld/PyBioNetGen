@@ -74,7 +74,7 @@ class BNGBase(cement.Controller):
         rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]["name"]], stdout=bng.defaults.stdout)
 
     @cement.ex(
-            help="Rudimentary plotting of gdat/cdat files",
+            help="Rudimentary plotting of gdat/cdat/scan files",
             arguments=[
                 (["-i","--input"],{"help":"Path to .gdat/.cdat file to use plot",
                                    "default": None,
@@ -86,7 +86,21 @@ class BNGBase(cement.Controller):
                 (["--legend"],{"help":"To plot the legend or not (default: False)",
                                    "default": False,
                                    "action": "store_true",
-                                   "required": False})
+                                   "required": False}),
+                (["--xmin"],{"help":"x-axis minimum (default: determined from data)",
+                                   "default": None}),
+                (["--xmax"],{"help":"x-axis maximum (default: determined from data)",
+                                   "default": False}),
+                (["--ymin"],{"help":"y-axis minimum (default: determined from data)",
+                                   "default": False}),
+                (["--ymax"],{"help":"y-axis maximum (default: determined from data)",
+                                   "default": False}),
+                (["--xlabel"],{"help":"x-axis label (default: time)",
+                                   "default": False}),
+                (["--ylabel"],{"help": "y-axis label (default: concentration)",
+                                   "default": False}),
+                (["--title"],{"help": "title of plot (default: determined from input file)",
+                                   "default": False})
             ]
     )
     def plot(self):
