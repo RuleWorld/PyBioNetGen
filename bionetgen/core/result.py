@@ -11,15 +11,29 @@ class BNGResult:
         if direct_path is not None:
             path, fname = os.path.split(direct_path)
             fnoext, fext = os.path.splitext(fname)
+            self.direct_path = direct_path
+            self.file_name = fnoext
+            self.file_extension = fext
             self.names[fnoext] = direct_path
-            self.results[fnoext] = self.load_dat(direct_path)
+            self.results[fnoext] = self.load(direct_path)
         elif path is not None:
             self.path = path
             self.find_gdat_files() 
             self.load_results()
         else:
-            print("BNGResult needs either a path or a direct path kwarg to load gdat/cdat files from")
+            print("BNGResult needs either a path or a direct path kwarg to load gdat/cdat/scan files from")
             os.sys.exit()
+
+    def load(self, fpath):
+        path, fname = os.path.split(fpath)
+        fnoext, fext = os.path.splitext(fname)
+        if fext == ".gdat" or fext == ".cdat":
+            return self.load_dat(fpath)
+        elif fext == ".scan": 
+            return self.load_scan(fpath)
+        else:
+            print("BNGResult doesn't know the file type of {}".format(fpath))
+            return None
 
     def find_gdat_files(self):
         files = os.listdir(self.path)

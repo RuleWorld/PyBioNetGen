@@ -19,12 +19,9 @@ class BNGPlotter:
 
     def plot(self):
         # let's determine the type of plot we are doing
-        path, fname = os.path.split(self.inp)
-        fnoext, fext = os.path.splitext(fname)
-
-        if fext == ".gdat" or fext == ".cdat": 
+        if self.result.file_extension == ".gdat" or self.result.file_extension == ".cdat": 
             self._datplot()
-        elif fext == ".scan":
+        elif self.result.file_extension == ".scan":
             self._scanplot()
         else:
             print("File type not recognized, only gdat/cdat and scan files are implemented")
@@ -32,9 +29,7 @@ class BNGPlotter:
 
     def _datplot(self):
         # get the data out of result object
-        path, fname = os.path.split(self.inp)
-        fnoext, fext = os.path.splitext(fname)
-        self.data = self.result.results[fnoext]
+        self.data = self.result.results[self.result.file_name]
         # get species names
         names = self.data.dtype.names
         # loop over and plot them all
@@ -45,10 +40,8 @@ class BNGPlotter:
                 continue
             ax = sbrn.lineplot(x=self.data["time"], y=self.data[name], label=name)
             ctr += 1
-            # if there are a lot of lines the legend makes 
-            # everything unreadable
 
-        assert ax is not None, "No data columns are found in file {}".format(path)
+        assert ax is not None, "No data columns are found in file {}".format(self.result.direct_path)
     
         fax = ax.get_figure().gca()
         if not self.kwargs.get("legend", False):
@@ -66,7 +59,7 @@ class BNGPlotter:
         # labels and title
         _ = plt.xlabel(self.kwargs.get("xlabel") or "time")
         _ = plt.ylabel(self.kwargs.get("ylabel") or "concentration")
-        _ = plt.title(self.kwargs.get("title") or fnoext)
+        _ = plt.title(self.kwargs.get("title") or self.result.file_name)
 
         # save the figure
         plt.savefig(self.out)
