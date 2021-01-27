@@ -62,3 +62,6 @@ minor behavior change to plot subcommand --legend option
 
 ## 0.2.1
 bugfix to previous change
+
+## 0.2.2
+added basic .scan file plotting to the plot subcommand
