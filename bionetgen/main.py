@@ -107,7 +107,7 @@ class BNGBase(cement.Controller):
         """ Notebook subcommand that boots up a Jupyter notebook """
         args = self.app.pargs
         # we need to have gdat/cdat files
-        assert args.input.endswith(".gdat") or args.input.endswith(".cdat"), "Input file has to be either a gdat or a cdat file"
+        assert args.input.endswith(".gdat") or args.input.endswith(".cdat") or args.input.endswith(".scan"), "Input file has to be either a gdat or a cdat file"
         plotDAT(args.input, args.output, kw=dict(args._get_kwargs()))
 
 class BioNetGen(cement.App):

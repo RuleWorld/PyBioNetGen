@@ -22,7 +22,7 @@ class BNGPlotter:
         if self.result.file_extension == ".gdat" or self.result.file_extension == ".cdat": 
             self._datplot()
         elif self.result.file_extension == ".scan":
-            self._scanplot()
+            self._datplot()
         else:
             print("File type not recognized, only gdat/cdat and scan files are implemented")
             raise NotImplemented
@@ -32,13 +32,14 @@ class BNGPlotter:
         self.data = self.result.results[self.result.file_name]
         # get species names
         names = self.data.dtype.names
+        x_name = names[0]
         # loop over and plot them all
         ctr = 0
         ax = None
         for name in names:
-            if name == "time": 
+            if name == x_name: 
                 continue
-            ax = sbrn.lineplot(x=self.data["time"], y=self.data[name], label=name)
+            ax = sbrn.lineplot(x=self.data[x_name], y=self.data[name], label=name)
             ctr += 1
 
         assert ax is not None, "No data columns are found in file {}".format(self.result.direct_path)
@@ -57,12 +58,9 @@ class BNGPlotter:
         fax.set_xlim(xmin,xmax)
         fax.set_ylim(ymin,ymax)
         # labels and title
-        _ = plt.xlabel(self.kwargs.get("xlabel") or "time")
+        _ = plt.xlabel(self.kwargs.get("xlabel") or x_name)
         _ = plt.ylabel(self.kwargs.get("ylabel") or "concentration")
         _ = plt.title(self.kwargs.get("title") or self.result.file_name)
 
         # save the figure
         plt.savefig(self.out)
-
-    def _scanplot(self):
-        raise NotImplemented

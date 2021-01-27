@@ -35,6 +35,9 @@ class BNGResult:
             print("BNGResult doesn't know the file type of {}".format(fpath))
             return None
 
+    def load_scan(self, fpath):
+        return self.load_dat(fpath)
+
     def find_gdat_files(self):
         files = os.listdir(self.path)
         gdat_files = filter(lambda x: x.endswith(".gdat"), files)
