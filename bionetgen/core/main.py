@@ -1,4 +1,6 @@
 import os, subprocess, shutil, tempfile
+from sys import stdout
+from re import sub
 import bionetgen as bng
 from bionetgen.core import BNGResult
 from bionetgen.core import BNGPlotter
@@ -23,7 +25,7 @@ def run(inp, out=None):
     else:
         temp = False
     # instantiate a CLI object with the info
-    cli = BNGCLI(inp, out, bng.defaults.bng_path)
+    cli = BNGCLI(inp, out, bng.defaults.config.get("bionetgen", "bngpath"))
     cli.run()
     # if we used a temporary directory, clean up
     if temp: 
@@ -32,13 +34,16 @@ def run(inp, out=None):
     print(cli.result.process_return.stdout)
     return cli.result
 
-def runCLI(args):
+def runCLI(config, args):
     # this pulls out the arguments
     inp_file = args.input
     output = args.output
-    bngpath = args.bngpath 
+    # if you set args.bngpath it should take precedence
+    config_bngpath = config.get('bionetgen', 'bngpath')
     # and instantiates the CLI object
-    cli = BNGCLI(inp_file, output, bngpath)
+    cli = BNGCLI(inp_file, output, config_bngpath)
+    cli.stdout = config.get("bionetgen", "stdout")
+    cli.stderr = config.get("bionetgen", "stderr")
     cli.run()
 
 def plotDAT(inp, out=".", kw=dict()):
@@ -82,8 +87,22 @@ class BNGCLI:
             os.chdir(output)
 
     def run(self):
+        try: 
+            stdout_loc = getattr(subprocess, self.stdout)
+        except:
+            stdout_loc = subprocess.PIPE
+        try: 
+            stderr_loc = getattr(subprocess, self.stderr)
+        except:
+            stderr_loc = subprocess.STDOUT
         # run BNG2.pl
-        rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=bng.defaults.stdout)
+        rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=stdout_loc, stderr=stderr_loc)
+        # write out stdout/err if they exist
+        # TODO Maybe indicate that we are printing out stdout/stderr before printing
+        if rc.stdout is not None:
+            print(rc.stdout.decode('utf-8'))
+        if rc.stderr is not None:
+            print(rc.stderr.decode('utf-8'))
         # load in the result 
         self.result = BNGResult(os.getcwd())
         BNGResult.process_return = rc

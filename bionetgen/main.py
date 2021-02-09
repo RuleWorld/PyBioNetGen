@@ -14,13 +14,15 @@ class BNGBase(cement.Controller):
     ''' Base controller for BioNetGen CLI '''
 
     class Meta:
-        label = "base"
+        label = "bionetgen"
         description = "A simple CLI to bionetgen <https://bionetgen.org>. Note that you need Perl installed."
         help = "bionetgen"
         arguments = [
-                (['-bp','--bngpath'],dict(type=str,
-                                          default=CONFIG['bionetgen']['bngpath'],
-                                          help="Optional path to BioNetGen folder you want the CLI to use")),
+                # TODO figure out a good solution for when bngpath is set from config file AND CLI
+                # until then we'll disable the CLI argument
+                # (['-bp','--bngpath'],dict(type=str,
+                #                           default=CONFIG['bionetgen']['bngpath'],
+                #                           help="Optional path to BioNetGen folder you want the CLI to use")),
                 # TODO: Auto-load in BioNetGen version here
                 (['-v','--version'],dict(action="version",
                                          version=VERSION_BANNER)),
@@ -40,14 +42,14 @@ class BNGBase(cement.Controller):
                                    "default": None,
                                    "type": str,
                                    "required": True}),
-                (["-o","--output"],{"help":"Optional path to output folder (default: \".\"",
+                (["-o","--output"],{"help":"Optional path to output folder (default: \".\")",
                                     "default": ".",
                                     "type": str})
             ]
     )
     def run(self):
         args = self.app.pargs
-        runCLI(args)
+        runCLI(self.app.config, args)
 
     @cement.ex(
             help="Starts a Jupyter notebook to help run and analyze \
@@ -80,7 +82,7 @@ class BNGBase(cement.Controller):
                                    "default": None,
                                    "type": str,
                                    "required": True}),
-                (["-o","--output"],{"help":"Optional path for the plot (default: \"$model_name.png\"",
+                (["-o","--output"],{"help":"Optional path for the plot (default: \"$model_name.png\")",
                                     "default": ".",
                                     "type": str}),
                 (["--legend"],{"help":"To plot the legend or not (default: False)",
@@ -129,10 +131,15 @@ class BioNetGen(cement.App):
         ]
 
         # configuration handler
-        config_handler = 'yaml'
+        config_handler = 'configparser'
 
         # configuration file suffix
-        config_file_suffix = '.yml'
+        config_file_suffix = '.conf'
+
+        # add current folder to the list of config dirs
+        config_files = [
+            './.{}.conf'.format(label)
+        ]
 
         # set the log handler
         log_handler = 'colorlog'

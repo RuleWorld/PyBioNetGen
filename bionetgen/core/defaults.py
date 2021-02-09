@@ -28,7 +28,6 @@ class BNGDefaults:
         # set attributes
         self.bng_path = os.path.join(lib_path, bng_name)
         self.lib_path = lib_path
-        self.config = CONFIG
         # version banner
         VERSION_BANNER= """
         BioNetGen simple command line interface {}
@@ -37,6 +36,10 @@ class BNGDefaults:
         # set attributes
         self.banner = VERSION_BANNER
         # stdout
+        CONFIG['bionetgen']['stdout'] = "PIPE"
+        CONFIG['bionetgen']['stderr'] = "STDOUT"
         self.stdout = subprocess.PIPE
+        self.stderr = subprocess.PIPE
+        self.config = CONFIG
 
 defaults = BNGDefaults()
