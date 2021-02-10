@@ -68,3 +68,6 @@ added basic .scan file plotting to the plot subcommand
 
 ## 0.2.3
 BNG2.pl stdout now pipes correctly to actual stdout and can be adjusted via configuraion files
+
+## 0.2.4
+Adding documentation, rewriting temporary folder and file handling to use TemporaryDirectory and Temporary file respectively so that these work correctly on Windows. 

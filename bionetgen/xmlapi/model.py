@@ -1,9 +1,14 @@
 import bionetgen as bng
 import re, functools, subprocess, os, xmltodict, sys, shutil, tempfile
+from tempfile import TemporaryDirectory
+from tempfile import TemporaryFile
 from .utils import find_BNG_path
 from .structs import Parameters, Species, MoleculeTypes, Observables, Functions, Compartments, Rules, Actions
 
 def_bng_path = bng.defaults.bng_path
+
+# TODO We need to make this cement app aware so config files work
+# for this too
 
 ###### CORE OBJECT AND PARSING FRONT-END ######
 class bngmodel:
@@ -60,22 +65,25 @@ class bngmodel:
         return active_ordered_blocks.__iter__()
 
     def parse_model(self, model_file):
+        # TODO We really need to clean up this method and relevant ones
+        # and make it clear what each one of them does. Refactoring time! 
+        
         # this route runs BNG2.pl on the bngl and parses
         # the XML instead
         if model_file.endswith(".bngl"):
-            # TODO: Strip actions into a temp file
-            # then run the gen xml 
             print("Attempting to generate XML")
-            model_file, tfolder = self.generate_xml(model_file)
-            if model_file is not None:
-                print("Parsing XML")
-                self.parse_xml(model_file)
-                self.reset_compilation_tags()
-            else:
-                print("XML file doesn't exist")
-            shutil.rmtree(tfolder)
+            with TemporaryFile("w+") as xml_file:
+                if self.generate_xml(model_file, xml_file):
+                    print("Parsing XML")
+                    # import IPython;IPython.embed()
+                    self.parse_xml(xml_file.read())
+                    self.reset_compilation_tags()
+                else:
+                    print("XML file couldn't be generated")
         elif model_file.endswith(".xml"):
-            self.parse_xml(model_file)
+            with open(model_file, "r") as f:
+                xml_str = f.read()
+                self.parse_xml(xml_str)
             self.reset_compilation_tags()
         else:
             print("The extension of {} is not supported".format(model_file))
@@ -85,30 +93,37 @@ class bngmodel:
         for block in self.active_blocks:
             getattr(self, block).reset_compilation_tags()
 
-    def generate_xml(self, model_file):
+    def generate_xml(self, model_file, xml_file):
         cur_dir = os.getcwd()
         # temporary folder to work in
-        temp_folder = tempfile.mkdtemp()
-        # make a stripped copy without actions in the folder
-        stripped_bngl = self.strip_actions(model_file, temp_folder)
-        # run with --xml 
-        os.chdir(temp_folder)
-        # TODO: Make output supression an option somewhere
-        rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
-        if rc.returncode == 1:
-            print("XML generation failed")
-            # go back to our original location
-            os.chdir(cur_dir)
-            shutil.rmtree(temp_folder)
-            return None
-        else:
-            # we should now have the XML file 
-            path, model_name = os.path.split(stripped_bngl)
-            model_name = model_name.replace(".bngl", "")
-            xml_file = model_name + ".xml"
-            # go back to our original location
-            os.chdir(cur_dir)
-            return os.path.join(path, xml_file), path
+        with TemporaryDirectory() as temp_folder:
+            # make a stripped copy without actions in the folder
+            stripped_bngl = self.strip_actions(model_file, temp_folder)
+            # run with --xml 
+            os.chdir(temp_folder)
+            # TODO: take stdout option from app instead
+            rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
+            if rc.returncode == 1:
+                print("XML generation failed")
+                # go back to our original location
+                os.chdir(cur_dir)
+                # shutil.rmtree(temp_folder)
+                return False
+            else:
+                # we should now have the XML file 
+                path, model_name = os.path.split(stripped_bngl)
+                model_name = model_name.replace(".bngl", "")
+                written_xml_file = model_name + ".xml"
+                # import ipdb;ipdb.set_trace()
+                with open(written_xml_file, "r") as f:
+                    content = f.read()
+                    xml_file.write(content)
+                # since this is an open file, to read it later
+                # we need to go back to the beginning
+                xml_file.seek(0)
+                # go back to our original location
+                os.chdir(cur_dir)
+                return True
 
     def strip_actions(self, model_path, folder):
         '''
@@ -135,9 +150,7 @@ class bngmodel:
                 return False
         return True
 
-    def parse_xml(self, model_file):
-        with open(model_file, "r") as f:
-            xml_str = "".join(f.readlines())
+    def parse_xml(self, xml_str):
         xml_dict = xmltodict.parse(xml_str)
         self.xml_dict = xml_dict
         xml_model = xml_dict['sbml']['model']
@@ -214,45 +227,53 @@ class bngmodel:
         with open(file_name, 'w') as f:
             f.write(model_str)
 
-    def write_xml(self, file_name, xml_type="bngxml"):
+    def write_xml(self, open_file, xml_type="bngxml"):
         '''
         write new XML to file by calling BNG2.pl again
         '''
         cur_dir = os.getcwd()
         # temporary folder to work in
-        temp_folder = tempfile.mkdtemp()
-        # write the current model to temp folder
-        os.chdir(temp_folder)
-        with open("temp.bngl", "w") as f:
-            f.write(str(self))
-        # run with --xml 
-        # TODO: Make output supression an option somewhere
-        if xml_type == "bngxml":
-            rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], stdout=bng.defaults.stdout)
-            if rc.returncode == 1:
-                print("XML generation failed")
-                # go back to our original location
-                os.chdir(cur_dir)
-            else:
-                # we should now have the XML file 
-                fpath = os.path.join(cur_dir, file_name)
-                shutil.copy("temp.xml", fpath)
-                os.chdir(cur_dir)
-        elif xml_type == "sbml":
-            rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], stdout=bng.defaults.stdout)
-            if rc.returncode == 1:
-                print("SBML generation failed")
-                # go back to our original location
-                os.chdir(cur_dir)
-            else:
-                # we should now have the SBML file 
-                fpath = os.path.join(cur_dir, file_name)
-                shutil.copy("temp_sbml.xml", fpath)
-                os.chdir(cur_dir)
-        else: 
-            print("XML type {} not recognized".format(xml_type))
-        # we need to remove the temporary folder
-        shutil.rmtree(temp_folder)
+        with TemporaryDirectory() as temp_folder:
+            # write the current model to temp folder
+            os.chdir(temp_folder)
+            with open("temp.bngl", "w") as f:
+                f.write(str(self))
+            # run with --xml 
+            # TODO: Make output supression an option somewhere
+            if xml_type == "bngxml":
+                rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], stdout=bng.defaults.stdout)
+                if rc.returncode == 1:
+                    print("XML generation failed")
+                    # go back to our original location
+                    os.chdir(cur_dir)
+                    return False
+                else:
+                    # we should now have the XML file 
+                    with open("temp.xml", "r") as f:
+                        content = f.read()
+                        open_file.write(content)
+                    # go back to beginning
+                    open_file.seek(0)
+                    os.chdir(cur_dir)
+                    return True
+            elif xml_type == "sbml":
+                rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], stdout=bng.defaults.stdout)
+                if rc.returncode == 1:
+                    print("SBML generation failed")
+                    # go back to our original location
+                    os.chdir(cur_dir)
+                    return False
+                else:
+                    # we should now have the SBML file 
+                    with open("temp_sbml.xml", "r") as f:
+                        content = f.read()
+                        open_file.write(content)
+                    open_file.seek(0)
+                    os.chdir(cur_dir)
+                    return True
+            else: 
+                print("XML type {} not recognized".format(xml_type))
+            return False
 
     def setup_simulator(self, sim_type="libRR"):
         '''
@@ -265,15 +286,14 @@ class bngmodel:
             self.add_action("generate_network", [("overwrite",1)])
             self.add_action("writeSBML", [])
             # temporary file
-            tfile, tpath = tempfile.mkstemp()
-            # write the sbml 
-            self.write_xml(tpath, xml_type="sbml")
-            # TODO: Only clear the writeSBML action
-            # by adding a mechanism to do so
-            self.actions.clear_actions()
-            # get the simulator
-            self.simulator = bng.sim_getter(tpath, sim_type)
-            os.remove(tpath)
+            with TemporaryFile(mode="w+") as tpath:
+                # write the sbml
+                self.write_xml(tpath, xml_type="sbml")
+                # TODO: Only clear the writeSBML action
+                # by adding a mechanism to do so
+                self.actions.clear_actions()
+                # get the simulator
+                self.simulator = bng.sim_getter(model_str=tpath.read(), sim_type=sim_type)
         else:
             print("Sim type {} is not recognized, only libroadrunner \
                    is supported currently by passing libRR to \
@@ -289,7 +309,7 @@ if __name__ == "__main__":
     bngl_list = os.listdir(os.getcwd())
     bngl_list = filter(lambda x: x.endswith(".bngl"), bngl_list)
     for bngl in bngl_list:
-        m = BNGModel(bngl)
+        m = bngmodel(bngl)
         with open('test.bngl', 'w') as f:
             f.write(str(m))
         rc = subprocess.run([m.bngexec, 'test.bngl'])
