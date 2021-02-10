@@ -65,3 +65,6 @@ bugfix to previous change
 
 ## 0.2.2
 added basic .scan file plotting to the plot subcommand
+
+## 0.2.3
+BNG2.pl stdout now pipes correctly to actual stdout and can be adjusted via configuraion files
