@@ -1,4 +1,5 @@
-import os, subprocess, shutil, tempfile
+import os, subprocess, shutil
+from tempfile import TemporaryDirectory
 from sys import stdout
 from re import sub
 import bionetgen as bng
@@ -19,19 +20,23 @@ def run(inp, out=None):
     '''
     # if out is None we make a temp directory
     if out is None:
-        temp = True
-        out = tempfile.mkdtemp()
         cur_dir = os.getcwd()
+        with TemporaryDirectory() as out:
+            # instantiate a CLI object with the info
+            cli = BNGCLI(inp, out, bng.defaults.config["bionetgen"]["bngpath"])
+            try:
+                cli.run()
+            except:
+                print("Couldn't run the simulation")
+            # if we are not in the original folder, go back
+            os.chdir(cur_dir)
     else:
-        temp = False
-    # instantiate a CLI object with the info
-    cli = BNGCLI(inp, out, bng.defaults.config.get("bionetgen", "bngpath"))
-    cli.run()
-    # if we used a temporary directory, clean up
-    if temp: 
-        shutil.rmtree(out)
-        os.chdir(cur_dir)
-    print(cli.result.process_return.stdout)
+        # instantiate a CLI object with the info
+        cli = BNGCLI(inp, out, bng.defaults.config["bionetgen"]["bngpath"])
+        try:
+            cli.run()
+        except:
+            print("Couldn't run the simulation")
     return cli.result
 
 def runCLI(config, args):
@@ -75,6 +80,8 @@ class BNGCLI:
             self.old_bngpath = None
         os.environ["BNGPATH"] = self.bngpath
         self.result = None
+        self.stdout = "PIPE"
+        self.stderr = "STDOUT"
 
     def set_output(self, output):
         # setting up output area
@@ -103,9 +110,12 @@ class BNGCLI:
             print(rc.stdout.decode('utf-8'))
         if rc.stderr is not None:
             print(rc.stderr.decode('utf-8'))
-        # load in the result 
-        self.result = BNGResult(os.getcwd())
-        BNGResult.process_return = rc
+        if rc.returncode == 0:
+            # load in the result 
+            self.result = BNGResult(os.getcwd())
+            BNGResult.process_return = rc
+        else:
+            self.result = None
         # set BNGPATH back
         if self.old_bngpath is not None:
             os.environ["BNGPATH"] = self.old_bngpath
