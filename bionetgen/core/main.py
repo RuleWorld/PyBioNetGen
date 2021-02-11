@@ -8,15 +8,17 @@ from bionetgen.core import BNGPlotter
 
 def run(inp, out=None):
     '''
-    Convenience function to run BNG2.pl from python
+    Convenience function to run BNG2.pl as a library
 
     Usage: run(path_to_input_file, output_folder)
 
-    path_to_input_file: this has to point to a BNGL file
-
-    output_folder: this points to a folder to put 
-    the results into. If it doesn't exist, it will be 
-    created.
+    Arguments
+    ---------
+    path_to_input_file : str
+        this has to point to a BNGL file
+    output_folder : str 
+        (optional) this points to a folder to put the results
+        into. If it doesn't exist, it will be created.
     '''
     # if out is None we make a temp directory
     if out is None:
@@ -40,6 +42,18 @@ def run(inp, out=None):
     return cli.result
 
 def runCLI(config, args):
+    '''
+    Convenience function to run BNG2.pl from the CLI app
+
+    Usage: runCLI(config, args)
+
+    Arguments
+    ---------
+    config : dict
+        configuration dictionary from BioNetGen cement app
+    args :  argparse.Namespace
+        arguments parsed from the command line with argparser.
+    '''
     # this pulls out the arguments
     inp_file = args.input
     output = args.output
@@ -52,6 +66,24 @@ def runCLI(config, args):
     cli.run()
 
 def plotDAT(inp, out=".", kw=dict()):
+    '''
+    Convenience function to plot dat/scan files from the CLI
+
+    Usage: plotDAT(inp, out, kw)
+
+    Arguments
+    ---------
+    inp : str
+        input gdat/cdat/scan file to plot
+    out : str 
+        (optional) output file path, can be used to define the
+        output format as well. Default is the current folder, 
+        filename is the same as the input file and default format
+        is PNG.
+    kw : dict
+        (optional) this is a set of keyword arguments you want to 
+        pass for certain matplotlib options. Check -h for details
+    '''
     # if we want to plot directly into the folder
     # we are in we need to get the path correctly
     if out == ".":
@@ -63,12 +95,32 @@ def plotDAT(inp, out=".", kw=dict()):
     plotter.plot()
 
 class BNGCLI:
+    '''
+    Command Line Interface class to run BNG2.pl on a given
+    model. 
+
+    Usage: BNGCLI(inp_file, output, bngpath)
+
+    Arguments
+    ---------
+    inp_file : str
+        path to the the BNGL file to run
+    output : str 
+        path to the output folder to run the model in
+    bngpath : str
+        path to BioNetGen folder where BNG2.pl lives
+    
+    Methods
+    -------
+    run()
+        runs the model in the given output folder
+    '''
     def __init__(self, inp_file, output, bngpath):
         self.inp_file = inp_file
         # ensure correct path to the input file
         self.inp_path = os.path.abspath(self.inp_file)
         # pull other arugments out
-        self.set_output(output)
+        self._set_output(output)
         # sedml_file = sedml
         self.bngpath = bngpath
         # setting up bng2.pl
@@ -83,7 +135,7 @@ class BNGCLI:
         self.stdout = "PIPE"
         self.stderr = "STDOUT"
 
-    def set_output(self, output):
+    def _set_output(self, output):
         # setting up output area
         self.output = output
         if os.path.isdir(output):

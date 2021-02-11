@@ -7,6 +7,24 @@ from bionetgen.core import BNGResult
 class BNGPlotter:
     '''
     Class that does basic plotting for gdat/cdat files
+
+    Usage BNGPlotter(inp, out, kwargs)
+
+    Arguments
+    ---------
+    inp : str
+        input file path, gdat/cdat/scan file
+    out : str
+        output file path
+    kwargs : dict
+        keywords arguments for matplotlib. For details check 
+        bionetgen plot -h
+
+    Methods
+    -------
+    plot() 
+        plots the data from the input file and saves it to 
+        output file the class is initialized with
     '''
     def __init__(self, inp, out, **kwargs):
         # read input and output paths

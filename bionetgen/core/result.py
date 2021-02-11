@@ -3,9 +3,28 @@ import numpy as np
 
 class BNGResult:
     '''
-    Class that loads in gdat files found in a folder
+    Class that loads in gdat/cdat/scan files
+    
+    Usage: BNGResult(path="/path/to/folder") OR
+           BNGResult(direct_path="/path/to/file.gdat") 
+
+    Arguments
+    ---------
+    path : str
+        path that points to a folder containing files to be
+        loaded by the class
+    direct_path : str
+        path that directly points to a file to load
+
+    Methods
+    -------
+    load(fpath)
+        loads in the direct path to the file and returns
+        numpy.recarray
     '''
     def __init__(self, path=None, direct_path=None):
+        # TODO Make it so that with path you can supply an
+        # extension or a list of extensions to load in
         self.results = {}
         self.names = {} 
         if direct_path is not None:
@@ -17,6 +36,8 @@ class BNGResult:
             self.names[fnoext] = direct_path
             self.results[fnoext] = self.load(direct_path)
         elif path is not None:
+            # TODO change this pattern so that each method 
+            # is stand alone and usable. 
             self.path = path
             self.find_gdat_files() 
             self.load_results()
@@ -28,14 +49,14 @@ class BNGResult:
         path, fname = os.path.split(fpath)
         fnoext, fext = os.path.splitext(fname)
         if fext == ".gdat" or fext == ".cdat":
-            return self.load_dat(fpath)
+            return self._load_dat(fpath)
         elif fext == ".scan": 
-            return self.load_scan(fpath)
+            return self._load_scan(fpath)
         else:
             print("BNGResult doesn't know the file type of {}".format(fpath))
             return None
 
-    def load_scan(self, fpath):
+    def _load_scan(self, fpath):
         return self.load_dat(fpath)
 
     def find_gdat_files(self):
@@ -50,7 +71,7 @@ class BNGResult:
             gdat_path = os.path.join(self.path, self.names[name])
             self.results[name] = self.load_dat(gdat_path)
 
-    def load_dat(self, path, dformat="f8"):
+    def _load_dat(self, path, dformat="f8"):
         '''
         This function takes a path to a gdat/cdat file as a string and loads that 
         file into a numpy structured array, including the correct header info.

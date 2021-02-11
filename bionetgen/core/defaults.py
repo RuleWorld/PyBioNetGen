@@ -5,6 +5,28 @@ from .version import get_version
 
 class BNGDefaults:
     def __init__(self):
+        '''
+        A class to define the default configuration for cement apps
+
+        Attributes
+        ----------
+        system : str
+            the name of the OS that's running the app
+        bng_name : str
+            OS appropriate name of the BNG folder
+        bng_path : str
+            full absolute path to the BNG folder
+        lib_path : str
+            path to CLI library
+        stdout : str
+            the name of the subprocess attribute to pass stdout to
+        stderr : str
+            the name of the subprocess attribute to pass stderr to
+        config : dict
+            dictionary containing the application defaults
+        banner : str
+            app banner that gets printed when ran with -v
+        '''
         # determine what bng we are using
         system = platform.system() 
         if system == "Linux":
