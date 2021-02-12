@@ -4,7 +4,49 @@ from .xmlparsers import ObsXML, MolTypeXML, RuleXML, FuncXML, SpeciesXML
 ###### MODEL STRUCTURES ###### 
 # Objects in the model
 class ModelBlock:
+    '''
+    Base block object that will be used for each block in BNGL.
+
+    Attributes
+    ----------
+    name : str
+        Name of the block which will be used to write the BNGL text
+    _item_dict : OrderedDict
+        every block keeps track of it's items here. the exact nature
+        depends on the block itself but this is where every element of
+        each block is
+    _recompile : boolean
+        a tag to keep track if something is changed in the block. this
+        will be used in the future to recompile a simulator whne something
+        is changed
+    _changes : Dict
+        a dictionary to keep track of any changes to any items that are in
+        a block. this can be used to just keep a history but it can also be
+        useful for model validity later
+
+    Methods
+    -------
+    reset_compilation_tags()
+        resets _recompile and _changes tag for the block
+    add_item(item_tpl)
+        while every block can implement their own add_item method
+        the base assumption that each element has a name and value
+        so this method takes in (name,value) tuple and sets 
+        _item_dict[name] = value
+    add_items(item_list)
+        loops over every element in the list and uses add_item on it
+    print
+        prints the block, uses __str__ to get the string
+    strip_comment
+        removes comments, only used when the blocks are parsed based
+        on text BNGL. Not really used anymore
+    parse_xml_block(xml)
+        while it's not implemented for the base class, each block object
+        needs to implement this method where it takes in BNGXML for the 
+        block as argument and modifies the object correctly.
+    '''
     def __init__(self):
+        self.name = "ModelBlock"
         self._item_dict = OrderedDict()
         self._recompile = False
         self._changes = {}
@@ -66,12 +108,22 @@ class ModelBlock:
 
     def strip_comment(self, line):
         return line[0:line.find("#")]
-
+    
+    def parse_xml_block(self, block_xml):
+        raise NotImplemented
 
 # TODO: Add a LOT of error handling
 class Parameters(ModelBlock):
     '''
-    Class containing parameters
+    Parameter block object that contains both the expressions and values
+    for each parameter defined in the model
+
+    Attributes
+    ----------
+    expressions : Dict
+        this contains the expressions for each item in the block dictionary
+    values : dict
+        values of each parameter defined in the model
     '''
     def __init__(self):
         self.expressions = {}
@@ -135,7 +187,12 @@ class Parameters(ModelBlock):
 
 class Species(ModelBlock):
     '''
-    Class containing species
+    Species block object that contains starting species values defined
+    in the model
+
+    Item dictionary contains the Species object as the name and the 
+    concentration as the value so outside of parsing this is basically 
+    the same as the base object.
     '''
     def __init__(self):
         super().__init__()
@@ -190,12 +247,18 @@ class Species(ModelBlock):
             self.add_item((xmlobj,block_xml['@concentration']))
 
     def add_item(self, item_tpl):
+        # TODO is this necessary? this should be defined in base
         name, val = item_tpl
         self._item_dict[name] = val
 
 class MoleculeTypes(ModelBlock):
     '''
-    Class containing molecule types 
+    Molecule type block object that contains molecule types defined in the 
+    model. 
+
+    Item dictionary contains MolTypeXML object as the name has an empty 
+    string as the value thus outside of parsing this is basically 
+    the same as the base object.
     '''
     def __init__(self):
         super().__init__()
@@ -253,7 +316,11 @@ class MoleculeTypes(ModelBlock):
 
 class Observables(ModelBlock):
     '''
-    Class for observables
+    Observable block object that contains observables defined in the 
+    model. 
+
+    Item dictionary contains the name of the observable as the name
+    and a list of the form [ObservableType, ObservableObject] as value. 
     '''
     def __init__(self):
         super().__init__()
@@ -309,7 +376,11 @@ class Observables(ModelBlock):
 
 class Functions(ModelBlock):
     '''
-    Class for functions
+    Function block object that contains functions defined in the 
+    model. 
+
+    Item dictionary contains the name of the function as the name
+    and function expression as value.
     '''
     def __init__(self):
         super().__init__()
@@ -337,7 +408,12 @@ class Functions(ModelBlock):
 
 class Compartments(ModelBlock):
     '''
-    Class for compartments
+    Compartments block object that contains compartments defined in the 
+    model. 
+
+    Item dictionary contains the name of the compartment as the name
+    and a list of the form [Dimensionality, Size, ParentCompartment] 
+    as the value.
     '''
     def __init__(self):
         super().__init__()
@@ -386,6 +462,14 @@ class Compartments(ModelBlock):
         #
 
 class Rules(ModelBlock):
+    '''
+    Compartments block object that contains compartments defined in the 
+    model. 
+
+    Item dictionary contains the name of the compartment as the name
+    and a list of the form [Dimensionality, Size, ParentCompartment] 
+    as the value.
+    '''
     def __init__(self):
         super().__init__()
         self.name = "reaction rules"
@@ -436,10 +520,33 @@ class Rules(ModelBlock):
             self._item_dict.pop(del_item)
 
 class Actions(ModelBlock):
+    '''
+    Action block object that contains actions defined in the 
+    model. This is the one object that doesn't need a begin/end
+    block tag to be in the model. 
+
+    Item dictionary contains the action type as the name and a list
+    of arguments for that action as value. Each argument is of form 
+    [ArgumentName, ArgumentValue], method argument value is written
+    with quotes since that's the only one that needs quotes in BNGL.
+
+    Attributes
+    ----------
+    _action_list : list[str]
+        list of available action names
+    '''
     def __init__(self):
         super().__init__()
         self.name = "actions"
-        self._action_list = ["generate_network", "generate_hybrid_model","simulate", "simulate_ode", "simulate_ssa", "simulate_pla", "simulate_nf", "parameter_scan", "bifurcate", "readFile", "writeFile", "writeModel", "writeNetwork", "writeXML", "writeSBML", "writeMfile", "writeMexfile", "writeMDL", "visualize", "setConcentration", "addConcentration", "saveConcentration", "resetConcentrations", "setParameter", "saveParameters", "resetParameters", "quit", "setModelName", "substanceUnits", "version", "setOption"]
+        self._action_list = ["generate_network", "generate_hybrid_model",
+            "simulate", "simulate_ode", "simulate_ssa", "simulate_pla", 
+            "simulate_nf", "parameter_scan", "bifurcate", "readFile", 
+            "writeFile", "writeModel", "writeNetwork", "writeXML", 
+            "writeSBML", "writeMfile", "writeMexfile", "writeMDL", 
+            "visualize", "setConcentration", "addConcentration", 
+            "saveConcentration", "resetConcentrations", "setParameter", 
+            "saveParameters", "resetParameters", "quit", "setModelName", 
+            "substanceUnits", "version", "setOption"]
 
     def __str__(self):
         # TODO: figure out every argument that has special 

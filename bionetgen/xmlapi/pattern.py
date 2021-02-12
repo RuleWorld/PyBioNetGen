@@ -1,7 +1,31 @@
 # All classes that deal with patterns 
 class Pattern:
     '''
-    A list of molecules
+    Pattern object. Fundamentally it's just a list of molecules
+    which are defined later. 
+
+    Attributes
+    ----------
+    _bonds : Bonds
+        setting a pattern requires you to keep track of all bonds to
+        correctly label them, this object tracks everything
+    compartment : str
+        compartment of the overall pattern (not the same thing as 
+        molecule compartment, those have their own)
+    label : str
+        label of the overall pattern (not the same thing as molecule 
+        label, those have their own)
+    molecules : list[Molecule]
+        list of molecule objects that are in the pattern
+
+    Methods
+    -------
+    _parse_xml(xml)
+        parses the entire pattern xml
+    _process_mol(mol_xml)
+        parses the molecule xml to add to pattern molecule list
+    _process_comp(comp_xml)
+        parses component xml to add to the molecule
     '''
     def __init__(self, pattern_xml):
         self._bonds = Bonds()
@@ -128,6 +152,28 @@ class Pattern:
         return comp_list
 
 class Molecule:
+    '''
+    Pattern object. Fundamentally it's just a list of molecules
+    which are defined later. 
+
+    Attributes
+    ----------
+    name : str
+        name of the molecule
+    compartment : str
+        compartment of the molecule
+    label : str
+        label of the molecule
+    components : list[Component]
+        list of components for this molecule
+
+    Methods
+    -------
+    add_component(name, state=None, states=[])
+        add a component object to the list of components with name 
+        "name", current state "state" or a list of states 
+        (for molecule types) "states"
+    '''
     def __init__(self):
         self._name = "0"
         self._components = []
@@ -212,6 +258,32 @@ class Molecule:
         self._add_component(name, state, states)
 
 class Component:
+    '''
+    Component object that describes the state, label and bonding
+    for each component.
+
+    Attributes
+    ----------
+    name : str
+        name of the component
+    label : str
+        label of the component
+    state : str
+        state of the component, not used for molecule types
+    states : list[str]
+        list of states for molecule types
+    bonds : list[Bond]
+        list of bond objects that describes bonding of the component
+
+    Methods
+    -------
+    add_state()
+        not implemented. will eventually be used to add additional states
+        to an existing component
+    add_bond()
+        not implemented. will eventually be used to add additional bonds
+        to an existing component  
+    '''
     def __init__(self):
         self._name = ""
         self._label = None

@@ -2,6 +2,31 @@ from .pattern import Pattern, Molecule, Component, Bonds
 
 ###### XMLObjs ###### 
 class XMLObj:
+    '''
+    Base object that contains XMLs that is the parent of
+    all XML object that will be used for BNGL blocks as
+    we read from BNGXML. This sets up the python internals
+    such as __repr__ and __str__ for the rest of the XML 
+    classes.
+
+    This base class assumes at least two methods will be
+    defined by each class that inherits this base object
+    which are defined in the methods below. 
+
+    Attributes
+    ----------
+    xml : ??
+        XML string to be parsed for the block
+
+    Methods
+    -------
+    resolve_xml(xml)
+        the method that parses the XML associated with
+        the instance and adjust is appropriately 
+    gen_string()
+        the method to generate the string from the information
+        contained in the instance
+    '''
     def __init__(self, xml):
         self.xml = xml
         self.resolve_xml(self.xml)
@@ -14,8 +39,13 @@ class XMLObj:
 
 class ObsXML(XMLObj):
     '''
-    An observable is a list of patterns where a pattern
-    is a list of molecules
+    Observable XML object. Observables are a list of 
+    patterns where a pattern is a list of molecules. 
+
+    Attributes
+    ----------
+    patterns : list
+        list of Pattern objects that make up the observable
     '''
     def __init__(self, xml):
         self.patterns = []
@@ -47,7 +77,12 @@ class ObsXML(XMLObj):
 
 class SpeciesXML(Pattern):
     '''
-    A species is a list of molecules
+    Species XML object. Species are a list of molecules. 
+
+    Attributes
+    ----------
+    molecules : list
+        list of molecules objects that make up the species
     '''
     def __init__(self, xml):
         self._xml = xml
@@ -59,6 +94,21 @@ class SpeciesXML(Pattern):
         self._parse_xml(xml)
 
 class MolTypeXML(XMLObj):
+    '''
+    Molecule Type XML object. Molecules types are like molecules
+    but with multiple states for each component. 
+
+    Attributes
+    ----------
+    molecule : Molecule
+        a molecule object that forms this molecule type
+
+    Methods
+    -------
+    add_component(name, states)
+        adds component with name "name" and optional states given by 
+        a list of strings
+    '''
     def __init__(self, xml):
         super().__init__(xml)
 
@@ -103,8 +153,37 @@ class MolTypeXML(XMLObj):
 
 class RuleXML(XMLObj):
     '''
-    A rule is a tuple (list of reactant patterns, list of 
+    Molecule Type XML object. Molecules types are like molecules
+    but with multiple states for each component. 
+
+        A rule is a tuple (list of reactant patterns, list of 
     product patterns, list of rate constant functions)
+
+    Attributes
+    ----------
+    bidirectoinal : boolean
+        list of molecules objects that make up the species
+    name : str
+        name of the rule, if exists
+    reactants : list[Pattern]
+        list of patterns that form the reactant side of the rule
+    products : list[Pattern]
+        List of patterns that form the products side of the rule
+    rate_constants : list[Str]
+        list of 1 or 2 rate constants
+
+    Methods
+    -------
+    side_string(name, states)
+        gets the string for a side of the reaction, given a list of pattern objects
+    set_rate_constants(rate_cts)
+        takes an iterable of 1 or 2 rate constants and adjust the object
+        and sets bidirectionality
+    resolve_rate_law(rate_xml)
+        parses XML for rate constants and adds it to the object
+    resolve_rxn_side(side_xml)
+        parses the XML for either reactants or products and adds it to 
+        the object
     '''
     def __init__(self, pattern_xml):
         self.bidirectional = False
@@ -130,6 +209,7 @@ class RuleXML(XMLObj):
     def set_rate_constants(self, rate_cts):
         if len(rate_cts) == 1:
             self.rate_constants = [rate_cts[0]]
+            self.bidirectional = False
         elif len(rate_cts) == 2: 
             self.rate_constants = [rate_cts[0], rate_cts[1]]
             self.bidirectional = True
@@ -137,8 +217,6 @@ class RuleXML(XMLObj):
             print("1 or 2 rate constants allowed")
     
     def resolve_xml(self, pattern_xml):
-        '''
-        '''
         # 
         rule_name = pattern_xml['@name']
         self.name = rule_name
@@ -210,6 +288,26 @@ class RuleXML(XMLObj):
             print("Can't parse rule XML {}".format(side_xml))
 
 class FuncXML(XMLObj):
+    # TODO for some reason the resolve_xml doesn't set the full
+    # function string and it's also not used downstream. 
+
+    '''
+    Function XML object. Functions are expressions and IDs which 
+    is the name of the function with potential arguments. 
+
+    Attributes
+    ----------
+    item_tuple
+        tuple of (function_str, expression) where function_str is the 
+        string that forms the name + arguments of the function (e.g. g(x))
+        and expression is the definition of the function.
+    
+    Methods
+    -------
+    get_arguments(arg_xml)
+        given the XML of arguments, this methods pulls out the list of 
+        arguments the function needs and returns a list of strings. 
+    '''
     def __init__(self, pattern_xml):
         super().__init__(pattern_xml)
 
