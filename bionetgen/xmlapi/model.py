@@ -13,7 +13,62 @@ def_bng_path = bng.defaults.bng_path
 ###### CORE OBJECT AND PARSING FRONT-END ######
 class bngmodel:
     '''
-    The full model
+    Main model object and entry point for XMLAPI. The goal of this 
+    object is to generate and read the BNGXML of a given BNGL model
+    and give the user a pythonic interface to the resulting model object. 
+
+    TODO: * Make model object Cement app configuration aware
+    * disentangle XML generation and the model object itself
+    * disentangle simulator handling from the model object
+    
+    Usage: bngmodel(bng_model)
+           bngmodel(bng_model, BNGPATH)
+
+    Attributes
+    ----------
+    active_blocks : list[str]
+        a list of the blocks that have been parsed in the model
+    _action_list : list[str]
+        a list of approved actions
+    BNGPATH : str
+        path to bionetgen where BNG2.pl lives
+    bngexec : str
+        path to BNG2.pl
+    model_name : str
+        name of the model, generally set from the given BNGL file
+    recompile : bool
+        a tag to keep track if any changes have been made to the model
+        via the XML API by the user
+    changes : dict
+        a list of changes the user have made to the model
+    
+    Methods
+    -------
+    parse_model(model_file)
+        parses the BNGL model at the given path model_file
+    reset_compilation_tags()
+        resets compilation tags of each block to keep track of any changes the user
+        makes to the model via the API
+    generate_xml(model_file, xml_file)
+        this generates the BNGXML of the given model file in the xml_file argument
+        given
+    strip_actions(model_path, folder)
+        strips actions from the given model in model_path and writes a model without
+        actions in the folder given
+    parse_xml(xml_str)
+        parses given xml string
+    add_action(action_type, action_args)
+        adds the action of action_type with arguments given by the optional keyword
+        argument action_args which is a list of lists where each element 
+        is of the form [ArgumentName, ArgumentValue]
+    write_model(model_name)
+        write the model in BNGL format to the path given
+    write_xml(open_file, xml_type)
+        writes the XML of the model into the open_file object given. xml_types allowed
+        are BNGXML or SBML formats.
+    setup_simulator(sim_type)
+        sets up a simulator in bngmodel.simulator where the only current supported 
+        type of simulator is libRR for libRoadRunner simulator.
     '''
     def __init__(self, bngl_model, BNGPATH=def_bng_path):
         self.active_blocks = []
