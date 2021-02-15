@@ -81,6 +81,11 @@ class BNGBase(cement.Controller):
                                    "default": None,
                                    "type": str,
                                    "required": False}),
+                (["-o","--output"],{"help":"(optional) File to write the notebook in",
+                                   "default": "",
+                                   "type": str}),
+                (["-op","--open"],{"help":"(optional) If given, the notebook will by opened using nbopen",
+                                   "action": 'store_true'}),
             ]
     )
     def notebook(self):
@@ -101,10 +106,18 @@ class BNGBase(cement.Controller):
         else:
             # just use the basic notebook
             notebook = BNGNotebook(CONFIG["bionetgen"]["notebook"]["path"])
+        # find our file name
+        if len(args.output) == 0:
+            fname = CONFIG["bionetgen"]["notebook"]["name"]
+        else:
+            fname = args.output
         # write the notebook out
-        notebook.write(CONFIG["bionetgen"]["notebook"]["name"])
+        notebook.write(fname)
         # open the notebook with nbopen
-        rc = subprocess.run(["nbopen", CONFIG["bionetgen"]["notebook"]["name"]], stdout=bng.defaults.stdout)
+        stdout = getattr(subprocess, CONFIG["bionetgen"]["stdout"])
+        stderr = getattr(subprocess, CONFIG["bionetgen"]["stderr"])
+        if args.open:
+            rc = subprocess.run(["nbopen", fname], stdout=stdout, stderr=stderr)
 
     @cement.ex(
             help="Rudimentary plotting of gdat/cdat/scan files",
