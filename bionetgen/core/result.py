@@ -57,7 +57,7 @@ class BNGResult:
             return None
 
     def _load_scan(self, fpath):
-        return self.load_dat(fpath)
+        return self._load_dat(fpath)
 
     def find_gdat_files(self):
         files = os.listdir(self.path)
@@ -69,7 +69,7 @@ class BNGResult:
     def load_results(self):
         for name in self.names: 
             gdat_path = os.path.join(self.path, self.names[name])
-            self.results[name] = self.load_dat(gdat_path)
+            self.results[name] = self._load_dat(gdat_path)
 
     def _load_dat(self, path, dformat="f8"):
         '''
