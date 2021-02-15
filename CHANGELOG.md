@@ -71,3 +71,6 @@ BNG2.pl stdout now pipes correctly to actual stdout and can be adjusted via conf
 
 ## 0.2.4
 Adding documentation, rewriting temporary folder and file handling to use TemporaryDirectory and Temporary file respectively so that these work correctly on Windows. 
+
+## 0.2.5
+Fixing a bug that was caused by method renaming
