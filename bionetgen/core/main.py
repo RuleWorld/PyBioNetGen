@@ -6,40 +6,9 @@ import bionetgen as bng
 from bionetgen.core import BNGResult
 from bionetgen.core import BNGPlotter
 
-def run(inp, out=None):
-    '''
-    Convenience function to run BNG2.pl as a library
-
-    Usage: run(path_to_input_file, output_folder)
-
-    Arguments
-    ---------
-    path_to_input_file : str
-        this has to point to a BNGL file
-    output_folder : str 
-        (optional) this points to a folder to put the results
-        into. If it doesn't exist, it will be created.
-    '''
-    # if out is None we make a temp directory
-    if out is None:
-        cur_dir = os.getcwd()
-        with TemporaryDirectory() as out:
-            # instantiate a CLI object with the info
-            cli = BNGCLI(inp, out, bng.defaults.config["bionetgen"]["bngpath"])
-            try:
-                cli.run()
-            except:
-                print("Couldn't run the simulation")
-            # if we are not in the original folder, go back
-            os.chdir(cur_dir)
-    else:
-        # instantiate a CLI object with the info
-        cli = BNGCLI(inp, out, bng.defaults.config["bionetgen"]["bngpath"])
-        try:
-            cli.run()
-        except:
-            print("Couldn't run the simulation")
-    return cli.result
+# TODO Consolidate how config is being accessed. It's
+# almost like each function accesses the configs from
+# a different path 
 
 def runCLI(config, args):
     '''

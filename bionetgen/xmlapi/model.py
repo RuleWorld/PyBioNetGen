@@ -1,14 +1,16 @@
 import bionetgen as bng
+from bionetgen.main import BioNetGen
 import re, functools, subprocess, os, xmltodict, sys, shutil, tempfile
 from tempfile import TemporaryDirectory
 from tempfile import TemporaryFile
 from .utils import find_BNG_path
 from .structs import Parameters, Species, MoleculeTypes, Observables, Functions, Compartments, Rules, Actions
 
-def_bng_path = bng.defaults.bng_path
-
-# TODO We need to make this cement app aware so config files work
-# for this too
+# This allows access to the CLIs config setup
+app = BioNetGen()
+app.setup()
+conf = app.config['bionetgen']
+def_bng_path = conf['bngpath']
 
 ###### CORE OBJECT AND PARSING FRONT-END ######
 class bngmodel:
