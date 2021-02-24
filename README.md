@@ -16,7 +16,7 @@ PyBioNetGen comes with a command line interface (CLI) entrypoint as well as a fu
 
 The library side provides a simple BNGL model runner as well as a model object that can be manipulated and used to get libRoadRunner simulators for the model. 
 
-The model object requires a system call to BioNetGen so the initialization can be relatively costly, in case you would like to use it for parallel applications, use the libRR simulator for those. 
+The model object requires a system call to BioNetGen so the initialization can be relatively costly, in case you would like to use it for parallel applications, use the [libRoadRunner](http://libroadrunner.org/) simulator instead, unless you are doing NFSim simulations.
 
 ### Usage 
 
@@ -44,6 +44,9 @@ print(model) # this will print the entire BNGL
 model.parameters.k = 1 # setting parameter k to 1
 with open("new_model.bngl", "w") as f:
     f.write(str(model)) # writes the changed model to new_model file
+
+# this will give you a libRoadRunner instance of the model
+librr_sim = model.setup_simulator()._simulator
 ```
 
 More documentation and tutorials are in progress.
