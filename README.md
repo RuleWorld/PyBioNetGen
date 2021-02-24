@@ -4,10 +4,10 @@
 
 ## Installation
 
-Currently this library is in testing so it's in test PyPI and not directly installable via pip from there. Use the following to get the library
+Use the following pip command
 
 ```
-$ pip install -i https://test.pypi.org/simple bionetgen
+$ pip install bionetgen
 ```
 
 ### Features 
