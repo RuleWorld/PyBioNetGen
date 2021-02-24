@@ -34,6 +34,8 @@ Sample library usage
 import bionetgen 
 
 ret = bionetgen.run("/path/to/mymodel.bngl", out="/path/to/output/folder")
+# out keyword is optional, if not given, 
+# generated files will be deleted after running
 res = ret.results['mymodel']
 # res will be a numpy record array of your gdat results
 
