@@ -12,7 +12,7 @@ $ pip install bionetgen
 
 ### Features 
 
-PyBioNetGen comes with a command line interface (CLI) entrypoint as well as a functional library that can be imported. The CLI can be used to run BNGL models, generate Jupyter notebooks and do rudimentary plotting. 
+PyBioNetGen comes with a command line interface (CLI), based on [cement framework](https://builtoncement.com/), as well as a functional library that can be imported. The CLI can be used to run BNGL models, generate Jupyter notebooks and do rudimentary plotting. 
 
 The library side provides a simple BNGL model runner as well as a model object that can be manipulated and used to get libRoadRunner simulators for the model. 
 
