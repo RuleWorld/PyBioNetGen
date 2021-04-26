@@ -1,4 +1,4 @@
-import os, shutil
+import os
 from pytest import raises
 import bionetgen as bng
 from bionetgen.main import BioNetGenTest
