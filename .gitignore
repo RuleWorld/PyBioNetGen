@@ -3,3 +3,4 @@
 *.egg-info
 bionetgen/bng-*
 temp_testing/*
+.vscode/*

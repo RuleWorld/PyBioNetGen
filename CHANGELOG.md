@@ -78,3 +78,6 @@ Fixing a bug that was caused by method renaming
 ## 0.2.6
 Notebook subcommand now by default doesn't open the notebook using nbopen, an argument allows you
 to do so.
+
+## 0.2.7
+Updating BioNetGen version to 2.6.0
