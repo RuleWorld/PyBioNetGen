@@ -2,6 +2,8 @@
 
 [![BNG CLI build status](https://github.com/ASinanSaglam/BNG_cli/workflows/bng-cli-tests/badge.svg)](https://github.com/ASinanSaglam/BNG_cli/actions)
 
+This is a simple CLI and a library for [BioNetGen modelling language](http://bionetgen.org/). 
+
 ## Installation
 
 Use the following pip command
