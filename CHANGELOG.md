@@ -80,4 +80,7 @@ Notebook subcommand now by default doesn't open the notebook using nbopen, an ar
 to do so.
 
 ## 0.2.7
+Published on PyPI
+
+## 0.2.8
 Updating BioNetGen version to 2.6.0
