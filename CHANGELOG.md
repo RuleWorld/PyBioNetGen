@@ -82,5 +82,5 @@ to do so.
 ## 0.2.7
 Published on PyPI
 
-## 0.2.8
+## 0.2.9
 Updating BioNetGen version to 2.6.0
