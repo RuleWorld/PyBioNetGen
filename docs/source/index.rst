@@ -15,7 +15,7 @@ Please see :ref:`Quickstart` to learn how to install and use PyBioNetGen.
    :caption: Contents:
 
    quickstart
-   CLI
+   cli
    library
 
 
