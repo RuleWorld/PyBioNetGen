@@ -3,8 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PyBioNetGen's documentation!
-=======================================
+#########################################
+PyBioNetGen - A lightweight BioNetGen CLI
+#########################################
 
 PyBioNetGen is a lightweight command line interface (CLI) for `BioNetGen <https://bionetgen.org>`_.
 PyBioNetGen comes with a command line entry point as well as a library with useful functions. 

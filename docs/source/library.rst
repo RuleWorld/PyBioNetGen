@@ -4,9 +4,41 @@
 Library
 #######
 
-Test
+PyBioNetGen also comes with a library that allows you to programatically run and do simple 
+modifications of BNGL models. 
+
+run
+===
+
+This method allows you to do a simple run of a BNGL model and returns the results as 
+`numpy record arrays <https://numpy.org/doc/stable/reference/generated/numpy.recarray.html>`_.
+
+.. code-block:: python
+
+   import bionetgen
+   result = bionetgen.run("mymodel.bngl", output="myfolder")
+   result["mymodel"] # this will contain the gdat results of the run
 
 bngmodel
---------
+========
 
-This is how you load in a model. 
+This method allows you to load in a model into a python object. 
+
+.. code-block:: python
+
+   import bionetgen
+   model = bionetgen.bngmodel("mymodel.bngl") # generates BNG-XML and reads it
+   print(model)
+
+bngmodel.setup_simulator
+---------------
+
+This method allows you to get a `libroadrunner <http://libroadrunner.org/>`_ simulator 
+of the loaded model. 
+
+.. code-block:: python
+
+   import bionetgen
+   model = bionetgen.bngmodel("mymodel.bngl") # generates BNG-XML and reads it
+   librr_simulator = model.setup_simulator()._simulator
+   librr_simulator.simulate(0,1,10) # librr_simulator is the simulator object 
