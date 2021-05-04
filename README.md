@@ -1,6 +1,6 @@
 # A simple CLI for BioNetGen 
 
-[![BNG CLI build status](https://github.com/ASinanSaglam/BNG_cli/workflows/bng-cli-tests/badge.svg)](https://github.com/ASinanSaglam/BNG_cli/actions)
+[![BNG CLI build status](https://github.com/RuleWorld/PyBioNetGen/workflows/bng-cli-tests/badge.svg)](https://github.com/RuleWorld/PyBioNetGen/actions)
 
 This is a simple CLI and a library for [BioNetGen modelling language](http://bionetgen.org/). 
 
