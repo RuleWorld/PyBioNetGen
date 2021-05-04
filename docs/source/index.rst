@@ -6,10 +6,17 @@
 Welcome to PyBioNetGen's documentation!
 =======================================
 
+PyBioNetGen is a lightweight command line interface (CLI) for `BioNetGen <https://bionetgen.org>`_.
+PyBioNetGen comes with a command line entry point as well as a library with useful functions. 
+Please see :ref:`Quickstart` to learn how to install and use PyBioNetGen. 
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   quickstart
+   CLI
+   library
 
 
 Indices and tables
