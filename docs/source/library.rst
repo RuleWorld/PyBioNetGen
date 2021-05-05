@@ -19,8 +19,8 @@ This method allows you to do a simple run of a BNGL model and returns the result
    result = bionetgen.run("mymodel.bngl", output="myfolder")
    result["mymodel"] # this will contain the gdat results of the run
 
-:ref:bngmodel
-=============
+:ref:`bngmodel`
+===============
 
 This method allows you to load in a model into a python object. 
 
@@ -33,7 +33,7 @@ This method allows you to load in a model into a python object.
 Please see :ref:`bngmodel` for more all the features this object supports.
 
 bngmodel.setup_simulator
----------------
+------------------------
 
 This method allows you to get a `libroadrunner <http://libroadrunner.org/>`_ simulator 
 of the loaded model. 

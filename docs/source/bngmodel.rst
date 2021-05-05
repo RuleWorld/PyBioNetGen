@@ -61,4 +61,88 @@ blocks are
 - Reaction rules
 
 PyBioNetGen bngmodel also recognizes actions within the model but discards them upon loading (this
-will eventually be optional). 
+will eventually be optional). All bionetgen features will eventually be supported by this library, 
+including every valid BNGL block.
+
+Blocks also act pythonic and act like other python objects
+
+.. code-block:: python
+   :linenos:
+
+   for param in model.parameters:
+       print("parameter name: {}".format(param))
+       print("parameter value: {}".format(model.parameters[param]))
+   
+   for obs in model.observables:
+       obs_val = model.observables[obs]
+       print("observable name: {}".format(obs))
+       print("observable type: {}".format(obs_val[0]))
+       print("observable pattern: {}".format(obs_val[1]))
+
+   for spec in model.species:
+       spec_count = model.species[spec]
+       print("species name: {}".format(spec))
+       print("species count: {}".format(spec_count))
+       print("molecules in species: {}".format(spec.molecules))
+       
+The following sections will detail how each block behaves 
+
+Parameters
+----------
+
+Parameters are a list of names and values associated with those names. Values can be either
+floating point numbers or string expressions. 
+
+.. code-block:: 
+   :linenos:
+
+   model.parameters
+
+
+Compartments
+------------
+
+.. code-block:: 
+   :linenos:
+
+   model.compartments
+
+Molecule types
+--------------
+
+.. code-block:: 
+   :linenos:
+
+   model.moltypes
+
+Species
+-------
+
+.. code-block:: 
+   :linenos:
+
+   model.species
+
+Observables
+-----------
+
+.. code-block:: 
+   :linenos:
+
+   model.observables
+
+Functions
+---------
+
+.. code-block:: 
+   :linenos:
+
+   model.functions
+
+Reaction rules
+--------------
+
+.. code-block:: 
+   :linenos:
+
+   model.rules
