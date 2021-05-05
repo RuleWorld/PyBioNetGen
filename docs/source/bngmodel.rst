@@ -49,3 +49,16 @@ This will write 10 models with different k parameters.
 Blocks
 ======
 
+All blocks that are active can be seen with print(model.active_blocks). Currently supported 
+blocks are 
+
+- Parameters
+- Compartments
+- Molecule types
+- Species (or seed species)
+- Observables
+- Functions 
+- Reaction rules
+
+PyBioNetGen bngmodel also recognizes actions within the model but discards them upon loading (this
+will eventually be optional). 
