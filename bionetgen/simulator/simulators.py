@@ -57,7 +57,7 @@ class BNGSimulator:
         Any subclass implementing a BNGSimulator should set
         this property and make it so that setting the simulator
         object to the file path given to initialize the 
-        BNGSimulator class initializes the simulator object in turn. 
+        BNGSimulator class initializes the simulator object in turn.
 
     Methods
     -------
@@ -105,7 +105,30 @@ class BNGSimulator:
         return
 
 # TODO: Unified API for all simulator objects here
-class libRRSimulator(BNGSimulator):    
+class libRRSimulator(BNGSimulator): 
+    '''
+    libRoadRunner simulator wrapper
+
+
+    Attributes
+    ----------
+    sbml: str
+        the SBML used by the underlying libRoarRunner simulator
+
+    Properties
+    ----------
+    simulator: obj
+        the python object that runs the actual simulation.
+        Any subclass implementing a BNGSimulator should set
+        this property and make it so that setting the simulator
+        object to the file path given to initialize the 
+        BNGSimulator class initializes the simulator object in turn.
+
+    Methods
+    -------
+    simulate(args)
+        Uses the arguments provided to call the underlying simulator
+    '''   
     @property
     def simulator(self):
         '''
@@ -121,7 +144,6 @@ class libRRSimulator(BNGSimulator):
         try: 
             import roadrunner as rr
             self._simulator = rr.RoadRunner(model)
-            self.sbml = self._simulator
         except ImportError:
             print("libroadrunner is not installed!")
 
@@ -132,11 +154,13 @@ class libRRSimulator(BNGSimulator):
         string with which the libRR instance 
         is instantiated with 
         '''
+        if not hasattr(self, "_sbml"):
+            self._sbml = self.simulator.getCurrentSBML()
         return self._sbml
     
     @sbml.setter
-    def sbml(self, librr):
-        self._sbml = librr.getCurrentSBML()
+    def sbml(self, model_str):
+        self._sbml = model_str
 
     def simulate(self, *args, **kwargs):
         '''

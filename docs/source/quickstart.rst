@@ -13,12 +13,13 @@ You can use :code:`pip` to install PyBioNetGen
 
     pip install bionetgen
 
-which also installs the latest version of `BioNetGen <https://bionetgen.org>`_.
+which comes with the latest version of `BioNetGen <https://bionetgen.org>`_. Please note that,
+at the moment, PyBioNetGen does not support Atomizer but eventually will.
 
-Usage
-=====
+Basic usage
+===========
 
-After installation complete you can test to see if it's properly installed with
+After installation complete you can test to see if PyBioNetGen is properly installed with
 
 .. code-block:: shell
 

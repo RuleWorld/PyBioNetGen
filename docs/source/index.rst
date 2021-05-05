@@ -18,6 +18,7 @@ Please see :ref:`Quickstart` to learn how to install and use PyBioNetGen.
    quickstart
    cli
    library
+   bngmodel
 
 
 Indices and tables
