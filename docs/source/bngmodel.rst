@@ -105,13 +105,25 @@ stores the parameter expressions in case they are written as functions in the or
 Compartments
 ------------
 
+Compartments are comprised of a compartment name, dimensionality, volume and an optional
+parent compartment name
+
 .. code-block:: 
    :linenos:
 
-   model.compartments
+   # say we have a compartment string "PM 2 10.0 EC" 
+   # which is a 2 dimensional compartment with 2 dimensions and 10 volume
+   # and is contained under another compartment EC
+   comp_name = model.compartments[i] # where i is the index of PM compartment, will return "PM"
+   comp_list = model.compartments[comp_name] # will return [2, 10.0, "EC"]
+   print(comp_list[0]) # will print 2
+   print(comp_list[1]) # will print 10.0
+   print(comp_list[2]) # will print EC
 
 Molecule types
 --------------
+
+Molecule types contains different components and all possible states of those components
 
 .. code-block:: 
    :linenos:
@@ -124,6 +136,8 @@ Molecule types
 
 Species
 -------
+
+Species are made up of molecules and can contain an overall compartment and label.
 
 .. code-block:: 
    :linenos:
@@ -140,7 +154,7 @@ Species
 Observables
 -----------
 
-Observables are made up of species patterns.
+Observables are made up of a list of species patterns
 
 .. code-block:: 
    :linenos:
@@ -155,15 +169,32 @@ Observables are made up of species patterns.
 Functions
 ---------
 
+Functions are just a tuple of function name and expression
+
 .. code-block:: 
    :linenos:
 
-   model.functions
+   # say we have a function f() = 10*kon
+   func_name = model.functions[0] # this will return function name f()
+   func_expr = model.functions[func_name] # this will return function expression "10*kon"
 
 Reaction rules
 --------------
 
+Reaction rules consist of two lists of species, one for reactants and one for products as well
+as a list of rate constants. There is a single rate constant if the rule is unidirectional and 
+two rate constants if the rule is bidirectional. 
+
 .. code-block:: 
    :linenos:
 
-   model.rules
+   # Let's say we have a rule: R1: A() + B() <-> C() kon,koff
+   rule_name = model.rules[0] # this will return "R1" string
+   rule_obj = model.rules[rule_name] # this is the full rule object
+   print(rule_obj) # prints bngl string
+   print(rule_obj.reactants) # prints the list [A(), B()], where each item is a species object
+   print(rule_obj.products) # prints the list [C()], where each item is a species object
+   print(rule_obj.rate_constants) # prints the list ["kon","koff"]
+   print(rule_obj.bidirectional) # prints true since 
+   
+   
