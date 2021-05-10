@@ -4,6 +4,8 @@
 
 This is a simple CLI and a library for [BioNetGen modelling language](http://bionetgen.org/). 
 
+Please see the [documentation](https://pybionetgen.readthedocs.io/en/latest/) to learn how to use PyBioNetGen. 
+
 ## Installation
 
 Use the following pip command
