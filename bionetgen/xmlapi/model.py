@@ -19,8 +19,7 @@ class bngmodel:
     object is to generate and read the BNGXML of a given BNGL model
     and give the user a pythonic interface to the resulting model object. 
 
-    TODO: * Make model object Cement app configuration aware
-    * disentangle XML generation and the model object itself
+    TODO: * disentangle XML generation and the model object itself
     * disentangle simulator handling from the model object
     
     Usage: bngmodel(bng_model)
