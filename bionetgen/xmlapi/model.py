@@ -1,9 +1,10 @@
 import bionetgen as bng
 from bionetgen.main import BioNetGen
-import re, functools, subprocess, os, xmltodict, sys, shutil, tempfile
+import subprocess, os, xmltodict, sys
 from tempfile import TemporaryDirectory
 from tempfile import TemporaryFile
 from .utils import find_BNG_path
+from .bngfile import BNGFile
 from .structs import Parameters, Species, MoleculeTypes, Observables, Functions, Compartments, Rules, Actions
 
 # This allows access to the CLIs config setup
@@ -19,9 +20,6 @@ class bngmodel:
     object is to generate and read the BNGXML of a given BNGL model
     and give the user a pythonic interface to the resulting model object. 
 
-    TODO: * disentangle XML generation and the model object itself
-    * disentangle simulator handling from the model object
-    
     Usage: bngmodel(bng_model)
            bngmodel(bng_model, BNGPATH)
 
@@ -29,8 +27,8 @@ class bngmodel:
     ----------
     active_blocks : list[str]
         a list of the blocks that have been parsed in the model
-    _action_list : list[str]
-        a list of approved actions
+    bngfile : BNGFile
+        BNGFile object that's responsible for .bngl file manipulations
     BNGPATH : str
         path to bionetgen where BNG2.pl lives
     bngexec : str
@@ -50,12 +48,6 @@ class bngmodel:
     reset_compilation_tags()
         resets compilation tags of each block to keep track of any changes the user
         makes to the model via the API
-    generate_xml(model_file, xml_file)
-        this generates the BNGXML of the given model file in the xml_file argument
-        given
-    strip_actions(model_path, folder)
-        strips actions from the given model in model_path and writes a model without
-        actions in the folder given
     parse_xml(xml_str)
         parses given xml string
     add_action(action_type, action_args)
@@ -73,9 +65,7 @@ class bngmodel:
     '''
     def __init__(self, bngl_model, BNGPATH=def_bng_path):
         self.active_blocks = []
-        # We want blocks to be printed in the same order
-        # every time
-        self._action_list = ["generate_network(", "generate_hybrid_model(","simulate(", "simulate_ode(", "simulate_ssa(", "simulate_pla(", "simulate_nf(", "parameter_scan(", "bifurcate(", "readFile(", "writeFile(", "writeModel(", "writeNetwork(", "writeXML(", "writeSBML(", "writeMfile(", "writeMexfile(", "writeMDL(", "visualize(", "setConcentration(", "addConcentration(", "saveConcentration(", "resetConcentrations(", "setParameter(", "saveParameters(", "resetParameters(", "quit(", "setModelName(", "substanceUnits(", "version(", "setOption("]
+        # We want blocks to be printed in the same order every time
         self.block_order = ["parameters", "compartments", "moltypes", 
                             "species", "observables", "functions", 
                             "rules", "actions"]
@@ -83,6 +73,7 @@ class bngmodel:
         self.BNGPATH = BNGPATH
         self.bngexec = bngexec 
         self.model_name = ""
+        self.bngfile = BNGFile(bngl_model)
         self.parse_model(bngl_model)
 
     @property
@@ -129,9 +120,8 @@ class bngmodel:
         if model_file.endswith(".bngl"):
             print("Attempting to generate XML")
             with TemporaryFile("w+") as xml_file:
-                if self.generate_xml(model_file, xml_file):
+                if self.bngfile.generate_xml(model_file, xml_file):
                     print("Parsing XML")
-                    # import IPython;IPython.embed()
                     self.parse_xml(xml_file.read())
                     self.reset_compilation_tags()
                 else:
@@ -148,63 +138,6 @@ class bngmodel:
     def reset_compilation_tags(self):
         for block in self.active_blocks:
             getattr(self, block).reset_compilation_tags()
-
-    def generate_xml(self, model_file, xml_file):
-        cur_dir = os.getcwd()
-        # temporary folder to work in
-        with TemporaryDirectory() as temp_folder:
-            # make a stripped copy without actions in the folder
-            stripped_bngl = self.strip_actions(model_file, temp_folder)
-            # run with --xml 
-            os.chdir(temp_folder)
-            # TODO: take stdout option from app instead
-            rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
-            if rc.returncode == 1:
-                print("XML generation failed")
-                # go back to our original location
-                os.chdir(cur_dir)
-                # shutil.rmtree(temp_folder)
-                return False
-            else:
-                # we should now have the XML file 
-                path, model_name = os.path.split(stripped_bngl)
-                model_name = model_name.replace(".bngl", "")
-                written_xml_file = model_name + ".xml"
-                # import ipdb;ipdb.set_trace()
-                with open(written_xml_file, "r") as f:
-                    content = f.read()
-                    xml_file.write(content)
-                # since this is an open file, to read it later
-                # we need to go back to the beginning
-                xml_file.seek(0)
-                # go back to our original location
-                os.chdir(cur_dir)
-                return True
-
-    def strip_actions(self, model_path, folder):
-        '''
-        Strips actions from a BNGL folder and makes a copy
-        into the given folder
-        '''
-        # Get model name and setup path stuff
-        path, model_file = os.path.split(model_path)
-        # open model and strip actions
-        with open(model_path, 'r') as mf:
-            # read and strip actions
-            mlines = mf.readlines()
-            stripped_lines = filter(lambda x: self._not_action(x), mlines)
-        # TODO: read stripped lines and store the actions
-        # open new file and write just the model
-        stripped_model = os.path.join(folder, model_file)
-        with open(stripped_model, 'w') as sf:
-            sf.writelines(stripped_lines)
-        return stripped_model 
-
-    def _not_action(self, line):
-        for action in self._action_list:
-            if action in line:
-                return False
-        return True
 
     def parse_xml(self, xml_str):
         xml_dict = xmltodict.parse(xml_str)
@@ -357,18 +290,3 @@ class bngmodel:
         return self.simulator
 
 ###### CORE OBJECT AND PARSING FRONT-END ######
-
-if __name__ == "__main__":
-    # this is to run through a set of 
-    # bngl files under the folder validation
-    os.chdir("validation")
-    bngl_list = os.listdir(os.getcwd())
-    bngl_list = filter(lambda x: x.endswith(".bngl"), bngl_list)
-    for bngl in bngl_list:
-        m = bngmodel(bngl)
-        with open('test.bngl', 'w') as f:
-            f.write(str(m))
-        rc = subprocess.run([m.bngexec, 'test.bngl'])
-        if rc.returncode == 1:
-            print("issues with the written bngl")
-            sys.exit()
