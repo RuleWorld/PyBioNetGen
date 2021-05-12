@@ -22,22 +22,27 @@ class BNGParser:
 
     Attributes
     ----------
-
+    bngfile : BNGFile
+        BNGFile object that's responsible for .bngl file manipulations
     
     Methods
     -------
-    
+    parse_model(model_file)
+        parses the BNGL model at the given path and adds everything to a given model object
+    parse_xml(xml_str)
+        parses given xml string and adds everything to a given model object
     '''
     def __init__(self, path, BNGPATH=def_bng_path) -> None:
         self.bngfile = BNGFile(path)
+    
+    def parse_model(self, model_obj) -> None:
+        '''
+        Will determine the parser route eventually and call the right
+        parser 
+        '''
+        self._parse_model_bngpl(model_obj)
 
-    def set_model(self, model_obj) -> None:
-        self.parse_model(model_obj)
-
-    def parse_model(self, model_obj):
-        # TODO We really need to clean up this method and relevant ones
-        # and make it clear what each one of them does. Refactoring time! 
-        
+    def _parse_model_bngpl(self, model_obj) -> None:      
         # get file path
         model_file = self.bngfile.path
         
@@ -61,7 +66,7 @@ class BNGParser:
             print("The extension of {} is not supported".format(model_file))
             raise NotImplemented
 
-    def parse_xml(self, xml_str, model_obj):
+    def parse_xml(self, xml_str, model_obj) -> None:
         xml_dict = xmltodict.parse(xml_str)
         model_obj.xml_dict = xml_dict
         xml_model = xml_dict['sbml']['model']

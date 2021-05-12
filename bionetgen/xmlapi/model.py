@@ -29,8 +29,8 @@ class bngmodel:
     ----------
     active_blocks : list[str]
         a list of the blocks that have been parsed in the model
-    bngfile : BNGFile
-        BNGFile object that's responsible for .bngl file manipulations
+    bngparser : BNGParser
+        BNGParser object that's responsible for .bngl file reading and model setup
     BNGPATH : str
         path to bionetgen where BNG2.pl lives
     bngexec : str
@@ -45,13 +45,9 @@ class bngmodel:
     
     Methods
     -------
-    parse_model(model_file)
-        parses the BNGL model at the given path model_file
     reset_compilation_tags()
         resets compilation tags of each block to keep track of any changes the user
         makes to the model via the API
-    parse_xml(xml_str)
-        parses given xml string
     add_action(action_type, action_args)
         adds the action of action_type with arguments given by the optional keyword
         argument action_args which is a list of lists where each element 
@@ -76,7 +72,7 @@ class bngmodel:
         self.bngexec = bngexec 
         self.model_name = ""
         self.bngparser = BNGParser(bngl_model)
-        self.bngparser.set_model(self)
+        self.bngparser.parse_model(self)
 
     @property
     def recompile(self):

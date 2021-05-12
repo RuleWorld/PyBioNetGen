@@ -21,11 +21,15 @@ class BNGFile:
 
     Attributes
     ----------
-
+    path : str
+    _action_list : list[str]
+    BNGPATH : str
+    bngexec : str
     
     Methods
     -------
-    
+    generate_xml : bool
+    strip_actions : str
     '''
     def __init__(self, path, BNGPATH=def_bng_path) -> None:
         self.path = path
@@ -46,7 +50,7 @@ class BNGFile:
         '''
         if model_file is None:
             model_file = self.path
-            
+
         cur_dir = os.getcwd()
         # temporary folder to work in
         with TemporaryDirectory() as temp_folder:
