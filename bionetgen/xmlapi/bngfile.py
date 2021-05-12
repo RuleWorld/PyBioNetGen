@@ -41,7 +41,12 @@ class BNGFile:
         self.BNGPATH = BNGPATH
         self.bngexec = bngexec 
     
-    def generate_xml(self, model_file, xml_file) -> bool:
+    def generate_xml(self, xml_file, model_file=None) -> bool:
+        '''
+        '''
+        if model_file is None:
+            model_file = self.path
+            
         cur_dir = os.getcwd()
         # temporary folder to work in
         with TemporaryDirectory() as temp_folder:
@@ -75,7 +80,7 @@ class BNGFile:
 
     def strip_actions(self, model_path, folder) -> str:
         '''
-        Strips actions from a BNGL folder and makes a copy
+        Strips actions from a BNGL file and makes a copy
         into the given folder
         '''
         # Get model name and setup path stuff

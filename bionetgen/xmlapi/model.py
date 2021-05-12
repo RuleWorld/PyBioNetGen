@@ -1,11 +1,13 @@
 import bionetgen as bng
-from bionetgen.main import BioNetGen
 import subprocess, os, xmltodict, sys
+
+from bionetgen.main import BioNetGen
 from tempfile import TemporaryDirectory
 from tempfile import TemporaryFile
 from .utils import find_BNG_path
-from .bngfile import BNGFile
+from .bngparser import BNGParser
 from .structs import Parameters, Species, MoleculeTypes, Observables, Functions, Compartments, Rules, Actions
+
 
 # This allows access to the CLIs config setup
 app = BioNetGen()
@@ -73,8 +75,8 @@ class bngmodel:
         self.BNGPATH = BNGPATH
         self.bngexec = bngexec 
         self.model_name = ""
-        self.bngfile = BNGFile(bngl_model)
-        self.parse_model(bngl_model)
+        self.bngparser = BNGParser(bngl_model)
+        self.bngparser.set_model(self)
 
     @property
     def recompile(self):
@@ -111,93 +113,9 @@ class bngmodel:
         active_ordered_blocks = [getattr(self,i) for i in self.block_order if i in self.active_blocks]
         return active_ordered_blocks.__iter__()
 
-    def parse_model(self, model_file):
-        # TODO We really need to clean up this method and relevant ones
-        # and make it clear what each one of them does. Refactoring time! 
-        
-        # this route runs BNG2.pl on the bngl and parses
-        # the XML instead
-        if model_file.endswith(".bngl"):
-            print("Attempting to generate XML")
-            with TemporaryFile("w+") as xml_file:
-                if self.bngfile.generate_xml(model_file, xml_file):
-                    print("Parsing XML")
-                    self.parse_xml(xml_file.read())
-                    self.reset_compilation_tags()
-                else:
-                    print("XML file couldn't be generated")
-        elif model_file.endswith(".xml"):
-            with open(model_file, "r") as f:
-                xml_str = f.read()
-                self.parse_xml(xml_str)
-            self.reset_compilation_tags()
-        else:
-            print("The extension of {} is not supported".format(model_file))
-            raise NotImplemented
-
     def reset_compilation_tags(self):
         for block in self.active_blocks:
             getattr(self, block).reset_compilation_tags()
-
-    def parse_xml(self, xml_str):
-        xml_dict = xmltodict.parse(xml_str)
-        self.xml_dict = xml_dict
-        xml_model = xml_dict['sbml']['model']
-        self.model_name = xml_model['@id']
-        for listkey in xml_model.keys():
-            if listkey == "ListOfParameters":
-                param_list = xml_model[listkey]
-                if param_list is not None:
-                    params = param_list['Parameter']
-                    self.parameters = Parameters()
-                    self.parameters.parse_xml_block(params)
-                    self.active_blocks.append("parameters")
-            elif listkey == "ListOfObservables":
-                obs_list = xml_model[listkey]
-                if obs_list is not None:
-                    obs = obs_list['Observable']
-                    self.observables = Observables()
-                    self.observables.parse_xml_block(obs)
-                    self.active_blocks.append("observables")
-            elif listkey == "ListOfCompartments":
-                comp_list = xml_model[listkey]
-                if comp_list is not None:
-                    self.compartments = Compartments()
-                    comps = comp_list['compartment']
-                    self.compartments.parse_xml_block(comps)
-                    self.active_blocks.append("compartments")
-            elif listkey == "ListOfMoleculeTypes":
-                mtypes_list = xml_model[listkey]
-                if mtypes_list is not None:
-                    mtypes = mtypes_list["MoleculeType"]
-                    self.moltypes = MoleculeTypes()
-                    self.moltypes.parse_xml_block(mtypes)
-                    self.active_blocks.append("moltypes")
-            elif listkey == "ListOfSpecies":
-                species_list = xml_model[listkey]
-                if species_list is not None:
-                    species = species_list["Species"]
-                    self.species = Species()
-                    self.species.parse_xml_block(species)
-                    self.active_blocks.append("species")
-            elif listkey == "ListOfReactionRules":
-                rrules_list = xml_model[listkey]
-                if rrules_list is not None:
-                    rrules = rrules_list["ReactionRule"]
-                    self.rules = Rules()
-                    self.rules.parse_xml_block(rrules)
-                    self.active_blocks.append("rules")
-            elif listkey == "ListOfFunctions":
-                # TODO: Optional expression parsing?
-                # TODO: Add arguments correctly
-                func_list = xml_model[listkey]
-                if func_list is not None:
-                    self.functions = Functions()
-                    funcs = func_list['Function']
-                    self.functions.parse_xml_block(funcs)
-                    self.active_blocks.append("functions")
-        # And that's the end of parsing
-        print("XML parsed")
 
     def add_action(self, action_type, action_args=[]):
         # add actions block and to active list
