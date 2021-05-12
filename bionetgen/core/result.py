@@ -82,9 +82,8 @@ class BNGResult:
         '''
         # First step is to read the header, 
         # we gotta open the file and pull that line in
-        f = open(path)
-        header = f.readline()
-        f.close()
+        with open(path, "r") as f:
+            header = f.readline()
         # Ensure the header info is actually there
         assert header.startswith("#"), "No header line that starts with #"
         # Now turn it into a list of names for our struct array
