@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 from tempfile import TemporaryFile
 from .utils import find_BNG_path
 from .bngparser import BNGParser
-from .structs import Parameters, Species, MoleculeTypes, Observables, Functions, Compartments, Rules, Actions
+from .structs import Actions
 
 
 # This allows access to the CLIs config setup
@@ -31,10 +31,6 @@ class bngmodel:
         a list of the blocks that have been parsed in the model
     bngparser : BNGParser
         BNGParser object that's responsible for .bngl file reading and model setup
-    BNGPATH : str
-        path to bionetgen where BNG2.pl lives
-    bngexec : str
-        path to BNG2.pl
     model_name : str
         name of the model, generally set from the given BNGL file
     recompile : bool
@@ -54,9 +50,6 @@ class bngmodel:
         is of the form [ArgumentName, ArgumentValue]
     write_model(model_name)
         write the model in BNGL format to the path given
-    write_xml(open_file, xml_type)
-        writes the XML of the model into the open_file object given. xml_types allowed
-        are BNGXML or SBML formats.
     setup_simulator(sim_type)
         sets up a simulator in bngmodel.simulator where the only current supported 
         type of simulator is libRR for libRoadRunner simulator.
@@ -67,9 +60,6 @@ class bngmodel:
         self.block_order = ["parameters", "compartments", "moltypes", 
                             "species", "observables", "functions", 
                             "rules", "actions"]
-        BNGPATH, bngexec = find_BNG_path(BNGPATH)
-        self.BNGPATH = BNGPATH
-        self.bngexec = bngexec 
         self.model_name = ""
         self.bngparser = BNGParser(bngl_model)
         self.bngparser.parse_model(self)
@@ -130,54 +120,6 @@ class bngmodel:
         with open(file_name, 'w') as f:
             f.write(model_str)
 
-    def write_xml(self, open_file, xml_type="bngxml"):
-        '''
-        write new XML to file by calling BNG2.pl again
-        '''
-        cur_dir = os.getcwd()
-        # temporary folder to work in
-        with TemporaryDirectory() as temp_folder:
-            # write the current model to temp folder
-            os.chdir(temp_folder)
-            with open("temp.bngl", "w") as f:
-                f.write(str(self))
-            # run with --xml 
-            # TODO: Make output supression an option somewhere
-            if xml_type == "bngxml":
-                rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], stdout=bng.defaults.stdout)
-                if rc.returncode == 1:
-                    print("XML generation failed")
-                    # go back to our original location
-                    os.chdir(cur_dir)
-                    return False
-                else:
-                    # we should now have the XML file 
-                    with open("temp.xml", "r") as f:
-                        content = f.read()
-                        open_file.write(content)
-                    # go back to beginning
-                    open_file.seek(0)
-                    os.chdir(cur_dir)
-                    return True
-            elif xml_type == "sbml":
-                rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], stdout=bng.defaults.stdout)
-                if rc.returncode == 1:
-                    print("SBML generation failed")
-                    # go back to our original location
-                    os.chdir(cur_dir)
-                    return False
-                else:
-                    # we should now have the SBML file 
-                    with open("temp_sbml.xml", "r") as f:
-                        content = f.read()
-                        open_file.write(content)
-                    open_file.seek(0)
-                    os.chdir(cur_dir)
-                    return True
-            else: 
-                print("XML type {} not recognized".format(xml_type))
-            return False
-
     def setup_simulator(self, sim_type="libRR"):
         '''
         Sets up a simulator attribute that is a generic front-end
@@ -191,7 +133,7 @@ class bngmodel:
             # temporary file
             with TemporaryFile(mode="w+") as tpath:
                 # write the sbml
-                self.write_xml(tpath, xml_type="sbml")
+                self.bngparser.bngfile.write_xml(tpath, xml_type="sbml", bngl_str=str(self))
                 # TODO: Only clear the writeSBML action
                 # by adding a mechanism to do so
                 self.actions.clear_actions()

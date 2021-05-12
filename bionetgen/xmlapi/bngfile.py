@@ -30,6 +30,7 @@ class BNGFile:
     -------
     generate_xml : bool
     strip_actions : str
+    write_xml : bool
     '''
     def __init__(self, path, BNGPATH=def_bng_path) -> None:
         self.path = path
@@ -50,7 +51,6 @@ class BNGFile:
         '''
         if model_file is None:
             model_file = self.path
-
         cur_dir = os.getcwd()
         # temporary folder to work in
         with TemporaryDirectory() as temp_folder:
@@ -106,3 +106,58 @@ class BNGFile:
             if action in line:
                 return False
         return True
+    
+    def write_xml(self, open_file, xml_type="bngxml", bngl_str=None) -> bool:
+        '''
+        write new BNG-XML or SBML of file by calling BNG2.pl again
+        or can take BNGL string in as well.
+        '''
+        # TODO: Implement the route where this function uses the file itself 
+        # for this generation
+        if bngl_str is None:
+            # should load in the right str here
+            raise NotImplementedError
+
+        cur_dir = os.getcwd()
+        # temporary folder to work in
+        with TemporaryDirectory() as temp_folder:
+            # write the current model to temp folder
+            os.chdir(temp_folder)
+            with open("temp.bngl", "w") as f:
+                f.write(bngl_str)
+            # run with --xml 
+            # TODO: Make output supression an option somewhere
+            if xml_type == "bngxml":
+                rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], stdout=bng.defaults.stdout)
+                if rc.returncode == 1:
+                    print("XML generation failed")
+                    # go back to our original location
+                    os.chdir(cur_dir)
+                    return False
+                else:
+                    # we should now have the XML file 
+                    with open("temp.xml", "r") as f:
+                        content = f.read()
+                        open_file.write(content)
+                    # go back to beginning
+                    open_file.seek(0)
+                    os.chdir(cur_dir)
+                    return True
+            elif xml_type == "sbml":
+                rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], stdout=bng.defaults.stdout)
+                if rc.returncode == 1:
+                    print("SBML generation failed")
+                    # go back to our original location
+                    os.chdir(cur_dir)
+                    return False
+                else:
+                    # we should now have the SBML file 
+                    with open("temp_sbml.xml", "r") as f:
+                        content = f.read()
+                        open_file.write(content)
+                    open_file.seek(0)
+                    os.chdir(cur_dir)
+                    return True
+            else: 
+                print("XML type {} not recognized".format(xml_type))
+            return False
