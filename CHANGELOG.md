@@ -80,7 +80,7 @@ Notebook subcommand now by default doesn't open the notebook using nbopen, an ar
 to do so.
 
 ## 0.2.7
-Reorganization of library functionality and library side now has access to configuration parsing from cement framework.
+Reorganization of library functionality and library side now has access to configuration parsing from cement framework. Published on PyPI
 
 ## 0.2.9
-Updating BNG version to 2.6.0
+Updating BioNetGen version to 2.6.0

@@ -24,19 +24,6 @@ for asset in assets:
     elif 'win' in browser_url and "tgz" in browser_url:
         windows_url = browser_url
 
-# next set the correct URL for platform
-# system = platform.system() 
-# if system == "Linux":
-#     bng_url = linux_url
-# elif system == "Windows":
-#     bng_url = windows_url
-# elif system == "Darwin":
-#     bng_url = mac_url
-# else:
-#     print("Setup doesn't know your system! {} \
-#             BioNetGen won't be installed".format(system))
-#     bng_url = None
-
 # next download and place the appropriate files
 import os,shutil,tarfile,zipfile
 bng_downloaded = False
@@ -121,19 +108,18 @@ for iurl,bng_url in enumerate([linux_url, mac_url, windows_url]):
 #         f.write("recursive-include bionetgen/bng-win *\n")
 #### BNG DOWNLOAD DONE ####
 
-f = open('README.md', 'r')
-LONG_DESCRIPTION = f.read()
-f.close()
+with open('README.md', 'r') as f:
+    LONG_DESCRIPTION = f.read()
 
 setup(
     name='bionetgen',
     version=VERSION,
-    description='A simple CLI for BioNetGen ',
+    description='A simple CLI and library for BioNetGen modelling language',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     author='Ali Sinan Saglam',
     author_email='als251@pitt.edu',
-    url='https://github.com/ASinanSaglam/BNG_cli',
+    url='https://github.com/RuleWorld/PyBioNetGen',
     license='unlicensed',
     packages=find_packages(exclude=['ez_setup', 'tests*']),
     package_data={'bionetgen': ['bng*/*', 'assets/*']},
