@@ -133,7 +133,7 @@ class MolTypeXML(XMLObj):
                         for istate, state in enumerate(al_states):
                             comp_obj.states.append(state["@id"])
                     else:
-                        comp_obj.states.append(state["@id"])
+                        comp_obj.states.append(al_states["@id"])
                 mol_obj.components.append(comp_obj)
             else:
                 # multiple components
