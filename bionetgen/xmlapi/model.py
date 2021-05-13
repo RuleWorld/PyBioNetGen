@@ -3,7 +3,7 @@ import bionetgen as bng
 from bionetgen.main import BioNetGen
 from tempfile import TemporaryFile
 from .bngparser import BNGParser
-from .blocks import Actions
+from .blocks import ActionBlock
 
 
 # This allows access to the CLIs config setup
@@ -103,7 +103,7 @@ class bngmodel:
     def add_action(self, action_type, action_args=[]):
         # add actions block and to active list
         if not hasattr(self, "actions"):
-            self.actions = Actions()
+            self.actions = ActionBlock()
             self.active_blocks.append("actions")
         self.actions.add_action(action_type, action_args)
 

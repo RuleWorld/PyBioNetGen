@@ -4,8 +4,8 @@ from bionetgen.main import BioNetGen
 from tempfile import TemporaryFile
 
 from .bngfile import BNGFile
-from .xmlparsers import ParameterBlockXML, CompartmentBlockXML, ObservableBlockXML, 
-from .xmlparsers import SpeciesBlockXML, MoleculeTypeBlockXML, FunctionBlockXML, 
+from .xmlparsers import ParameterBlockXML, CompartmentBlockXML, ObservableBlockXML
+from .xmlparsers import SpeciesBlockXML, MoleculeTypeBlockXML, FunctionBlockXML
 from .xmlparsers import RuleBlockXML
 
 # This allows access to the CLIs config setup

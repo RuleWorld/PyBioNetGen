@@ -1,7 +1,9 @@
 from typing import OrderedDict
-from .lines import ParameterLine, CompartmentLine, ObservableLine
-from .lines import SpeciesLine, MolTypeLine, FunctionLine
-from .lines import RuleLine, ActionLine
+from .structs import Parameter
+# , Compartment, Observable
+# from .structs import Species, MolType, Function
+# from .structs import Rule, Action
+
 ###### BLOCK OBJECTS ###### 
 class ModelBlock:
     '''
@@ -31,8 +33,10 @@ class ModelBlock:
     '''
     def __init__(self):
         self.name = "ModelBlock"
-        self.lines = OrderedDict()
         self.comment = (None, None)
+        self._changes = OrderedDict()
+        self._recompile = False
+        self.items = OrderedDict()
 
     def __str__(self):
         # each block can have a comment at the start
@@ -41,8 +45,8 @@ class ModelBlock:
         else:
             block_lines = ["\nbegin {}".format(self.name)]
         # now we just loop over lines
-        for line in self.lines.keys():
-            block_lines.append(str(self.lines[line]))
+        for item in self.items.keys():
+            block_lines.append(self.items[item].print_line())
         # each block can have a comment at the start
         if self.comment[1] is not None:
             block_lines.append("end {} #{}\n".format(self.name, self.comment[1]))
@@ -52,41 +56,43 @@ class ModelBlock:
         return "\n".join(block_lines)
 
     def __len__(self):
-        return len(self.lines)
+        return len(self.items)
 
     def __repr__(self):
         # overwrites what the class representation
         # shows the items in the model block in 
         # say ipython
-        return str(self.lines)
+        return str(self.items)
 
     def __getitem__(self, key):
         if isinstance(key, int):
             # get the item in order
-            return list(self.lines.keys())[key]
-        return self.lines[key]
+            return list(self.items.keys())[key]
+        return self.items[key]
 
     def __setitem__(self, key, value):
-        self.lines[key] = value
+        self.items[key] = value
 
     def __delitem__(self, key):
-        if key in self.lines:
-            self.lines.pop(key)
+        if key in self.items:
+            self.items.pop(key)
         else: 
             print("Item {} not found".format(key))
 
     def __iter__(self):
-        return self.lines.keys().__iter__()
+        return self.items.keys().__iter__()
 
     def __contains__(self, key):
-        return key in self.lines
+        return key in self.items
     
     def reset_compilation_tags(self):
         # TODO: Make these properties such that it checks each 
-        # line for changes/recompile tags
-        for line in self.lines:
-            line._recompile = False
-            line._changes = {}
+        # item for changes/recompile tags
+        # for item in self.items:
+        #     self.items[item]._recompile = False
+        #     self.items[item]._changes = {}
+        self._changes = OrderedDict()
+        self._recompile = False
     
     def add_item(self, item_tpl):
         # TODO: try adding evaluation of the parameter here
@@ -96,9 +102,9 @@ class ModelBlock:
         name, value = item_tpl
         # allow for empty addition, uses index
         if name is None:
-            name = len(self.lines)
+            name = len(self.items)
         # set the line
-        self.lines[name] = value
+        self.items[name] = value
         # if the name is a string, try adding as an attribute
         if isinstance(name, str):
             try:
@@ -115,21 +121,21 @@ class ModelBlock:
             self.add_item(item)
     
     # TODO: Think extensively how this is going to work
-    # def __setattr__(self, name, value):
-    #     changed = False
-    #     if hasattr(self, "_item_dict"):
-    #         if name in self._item_dict.keys():
-    #             try: 
-    #                 new_value = float(value)
-    #                 changed = True
-    #                 self._item_dict[name] = new_value
-    #             except:
-    #                 self._item_dict[name] = value
-    #     if changed:
-    #         self._changes[name] = new_value
-    #         self.__dict__[name] = new_value
-    #     else:
-    #         self.__dict__[name] = value
+    def __setattr__(self, name, value):
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items.keys():
+                try: 
+                    new_value = float(value)
+                    changed = True
+                    self.items[name] = new_value
+                except:
+                    self.items[name] = value
+                if changed:
+                    self._changes[name] = new_value
+                    self.__dict__[name] = new_value
+        else:
+            self.__dict__[name] = value
 
 
 class ParameterBlock(ModelBlock):
@@ -149,8 +155,36 @@ class ParameterBlock(ModelBlock):
         super().__init__()
         self.name = "parameters"
 
-    # def add_parameter(self):
-    #     pass
+    def __setattr__(self, name, value):
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, Parameter):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]['value'] != value:
+                        changed = True
+                        self.items[name]['value'] = value
+                else:
+                    try:
+                        value = float(value)
+                        if self.items[name]['value'] != value:
+                            changed = True
+                            self.items[name]['value'] = value
+                    except:
+                        print("can't set parameter {} to {}".format(self.items[name]['name'],value))
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+
+    def add_parameter(self, *args, **kwargs):
+        p = Parameter(*args, **kwargs)
+        self.add_item((p.name, p))
 
 
 class CompartmentBlock(ModelBlock):
@@ -207,7 +241,7 @@ class SpeciesBlock(ModelBlock):
         self.name = "species"
 
 
-class MoleculeTypes(ModelBlock):
+class MoleculeTypeBlock(ModelBlock):
     '''
     Molecule type block. 
 

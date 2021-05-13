@@ -1,7 +1,8 @@
 # New objects
 class ModelObj:
     def __init__(self):
-        pass
+        self._comment = None
+        self._line_label = None
     
     def __str__(self) -> str:
         return self.gen_string()
@@ -21,8 +22,45 @@ class ModelObj:
     def __delitem__(self, key):
         delattr(self, key)
 
+    @property
+    def comment(self) -> None:
+        return self._comment
+        
+    @comment.setter
+    def comment(self, val) -> str:
+        # TODO: regex handling of # instead
+        if val.startswith("#"):
+            self._comment = val[1:]
+        else:
+            self._comment = val
+    
+    @property
+    def line_label(self) -> str:
+        return self._line_label
+    
+    @line_label.setter
+    def line_label(self, val) -> None:
+        # TODO: specific error handling
+        try:
+            ll = int(val)
+            self._line_label = "{} ".format(ll)
+        except:
+            self._line_label = "{}: ".format(val)
+    
+    def print_line(self) -> str:
+        s = "  "
+        # let's deal with line label
+        if self.line_label is not None:
+            s += self.line_label
+        # start building the rest of the string
+        s += str(self)
+        if self.comment is not None:
+            s += " #{}".format(self.comment)
+        return s
+
 class Parameter(ModelObj):
     def __init__(self, name, value, expr=None):
+        super().__init__()
         self.name = name
         self.value = value
         self.expr = expr

@@ -2,8 +2,9 @@ from .blocks import ParameterBlock, CompartmentBlock, ObservableBlock
 from .blocks import SpeciesBlock, MoleculeTypeBlock
 from .blocks import FunctionBlock, RuleBlock
 
-from .lines import ParameterLine, CompartmentLine, ObservableLine
-from .lines import SpeciesLine, MolTypeLine, FunctionLine, RuleLine
+from .structs import Parameter
+# , Compartment, Observable
+# from .structs import Species, MolType, Function, Rule
 
 from .pattern import Pattern, Molecule, Component, Bonds
 
@@ -63,35 +64,26 @@ class ParameterBlockXML(XMLObj):
     def parse_xml(self, xml) -> ParameterBlock:
         # make block
         block = ParameterBlock()
-        lines = []
-        # parse lines
+        # parse parameters
         if isinstance(xml, list):
             for b in xml:
-                # make line object
-                line = ParameterLine()
                 # add content to line
                 name = b["@id"]
                 value = b["@value"]
                 expression = None
                 if '@expr' in b:
                     expression = b['@expr']
-                line.set_parameter(name, value, expr=expression)
-                # add to list of lines
-                lines.append(line)
+                block.add_parameter(name, value, expr=expression)
         else:
-            # make line object
-            line = ParameterLine()
             # add content to line
             name = xml["@id"]
             value = xml["@value"]
             expression = None
             if '@expr' in xml:
                 expression = xml['@expr']
-            line.set_parameter(name, value, expr=expression)
             # add to list of lines
-            lines.append(line)
-        # add all parsed lines
-        block.add_items(lines)
+            block.add_parameter(name, value, expr=expression)
+        block.reset_compilation_tags()
         return block
 
 
@@ -172,7 +164,7 @@ class SpeciesBlockXML(Pattern):
                 self.patterns.append(Pattern(pattern))
         else:
             self.patterns.append(Pattern(patterns))
-
+            
         return block
 
 
