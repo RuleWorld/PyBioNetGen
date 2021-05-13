@@ -17,23 +17,12 @@ class Pattern:
         label, those have their own)
     molecules : list[Molecule]
         list of molecule objects that are in the pattern
-
-    Methods
-    -------
-    _parse_xml(xml)
-        parses the entire pattern xml
-    _process_mol(mol_xml)
-        parses the molecule xml to add to pattern molecule list
-    _process_comp(comp_xml)
-        parses component xml to add to the molecule
     '''
-    def __init__(self, pattern_xml):
-        self._bonds = Bonds()
-        self._compartment = None
-        self._label = None
-        self.molecules = []
-        # sets self.molecules up 
-        self._parse_xml(pattern_xml)
+    def __init__(self, molecules=[], bonds=None, compartment=None, label=None):
+        self.molecules = molecules
+        self._bonds = bonds
+        self._compartment = compartment
+        self._label = label
 
     @property
     def compartment(self):
@@ -85,71 +74,7 @@ class Pattern:
 
     # TODO: Implement __contains__
 
-    def _parse_xml(self, xml):
-        if '@compartment' in xml:
-            self.compartment = xml['@compartment']
-        if "@label" in xml:
-            self.label = xml["@label"]
-        if "ListOfBonds" in xml:
-            self._bonds.set_xml(xml["ListOfBonds"]["Bond"])
-        mols = xml['ListOfMolecules']['Molecule']
-        if isinstance(mols, list):
-            # list of molecules
-            for imol, mol in enumerate(mols):
-                mol_obj = self._process_mol(mol)
-                self.molecules.append(mol_obj)
-        else:
-            # a single molecule
-            mol_obj = self._process_mol(mols)
-            self.molecules.append(mol_obj)
-
-    def _process_mol(self, mol_xml):
-        # we are going to store molecules, components
-        # and compartments in a separate dictionary 
-        # for use later
-        mol_obj = Molecule()
-        mol_obj.name = mol_xml['@name'] 
-        if "@label" in mol_xml:
-            mol_obj.label = mol_xml["@label"]
-        if "ListOfComponents" in mol_xml:
-            # Single molecule can't have bonds
-            mol_obj.components = self._process_comp(mol_xml["ListOfComponents"]["Component"])
-        if '@compartment' in mol_xml:
-            mol_obj.compartment = mol_xml['@compartment']
-        return mol_obj
-
-    def _process_comp(self, comp_xml):
-        # bonds = compartment id, bond id 
-        # comp xml can be a list or a dict
-        comp_list = []
-        if isinstance(comp_xml, list):
-            # we have multiple and this is a list
-            for icomp, comp in enumerate(comp_xml):
-                comp_obj = Component()
-                comp_obj.name = comp['@name']
-                if "@label" in comp:
-                    comp_obj.label = comp['@label']
-                if "@state" in comp:
-                    comp_obj.state = comp['@state']
-                if comp["@numberOfBonds"] != '0':
-                    bond_id = self._bonds.get_bond_id(comp)
-                    for bi in bond_id:
-                        comp_obj.bonds.append(bi)
-                comp_list.append(comp_obj)
-        else:
-            # single comp, this is a dict
-            comp_obj = Component()
-            comp_obj.name = comp_xml['@name']
-            if "@label" in comp_xml:
-                comp_obj.label = comp_xml['@label']
-            if "@state" in comp_xml:
-                comp_obj.state = comp_xml['@state']
-            if comp_xml['@numberOfBonds'] != '0':
-                bond_id = self._bonds.get_bond_id(comp_xml)
-                for bi in bond_id:
-                    comp_obj.bonds.append(bi)
-            comp_list.append(comp_obj)
-        return comp_list
+    
 
 class Molecule:
     '''
@@ -174,11 +99,11 @@ class Molecule:
         "name", current state "state" or a list of states 
         (for molecule types) "states"
     '''
-    def __init__(self):
-        self._name = "0"
-        self._components = []
-        self._compartment = None
-        self._label = None
+    def __init__(self, name="0", components=[], compartment=None, label=None):
+        self._name = name
+        self._components = components
+        self._compartment = compartment
+        self._label = label
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -372,66 +297,3 @@ class Component:
 
     def add_bond(self):
         self._add_bond()
-
-###### BONDS #####
-class Bonds:
-    def __init__(self, bonds_xml=None):
-        self.bonds_dict = {}
-        if bonds_xml is not None:
-            self.resolve_xml(bonds_xml)
-
-    def set_xml(self, bonds_xml):
-        self.resolve_xml(bonds_xml)
-
-    def get_bond_id(self, comp):
-        # Get the ID of the bond from an XML id something 
-        # belongs to, e.g. O1_P1_M1_C2 
-        num_bonds = comp["@numberOfBonds"]
-        comp_id = comp["@id"]
-        try: 
-            num_bond = int(num_bonds)
-        except: 
-            # This means we have something like +/?
-            return num_bonds
-        # use the comp_id to find the bond index from 
-        # self.bonds_dict 
-        comp_key = self.get_tpl_from_id(comp_id)
-        bond_id = self.bonds_dict[comp_key]
-        return bond_id
-        
-    def get_tpl_from_id(self, id_str):
-        # ID str is looking like O1_P1_M2_C3
-        # we are going to assume a 4-tuple per key
-        id_list = id_str.split("_")
-        id_tpl = tuple(id_list)
-        return id_tpl
-
-    def tpls_from_bond(self, bond):
-        s1 = bond["@site1"] 
-        s2 = bond["@site2"]
-        id_list_1 = s1.split("_")
-        s1_tpl = tuple(id_list_1)
-        id_list_2 = s2.split("_")
-        s2_tpl = tuple(id_list_2)
-        return (s1_tpl, s2_tpl) 
-
-    def resolve_xml(self, bonds_xml):
-        # self.bonds_dict is a dictionary you can key
-        # with the tuple taken from the ID and then 
-        # get a bond ID cleanly
-        if isinstance(bonds_xml, list):
-            for ibond, bond in enumerate(bonds_xml): 
-                bond_partner_1, bond_partner_2 = self.tpls_from_bond(bond)
-                if bond_partner_1 not in self.bonds_dict:
-                    self.bonds_dict[bond_partner_1] = [ibond+1]
-                else:
-                    self.bonds_dict[bond_partner_1].append([ibond+1])
-                if bond_partner_2 not in self.bonds_dict:
-                    self.bonds_dict[bond_partner_2] = [ibond+1]
-                else:
-                    self.bonds_dict[bond_partner_2].append(ibond+1)
-        else:
-            bond_partner_1, bond_partner_2 = self.tpls_from_bond(bonds_xml)
-            self.bonds_dict[bond_partner_1] = [1]
-            self.bonds_dict[bond_partner_2] = [1]
-###### BONDS #####

@@ -1,7 +1,3 @@
-# New objects
-from typing import Sized
-
-
 class ModelObj:
     def __init__(self):
         self._comment = None
@@ -84,6 +80,25 @@ class Compartment(ModelObj):
         if self.outside is not None:
             s += " {}".format(self.outside) 
         return s
+
+class Observable(ModelObj):
+    def __init__(self, name, otype, patterns=[]):
+        super().__init__()
+        self.name = name
+        self.type = otype
+        self.patterns = patterns
+    
+    def gen_string(self) -> str:
+        s = "{} {} ".format(self.type, self.name)
+        for ipat, pat in enumerate(self.patterns):
+            if ipat > 0:
+                s += ","
+            s += str(pat)
+        return s
+    
+    def add_pattern(self, pat) -> None:
+        self.patterns.append(pat)
+
 
 # ###### STRUCTS OBJECTS ###### 
 # class ModelBlock:
@@ -315,22 +330,10 @@ class Compartment(ModelObj):
 #         return self._item_dict[key]
 
 #     def parse_xml_block(self, block_xml):
-#         #
-#         if isinstance(block_xml, list):
-#             for b in block_xml:
-#                 xmlobj = ObsXML(b['ListOfPatterns'])
-#                 self.add_item((b['@type'], b['@name'], xmlobj))
-#         else: 
-#             xmlobj = ObsXML(block_xml['ListOfPatterns'])
-#             self.add_item((block_xml['@type'], block_xml['@name'], xmlobj))
+
     
 #     def gen_string(self):
-#         obs_str = ""
-#         for ipat, pat in enumerate(self.patterns):
-#             if ipat > 0:
-#                 obs_str += ","
-#             obs_str += str(pat)
-#         return obs_str
+
 #         # 
 
 # class Species(ModelBlock):

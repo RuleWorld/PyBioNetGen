@@ -6,7 +6,7 @@ from .structs import Parameter
 # , Compartment, Observable
 # from .structs import Species, MolType, Function, Rule
 
-from .pattern import Pattern, Molecule, Component, Bonds
+from .pattern import Pattern, Molecule, Component
 
 ###### Base object  ###### 
 class XMLObj:
@@ -126,22 +126,191 @@ class ObservableBlockXML(XMLObj):
     patterns : list
         list of Pattern objects that make up the observable
     '''
-    def __init__(self, xml):
+    def __init__(self, xml) -> None:
         super().__init__(xml)
 
-    def parse_xml(self, xml):
+    def parse_xml(self, xml) -> ObservableBlock:
+        # 
         block = ObservableBlock()
-
-        patterns = xml['Pattern']
-        if isinstance(patterns, list):
-            # we have multiple patterns so this is a list
-            for ipattern, pattern in enumerate(patterns): 
-                # 
-                self.patterns.append(Pattern(pattern))
-        else:
-            self.patterns.append(Pattern(patterns))
-
+        #
+        if isinstance(xml, list):
+            for b in xml:
+                name = b['@name']
+                otype = b['@type']
+                patterns = PatternListXML(b['ListOfPatterns']).patterns
+                block.add_observable(name, otype, patterns)
+        else: 
+            name = xml['@name']
+            otype = xml['@type']
+            patterns = PatternListXML(xml['ListOfPatterns']).patterns
+            block.add_observable(name, otype, patterns)
+        # 
         return block
+        
+
+class PatternListXML:
+    def __init__(self, xml) -> None:
+        self.patterns = self.parse_xml(xml)
+
+    def parse_xml(self, xml) -> list:
+        pats = xml['Pattern']
+        patterns = []
+        if isinstance(pats, list):
+            # we have multiple patterns so this is a list
+            for ipattern, pattern in enumerate(pats): 
+                patterns.append(PatternXML(pattern).parsed_obj)
+        else:
+            patterns.append(PatternXML(pats).parsed_obj)
+        return patterns
+
+class PatternXML(XMLObj):
+    def __init__(self, xml) -> None:
+        super().__init__(xml)
+
+    def parse_xml(self, xml) -> Pattern:
+        # initialize
+        pattern = Pattern()
+        # 
+        if '@compartment' in xml:
+            pattern.compartment = xml['@compartment']
+        # 
+        if "@label" in xml:
+            pattern.label = xml["@label"]
+        # 
+        if "ListOfBonds" in xml:
+            # TODO: FIX THIS 
+            bonds = BondsXML(xml["ListOfBonds"]["Bond"])
+            pattern._bonds = bonds
+            self._bonds = bonds
+        # 
+        mols = xml['ListOfMolecules']['Molecule']
+        molecules = []
+        if isinstance(mols, list):
+            # list of molecules
+            for imol, mol in enumerate(mols):
+                mol_obj = self._process_mol(mol)
+                molecules.append(mol_obj)
+        else:
+            # a single molecule
+            mol_obj = self._process_mol(mols)
+            molecules.append(mol_obj)
+        pattern.molecules = molecules
+        # return a complete pattern object
+        return pattern
+
+    def _process_mol(self, xml) -> Molecule:
+        # initialize
+        molecule = Molecule()
+        # 
+        if "@name" in xml:
+            molecule.name = xml['@name'] 
+        # 
+        if "@label" in xml:
+            molecule.label = xml["@label"]
+        # 
+        if '@compartment' in xml:
+            molecule.compartment = xml['@compartment']
+        # 
+        if "ListOfComponents" in xml:
+            # Single molecule can't have bonds
+            molecule.components = self._process_comp(xml["ListOfComponents"]["Component"])
+        # 
+        return molecule
+
+    def _process_comp(self, xml) -> list:
+        # bonds = compartment id, bond id 
+        # comp xml can be a list or a dict
+        comp_list = []
+        if isinstance(xml, list):
+            # we have multiple and this is a list
+            for icomp, comp in enumerate(xml):
+                component = Component()
+                component.name = comp['@name']
+                if "@label" in comp:
+                    component.label = comp['@label']
+                if "@state" in comp:
+                    component.state = comp['@state']
+                if comp["@numberOfBonds"] != '0':
+                    bond_id = self._bonds.get_bond_id(comp)
+                    for bi in bond_id:
+                        component.bonds.append(bi)
+                comp_list.append(component)
+        else:
+            # single comp, this is a dict
+            component = Component()
+            component.name = xml['@name']
+            if "@label" in xml:
+                component.label = xml['@label']
+            if "@state" in xml:
+                component.state = xml['@state']
+            if xml['@numberOfBonds'] != '0':
+                bond_id = self._bonds.get_bond_id(xml)
+                for bi in bond_id:
+                    component.bonds.append(bi)
+            comp_list.append(component)
+        return comp_list
+
+
+class BondsXML:
+    def __init__(self, bonds_xml=None):
+        self.bonds_dict = {}
+        if bonds_xml is not None:
+            self.resolve_xml(bonds_xml)
+
+    def set_xml(self, bonds_xml):
+        self.resolve_xml(bonds_xml)
+
+    def get_bond_id(self, comp):
+        # Get the ID of the bond from an XML id something 
+        # belongs to, e.g. O1_P1_M1_C2 
+        num_bonds = comp["@numberOfBonds"]
+        comp_id = comp["@id"]
+        try: 
+            num_bond = int(num_bonds)
+        except: 
+            # This means we have something like +/?
+            return num_bonds
+        # use the comp_id to find the bond index from 
+        # self.bonds_dict 
+        comp_key = self.get_tpl_from_id(comp_id)
+        bond_id = self.bonds_dict[comp_key]
+        return bond_id
+        
+    def get_tpl_from_id(self, id_str):
+        # ID str is looking like O1_P1_M2_C3
+        # we are going to assume a 4-tuple per key
+        id_list = id_str.split("_")
+        id_tpl = tuple(id_list)
+        return id_tpl
+
+    def tpls_from_bond(self, bond):
+        s1 = bond["@site1"] 
+        s2 = bond["@site2"]
+        id_list_1 = s1.split("_")
+        s1_tpl = tuple(id_list_1)
+        id_list_2 = s2.split("_")
+        s2_tpl = tuple(id_list_2)
+        return (s1_tpl, s2_tpl) 
+
+    def resolve_xml(self, bonds_xml):
+        # self.bonds_dict is a dictionary you can key
+        # with the tuple taken from the ID and then 
+        # get a bond ID cleanly
+        if isinstance(bonds_xml, list):
+            for ibond, bond in enumerate(bonds_xml): 
+                bond_partner_1, bond_partner_2 = self.tpls_from_bond(bond)
+                if bond_partner_1 not in self.bonds_dict:
+                    self.bonds_dict[bond_partner_1] = [ibond+1]
+                else:
+                    self.bonds_dict[bond_partner_1].append([ibond+1])
+                if bond_partner_2 not in self.bonds_dict:
+                    self.bonds_dict[bond_partner_2] = [ibond+1]
+                else:
+                    self.bonds_dict[bond_partner_2].append(ibond+1)
+        else:
+            bond_partner_1, bond_partner_2 = self.tpls_from_bond(bonds_xml)
+            self.bonds_dict[bond_partner_1] = [1]
+            self.bonds_dict[bond_partner_2] = [1]
 
 
 class SpeciesBlockXML(Pattern):

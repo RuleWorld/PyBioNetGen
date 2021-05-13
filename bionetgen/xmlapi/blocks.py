@@ -1,5 +1,5 @@
 from typing import OrderedDict
-from .structs import Parameter, Compartment # , Observable
+from .structs import Parameter, Compartment, Observable
 # from .structs import Species, MolType, Function
 # from .structs import Rule, Action
 
@@ -251,6 +251,31 @@ class ObservableBlock(ModelBlock):
     def __init__(self):
         super().__init__()
         self.name = "observables"
+    
+    def __setattr__(self, name, value):
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, Observable):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]['name'] != value:
+                        changed = True
+                        self.items[name]['name'] = value
+                else:
+                    print("can't set observable {} to {}".format(self.items[name]['name'],value))
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+
+    def add_observable(self, *args, **kwargs):
+        o = Observable(*args, **kwargs)
+        self.add_item((o.name, o))
 
 
 class SpeciesBlock(ModelBlock):
