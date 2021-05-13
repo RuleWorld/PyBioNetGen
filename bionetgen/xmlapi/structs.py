@@ -1,3 +1,5 @@
+from bionetgen.xmlapi.pattern import Molecule
+
 class ModelObj:
     def __init__(self):
         self._comment = None
@@ -57,6 +59,7 @@ class ModelObj:
             s += " #{}".format(self.comment)
         return s
 
+
 class Parameter(ModelObj):
     def __init__(self, name, value, expr=None):
         super().__init__()
@@ -66,6 +69,7 @@ class Parameter(ModelObj):
     
     def gen_string(self) -> str:
         return "{} {}".format(self.name, self.value)
+
 
 class Compartment(ModelObj):
     def __init__(self, name, dim, size, outside=None):
@@ -80,6 +84,7 @@ class Compartment(ModelObj):
         if self.outside is not None:
             s += " {}".format(self.outside) 
         return s
+
 
 class Observable(ModelObj):
     def __init__(self, name, otype, patterns=[]):
@@ -100,241 +105,14 @@ class Observable(ModelObj):
         self.patterns.append(pat)
 
 
-# ###### STRUCTS OBJECTS ###### 
-# class ModelBlock:
-#     '''
-#     Base block object that will be used for each block in BNGL.
-
-#     Attributes
-#     ----------
-#     name : str
-#         Name of the block which will be used to write the BNGL text
-#     lines : list
-#         List of lines in each block
-
-#     Methods
-#     -------
-#     reset_compilation_tags()
-#         resets _recompile and _changes tag for the block
-#     add_item(item_tpl)
-#         while every block can implement their own add_item method
-#         the base assumption that each element has a name and value
-#         so this method takes in (name,value) tuple and sets 
-#         _item_dict[name] = value
-#     add_items(item_list)
-#         loops over every element in the list and uses add_item on it
-#     print
-#         prints the block, uses __str__ to get the string
-#     parse_xml_block(xml)
-#         while it's not implemented for the base class, each block object
-#         needs to implement this method where it takes in BNGXML for the 
-#         block as argument and modifies the object correctly.
-#     '''
-#     def __init__(self):
-#         self.name = "ModelBlock"
-#         self.lines = OrderedDict()
-
-#     def __len__(self):
-#         return len(self.lines)
-
-#     def __repr__(self):
-#         # overwrites what the class representation
-#         # shows the items in the model block in 
-#         # say ipython
-#         return str(self.lines)
-
-#     def __getitem__(self, key):
-#         if isinstance(key, int):
-#             # get the item in order
-#             return list(self.lines.keys())[key]
-#         return self.lines[key]
-
-#     def __setitem__(self, key, value):
-#         self.lines[key] = value
-
-#     def __delitem__(self, key):
-#         if key in self.lines:
-#             self.lines.pop(key)
-#         else: 
-#             print("Item {} not found".format(key))
-
-#     def __iter__(self):
-#         return self.lines.keys().__iter__()
-
-#     def __contains__(self, key):
-#         return key in self.lines
+class MoleculeType(ModelObj):
+    def __init__(self, name, components):
+        super().__init__()
+        self.molecule = Molecule(name=name, components=components)
     
-#     def reset_compilation_tags(self):
-#         # TODO: Make these properties such that it checks each 
-#         # line for changes/recompile tags
-#         for line in self.lines:
-#             line._recompile = False
-#             line._changes = {}
+    def gen_string(self) -> str:
+        return str(self.molecule)
     
-#     def add_item(self, item_tpl):
-#         # TODO: try adding evaluation of the parameter here
-#         # for the future, in case we want people to be able
-#         # to adjust the math
-#         # TODO: Error handling, some names will definitely break this
-#         name, value = item_tpl
-#         self.lines[name] = value
-#         try:
-#             setattr(self, name, value)
-#         except:
-#             print("can't set {} to {}".format(name, value))
-#             pass
-#         self._recompile = True
-
-#     def add_items(self, item_list):
-#         for item in item_list:
-#             self.add_item(item)
-
-#     def print(self):
-#         print(self)
-
-# # TODO: Add a LOT of error handling
-# class Parameters(ModelBlock):
-#     '''
-#     Parameter block object that contains both the expressions and values
-#     for each parameter defined in the model
-
-#     Attributes
-#     ----------
-#     expressions : Dict
-#         this contains the expressions for each item in the block dictionary
-#     values : dict
-#         values of each parameter defined in the model
-#     '''
-#     def __init__(self):
-#         self.expressions = {}
-#         self.values = {}
-#         super().__init__()
-#         self.name = "parameters"
-
-#     def __setattr__(self, name, value):
-#         changed = False
-#         if hasattr(self, "_item_dict"):
-#             if name in self._item_dict.keys():
-#                 try: 
-#                     new_value = float(value)
-#                     changed = True
-#                     self._item_dict[name] = new_value
-#                 except:
-#                     self._item_dict[name] = value
-#         if changed:
-#             self._changes[name] = new_value
-#             self.__dict__[name] = new_value
-#         else:
-#             self.__dict__[name] = value
-
-#     def __str__(self):
-#         # overwrites what the method returns when 
-#         # it's converted to string
-#         block_lines = ["\nbegin {}".format(self.name)]
-#         for item in self._item_dict.keys():
-#             block_lines.append("  " + "{} {}".format(item, self._item_dict[item]))
-#         block_lines.append("end {}\n".format(self.name))
-#         return "\n".join(block_lines)
-
-#     def add_item(self, item_tpl):
-#         name, value = item_tpl
-#         self._item_dict[name] = value
-#         try:
-#             setattr(self, name, value)
-#         except:
-#             print("can't set {} to {}".format(name, value))
-#             pass
-#         self._recompile = True
-
-# class Compartments(ModelBlock):
-#     '''
-#     Compartments block object that contains compartments defined in the 
-#     model. 
-
-#     Item dictionary contains the name of the compartment as the name
-#     and a list of the form [Dimensionality, Size, ParentCompartment] 
-#     as the value.
-#     '''
-#     def __init__(self):
-#         super().__init__()
-#         self.name = "compartments"
-
-#     def __str__(self):
-#         # overwrites what the method returns when 
-#         # it's converted to string
-#         block_lines = ["\nbegin {}".format(self.name)]
-#         for item in self._item_dict.keys():
-#             comp_line = "  {} {} {}".format(item, 
-#                             self._item_dict[item][0],
-#                             self._item_dict[item][1])
-#             if self._item_dict[item][2] is not None:
-#                 comp_line += " {}".format(self._item_dict[item][2])
-#             block_lines.append(comp_line)
-#         block_lines.append("end {}\n".format(self.name))
-#         return "\n".join(block_lines)
-
-#     def add_item(self, item_tpl):
-#         name, dim, size, outside = item_tpl
-#         self._recompile = True
-#         self._item_dict[name] = [dim, size, outside]
-
-#     def parse_xml_block(self, block_xml):
-
-
-# class Observables(ModelBlock):
-#     '''
-#     Observable block object that contains observables defined in the 
-#     model. 
-
-#     Item dictionary contains the name of the observable as the name
-#     and a list of the form [ObservableType, ObservableObject] as value. 
-#     '''
-#     def __init__(self):
-#         super().__init__()
-#         self.name = "observables"
-
-#     def __setattr__(self, name, value):
-#         if hasattr(self, "_item_dict"):
-#             if name in self._item_dict.keys():
-#                 self._recompile = True
-#                 self._changes[name] = value
-#                 self._item_dict[name][1] = value
-#         self.__dict__[name] = value
-
-#     def add_item(self, item_tpl): 
-#         otype, name, obj = item_tpl
-#         self._item_dict[name] = [otype, obj]
-#         try:
-#             setattr(self, name, obj)
-#         except:
-#             print("can't set {} to {}".format(name, obj))
-#             pass
-#         self._recompile = True
-
-#     def __str__(self):
-#         # overwrites what the method returns when 
-#         # it's converted to string
-#         block_lines = ["\nbegin {}".format(self.name)]
-#         for item in self._item_dict.keys():
-#             block_lines.append("  " + 
-#                     "{} {} {}".format(self._item_dict[item][0],
-#                                       item,
-#                                       self._item_dict[item][1]))
-#         block_lines.append("end {}\n".format(self.name))
-#         return "\n".join(block_lines)
-
-#     def __getitem__(self, key):
-#         if isinstance(key, int):
-#             # get the item in order
-#             return self._item_dict[list(self._item_dict.keys())[key]][1]
-#         return self._item_dict[key]
-
-#     def parse_xml_block(self, block_xml):
-
-    
-#     def gen_string(self):
-
-#         # 
 
 # class Species(ModelBlock):
 #     '''
@@ -465,14 +243,7 @@ class Observable(ModelObj):
 #         return "\n".join(block_lines)
 
 #     def parse_xml_block(self, block_xml):
-#         if isinstance(block_xml, list):
-#             for md in block_xml:
-#                 xmlobj = MolTypeXML(md)
-#                 self.add_item((xmlobj,))
-#         else:
-#             xmlobj = MolTypeXML(block_xml)
-#             self.add_item((xmlobj,))
-
+#         
 # class Functions(ModelBlock):
 #     '''
 #     Function block object that contains functions defined in the 

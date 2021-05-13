@@ -1,6 +1,8 @@
+from bionetgen.xmlapi.pattern import Molecule
 from typing import OrderedDict
 from .structs import Parameter, Compartment, Observable
-# from .structs import Species, MolType, Function
+from .structs import  MoleculeType
+# , Species,Function
 # from .structs import Rule, Action
 
 ###### BLOCK OBJECTS ###### 
@@ -312,6 +314,32 @@ class MoleculeTypeBlock(ModelBlock):
     def __init__(self):
         super().__init__()
         self.name = "molecule types"
+        print(self.name)
+    
+    def __setattr__(self, name, value):
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, MoleculeType):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]['name'] != value:
+                        changed = True
+                        self.items[name]['name'] = value
+                else:
+                    print("can't set molecule type {} to {}".format(self.items[name]['name'],value))
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+    
+    def add_moltype(self, name, components):
+        mt = MoleculeType(name=name, components=components)
+        self.add_item((name, mt))
 
 
 class FunctionBlock(ModelBlock):

@@ -55,114 +55,70 @@ class XMLObj:
         '''
         raise NotImplementedError
     
+###### Fundamental parsing objects ######
+# This is for handling bond XMLs
+class BondsXML:
+    def __init__(self, bonds_xml=None):
+        self.bonds_dict = {}
+        if bonds_xml is not None:
+            self.resolve_xml(bonds_xml)
 
-###### Parsers  ###### 
-class ParameterBlockXML(XMLObj):
-    def __init__(self, xml) -> None:
-        super().__init__(xml)
-    
-    def parse_xml(self, xml) -> ParameterBlock:
-        # make block
-        block = ParameterBlock()
-        # parse parameters
-        if isinstance(xml, list):
-            for b in xml:
-                # add content to line
-                name = b["@id"]
-                value = b["@value"]
-                expression = None
-                if '@expr' in b:
-                    expression = b['@expr']
-                block.add_parameter(name, value, expr=expression)
-        else:
-            # add content to line
-            name = xml["@id"]
-            value = xml["@value"]
-            expression = None
-            if '@expr' in xml:
-                expression = xml['@expr']
-            # add to list of lines
-            block.add_parameter(name, value, expr=expression)
-        block.reset_compilation_tags()
-        return block
+    def set_xml(self, bonds_xml):
+        self.resolve_xml(bonds_xml)
 
-
-class CompartmentBlockXML(XMLObj):
-    def __init__(self, xml) -> None:
-        super().__init__(xml)
-    
-    def parse_xml(self, xml):
-        block = CompartmentBlock()
-
-        if isinstance(xml, list):
-            for comp in xml:
-                cname = comp['@id']
-                dim = comp['@spatialDimensions']
-                size = comp['@size']
-                outside = None
-                if '@outside' in comp:
-                    outside = comp['@outside']
-                block.add_compartment(cname, dim, size, outside=outside)
-        else:
-            cname = xml['@id']
-            dim = xml['@spatialDimensions']
-            size = xml['@size']
-            outside = None
-            if '@outside' in xml:
-                outside = xml['@outside']
-            block.add_compartment(cname, dim, size, outside=outside)
+    def get_bond_id(self, comp):
+        # Get the ID of the bond from an XML id something 
+        # belongs to, e.g. O1_P1_M1_C2 
+        num_bonds = comp["@numberOfBonds"]
+        comp_id = comp["@id"]
+        try: 
+            num_bond = int(num_bonds)
+        except: 
+            # This means we have something like +/?
+            return num_bonds
+        # use the comp_id to find the bond index from 
+        # self.bonds_dict 
+        comp_key = self.get_tpl_from_id(comp_id)
+        bond_id = self.bonds_dict[comp_key]
+        return bond_id
         
-        block.reset_compilation_tags()
-        return block
- 
+    def get_tpl_from_id(self, id_str):
+        # ID str is looking like O1_P1_M2_C3
+        # we are going to assume a 4-tuple per key
+        id_list = id_str.split("_")
+        id_tpl = tuple(id_list)
+        return id_tpl
 
-class ObservableBlockXML(XMLObj):
-    '''
-    Observable XML object. Observables are a list of 
-    patterns where a pattern is a list of molecules. 
+    def tpls_from_bond(self, bond):
+        s1 = bond["@site1"] 
+        s2 = bond["@site2"]
+        id_list_1 = s1.split("_")
+        s1_tpl = tuple(id_list_1)
+        id_list_2 = s2.split("_")
+        s2_tpl = tuple(id_list_2)
+        return (s1_tpl, s2_tpl) 
 
-    Attributes
-    ----------
-    patterns : list
-        list of Pattern objects that make up the observable
-    '''
-    def __init__(self, xml) -> None:
-        super().__init__(xml)
-
-    def parse_xml(self, xml) -> ObservableBlock:
-        # 
-        block = ObservableBlock()
-        #
-        if isinstance(xml, list):
-            for b in xml:
-                name = b['@name']
-                otype = b['@type']
-                patterns = PatternListXML(b['ListOfPatterns']).patterns
-                block.add_observable(name, otype, patterns)
-        else: 
-            name = xml['@name']
-            otype = xml['@type']
-            patterns = PatternListXML(xml['ListOfPatterns']).patterns
-            block.add_observable(name, otype, patterns)
-        # 
-        return block
-        
-
-class PatternListXML:
-    def __init__(self, xml) -> None:
-        self.patterns = self.parse_xml(xml)
-
-    def parse_xml(self, xml) -> list:
-        pats = xml['Pattern']
-        patterns = []
-        if isinstance(pats, list):
-            # we have multiple patterns so this is a list
-            for ipattern, pattern in enumerate(pats): 
-                patterns.append(PatternXML(pattern).parsed_obj)
+    def resolve_xml(self, bonds_xml):
+        # self.bonds_dict is a dictionary you can key
+        # with the tuple taken from the ID and then 
+        # get a bond ID cleanly
+        if isinstance(bonds_xml, list):
+            for ibond, bond in enumerate(bonds_xml): 
+                bond_partner_1, bond_partner_2 = self.tpls_from_bond(bond)
+                if bond_partner_1 not in self.bonds_dict:
+                    self.bonds_dict[bond_partner_1] = [ibond+1]
+                else:
+                    self.bonds_dict[bond_partner_1].append([ibond+1])
+                if bond_partner_2 not in self.bonds_dict:
+                    self.bonds_dict[bond_partner_2] = [ibond+1]
+                else:
+                    self.bonds_dict[bond_partner_2].append(ibond+1)
         else:
-            patterns.append(PatternXML(pats).parsed_obj)
-        return patterns
+            bond_partner_1, bond_partner_2 = self.tpls_from_bond(bonds_xml)
+            self.bonds_dict[bond_partner_1] = [1]
+            self.bonds_dict[bond_partner_2] = [1]
 
+# The full pattern parser
 class PatternXML(XMLObj):
     def __init__(self, xml) -> None:
         super().__init__(xml)
@@ -250,69 +206,114 @@ class PatternXML(XMLObj):
             comp_list.append(component)
         return comp_list
 
+# Helper parser for pattern list (for observables)
+class PatternListXML:
+    def __init__(self, xml) -> None:
+        self.patterns = self.parse_xml(xml)
 
-class BondsXML:
-    def __init__(self, bonds_xml=None):
-        self.bonds_dict = {}
-        if bonds_xml is not None:
-            self.resolve_xml(bonds_xml)
-
-    def set_xml(self, bonds_xml):
-        self.resolve_xml(bonds_xml)
-
-    def get_bond_id(self, comp):
-        # Get the ID of the bond from an XML id something 
-        # belongs to, e.g. O1_P1_M1_C2 
-        num_bonds = comp["@numberOfBonds"]
-        comp_id = comp["@id"]
-        try: 
-            num_bond = int(num_bonds)
-        except: 
-            # This means we have something like +/?
-            return num_bonds
-        # use the comp_id to find the bond index from 
-        # self.bonds_dict 
-        comp_key = self.get_tpl_from_id(comp_id)
-        bond_id = self.bonds_dict[comp_key]
-        return bond_id
-        
-    def get_tpl_from_id(self, id_str):
-        # ID str is looking like O1_P1_M2_C3
-        # we are going to assume a 4-tuple per key
-        id_list = id_str.split("_")
-        id_tpl = tuple(id_list)
-        return id_tpl
-
-    def tpls_from_bond(self, bond):
-        s1 = bond["@site1"] 
-        s2 = bond["@site2"]
-        id_list_1 = s1.split("_")
-        s1_tpl = tuple(id_list_1)
-        id_list_2 = s2.split("_")
-        s2_tpl = tuple(id_list_2)
-        return (s1_tpl, s2_tpl) 
-
-    def resolve_xml(self, bonds_xml):
-        # self.bonds_dict is a dictionary you can key
-        # with the tuple taken from the ID and then 
-        # get a bond ID cleanly
-        if isinstance(bonds_xml, list):
-            for ibond, bond in enumerate(bonds_xml): 
-                bond_partner_1, bond_partner_2 = self.tpls_from_bond(bond)
-                if bond_partner_1 not in self.bonds_dict:
-                    self.bonds_dict[bond_partner_1] = [ibond+1]
-                else:
-                    self.bonds_dict[bond_partner_1].append([ibond+1])
-                if bond_partner_2 not in self.bonds_dict:
-                    self.bonds_dict[bond_partner_2] = [ibond+1]
-                else:
-                    self.bonds_dict[bond_partner_2].append(ibond+1)
+    def parse_xml(self, xml) -> list:
+        pats = xml['Pattern']
+        patterns = []
+        if isinstance(pats, list):
+            # we have multiple patterns so this is a list
+            for ipattern, pattern in enumerate(pats): 
+                patterns.append(PatternXML(pattern).parsed_obj)
         else:
-            bond_partner_1, bond_partner_2 = self.tpls_from_bond(bonds_xml)
-            self.bonds_dict[bond_partner_1] = [1]
-            self.bonds_dict[bond_partner_2] = [1]
+            patterns.append(PatternXML(pats).parsed_obj)
+        return patterns
 
+###### Parsers  ###### 
+class ParameterBlockXML(XMLObj):
+    def __init__(self, xml) -> None:
+        super().__init__(xml)
+    
+    def parse_xml(self, xml) -> ParameterBlock:
+        # make block
+        block = ParameterBlock()
+        # parse parameters
+        if isinstance(xml, list):
+            for b in xml:
+                # add content to line
+                name = b["@id"]
+                value = b["@value"]
+                expression = None
+                if '@expr' in b:
+                    expression = b['@expr']
+                block.add_parameter(name, value, expr=expression)
+        else:
+            # add content to line
+            name = xml["@id"]
+            value = xml["@value"]
+            expression = None
+            if '@expr' in xml:
+                expression = xml['@expr']
+            # add to list of lines
+            block.add_parameter(name, value, expr=expression)
+        block.reset_compilation_tags()
+        return block
 
+# 
+class CompartmentBlockXML(XMLObj):
+    def __init__(self, xml) -> None:
+        super().__init__(xml)
+    
+    def parse_xml(self, xml):
+        block = CompartmentBlock()
+
+        if isinstance(xml, list):
+            for comp in xml:
+                cname = comp['@id']
+                dim = comp['@spatialDimensions']
+                size = comp['@size']
+                outside = None
+                if '@outside' in comp:
+                    outside = comp['@outside']
+                block.add_compartment(cname, dim, size, outside=outside)
+        else:
+            cname = xml['@id']
+            dim = xml['@spatialDimensions']
+            size = xml['@size']
+            outside = None
+            if '@outside' in xml:
+                outside = xml['@outside']
+            block.add_compartment(cname, dim, size, outside=outside)
+        
+        block.reset_compilation_tags()
+        return block
+ 
+# 
+class ObservableBlockXML(XMLObj):
+    '''
+    Observable XML object. Observables are a list of 
+    patterns where a pattern is a list of molecules. 
+
+    Attributes
+    ----------
+    patterns : list
+        list of Pattern objects that make up the observable
+    '''
+    def __init__(self, xml) -> None:
+        super().__init__(xml)
+
+    def parse_xml(self, xml) -> ObservableBlock:
+        # 
+        block = ObservableBlock()
+        #
+        if isinstance(xml, list):
+            for b in xml:
+                name = b['@name']
+                otype = b['@type']
+                patterns = PatternListXML(b['ListOfPatterns']).patterns
+                block.add_observable(name, otype, patterns)
+        else: 
+            name = xml['@name']
+            otype = xml['@type']
+            patterns = PatternListXML(xml['ListOfPatterns']).patterns
+            block.add_observable(name, otype, patterns)
+        # 
+        return block
+        
+#
 class SpeciesBlockXML(Pattern):
     '''
     Species XML object. Species are a list of molecules. 
@@ -339,7 +340,7 @@ class SpeciesBlockXML(Pattern):
 
         return block
 
-
+# 
 class MoleculeTypeBlockXML(XMLObj):
     '''
     Molecule Type XML object. Molecules types are like molecules
@@ -359,14 +360,20 @@ class MoleculeTypeBlockXML(XMLObj):
     def __init__(self, xml):
         super().__init__(xml)
 
-    def add_component(self, name, states=None):
-        self.molecule.add_component(name, states=states)
-
     def parse_xml(self, xml):
         block = MoleculeTypeBlock()
+        #
+        if isinstance(xml, list):
+            for md in xml:
+                self.add_moltype_to_block(block, md)
+        else:
+            self.add_moltype_to_block(block, xml)
+        #
+        return block
 
-        mol_obj = Molecule()
-        mol_obj.name = xml['@id'] 
+    def add_moltype_to_block(self, block, xml):
+        name = xml['@id'] 
+        components = []
         if 'ListOfComponentTypes' in xml:
             comp_obj = Component()
             comp_dict = xml['ListOfComponentTypes']['ComponentType']
@@ -380,7 +387,7 @@ class MoleculeTypeBlockXML(XMLObj):
                             comp_obj.states.append(state["@id"])
                     else:
                         comp_obj.states.append(al_states["@id"])
-                mol_obj.components.append(comp_obj)
+                components.append(comp_obj)
             else:
                 # multiple components
                 for icomp, comp in enumerate(comp_dict):
@@ -394,10 +401,8 @@ class MoleculeTypeBlockXML(XMLObj):
                                 comp_obj.states.append(state['@id'])
                         else:
                             comp_obj.states.append(al_states['@id'])
-                    mol_obj.components.append(comp_obj)
-        self.molecule = mol_obj
-
-        return block
+                    components.append(comp_obj)
+        block.add_moltype(name, components)
 
 
 class FunctionBlockXML(XMLObj):

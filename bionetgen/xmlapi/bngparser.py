@@ -95,13 +95,13 @@ class BNGParser:
                     xml_parser = CompartmentBlockXML(comps)
                     model_obj.compartments = xml_parser.parsed_obj
                     model_obj.active_blocks.append("compartments")
-            # elif listkey == "ListOfMoleculeTypes":
-            #     mtypes_list = xml_model[listkey]
-            #     if mtypes_list is not None:
-            #         mtypes = mtypes_list["MoleculeType"]
-            #         xml_parser = MoleculeTypeBlockXML(mtypes)
-            #         model_obj.moltypes = xml_parser.parsed_obj
-            #         model_obj.active_blocks.append("moltypes")
+            elif listkey == "ListOfMoleculeTypes":
+                mtypes_list = xml_model[listkey]
+                if mtypes_list is not None:
+                    mtypes = mtypes_list["MoleculeType"]
+                    xml_parser = MoleculeTypeBlockXML(mtypes)
+                    model_obj.moltypes = xml_parser.parsed_obj
+                    model_obj.active_blocks.append("moltypes")
             # elif listkey == "ListOfSpecies":
             #     species_list = xml_model[listkey]
             #     if species_list is not None:
