@@ -1,12 +1,9 @@
 import bionetgen as bng
-import subprocess, os, xmltodict, sys
 
 from bionetgen.main import BioNetGen
-from tempfile import TemporaryDirectory
 from tempfile import TemporaryFile
-from .utils import find_BNG_path
 from .bngparser import BNGParser
-from .structs import Actions
+from .blocks import Actions
 
 
 # This allows access to the CLIs config setup

@@ -1,6 +1,13 @@
+from .blocks import ParameterBlock, CompartmentBlock, ObservableBlock
+from .blocks import SpeciesBlock, MoleculeTypeBlock
+from .blocks import FunctionBlock, RuleBlock
+
+from .lines import ParameterLine, CompartmentLine, ObservableLine
+from .lines import SpeciesLine, MolTypeLine, FunctionLine, RuleLine
+
 from .pattern import Pattern, Molecule, Component, Bonds
 
-###### XMLObjs ###### 
+###### Base object  ###### 
 class XMLObj:
     '''
     Base object that contains XMLs that is the parent of
@@ -17,6 +24,8 @@ class XMLObj:
     ----------
     xml : ??
         XML string to be parsed for the block
+    parsed_obj : obj
+        appropriate parsed object
 
     Methods
     -------
@@ -29,7 +38,7 @@ class XMLObj:
     '''
     def __init__(self, xml):
         self.xml = xml
-        self.resolve_xml(self.xml)
+        self.parsed_obj = self.parse_xml(self.xml)
 
     def __repr__(self):
         return self.gen_string()
@@ -37,7 +46,82 @@ class XMLObj:
     def __str__(self):
         return self.gen_string()
 
-class ObsXML(XMLObj):
+    def gen_string(self):
+        return str(self.parsed_obj)
+
+    def parse_xml(self, xml):
+        '''
+        '''
+        raise NotImplementedError
+    
+
+###### Parsers  ###### 
+class ParameterBlockXML(XMLObj):
+    def __init__(self, xml) -> None:
+        super().__init__(xml)
+    
+    def parse_xml(self, xml) -> ParameterBlock:
+        # make block
+        block = ParameterBlock()
+        lines = []
+        # parse lines
+        if isinstance(xml, list):
+            for b in xml:
+                # make line object
+                line = ParameterLine()
+                # add content to line
+                name = b["@id"]
+                value = b["@value"]
+                expression = None
+                if '@expr' in b:
+                    expression = b['@expr']
+                line.set_parameter(name, value, expr=expression)
+                # add to list of lines
+                lines.append(line)
+        else:
+            # make line object
+            line = ParameterLine()
+            # add content to line
+            name = xml["@id"]
+            value = xml["@value"]
+            expression = None
+            if '@expr' in xml:
+                expression = xml['@expr']
+            line.set_parameter(name, value, expr=expression)
+            # add to list of lines
+            lines.append(line)
+        # add all parsed lines
+        block.add_items(lines)
+        return block
+
+
+class CompartmentBlockXML(XMLObj):
+    def __init__(self, xml) -> None:
+        super().__init__(xml)
+    
+    def parse_xml(self, xml):
+        block = CompartmentBlock()
+
+        # if isinstance(xml, list):
+        #     for b in xml:
+        #         self.values[b['@id']] = b['@value']
+        #         if '@expr' in b:
+        #             self.expressions[b['@id']] = b['@expr']
+        #             self.add_item((b['@id'],b['@expr']))
+        #         else:
+        #             self.add_item((b['@id'],b['@value']))
+        # else:
+        #     self.values[xml['@id']] = xml['@value']
+        #     if '@expr' in xml:
+        #         self.expressions[xml['@id']] = xml['@expr']
+        #         self.add_item((xml['@id'], xml['@expr']))
+        #     else:
+        #         self.add_item((xml['@id'], xml['@value']))
+        
+        return block
+ 
+
+class ObservableBlockXML(XMLObj):
     '''
     Observable XML object. Observables are a list of 
     patterns where a pattern is a list of molecules. 
@@ -48,25 +132,12 @@ class ObsXML(XMLObj):
         list of Pattern objects that make up the observable
     '''
     def __init__(self, xml):
-        self.patterns = []
         super().__init__(xml)
 
-    def __iter__(self):
-        return self.patterns.__iter__()
+    def parse_xml(self, xml):
+        block = ObservableBlock()
 
-    def __getitem__(self, key):
-        return self.patterns[key]
-
-    def gen_string(self):
-        obs_str = ""
-        for ipat, pat in enumerate(self.patterns):
-            if ipat > 0:
-                obs_str += ","
-            obs_str += str(pat)
-        return obs_str
-
-    def resolve_xml(self, obs_xml):
-        patterns = obs_xml['Pattern']
+        patterns = xml['Pattern']
         if isinstance(patterns, list):
             # we have multiple patterns so this is a list
             for ipattern, pattern in enumerate(patterns): 
@@ -75,7 +146,10 @@ class ObsXML(XMLObj):
         else:
             self.patterns.append(Pattern(patterns))
 
-class SpeciesXML(Pattern):
+        return block
+
+
+class SpeciesBlockXML(Pattern):
     '''
     Species XML object. Species are a list of molecules. 
 
@@ -85,15 +159,24 @@ class SpeciesXML(Pattern):
         list of molecules objects that make up the species
     '''
     def __init__(self, xml):
-        self._xml = xml
-        self._bonds = Bonds()
-        self._label = None
-        self._compartment = None
-        self.molecules = []
-        # sets self.molecules up 
-        self._parse_xml(xml)
+        super().__init__(xml)
 
-class MolTypeXML(XMLObj):
+    def parse_xml(self, xml):
+        block = SpeciesBlock()
+
+        patterns = xml['Pattern']
+        if isinstance(patterns, list):
+            # we have multiple patterns so this is a list
+            for ipattern, pattern in enumerate(patterns): 
+                # 
+                self.patterns.append(Pattern(pattern))
+        else:
+            self.patterns.append(Pattern(patterns))
+
+        return block
+
+
+class MoleculeTypeBlockXML(XMLObj):
     '''
     Molecule Type XML object. Molecules types are like molecules
     but with multiple states for each component. 
@@ -115,15 +198,14 @@ class MolTypeXML(XMLObj):
     def add_component(self, name, states=None):
         self.molecule.add_component(name, states=states)
 
-    def gen_string(self):
-        return str(self.molecule)
+    def parse_xml(self, xml):
+        block = MoleculeTypeBlock()
 
-    def resolve_xml(self, molt_xml):
         mol_obj = Molecule()
-        mol_obj.name = molt_xml['@id'] 
-        if 'ListOfComponentTypes' in molt_xml:
+        mol_obj.name = xml['@id'] 
+        if 'ListOfComponentTypes' in xml:
             comp_obj = Component()
-            comp_dict = molt_xml['ListOfComponentTypes']['ComponentType']
+            comp_dict = xml['ListOfComponentTypes']['ComponentType']
             if '@id' in comp_dict:
                 comp_obj.name = comp_dict["@id"]
                 if "ListOfAllowedStates" in comp_dict:
@@ -151,7 +233,66 @@ class MolTypeXML(XMLObj):
                     mol_obj.components.append(comp_obj)
         self.molecule = mol_obj
 
-class RuleXML(XMLObj):
+        return block
+
+
+class FunctionBlockXML(XMLObj):
+    # TODO for some reason the resolve_xml doesn't set the full
+    # function string and it's also not used downstream. 
+
+    '''
+    Function XML object. Functions are expressions and IDs which 
+    is the name of the function with potential arguments. 
+
+    Attributes
+    ----------
+    item_tuple
+        tuple of (function_str, expression) where function_str is the 
+        string that forms the name + arguments of the function (e.g. g(x))
+        and expression is the definition of the function.
+    
+    Methods
+    -------
+    get_arguments(arg_xml)
+        given the XML of arguments, this methods pulls out the list of 
+        arguments the function needs and returns a list of strings. 
+    '''
+    def __init__(self, pattern_xml):
+        super().__init__(pattern_xml)
+
+    def parse_xml(self, xml):
+        block = FunctionBlock()
+
+        fname = xml['@id']
+        expression = xml['Expression']
+        args = []
+        if 'ListOfArguments' in xml:
+            args = self.get_arguments(xml['ListOfArguments']['Argument'])
+        expr = xml['Expression']
+        func_str = fname + "("
+        if len(args) > 0:
+            for iarg, arg in enumerate(args):
+                if iarg > 0:
+                    func_str += ","
+                func_str += arg
+        func_str += ")"
+        self.item_tuple = (func_str, expression)
+        full_str = "{} = {}".format(func_str, expression)
+        # return full_str 
+
+        return block
+
+    def get_arguments(self, arg_xml):
+        args = []
+        if isinstance(arg_xml, list):
+            for arg in arg_xml:
+                args.append(arg['@id'])
+            return args
+        else:
+            return [arg_xml['@id']]
+
+
+class RuleBlockXML(XMLObj):
     '''
     Molecule Type XML object. Molecules types are like molecules
     but with multiple states for each component. 
@@ -216,7 +357,9 @@ class RuleXML(XMLObj):
         else:
             print("1 or 2 rate constants allowed")
     
-    def resolve_xml(self, pattern_xml):
+    def parse_xml(self, pattern_xml):
+        block = RuleBlock()
+
         # 
         rule_name = pattern_xml['@name']
         self.name = rule_name
@@ -226,6 +369,8 @@ class RuleXML(XMLObj):
             print("Rule seems to be missing a rate law, please make sure that XML exporter of BNGL supports whatever you are doing!")
         self.rate_constants = [self.resolve_ratelaw(pattern_xml['RateLaw'])]
         self.rule_tpl = (self.reactants, self.products, self.rate_constants)
+
+        return block
 
     def resolve_ratelaw(self, rate_xml):
         rate_type = rate_xml['@type']
@@ -287,54 +432,8 @@ class RuleXML(XMLObj):
         else: 
             print("Can't parse rule XML {}".format(side_xml))
 
-class FuncXML(XMLObj):
-    # TODO for some reason the resolve_xml doesn't set the full
-    # function string and it's also not used downstream. 
+###### Lines   ###### 
 
-    '''
-    Function XML object. Functions are expressions and IDs which 
-    is the name of the function with potential arguments. 
+###### XMLObjs ###### 
 
-    Attributes
-    ----------
-    item_tuple
-        tuple of (function_str, expression) where function_str is the 
-        string that forms the name + arguments of the function (e.g. g(x))
-        and expression is the definition of the function.
-    
-    Methods
-    -------
-    get_arguments(arg_xml)
-        given the XML of arguments, this methods pulls out the list of 
-        arguments the function needs and returns a list of strings. 
-    '''
-    def __init__(self, pattern_xml):
-        super().__init__(pattern_xml)
-
-    def resolve_xml(self, func_xml):
-        fname = func_xml['@id']
-        expression = func_xml['Expression']
-        args = []
-        if 'ListOfArguments' in func_xml:
-            args = self.get_arguments(func_xml['ListOfArguments']['Argument'])
-        expr = func_xml['Expression']
-        func_str = fname + "("
-        if len(args) > 0:
-            for iarg, arg in enumerate(args):
-                if iarg > 0:
-                    func_str += ","
-                func_str += arg
-        func_str += ")"
-        self.item_tuple = (func_str, expression)
-        full_str = "{} = {}".format(func_str, expression)
-        return full_str 
-
-    def get_arguments(self, arg_xml):
-        args = []
-        if isinstance(arg_xml, list):
-            for arg in arg_xml:
-                args.append(arg['@id'])
-            return args
-        else:
-            return [arg_xml['@id']]
 ###### PATTERNS ###### 
