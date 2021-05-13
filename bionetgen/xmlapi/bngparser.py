@@ -88,13 +88,13 @@ class BNGParser:
             #         xml_parser = ObservableBlockXML(obs)
             #         model_obj.observables = xml_parser.parsed_obj
             #         model_obj.active_blocks.append("observables")
-            # elif listkey == "ListOfCompartments":
-            #     comp_list = xml_model[listkey]
-            #     if comp_list is not None:
-            #         comps = comp_list['compartment']
-            #         xml_parser = CompartmentBlockXML(comps)
-            #         model_obj.compartments = xml_parser.parsed_obj
-            #         model_obj.active_blocks.append("compartments")
+            elif listkey == "ListOfCompartments":
+                comp_list = xml_model[listkey]
+                if comp_list is not None:
+                    comps = comp_list['compartment']
+                    xml_parser = CompartmentBlockXML(comps)
+                    model_obj.compartments = xml_parser.parsed_obj
+                    model_obj.active_blocks.append("compartments")
             # elif listkey == "ListOfMoleculeTypes":
             #     mtypes_list = xml_model[listkey]
             #     if mtypes_list is not None:

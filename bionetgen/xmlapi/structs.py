@@ -1,4 +1,7 @@
 # New objects
+from typing import Sized
+
+
 class ModelObj:
     def __init__(self):
         self._comment = None
@@ -68,6 +71,19 @@ class Parameter(ModelObj):
     def gen_string(self) -> str:
         return "{} {}".format(self.name, self.value)
 
+class Compartment(ModelObj):
+    def __init__(self, name, dim, size, outside=None):
+        super().__init__()
+        self.name = name
+        self.dim = dim
+        self.size = size
+        self.outside = outside
+    
+    def gen_string(self) -> str:
+        s = "{} {} {}".format(self.name, self.dim, self.size)
+        if self.outside is not None:
+            s += " {}".format(self.outside) 
+        return s
 
 # ###### STRUCTS OBJECTS ###### 
 # class ModelBlock:
@@ -248,27 +264,7 @@ class Parameter(ModelObj):
 #         self._item_dict[name] = [dim, size, outside]
 
 #     def parse_xml_block(self, block_xml):
-#         # 
-#         if isinstance(block_xml, list):
-#             for comp in block_xml:
-#                 cname = comp['@id']
-#                 dim = comp['@spatialDimensions']
-#                 size = comp['@size']
-#                 if '@outside' in comp:
-#                     outside = comp['@outside']
-#                 else:
-#                     outside = None
-#                 self.add_item( (cname, dim, size, outside) )
-#         else:
-#             cname = block_xml['@id']
-#             dim = block_xml['@spatialDimensions']
-#             size = block_xml['@size']
-#             if '@outside' in block_xml:
-#                 outside = block_xml['@outside']
-#             else:
-#                 outside = None
-#             self.add_item( (cname, dim, size, outside) )
-#         #
+
 
 # class Observables(ModelBlock):
 #     '''

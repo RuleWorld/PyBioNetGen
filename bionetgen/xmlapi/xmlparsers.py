@@ -94,22 +94,25 @@ class CompartmentBlockXML(XMLObj):
     def parse_xml(self, xml):
         block = CompartmentBlock()
 
-        # if isinstance(xml, list):
-        #     for b in xml:
-        #         self.values[b['@id']] = b['@value']
-        #         if '@expr' in b:
-        #             self.expressions[b['@id']] = b['@expr']
-        #             self.add_item((b['@id'],b['@expr']))
-        #         else:
-        #             self.add_item((b['@id'],b['@value']))
-        # else:
-        #     self.values[xml['@id']] = xml['@value']
-        #     if '@expr' in xml:
-        #         self.expressions[xml['@id']] = xml['@expr']
-        #         self.add_item((xml['@id'], xml['@expr']))
-        #     else:
-        #         self.add_item((xml['@id'], xml['@value']))
+        if isinstance(xml, list):
+            for comp in xml:
+                cname = comp['@id']
+                dim = comp['@spatialDimensions']
+                size = comp['@size']
+                outside = None
+                if '@outside' in comp:
+                    outside = comp['@outside']
+                block.add_compartment(cname, dim, size, outside=outside)
+        else:
+            cname = xml['@id']
+            dim = xml['@spatialDimensions']
+            size = xml['@size']
+            outside = None
+            if '@outside' in xml:
+                outside = xml['@outside']
+            block.add_compartment(cname, dim, size, outside=outside)
         
+        block.reset_compilation_tags()
         return block
  
 
@@ -164,7 +167,7 @@ class SpeciesBlockXML(Pattern):
                 self.patterns.append(Pattern(pattern))
         else:
             self.patterns.append(Pattern(patterns))
-            
+
         return block
 
 

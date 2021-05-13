@@ -1,6 +1,5 @@
 from typing import OrderedDict
-from .structs import Parameter
-# , Compartment, Observable
+from .structs import Parameter, Compartment # , Observable
 # from .structs import Species, MolType, Function
 # from .structs import Rule, Action
 
@@ -203,6 +202,37 @@ class CompartmentBlock(ModelBlock):
     def __init__(self):
         super().__init__()
         self.name = "compartments"
+        
+    def __setattr__(self, name, value):
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, Compartment):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]['name'] != value:
+                        changed = True
+                        self.items[name]['name'] = value
+                else:
+                    try:
+                        value = float(value)
+                        if self.items[name]['size'] != value:
+                            changed = True
+                            self.items[name]['size'] = value
+                    except:
+                        print("can't set compartment {} to {}".format(self.items[name]['name'],value))
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+
+    def add_compartment(self, *args, **kwargs):
+        c = Compartment(*args, **kwargs)
+        self.add_item((c.name, c))
 
 
 class ObservableBlock(ModelBlock):
