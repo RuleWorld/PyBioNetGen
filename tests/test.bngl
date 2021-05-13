@@ -62,7 +62,7 @@ end observables
 # declare them here if you needed to.  See the user manual for help with
 # declaring your own functions.
 begin functions
-
+    f = 10*20
 end functions
 
 

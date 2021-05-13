@@ -314,7 +314,7 @@ class ObservableBlockXML(XMLObj):
         return block
         
 #
-class SpeciesBlockXML(Pattern):
+class SpeciesBlockXML(XMLObj):
     '''
     Species XML object. Species are a list of molecules. 
 
@@ -329,14 +329,16 @@ class SpeciesBlockXML(Pattern):
     def parse_xml(self, xml):
         block = SpeciesBlock()
 
-        patterns = xml['Pattern']
-        if isinstance(patterns, list):
+        if isinstance(xml, list):
             # we have multiple patterns so this is a list
-            for ipattern, pattern in enumerate(patterns): 
-                # 
-                self.patterns.append(Pattern(pattern))
+            for ispec, spec in enumerate(xml): 
+                pattern = PatternXML(spec)
+                count = spec['@concentration']
+                block.add_species(pattern, count)
         else:
-            self.patterns.append(Pattern(patterns))
+            pattern = PatternXML(xml)
+            count = xml['@concentration']
+            block.add_species(pattern, count)
 
         return block
 
@@ -431,24 +433,16 @@ class FunctionBlockXML(XMLObj):
 
     def parse_xml(self, xml):
         block = FunctionBlock()
-
+        #
         fname = xml['@id']
         expression = xml['Expression']
         args = []
         if 'ListOfArguments' in xml:
             args = self.get_arguments(xml['ListOfArguments']['Argument'])
         expr = xml['Expression']
-        func_str = fname + "("
-        if len(args) > 0:
-            for iarg, arg in enumerate(args):
-                if iarg > 0:
-                    func_str += ","
-                func_str += arg
-        func_str += ")"
-        self.item_tuple = (func_str, expression)
-        full_str = "{} = {}".format(func_str, expression)
-        # return full_str 
-
+        #
+        block.add_function(fname, expr)
+        
         return block
 
     def get_arguments(self, arg_xml):

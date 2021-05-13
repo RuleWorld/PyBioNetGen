@@ -1,8 +1,7 @@
 from bionetgen.xmlapi.pattern import Molecule
 from typing import OrderedDict
 from .structs import Parameter, Compartment, Observable
-from .structs import  MoleculeType
-# , Species,Function
+from .structs import  MoleculeType, Species, Function
 # from .structs import Rule, Action
 
 ###### BLOCK OBJECTS ###### 
@@ -297,6 +296,31 @@ class SpeciesBlock(ModelBlock):
         super().__init__()
         self.name = "species"
 
+    def __setattr__(self, name, value):
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, Species):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]['name'] != value:
+                        changed = True
+                        self.items[name]['name'] = value
+                else:
+                    print("can't set species {} to {}".format(self.items[name]['name'],value))
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+
+    def add_species(self, *args, **kwargs):
+        s = Species(*args, **kwargs)
+        self.add_item((None, s))
+
 
 class MoleculeTypeBlock(ModelBlock):
     '''
@@ -314,7 +338,6 @@ class MoleculeTypeBlock(ModelBlock):
     def __init__(self):
         super().__init__()
         self.name = "molecule types"
-        print(self.name)
     
     def __setattr__(self, name, value):
         changed = False
@@ -358,6 +381,31 @@ class FunctionBlock(ModelBlock):
     def __init__(self):
         super().__init__()
         self.name = "functions"
+
+    def __setattr__(self, name, value):
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, Function):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]['expr'] != value:
+                        changed = True
+                        self.items[name]['expr'] = value
+                else:
+                    print("can't set function {} to {}".format(self.items[name]['name'],value))
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+    
+    def add_function(self, *args, **kwargs):
+        f = Function(*args, **kwargs)
+        self.add_item((f.name, f))
 
 
 class RuleBlock(ModelBlock):

@@ -1,4 +1,4 @@
-from bionetgen.xmlapi.pattern import Molecule
+from bionetgen.xmlapi.pattern import Molecule, Pattern
 
 class ModelObj:
     def __init__(self):
@@ -94,7 +94,7 @@ class Observable(ModelObj):
         self.patterns = patterns
     
     def gen_string(self) -> str:
-        s = "{} {} ".format(self.type, self.name)
+        s = "{} {}".format(self.type, self.name)
         for ipat, pat in enumerate(self.patterns):
             if ipat > 0:
                 s += ","
@@ -114,135 +114,26 @@ class MoleculeType(ModelObj):
         return str(self.molecule)
     
 
-# class Species(ModelBlock):
-#     '''
-#     Species block object that contains starting species values defined
-#     in the model
-
-#     Item dictionary contains the Species object as the name and the 
-#     concentration as the value so outside of parsing this is basically 
-#     the same as the base object.
-#     '''
-#     def __init__(self):
-#         super().__init__()
-#         self.name = "species"
-
-#     def __str__(self):
-#         # overwrites what the method returns when 
-#         # it's converted to string
-#         block_lines = ["\nbegin {}".format(self.name)]
-#         for item in self._item_dict.keys():
-#             block_lines.append("  " + "{} {}".format(item,self._item_dict[item]))
-#         block_lines.append("end {}\n".format(self.name))
-#         return "\n".join(block_lines)
-
-#     def __getitem__(self, key):
-#         if isinstance(key, str):
-#             # our keys are objects
-#             for ikey in self._item_dict:
-#                 if key == str(ikey):
-#                     return self._item_dict[ikey]
-#         if isinstance(key, int):
-#             # get the item in order
-#             return list(self._item_dict.keys())[key]
-#         return self._item_dict[key]
-
-#     def __setitem__(self, key, value):
-#         if isinstance(key, str):
-#             for ikey in self._item_dict:
-#                 if key == str(ikey):
-#                     self._item_dict[ikey] = value
-#             return
-#         if isinstance(key, int):
-#             k = list(self._item_dict.keys())[key]
-#             self._item_dict[k] = value
-#             return
-#         self._recompile = True
-#         self._item_dict[key] = value
-
-#     def __contains__(self, key):
-#         for ikey in self._item_dict:
-#             if key == str(ikey):
-#                 return True
-#         return False
-
-#     def parse_xml_block(self, block_xml):
-#         if isinstance(block_xml, list):
-#             for sd in block_xml:
-#                 xmlobj = SpeciesXML(sd)
-#                 self.add_item((xmlobj,sd['@concentration']))
-#         else:
-#             xmlobj = SpeciesXML(block_xml)
-#             self.add_item((xmlobj,block_xml['@concentration']))
+class Species(ModelObj):
+    def __init__(self, pattern=Pattern(), count=0):
+        super().__init__()
+        self.pattern = pattern
+        self.count = count
     
-#     # def __init__(self, xml):
-#     #     self._xml = xml
-#     #     self._bonds = Bonds()
-#     #     self._label = None
-#     #     self._compartment = None
-#     #     self.molecules = []
-#     #     # sets self.molecules up 
-#     #     self._parse_xml(xml)
+    def gen_string(self) -> str:
+        s = "{} {}".format(self.pattern, self.count)
+        return s
 
-#     def add_item(self, item_tpl):
-#         # TODO is this necessary? this should be defined in base
-#         name, val = item_tpl
-#         self._item_dict[name] = val
 
-# class MoleculeTypes(ModelBlock):
-#     '''
-#     Molecule type block object that contains molecule types defined in the 
-#     model. 
-
-#     Item dictionary contains MolTypeXML object as the name has an empty 
-#     string as the value thus outside of parsing this is basically 
-#     the same as the base object.
-#     '''
-#     def __init__(self):
-#         super().__init__()
-#         self.name = "molecule types"
-
-#     def __repr__(self):
-#         return str(list(self._item_dict.keys()))
-
-#     def add_item(self, item_tpl):
-#         name, = item_tpl
-#         self._item_dict[name] = ""
-#         self._recompile = True
-
-#     def __getitem__(self, key):
-#         if isinstance(key, str):
-#             # our keys are objects
-#             for ikey in self._item_dict:
-#                 if key == str(ikey):
-#                     return self._item_dict[ikey]
-#         if isinstance(key, int):
-#             # get the item in order
-#             return list(self._item_dict.keys())[key]
-#         return self._item_dict[key]
-
-#     def __setitem__(self, key, value):
-#         for ikey in self._item_dict:
-#             if key == str(ikey):
-#                 self._recompile = True
-#                 self._item_dict[ikey] = value
-
-#     def __contains__(self, key):
-#         for ikey in self._item_dict:
-#             if key == str(ikey):
-#                 return True
-#         return False
-
-#     def __str__(self):
-#         # overwrites what the method returns when 
-#         # it's converted to string
-#         block_lines = ["\nbegin {}".format(self.name)]
-#         for item in self._item_dict.keys():
-#             block_lines.append("  " + "{}".format(item))
-#         block_lines.append("end {}\n".format(self.name))
-#         return "\n".join(block_lines)
-
-#     def parse_xml_block(self, block_xml):
+class Function(ModelObj):
+    def __init__(self, name, expr):
+        super().__init__()
+        self.name = name
+        self.expr = expr
+    
+    def gen_string(self) -> str:
+        s = "{} {}".format(self.name, self.expr)
+        return s
 #         
 # class Functions(ModelBlock):
 #     '''

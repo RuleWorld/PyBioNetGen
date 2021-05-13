@@ -102,13 +102,13 @@ class BNGParser:
                     xml_parser = MoleculeTypeBlockXML(mtypes)
                     model_obj.moltypes = xml_parser.parsed_obj
                     model_obj.active_blocks.append("moltypes")
-            # elif listkey == "ListOfSpecies":
-            #     species_list = xml_model[listkey]
-            #     if species_list is not None:
-            #         species = species_list["Species"]
-            #         xml_parser = SpeciesBlockXML(species)
-            #         model_obj.species = xml_parser.parsed_obj
-            #         model_obj.active_blocks.append("species")
+            elif listkey == "ListOfSpecies":
+                species_list = xml_model[listkey]
+                if species_list is not None:
+                    species = species_list["Species"]
+                    xml_parser = SpeciesBlockXML(species)
+                    model_obj.species = xml_parser.parsed_obj
+                    model_obj.active_blocks.append("species")
             # elif listkey == "ListOfReactionRules":
             #     rrules_list = xml_model[listkey]
             #     if rrules_list is not None:
@@ -116,14 +116,14 @@ class BNGParser:
             #         xml_parser = RuleBlockXML(rrules)
             #         model_obj.rules = xml_parser.parsed_obj
             #         model_obj.active_blocks.append("rules")
-            # elif listkey == "ListOfFunctions":
-            #     # TODO: Optional expression parsing?
-            #     # TODO: Add arguments correctly
-            #     func_list = xml_model[listkey]
-            #     if func_list is not None:
-            #         funcs = func_list['Function']
-            #         xml_parser = FunctionBlockXML(funcs)
-            #         model_obj.functions = xml_parser.parsed_obj
-            #         model_obj.active_blocks.append("functions")
+            elif listkey == "ListOfFunctions":
+                # TODO: Optional expression parsing?
+                # TODO: Add arguments correctly
+                func_list = xml_model[listkey]
+                if func_list is not None:
+                    funcs = func_list['Function']
+                    xml_parser = FunctionBlockXML(funcs)
+                    model_obj.functions = xml_parser.parsed_obj
+                    model_obj.active_blocks.append("functions")
         # And that's the end of parsing
         print("XML parsed")
