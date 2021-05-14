@@ -134,38 +134,51 @@ class Function(ModelObj):
     def gen_string(self) -> str:
         s = "{} {}".format(self.name, self.expr)
         return s
-#         
-# class Functions(ModelBlock):
-#     '''
-#     Function block object that contains functions defined in the 
-#     model. 
 
-#     Item dictionary contains the name of the function as the name
-#     and function expression as value.
-#     '''
-#     def __init__(self):
-#         super().__init__()
-#         self.name = "functions"
 
-#     # TODO: Fix this such that we can re-write functions
-#     def __str__(self):
-#         # overwrites what the method returns when 
-#         # it's converted to string
-#         block_lines = ["\nbegin {}".format(self.name)]
-#         for item in self._item_dict.keys():
-#             block_lines.append("  " + 
-#                     "{} = {}".format(item, self._item_dict[item]))
-#         block_lines.append("end {}\n".format(self.name))
-#         return "\n".join(block_lines)
+class Action(ModelObj):
+    '''
+    Action object
 
-#     def parse_xml_block(self, block_xml):
-#         if isinstance(block_xml, list):
-#              for func in block_xml:
-#                  xmlobj = FuncXML(func)
-#                  self.add_item(xmlobj.item_tuple)
-#         else:
-#              xmlobj = FuncXML(block_xml)
-#              self.add_item(xmlobj.item_tuple)
+    Attributes
+    ----------
+    type
+    args
+
+    '''
+    def __init__(self, action_type=None, action_args=[]) -> None:
+        super().__init__()
+        self.type = action_type
+        self.args = action_args
+
+    def gen_string(self) -> str:
+        # TODO: figure out every argument that has special 
+        # requirements, e.g. method requires the value to 
+        # be a string
+        action_str = "{}(".format(self.type) + "{"
+        for iarg,arg in enumerate(self.args):
+            val = arg[1]
+            arg = arg[0]
+            if iarg > 0:
+                action_str += ","
+            if arg == "method":
+                action_str += '{}=>"{}"'.format(arg, val)
+            else:
+                action_str += '{}=>{}'.format(arg, val)
+        action_str += "})"
+        return action_str
+
+    def print_line(self) -> str:
+        s = ""
+        # let's deal with line label
+        if self.line_label is not None:
+            s += self.line_label
+        # start building the rest of the string
+        s += str(self)
+        if self.comment is not None:
+            s += " #{}".format(self.comment)
+        return s
+
 
 # class Rules(ModelBlock):
 #     '''
@@ -256,65 +269,4 @@ class Function(ModelObj):
 #         else:
 #             print("1 or 2 rate constants allowed")
 
-# class Actions(ModelBlock):
-#     '''
-#     Action block object that contains actions defined in the 
-#     model. This is the one object that doesn't need a begin/end
-#     block tag to be in the model. 
 
-#     Item dictionary contains the action type as the name and a list
-#     of arguments for that action as value. Each argument is of form 
-#     [ArgumentName, ArgumentValue], method argument value is written
-#     with quotes since that's the only one that needs quotes in BNGL.
-
-#     Attributes
-#     ----------
-#     _action_list : list[str]
-#         list of available action names
-#     '''
-#     def __init__(self):
-#         super().__init__()
-#         self.name = "actions"
-#         self._action_list = ["generate_network", "generate_hybrid_model",
-#             "simulate", "simulate_ode", "simulate_ssa", "simulate_pla", 
-#             "simulate_nf", "parameter_scan", "bifurcate", "readFile", 
-#             "writeFile", "writeModel", "writeNetwork", "writeXML", 
-#             "writeSBML", "writeMfile", "writeMexfile", "writeMDL", 
-#             "visualize", "setConcentration", "addConcentration", 
-#             "saveConcentration", "resetConcentrations", "setParameter", 
-#             "saveParameters", "resetParameters", "quit", "setModelName", 
-#             "substanceUnits", "version", "setOption"]
-
-#     def __str__(self):
-#         # TODO: figure out every argument that has special 
-#         # requirements, e.g. method requires the value to 
-#         # be a string
-#         block_lines = []
-#         for item in self._item_dict.keys():
-#             action_str = "{}(".format(item) + "{"
-#             for iarg,arg in enumerate(self._item_dict[item]):
-#                 val = arg[1]
-#                 arg = arg[0]
-#                 if iarg > 0:
-#                     action_str += ","
-#                 if arg == "method":
-#                     action_str += '{}=>"{}"'.format(arg, val)
-#                 else:
-#                     action_str += '{}=>{}'.format(arg, val)
-#             action_str += "})"
-#             block_lines.append(action_str)
-#         return "\n".join(block_lines)
-
-#     def add_action(self, action_type, action_args):
-#         '''
-#         adds action, needs type as string and args as list of tuples
-#         (which preserve order) of (argument, value) pairs
-#         '''
-#         if action_type in self._action_list:
-#             self._item_dict[action_type] = action_args
-#         else:
-#             print("Action type {} not valid".format(action_type))
-
-#     def clear_actions(self):
-#         self._item_dict.clear()
-# ###### MODEL STRUCTURES ###### 

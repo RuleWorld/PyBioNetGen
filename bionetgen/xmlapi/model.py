@@ -84,7 +84,7 @@ class bngmodel:
             if block in self.active_blocks:
                 if block != "actions":
                     model_str += str(getattr(self, block))
-        model_str += "\nend model\n"
+        model_str += "\nend model\n\n"
         if "actions" in self.active_blocks:
             model_str += str(self.actions)
         return model_str

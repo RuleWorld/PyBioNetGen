@@ -1,7 +1,6 @@
-from bionetgen.xmlapi.pattern import Molecule
 from typing import OrderedDict
 from .structs import Parameter, Compartment, Observable
-from .structs import  MoleculeType, Species, Function
+from .structs import  MoleculeType, Species, Function, Action
 # from .structs import Rule, Action
 
 ###### BLOCK OBJECTS ###### 
@@ -38,7 +37,10 @@ class ModelBlock:
         self._recompile = False
         self.items = OrderedDict()
 
-    def __str__(self):
+    def __str__(self) -> str:
+        return self.gen_string()
+
+    def gen_string(self) -> str:
         # each block can have a comment at the start
         if self.comment[0] is not None:
             block_lines = ["\nbegin {} #{}".format(self.name, self.comment[0])]
@@ -485,15 +487,28 @@ class ActionBlock(ModelBlock):
             "saveParameters", "resetParameters", "quit", "setModelName", 
             "substanceUnits", "version", "setOption"]
 
+    def __setattr__(self, name, value):
+            self.__dict__[name] = value
+
     def add_action(self, action_type, action_args):
         '''
         adds action, needs type as string and args as list of tuples
         (which preserve order) of (argument, value) pairs
         '''
         if action_type in self._action_list:
-            self._item_dict[action_type] = action_args
+            a = Action(action_type=action_type,
+                        action_args=action_args)
+            self.add_item((action_type, a))
         else:
             print("Action type {} not valid".format(action_type))
 
     def clear_actions(self):
-        self._item_dict.clear()
+        self.items.clear()
+
+    def gen_string(self) -> str:
+        block_lines = []
+        # we just loop over lines for actions
+        for item in self.items.keys():
+            block_lines.append(self.items[item].print_line())
+        # join everything with new lines
+        return "\n".join(block_lines)

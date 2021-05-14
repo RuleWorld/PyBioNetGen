@@ -594,9 +594,3 @@ class RuleBlockXML(XMLObj):
             return sl
         else: 
             print("Can't parse rule XML {}".format(side_xml))
-
-###### Lines   ###### 
-
-###### XMLObjs ###### 
-
-###### PATTERNS ###### 
