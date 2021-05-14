@@ -428,8 +428,8 @@ class FunctionBlockXML(XMLObj):
         given the XML of arguments, this methods pulls out the list of 
         arguments the function needs and returns a list of strings. 
     '''
-    def __init__(self, pattern_xml):
-        super().__init__(pattern_xml)
+    def __init__(self, xml):
+        super().__init__(xml)
 
     def parse_xml(self, xml):
         block = FunctionBlock()
@@ -489,63 +489,49 @@ class RuleBlockXML(XMLObj):
         parses the XML for either reactants or products and adds it to 
         the object
     '''
-    def __init__(self, pattern_xml):
+    def __init__(self, xml):
         self.bidirectional = False
-        super().__init__(pattern_xml)
+        super().__init__(xml)
 
-    def __iter__(self):
-        return self.iter_tpl.__iter__()
-
-    def gen_string(self):
-        if self.bidirectional:
-            return "{}: {} <-> {} {},{}".format(self.name, self.side_string(self.reactants), self.side_string(self.products), self.rate_constants[0], self.rate_constants[1])
-        else:
-            return "{}: {} -> {} {}".format(self.name, self.side_string(self.reactants), self.side_string(self.products), self.rate_constants[0])
-
-    def side_string(self, patterns):
-        side_str = ""
-        for ipat, pat in enumerate(patterns):
-            if ipat > 0:
-                side_str += " + "
-            side_str += str(pat)
-        return side_str
-
-    def set_rate_constants(self, rate_cts):
-        if len(rate_cts) == 1:
-            self.rate_constants = [rate_cts[0]]
-            self.bidirectional = False
-        elif len(rate_cts) == 2: 
-            self.rate_constants = [rate_cts[0], rate_cts[1]]
-            self.bidirectional = True
-        else:
-            print("1 or 2 rate constants allowed")
-    
-    def parse_xml(self, pattern_xml):
+    def parse_xml(self, xml):
         block = RuleBlock()
 
         # 
-        rule_name = pattern_xml['@name']
-        self.name = rule_name
-        self.reactants = self.resolve_rxn_side(pattern_xml['ListOfReactantPatterns'])
-        self.products = self.resolve_rxn_side(pattern_xml['ListOfProductPatterns'])
-        if 'RateLaw' not in pattern_xml:
-            print("Rule seems to be missing a rate law, please make sure that XML exporter of BNGL supports whatever you are doing!")
-        self.rate_constants = [self.resolve_ratelaw(pattern_xml['RateLaw'])]
-        self.rule_tpl = (self.reactants, self.products, self.rate_constants)
+        if isinstance(xml, list):
+            for irule, rule in enumerate(xml): 
+                name = rule['@name']
+                reactants = self.resolve_rxn_side(rule['ListOfReactantPatterns'])
+                products = self.resolve_rxn_side(rule['ListOfProductPatterns'])
+                if 'RateLaw' not in rule:
+                    print("Rule seems to be missing a rate law, please make sure that XML exporter of BNGL supports whatever you are doing!")
+                rate_constants = [self.resolve_ratelaw(rule['RateLaw'])]
 
+                block.add_rule(name, reactants=reactants, 
+                    products=products, rate_constants=rate_constants)
+        else:    
+            name = xml['@name']
+            reactants = self.resolve_rxn_side(xml['ListOfReactantPatterns'])
+            products = self.resolve_rxn_side(xml['ListOfProductPatterns'])
+            if 'RateLaw' not in xml:
+                print("Rule seems to be missing a rate law, please make sure that XML exporter of BNGL supports whatever you are doing!")
+            rate_constants = [self.resolve_ratelaw(xml['RateLaw'])]
+
+            block.add_rule(name, reactants=reactants, 
+                products=products, rate_constants=rate_constants)
+        block.consolidate_rules()
         return block
 
-    def resolve_ratelaw(self, rate_xml):
-        rate_type = rate_xml['@type']
+    def resolve_ratelaw(self, xml):
+        rate_type = xml['@type']
         if rate_type == 'Ele':
-            rate_cts_xml = rate_xml['ListOfRateConstants']
+            rate_cts_xml = xml['ListOfRateConstants']
             rate_cts = rate_cts_xml['RateConstant']['@value']
         elif rate_type == 'Function':
-            rate_cts = rate_xml['@name']
+            rate_cts = xml['@name']
         elif rate_type == 'MM' or rate_type == "Sat":
             # A function type 
             rate_cts = rate_type + "("
-            args = rate_xml['ListOfRateConstants']["RateConstant"]
+            args = xml['ListOfRateConstants']["RateConstant"]
             if isinstance(args, list):
                 for iarg, arg in enumerate(args):
                     if iarg > 0:
@@ -558,14 +544,15 @@ class RuleBlockXML(XMLObj):
             print("don't recognize rate law type")
         return rate_cts
 
-    def resolve_rxn_side(self, side_xml):
+    def resolve_rxn_side(self, xml):
+        # import ipdb;ipdb.set_trace()
         # this is either reactant or product
-        if side_xml is None:
+        if xml is None:
             return [Molecule()]
-        elif 'ReactantPattern' in side_xml:
+        elif 'ReactantPattern' in xml:
             # this is a lhs/reactant side
             sl = []
-            side = side_xml['ReactantPattern']
+            side = xml['ReactantPattern']
             if '@compartment' in side:
                 self.react_comp = side['@compartment']
             else:
@@ -573,13 +560,13 @@ class RuleBlockXML(XMLObj):
             if isinstance(side, list):
                 # this is a list of reactant patterns
                 for ireact, react in enumerate(side):
-                    sl.append(Pattern(react))
+                    sl.append(PatternXML(react))
             else: 
-                sl.append(Pattern(side))
+                sl.append(PatternXML(side))
             return sl
-        elif "ProductPattern" in side_xml:
+        elif "ProductPattern" in xml:
             # rhs/product side
-            side = side_xml['ProductPattern']
+            side = xml['ProductPattern']
             sl = []
             if '@compartment' in side:
                 self.prod_comp = side['@compartment']
@@ -588,9 +575,9 @@ class RuleBlockXML(XMLObj):
             if isinstance(side, list):
                 # this is a list of product patterns
                 for iprod, prod in enumerate(side):
-                    sl.append(Pattern(prod))
+                    sl.append(PatternXML(prod))
             else: 
-                sl.append(Pattern(side))
+                sl.append(PatternXML(side))
             return sl
         else: 
-            print("Can't parse rule XML {}".format(side_xml))
+            print("Can't parse rule XML {}".format(xml))

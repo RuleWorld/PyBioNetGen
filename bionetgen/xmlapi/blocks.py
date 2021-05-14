@@ -1,7 +1,7 @@
 from typing import OrderedDict
 from .structs import Parameter, Compartment, Observable
-from .structs import  MoleculeType, Species, Function, Action
-# from .structs import Rule, Action
+from .structs import  MoleculeType, Species, Function
+from .structs import Rule, Action
 
 ###### BLOCK OBJECTS ###### 
 class ModelBlock:
@@ -431,6 +431,31 @@ class RuleBlock(ModelBlock):
     def __init__(self):
         super().__init__()
         self.name = "reaction rules"
+    
+    def __setattr__(self, name, value):
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, Rule):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]['name'] != value:
+                        changed = True
+                        self.items[name]['name'] = value
+                else:
+                    print("can't set rule {} to {}".format(self.items[name]['name'],value))
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+
+    def add_rule(self, *args, **kwargs):
+        r = Rule(*args, **kwargs)
+        self.add_item((r.name, r))
 
     def consolidate_rules(self) -> None:
         '''
@@ -440,22 +465,22 @@ class RuleBlock(ModelBlock):
         rules and convert them to bidirectional rules
         '''
         delete_list = []
-        for item_key in self._item_dict:
-            rxn_obj  = self._item_dict[item_key]
+        for item_key in self.items:
+            rxn_obj  = self.items[item_key]
             if item_key.startswith("_reverse_"):
                 # this is the reverse of another reaction
                 reverse_of = item_key.replace("_reverse_", "")
                 # ensure we have the original
-                if reverse_of in self._item_dict:
+                if reverse_of in self.items:
                     # make bidirectional and add rate law
-                    r1 = self._item_dict[reverse_of].rate_constants[0]
+                    r1 = self.items[reverse_of].rate_constants[0]
                     r2 = rxn_obj.rate_constants[0]
-                    self._item_dict[reverse_of].set_rate_constants((r1,r2))
+                    self.items[reverse_of].set_rate_constants((r1,r2))
                     # mark reverse for deletion
                     delete_list.append(item_key)
         # delete items marked for deletion
         for del_item in delete_list:
-            self._item_dict.pop(del_item)
+            self.items.pop(del_item)
 
 
 class ActionBlock(ModelBlock):

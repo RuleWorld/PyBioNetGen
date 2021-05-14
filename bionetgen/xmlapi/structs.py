@@ -180,93 +180,46 @@ class Action(ModelObj):
         return s
 
 
-# class Rules(ModelBlock):
-#     '''
-#     Compartments block object that contains compartments defined in the 
-#     model. 
-
-#     Item dictionary contains the name of the compartment as the name
-#     and a list of the form [Dimensionality, Size, ParentCompartment] 
-#     as the value.
-#     '''
-#     def __init__(self):
-#         super().__init__()
-#         self.name = "reaction rules"
-
-#     def __str__(self):
-#         block_lines = ["\nbegin {}".format(self.name)]
-#         for item in self._item_dict.keys():
-#             block_lines.append(str(self._item_dict[item]))
-#         block_lines.append("end {}\n".format(self.name))
-#         return "\n".join(block_lines)
-
-#     def __iter__(self):
-#         return self._item_dict.values().__iter__()
-
-#     def parse_xml_block(self, block_xml):
-#         if isinstance(block_xml, list):
-#             for rd in block_xml:
-#                 xmlobj = RuleXML(rd)
-#                 self.add_item((xmlobj.name, xmlobj))
-#         else:
-#             xmlobj = RuleXML(block_xml)
-#             self.add_item((xmlobj.name, xmlobj))
-#         self.consolidate_rules()
-
-#     def consolidate_rules(self):
-#         '''
-#         Generated XML only has unidirectional rules
-#         and uses "_reverse_" tag to make bidirectional 
-#         rules for NFSim. Take all the "_reverse_" tagged
-#         rules and convert them to bidirectional rules
-#         '''
-#         delete_list = []
-#         for item_key in self._item_dict:
-#             rxn_obj  = self._item_dict[item_key]
-#             if item_key.startswith("_reverse_"):
-#                 # this is the reverse of another reaction
-#                 reverse_of = item_key.replace("_reverse_", "")
-#                 # ensure we have the original
-#                 if reverse_of in self._item_dict:
-#                     # make bidirectional and add rate law
-#                     r1 = self._item_dict[reverse_of].rate_constants[0]
-#                     r2 = rxn_obj.rate_constants[0]
-#                     self._item_dict[reverse_of].set_rate_constants((r1,r2))
-#                     # mark reverse for deletion
-#                     delete_list.append(item_key)
-#         # delete items marked for deletion
-#         for del_item in delete_list:
-#             self._item_dict.pop(del_item)
-
-#     def __init__(self, pattern_xml):
-#         self.bidirectional = False
-#         super().__init__(pattern_xml)
-
-#     def __iter__(self):
-#         return self.iter_tpl.__iter__()
-
-#     def gen_string(self):
-#         if self.bidirectional:
-#             return "{}: {} <-> {} {},{}".format(self.name, self.side_string(self.reactants), self.side_string(self.products), self.rate_constants[0], self.rate_constants[1])
-#         else:
-#             return "{}: {} -> {} {}".format(self.name, self.side_string(self.reactants), self.side_string(self.products), self.rate_constants[0])
-
-#     def side_string(self, patterns):
-#         side_str = ""
-#         for ipat, pat in enumerate(patterns):
-#             if ipat > 0:
-#                 side_str += " + "
-#             side_str += str(pat)
-#         return side_str
-
-#     def set_rate_constants(self, rate_cts):
-#         if len(rate_cts) == 1:
-#             self.rate_constants = [rate_cts[0]]
-#             self.bidirectional = False
-#         elif len(rate_cts) == 2: 
-#             self.rate_constants = [rate_cts[0], rate_cts[1]]
-#             self.bidirectional = True
-#         else:
-#             print("1 or 2 rate constants allowed")
 
 
+
+class Rule(ModelObj):
+    '''
+    Rule obj
+    '''
+    # def add_rule(self, name, reactants, products, rate_constants):
+
+    def __init__(self, name, reactants=[], products=[], rate_constants=()) -> None:
+        super().__init__()
+        self.name = name
+        self.reactants = reactants
+        self.products = products
+        self.set_rate_constants(rate_constants)
+
+    def set_rate_constants(self, rate_cts):
+        if len(rate_cts) == 1:
+            self.rate_constants = [rate_cts[0]]
+            self.bidirectional = False
+        elif len(rate_cts) == 2: 
+            self.rate_constants = [rate_cts[0], rate_cts[1]]
+            self.bidirectional = True
+        else:
+            print("1 or 2 rate constants allowed")
+    
+    def gen_string(self):
+        if self.bidirectional:
+            return "{}: {} <-> {} {},{}".format(self.name, 
+                self.side_string(self.reactants), self.side_string(self.products), 
+                self.rate_constants[0], self.rate_constants[1])
+        else:
+            return "{}: {} -> {} {}".format(self.name, 
+                self.side_string(self.reactants), self.side_string(self.products), 
+                self.rate_constants[0])
+
+    def side_string(self, patterns):
+        side_str = ""
+        for ipat, pat in enumerate(patterns):
+            if ipat > 0:
+                side_str += " + "
+            side_str += str(pat)
+        return side_str
