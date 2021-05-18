@@ -3,7 +3,7 @@ import bionetgen as bng
 from bionetgen.main import BioNetGen
 from tempfile import TemporaryFile
 from .bngparser import BNGParser
-from .blocks import ActionBlock
+from .blocks import ActionBlock, CompartmentBlock, FunctionBlock, MoleculeTypeBlock, ObservableBlock, ParameterBlock, RuleBlock, SpeciesBlock
 
 
 # This allows access to the CLIs config setup
@@ -54,7 +54,7 @@ class bngmodel:
     def __init__(self, bngl_model, BNGPATH=def_bng_path):
         self.active_blocks = []
         # We want blocks to be printed in the same order every time
-        self.block_order = ["parameters", "compartments", "moltypes", 
+        self.block_order = ["parameters", "compartments", "molecule_types", 
                             "species", "observables", "functions", 
                             "rules", "actions"]
         self.model_name = ""
@@ -95,6 +95,86 @@ class bngmodel:
     def __iter__(self):
         active_ordered_blocks = [getattr(self,i) for i in self.block_order if i in self.active_blocks]
         return active_ordered_blocks.__iter__()
+
+    def add_block(self, block):
+        bname = block.name.replace(" ","_")
+        # TODO: fix this exception
+        if bname == "reaction_rules":
+            bname = "rules"
+        block_adder = getattr(self, "add_{}_block".format(bname))
+        block_adder(block)
+    
+    def add_parameters_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, ParameterBlock)
+            self.parameters = block
+            self.active_blocks.append("parameters")
+        else:
+            self.parameters = ParameterBlock()
+            self.active_blocks.append("parameters")
+    
+    def add_compartments_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, CompartmentBlock)
+            self.compartments = block
+            self.active_blocks.append("compartments")
+        else:
+            self.compartments = CompartmentBlock()
+            self.active_blocks.append("compartments")
+        
+    def add_molecule_types_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, MoleculeTypeBlock)
+            self.molecule_types = block
+            self.active_blocks.append("molecule_types")
+        else:
+            self.molecule_types = MoleculeTypeBlock()
+            self.active_blocks.append("molecule_types")
+    
+    def add_species_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, SpeciesBlock)
+            self.species = block
+            self.active_blocks.append("species")
+        else:
+            self.species = SpeciesBlock()
+            self.active_blocks.append("species")
+    
+    def add_observables_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, ObservableBlock)
+            self.observables = block
+            self.active_blocks.append("observables")
+        else:
+            self.observables = ObservableBlock()
+            self.active_blocks.append("observables")
+    
+    def add_functions_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, FunctionBlock)
+            self.functions = block
+            self.active_blocks.append("functions")
+        else:
+            self.functions = FunctionBlock()
+            self.active_blocks.append("functions")
+
+    def add_rules_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, RuleBlock)
+            self.rules = block
+            self.active_blocks.append("rules")
+        else:
+            self.rules = RuleBlock()
+            self.active_blocks.append("rules")
+
+    def add_actions_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, ActionBlock)
+            self.actions = block
+            self.active_blocks.append("actions")
+        else:
+            self.actions = ActionBlock()
+            self.active_blocks.append("actions")
 
     def reset_compilation_tags(self):
         for block in self.active_blocks:

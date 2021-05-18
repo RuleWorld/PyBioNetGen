@@ -362,7 +362,7 @@ class MoleculeTypeBlock(ModelBlock):
         else:
             self.__dict__[name] = value
     
-    def add_moltype(self, name, components):
+    def add_molecule_type(self, name, components):
         mt = MoleculeType(name=name, components=components)
         self.add_item((name, mt))
 

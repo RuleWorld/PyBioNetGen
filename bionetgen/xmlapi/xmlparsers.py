@@ -2,10 +2,6 @@ from .blocks import ParameterBlock, CompartmentBlock, ObservableBlock
 from .blocks import SpeciesBlock, MoleculeTypeBlock
 from .blocks import FunctionBlock, RuleBlock
 
-from .structs import Parameter
-# , Compartment, Observable
-# from .structs import Species, MolType, Function, Rule
-
 from .pattern import Pattern, Molecule, Component
 
 ###### Base object  ###### 
@@ -367,13 +363,13 @@ class MoleculeTypeBlockXML(XMLObj):
         #
         if isinstance(xml, list):
             for md in xml:
-                self.add_moltype_to_block(block, md)
+                self.add_molecule_type_to_block(block, md)
         else:
-            self.add_moltype_to_block(block, xml)
+            self.add_molecule_type_to_block(block, xml)
         #
         return block
 
-    def add_moltype_to_block(self, block, xml):
+    def add_molecule_type_to_block(self, block, xml):
         name = xml['@id'] 
         components = []
         if 'ListOfComponentTypes' in xml:
@@ -404,7 +400,7 @@ class MoleculeTypeBlockXML(XMLObj):
                         else:
                             comp_obj.states.append(al_states['@id'])
                     components.append(comp_obj)
-        block.add_moltype(name, components)
+        block.add_molecule_type(name, components)
 
 
 class FunctionBlockXML(XMLObj):

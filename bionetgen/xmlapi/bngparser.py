@@ -79,43 +79,37 @@ class BNGParser:
                 if param_list is not None:
                     params = param_list['Parameter']
                     xml_parser = ParameterBlockXML(params)
-                    model_obj.parameters = xml_parser.parsed_obj
-                    model_obj.active_blocks.append("parameters")
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfObservables":
                 obs_list = xml_model[listkey]
                 if obs_list is not None:
                     obs = obs_list['Observable']
                     xml_parser = ObservableBlockXML(obs)
-                    model_obj.observables = xml_parser.parsed_obj
-                    model_obj.active_blocks.append("observables")
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfCompartments":
                 comp_list = xml_model[listkey]
                 if comp_list is not None:
                     comps = comp_list['compartment']
                     xml_parser = CompartmentBlockXML(comps)
-                    model_obj.compartments = xml_parser.parsed_obj
-                    model_obj.active_blocks.append("compartments")
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfMoleculeTypes":
                 mtypes_list = xml_model[listkey]
                 if mtypes_list is not None:
                     mtypes = mtypes_list["MoleculeType"]
                     xml_parser = MoleculeTypeBlockXML(mtypes)
-                    model_obj.moltypes = xml_parser.parsed_obj
-                    model_obj.active_blocks.append("moltypes")
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfSpecies":
                 species_list = xml_model[listkey]
                 if species_list is not None:
                     species = species_list["Species"]
                     xml_parser = SpeciesBlockXML(species)
-                    model_obj.species = xml_parser.parsed_obj
-                    model_obj.active_blocks.append("species")
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfReactionRules":
                 rrules_list = xml_model[listkey]
                 if rrules_list is not None:
                     rrules = rrules_list["ReactionRule"]
                     xml_parser = RuleBlockXML(rrules)
-                    model_obj.rules = xml_parser.parsed_obj
-                    model_obj.active_blocks.append("rules")
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfFunctions":
                 # TODO: Optional expression parsing?
                 # TODO: Add arguments correctly
@@ -123,7 +117,6 @@ class BNGParser:
                 if func_list is not None:
                     funcs = func_list['Function']
                     xml_parser = FunctionBlockXML(funcs)
-                    model_obj.functions = xml_parser.parsed_obj
-                    model_obj.active_blocks.append("functions")
+                    model_obj.add_block(xml_parser.parsed_obj)
         # And that's the end of parsing
         print("XML parsed")

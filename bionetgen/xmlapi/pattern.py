@@ -221,7 +221,7 @@ class Component:
 
     def __str__(self):
         comp_str = self.name
-        # only for moltypes
+        # only for molecule types
         if len(self.states) > 0:
             for istate, state in enumerate(self.states):
                 comp_str += "~{}".format(state)
