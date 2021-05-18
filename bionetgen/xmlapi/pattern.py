@@ -74,7 +74,6 @@ class Pattern:
 
     # TODO: Implement __contains__
 
-    
 
 class Molecule:
     '''
@@ -181,6 +180,7 @@ class Molecule:
         # TODO: Add built-in logic here
         # print("Warning: Logical checks are not complete")
         self._add_component(name, state, states)
+
 
 class Component:
     '''

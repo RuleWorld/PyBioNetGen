@@ -94,7 +94,7 @@ class Observable(ModelObj):
         self.patterns = patterns
     
     def gen_string(self) -> str:
-        s = "{} {}".format(self.type, self.name)
+        s = "{} {} ".format(self.type, self.name)
         for ipat, pat in enumerate(self.patterns):
             if ipat > 0:
                 s += ","
@@ -178,9 +178,6 @@ class Action(ModelObj):
         if self.comment is not None:
             s += " #{}".format(self.comment)
         return s
-
-
-
 
 
 class Rule(ModelObj):
