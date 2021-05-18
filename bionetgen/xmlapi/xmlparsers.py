@@ -68,7 +68,7 @@ class BondsXML:
         num_bonds = comp["@numberOfBonds"]
         comp_id = comp["@id"]
         try: 
-            num_bond = int(num_bonds)
+            num_bonds = int(num_bonds)
         except: 
             # This means we have something like +/?
             return num_bonds
@@ -122,6 +122,15 @@ class PatternXML(XMLObj):
     def parse_xml(self, xml) -> Pattern:
         # initialize
         pattern = Pattern()
+        if "ListOfBonds" in xml:
+            # TODO: FIX THIS 
+            bonds = BondsXML(xml["ListOfBonds"]["Bond"])
+            pattern._bonds = bonds
+            self._bonds = bonds
+        else:
+            bonds = BondsXML()
+            pattern._bonds = bonds
+            self._bonds = bonds
         # 
         if '@compartment' in xml:
             pattern.compartment = xml['@compartment']
@@ -129,11 +138,7 @@ class PatternXML(XMLObj):
         if "@label" in xml:
             pattern.label = xml["@label"]
         # 
-        if "ListOfBonds" in xml:
-            # TODO: FIX THIS 
-            bonds = BondsXML(xml["ListOfBonds"]["Bond"])
-            pattern._bonds = bonds
-            self._bonds = bonds
+
         # 
         mols = xml['ListOfMolecules']['Molecule']
         molecules = []
@@ -183,6 +188,7 @@ class PatternXML(XMLObj):
                 if "@state" in comp:
                     component.state = comp['@state']
                 if comp["@numberOfBonds"] != '0':
+                    # DEBUG
                     bond_id = self._bonds.get_bond_id(comp)
                     for bi in bond_id:
                         component.bonds.append(bi)
@@ -430,15 +436,25 @@ class FunctionBlockXML(XMLObj):
     def parse_xml(self, xml):
         block = FunctionBlock()
         #
-        fname = xml['@id']
-        expression = xml['Expression']
-        args = []
-        if 'ListOfArguments' in xml:
-            args = self.get_arguments(xml['ListOfArguments']['Argument'])
-        expr = xml['Expression']
-        #
-        block.add_function(fname, expr)
-        
+        if isinstance(xml, list):
+            for f in xml:
+                # add content to line
+                fname = f['@id']
+                expr = f['Expression']
+                args = []
+                if 'ListOfArguments' in f:
+                    args = self.get_arguments(f['ListOfArguments']['Argument'])
+                #
+                block.add_function(fname, expr, args=args)
+        else:
+            fname = xml['@id']
+            expr = xml['Expression']
+            args = []
+            if 'ListOfArguments' in xml:
+                args = self.get_arguments(xml['ListOfArguments']['Argument'])
+            #
+            block.add_function(fname, expr, args=args)
+
         return block
 
     def get_arguments(self, arg_xml):

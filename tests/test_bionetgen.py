@@ -28,7 +28,7 @@ def test_bionetgen_model(tmp):
     fpath = os.path.abspath("test.bngl")
     m = bng.bngmodel(fpath)
 
-def test_bionetgen_all_models(tmp):
+def test_bionetgen_all_model_loading(tmp):
     os.chdir(os.path.join(tfold, "models"))
     models = glob.glob("*.bngl")
     succ = []

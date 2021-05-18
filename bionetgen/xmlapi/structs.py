@@ -126,13 +126,17 @@ class Species(ModelObj):
 
 
 class Function(ModelObj):
-    def __init__(self, name, expr):
+    def __init__(self, name, expr, args=None):
         super().__init__()
         self.name = name
         self.expr = expr
+        self.args = args
     
     def gen_string(self) -> str:
-        s = "{} {}".format(self.name, self.expr)
+        if self.args is None:
+            s = "{} = {}".format(self.name, self.expr)
+        else:
+            s = "{}({}) = {}".format(self.name, ",".join(self.args), self.expr)
         return s
 
 
