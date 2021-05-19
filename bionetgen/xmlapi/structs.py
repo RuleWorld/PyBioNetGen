@@ -66,9 +66,17 @@ class Parameter(ModelObj):
         self.name = name
         self.value = value
         self.expr = expr
+        try:
+            test = float(expr)
+            self.write_expr = False
+        except:
+            self.write_expr = True
     
     def gen_string(self) -> str:
-        return "{} {}".format(self.name, self.value)
+        if self.write_expr:
+            return "{} {}".format(self.name, self.expr)
+        else:
+            return "{} {}".format(self.name, self.value)
 
 
 class Compartment(ModelObj):
@@ -77,6 +85,11 @@ class Compartment(ModelObj):
         self.name = name
         self.dim = dim
         self.size = size
+        try:
+            test = float(size)
+            self.write_expr = False
+        except:
+            self.write_expr = True
         self.outside = outside
     
     def gen_string(self) -> str:

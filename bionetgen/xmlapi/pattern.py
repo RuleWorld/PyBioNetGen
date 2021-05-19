@@ -23,6 +23,7 @@ class Pattern:
         self._bonds = bonds
         self._compartment = compartment
         self._label = label
+        self.fixed = False
 
     @property
     def compartment(self):
@@ -53,6 +54,8 @@ class Pattern:
 
     def __str__(self):
         sstr = ""
+        if self.fixed:
+            sstr += "$"
         for imol, mol in enumerate(self.molecules):
             if imol == 0 and self.compartment is not None:
                 sstr += "@{}:".format(self.compartment)
@@ -117,13 +120,13 @@ class Molecule:
         mol_str = self.name
         if self.label is not None:
             mol_str += "%{}".format(self.label)
+        mol_str += "("
         if len(self.components) > 0:
-            mol_str += "("
             for icomp, comp in enumerate(self.components):
                 if icomp > 0:
                     mol_str += ","
                 mol_str += str(comp)
-            mol_str += ")"
+        mol_str += ")"
         if self.compartment is not None:
             mol_str += "@{}".format(self.compartment)
         return mol_str

@@ -138,7 +138,9 @@ class PatternXML(XMLObj):
         if "@label" in xml:
             pattern.label = xml["@label"]
         # 
-
+        if "@Fixed" in xml:
+            if xml["@Fixed"] == "1":
+                pattern.fixed = True
         # 
         mols = xml['ListOfMolecules']['Molecule']
         molecules = []

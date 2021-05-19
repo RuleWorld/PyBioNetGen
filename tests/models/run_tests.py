@@ -12,6 +12,9 @@ for model in models:
         m = bng.bngmodel(model)
         success += 1
         succ.append(model)
+        # mname = model.replace(".bngl","")
+        # with open("{}_loaded.bngl".format(mname), 'w') as f:
+        #     f.write(str(m))
     except:
         print("can't do model {}".format(model))
         fails += 1
