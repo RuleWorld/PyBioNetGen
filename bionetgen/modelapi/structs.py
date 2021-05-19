@@ -1,4 +1,4 @@
-from bionetgen.xmlapi.pattern import Molecule, Pattern
+from bionetgen.modelapi.pattern import Molecule, Pattern
 
 class ModelObj:
     def __init__(self):

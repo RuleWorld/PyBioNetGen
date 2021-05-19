@@ -1,53 +1,53 @@
-bionetgen.xmlapi package
+bionetgen.modelapi package
 ========================
 
 Submodules
 ----------
 
-bionetgen.xmlapi.model module
+bionetgen.modelapi.model module
 -----------------------------
 
-.. automodule:: bionetgen.xmlapi.model
+.. automodule:: bionetgen.modelapi.model
     :members:
     :undoc-members:
     :show-inheritance:
 
-bionetgen.xmlapi.pattern module
+bionetgen.modelapi.pattern module
 -------------------------------
 
-.. automodule:: bionetgen.xmlapi.pattern
+.. automodule:: bionetgen.modelapi.pattern
     :members:
     :undoc-members:
     :show-inheritance:
 
-bionetgen.xmlapi.runner module
+bionetgen.modelapi.runner module
 ------------------------------
 
-.. automodule:: bionetgen.xmlapi.runner
+.. automodule:: bionetgen.modelapi.runner
     :members:
     :undoc-members:
     :show-inheritance:
 
-bionetgen.xmlapi.structs module
+bionetgen.modelapi.structs module
 -------------------------------
 
-.. automodule:: bionetgen.xmlapi.structs
+.. automodule:: bionetgen.modelapi.structs
     :members:
     :undoc-members:
     :show-inheritance:
 
-bionetgen.xmlapi.utils module
+bionetgen.modelapi.utils module
 -----------------------------
 
-.. automodule:: bionetgen.xmlapi.utils
+.. automodule:: bionetgen.modelapi.utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-bionetgen.xmlapi.xmlparsers module
+bionetgen.modelapi.xmlparsers module
 ----------------------------------
 
-.. automodule:: bionetgen.xmlapi.xmlparsers
+.. automodule:: bionetgen.modelapi.xmlparsers
     :members:
     :undoc-members:
     :show-inheritance:
@@ -56,7 +56,7 @@ bionetgen.xmlapi.xmlparsers module
 Module contents
 ---------------
 
-.. automodule:: bionetgen.xmlapi
+.. automodule:: bionetgen.modelapi
     :members:
     :undoc-members:
     :show-inheritance:

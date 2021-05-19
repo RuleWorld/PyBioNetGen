@@ -8,7 +8,7 @@ Subpackages
 
     bionetgen.core
     bionetgen.simulator
-    bionetgen.xmlapi
+    bionetgen.modelapi
 
 Submodules
 ----------

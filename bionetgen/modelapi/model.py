@@ -15,7 +15,7 @@ def_bng_path = conf['bngpath']
 ###### CORE OBJECT AND PARSING FRONT-END ######
 class bngmodel:
     '''
-    Main model object and entry point for XMLAPI. The goal of this 
+    Main model object and entry point for model API. The goal of this 
     object is to generate and read the BNGXML of a given BNGL model
     and give the user a pythonic interface to the resulting model object. 
 
