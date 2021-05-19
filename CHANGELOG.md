@@ -84,3 +84,6 @@ Reorganization of library functionality and library side now has access to confi
 
 ## 0.2.9
 Updating BioNetGen version to 2.6.0
+
+## 0.3.0
+Massive model object restructuring complete and XML parsing is separated from model object. Fixed XML parsing of certain features like constant species. 
