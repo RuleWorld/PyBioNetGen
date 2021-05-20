@@ -1,6 +1,25 @@
 from bionetgen.modelapi.pattern import Molecule, Pattern
 
 class ModelObj:
+    '''
+    The base class for all items in a model (parameter, observable etc.).
+
+    Attributes
+    ----------
+    comment : str
+        comment at the end of the line/object
+    line_label : str
+        line label at the beginning of the line/object
+
+    Methods
+    -------
+    print_line()
+        generates the actual line string with line label and comments
+        if applicable
+    gen_string()
+        generates the BNGL string of the object itself, separate from
+        line attributes
+    '''
     def __init__(self):
         self._comment = None
         self._line_label = None
@@ -61,6 +80,27 @@ class ModelObj:
 
 
 class Parameter(ModelObj):
+    '''
+    Class for all parameters in the model, subclass of ModelObj.
+
+    In BNGL parameters are of the form 
+        parameter_name parameter_value/expression
+    or
+        parameter_name = parameter_value/expression
+
+    Attributes
+    ----------
+    name : str
+        name of the parameter
+    value : str
+        value of the parameter, if loaded from XML this will always
+        exist since NFsim needs the value and not the expression
+    expr : str
+        this exists if the parameter is a math expression, not necerssary
+    write_expr : bool
+        this is a boolean that determines if the generated string has
+        is in expression form or in value form. 
+    '''
     def __init__(self, name, value, expr=None):
         super().__init__()
         self.name = name
@@ -80,6 +120,29 @@ class Parameter(ModelObj):
 
 
 class Compartment(ModelObj):
+    '''
+    Class for all compartments in the model, subclass of ModelObj.
+
+    In BNGL the compartments are of the form
+        compartment_name dimensions size 
+    or
+        compartment_name dimensions size parent_compartment
+    the second form only applies when one compartment is contained in
+    another compartment.
+
+    Attributes
+    ----------
+    name : str
+        name of the compartment
+    dim : str
+        dimensionality of the compartment
+    size : str
+        size/volume of the compartment
+    outside : str
+        parent compartment, if exists
+    write_expr : bool
+        boolean that describes if the size is a volume or an expression
+    '''
     def __init__(self, name, dim, size, outside=None):
         super().__init__()
         self.name = name
@@ -100,6 +163,28 @@ class Compartment(ModelObj):
 
 
 class Observable(ModelObj):
+    '''
+    Class for all observable in the model, subclass of ModelObj.
+
+    In BNGL the observables are of the form
+        observable_type observable_name observable_patterns
+    where patterns can include multiple patterns separated by commas.
+
+    Attributes
+    ----------
+    name : str
+        name of the observable
+    type : str
+        type of the observable, Molecules or Species
+    patterns : list[Pattern]
+        list of patterns of the observable
+    
+    Methods
+    -------
+    add_pattern
+        add a Pattern object into the list of patterns 
+        for this observable
+    '''
     def __init__(self, name, otype, patterns=[]):
         super().__init__()
         self.name = name
@@ -119,6 +204,21 @@ class Observable(ModelObj):
 
 
 class MoleculeType(ModelObj):
+    '''
+    Class for all parameters in the model, subclass of ModelObj.
+
+    In BNGL the molecule types are of the form
+        molecule_type
+    where all possible states of each component of a molecule is
+    listed, e.g.
+        A(b, p~0~1, k~ON~OFF~NULL)
+
+    Attributes
+    ----------
+    molecule : Molecule
+        a molecule type only contains a molecule object which
+        can also handle multiple component states
+    '''
     def __init__(self, name, components):
         super().__init__()
         self.molecule = Molecule(name=name, components=components)
@@ -128,6 +228,21 @@ class MoleculeType(ModelObj):
     
 
 class Species(ModelObj):
+    '''
+    Class for all parameters in the model, subclass of ModelObj.
+
+    In BNGL the species/seed species are of the form
+        species count
+    where species is a single pattern and count is the starting 
+    value for that specific pattern
+
+    Attributes
+    ----------
+    pattern : Pattern
+        pattern of the seed species
+    count : str
+        starting value of the seed species
+    '''
     def __init__(self, pattern=Pattern(), count=0):
         super().__init__()
         self.pattern = pattern
@@ -139,6 +254,26 @@ class Species(ModelObj):
 
 
 class Function(ModelObj):
+    '''
+    Class for all parameters in the model, subclass of ModelObj.
+
+    In BNGL functions are of the form
+        function_name function_expression
+    or 
+        function_name = function_expression
+    and functions can have arguments
+        function_name(arg1, arg2, ..., argN)
+    
+
+    Attributes
+    ----------
+    name : str
+        name of the function
+    expr : str
+        function expression
+    args : list
+        optional list of arguments for the function
+    '''
     def __init__(self, name, expr, args=None):
         super().__init__()
         self.name = name
@@ -155,13 +290,17 @@ class Function(ModelObj):
 
 class Action(ModelObj):
     '''
-    Action object
+    Class for all parameters in the model, subclass of ModelObj.
+
+    In BNGL actions are of the form
+        action_type({arg1=>value1, arg2=>value2, ...})
 
     Attributes
     ----------
-    type
-    args
-
+    type : str
+        type of action, e.g. simulate or writeFile
+    args : list[(arg_name,arg_value)]
+        (argument,value) pair list for the action
     '''
     def __init__(self, action_type=None, action_args=[]) -> None:
         super().__init__()
@@ -199,10 +338,27 @@ class Action(ModelObj):
 
 class Rule(ModelObj):
     '''
-    Rule obj
-    '''
-    # def add_rule(self, name, reactants, products, rate_constants):
+    Class for all parameters in the model, subclass of ModelObj.
 
+    Attributes
+    ----------
+    name : str
+        name of the rule, optional
+    reactants : list[Pattern]
+        list of patterns for reactants
+    products : list[Pattern]
+        list of patterns for products
+
+    Methods
+    -------
+    set_rate_constants((k_fwd,k_bck))
+        sets forward and backwards rate constants, backwards rate
+        constants are optional and if not given, will set the rule
+        to be a unidirectional rule
+    side_string(list[Pattern])
+        given a list of patterns, return a string formatted to be
+        on one side of a rule definition
+    '''
     def __init__(self, name, reactants=[], products=[], rate_constants=()) -> None:
         super().__init__()
         self.name = name

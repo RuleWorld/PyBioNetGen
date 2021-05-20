@@ -6,31 +6,38 @@ from .structs import Rule, Action
 ###### BLOCK OBJECTS ###### 
 class ModelBlock:
     '''
-    Base block object that will be used for each block in BNGL.
+    Base block object that will be used for each block in the model.
 
     Attributes
     ----------
     name : str
         Name of the block which will be used to write the BNGL text
     comment : (str, str)
-        comment at the beginning or the end
-    lines : OrderedDict
-        Ordered dictionary of line objects in each block
-
+        comment at the begin {block} or end {block} statements, tuple
+    items : OrderedDict
+        all the model objects in the block
+    _changes : OrderedDict
+        a dictionary to keep track of all the changes done in a block
+        after it is originally created
+    _recompile : bool
+        a tag that tells a potential future simulator if the model 
+        needs to be recompiled. TODO: has to be computed from _changes
+        property upon get request. 
 
     Methods
     -------
     reset_compilation_tags()
-        resets _recompile and _changes tag for the block
-    add_item(item_tpl)
-        while every block can implement their own add_item method
-        the base assumption that each element has a name and value
-        so this method takes in (name,value) tuple and sets 
-        _item_dict[name] = value
+        resets _recompile and _changes tags for the block
+    add_item((name,value))
+        sets self.item[name] = value to add a particular model object
+        into a block
     add_items(item_list)
         loops over every element in the list and uses add_item on it
+    gen_string()
+        for every block this method generates the BNGL string of the 
+        block. it has to be overwritten for each block.
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         self.name = "ModelBlock"
         self.comment = (None, None)
         self._changes = OrderedDict()
@@ -40,6 +47,53 @@ class ModelBlock:
     def __str__(self) -> str:
         return self.gen_string()
 
+    def __len__(self)-> int:
+        return len(self.items)
+
+    def __repr__(self)-> str:
+        # overwrites what the class representation
+        # shows the items in the model block in 
+        # say ipython
+        return str(self.items)
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            # get the item in order
+            return list(self.items.keys())[key]
+        return self.items[key]
+
+    def __setitem__(self, key, value)-> None:
+        self.items[key] = value
+
+    def __delitem__(self, key)-> None:
+        if key in self.items:
+            self.items.pop(key)
+        else: 
+            print("Item {} not found".format(key))
+
+    def __iter__(self):
+        return self.items.keys().__iter__()
+
+    def __contains__(self, key)-> bool:
+        return key in self.items
+    
+    # TODO: Think extensively how this is going to work
+    def __setattr__(self, name, value)-> None:
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items.keys():
+                try: 
+                    new_value = float(value)
+                    changed = True
+                    self.items[name] = new_value
+                except:
+                    self.items[name] = value
+                if changed:
+                    self._changes[name] = new_value
+                    self.__dict__[name] = new_value
+        else:
+            self.__dict__[name] = value
+    
     def gen_string(self) -> str:
         # each block can have a comment at the start
         if self.comment[0] is not None:
@@ -56,38 +110,8 @@ class ModelBlock:
             block_lines.append("end {}\n".format(self.name))
         # join everything with new lines
         return "\n".join(block_lines)
-
-    def __len__(self):
-        return len(self.items)
-
-    def __repr__(self):
-        # overwrites what the class representation
-        # shows the items in the model block in 
-        # say ipython
-        return str(self.items)
-
-    def __getitem__(self, key):
-        if isinstance(key, int):
-            # get the item in order
-            return list(self.items.keys())[key]
-        return self.items[key]
-
-    def __setitem__(self, key, value):
-        self.items[key] = value
-
-    def __delitem__(self, key):
-        if key in self.items:
-            self.items.pop(key)
-        else: 
-            print("Item {} not found".format(key))
-
-    def __iter__(self):
-        return self.items.keys().__iter__()
-
-    def __contains__(self, key):
-        return key in self.items
     
-    def reset_compilation_tags(self):
+    def reset_compilation_tags(self)-> None:
         # TODO: Make these properties such that it checks each 
         # item for changes/recompile tags
         # for item in self.items:
@@ -96,7 +120,7 @@ class ModelBlock:
         self._changes = OrderedDict()
         self._recompile = False
     
-    def add_item(self, item_tpl):
+    def add_item(self, item_tpl)-> None:
         # TODO: try adding evaluation of the parameter here
         # for the future, in case we want people to be able
         # to adjust the math
@@ -118,46 +142,26 @@ class ModelBlock:
         # to recompile if we have a compiled simulator
         self._recompile = True
 
-    def add_items(self, item_list):
+    def add_items(self, item_list)-> None:
         for item in item_list:
             self.add_item(item)
     
-    # TODO: Think extensively how this is going to work
-    def __setattr__(self, name, value):
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items.keys():
-                try: 
-                    new_value = float(value)
-                    changed = True
-                    self.items[name] = new_value
-                except:
-                    self.items[name] = value
-                if changed:
-                    self._changes[name] = new_value
-                    self.__dict__[name] = new_value
-        else:
-            self.__dict__[name] = value
-
 
 class ParameterBlock(ModelBlock):
     '''
-    Parameter block object.
+    Parameter block object, subclass of ModelBlock.
 
-    Attributes
-    ----------
-    name : str
-        Name of the block which will be used to write the BNGL text
-    comment : (str, str)
-        comment at the beginning or the end
-    lines : OrderedDict
-        Ordered dictionary of line objects in each block
+    Methods
+    -------
+    add_parameter(name, value, expr=None)
+        adds a parameter by making a new Parameter object and passing 
+        the args/kwargs to its initialization. 
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.name = "parameters"
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
             if name in self.items:
@@ -184,29 +188,26 @@ class ParameterBlock(ModelBlock):
         else:
             self.__dict__[name] = value
 
-    def add_parameter(self, *args, **kwargs):
+    def add_parameter(self, *args, **kwargs) -> None:
         p = Parameter(*args, **kwargs)
         self.add_item((p.name, p))
 
 
 class CompartmentBlock(ModelBlock):
     '''
-    Compartment block object. 
+    Compartment block object, subclass of ModelBlock.
 
-    Attributes
-    ----------
-    name : str
-        Name of the block which will be used to write the BNGL text
-    comment : (str, str)
-        comment at the beginning or the end
-    lines : OrderedDict
-        Ordered dictionary of line objects in each block
+    Methods
+    -------
+    add_compartment(name, dim, size, outside=None) 
+        adds a compartment by making a new Compartment object and passing 
+        the args/kwargs to its initialization. 
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.name = "compartments"
         
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
             if name in self.items:
@@ -233,29 +234,26 @@ class CompartmentBlock(ModelBlock):
         else:
             self.__dict__[name] = value
 
-    def add_compartment(self, *args, **kwargs):
+    def add_compartment(self, *args, **kwargs) -> None:
         c = Compartment(*args, **kwargs)
         self.add_item((c.name, c))
 
 
 class ObservableBlock(ModelBlock):
     '''
-    Observable block object.  
+    Observable block object, subclass of ModelBlock.
 
-    Attributes
-    ----------
-    name : str
-        Name of the block which will be used to write the BNGL text
-    comment : (str, str)
-        comment at the beginning or the end
-    lines : OrderedDict
-        Ordered dictionary of line objects in each block
+    Methods
+    -------
+    add_observable(name, otype, patterns=[])
+        adds an observable by making a new Observable object and passing 
+        the args/kwargs to its initialization.  
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.name = "observables"
     
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
             if name in self.items:
@@ -276,29 +274,26 @@ class ObservableBlock(ModelBlock):
         else:
             self.__dict__[name] = value
 
-    def add_observable(self, *args, **kwargs):
+    def add_observable(self, *args, **kwargs) -> None:
         o = Observable(*args, **kwargs)
         self.add_item((o.name, o))
 
 
 class SpeciesBlock(ModelBlock):
     '''
-    Species block object.
+    Species block object, subclass of ModelBlock.
 
-    Attributes
-    ----------
-    name : str
-        Name of the block which will be used to write the BNGL text
-    comment : (str, str)
-        comment at the beginning or the end
-    lines : OrderedDict
-        Ordered dictionary of line objects in each block
+    Methods
+    -------
+    add_species(name, pattern=Pattern(), count=0)
+        adds a species by making a new Species object and passing 
+        the args/kwargs to its initialization. 
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.name = "species"
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
             if name in self.items:
@@ -319,29 +314,26 @@ class SpeciesBlock(ModelBlock):
         else:
             self.__dict__[name] = value
 
-    def add_species(self, *args, **kwargs):
+    def add_species(self, *args, **kwargs) -> None:
         s = Species(*args, **kwargs)
         self.add_item((None, s))
 
 
 class MoleculeTypeBlock(ModelBlock):
     '''
-    Molecule type block. 
+    Molecule type block, subclass of ModelBlock.
 
-    Attributes
-    ----------
-    name : str
-        Name of the block which will be used to write the BNGL text
-    comment : (str, str)
-        comment at the beginning or the end
-    lines : OrderedDict
-        Ordered dictionary of line objects in each block
+    Methods
+    -------
+    add_molecule_type(name, name, components)
+        adds a molecule type by making a new MoleculeType object and passing 
+        the args/kwargs to its initialization. 
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.name = "molecule types"
     
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
             if name in self.items:
@@ -362,29 +354,26 @@ class MoleculeTypeBlock(ModelBlock):
         else:
             self.__dict__[name] = value
     
-    def add_molecule_type(self, name, components):
+    def add_molecule_type(self, name, components) -> None:
         mt = MoleculeType(name=name, components=components)
         self.add_item((name, mt))
 
 
 class FunctionBlock(ModelBlock):
     '''
-    Function block object. 
+    Function block object, subclass of ModelBlock.
 
-    Attributes
-    ----------
-    name : str
-        Name of the block which will be used to write the BNGL text
-    comment : (str, str)
-        comment at the beginning or the end
-    lines : OrderedDict
-        Ordered dictionary of line objects in each block
+    Methods
+    -------
+    add_function(name, name, expr, args=None)
+        adds a function by making a new Function object and passing 
+        the args/kwargs to its initialization. 
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.name = "functions"
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
             if name in self.items:
@@ -405,34 +394,31 @@ class FunctionBlock(ModelBlock):
         else:
             self.__dict__[name] = value
     
-    def add_function(self, *args, **kwargs):
+    def add_function(self, *args, **kwargs) -> None:
         f = Function(*args, **kwargs)
         self.add_item((f.name, f))
 
 
 class RuleBlock(ModelBlock):
     '''
-    Rule block object. 
-
-    Attributes
-    ----------
-    name : str
-        Name of the block which will be used to write the BNGL text
-    comment : (str, str)
-        comment at the beginning or the end
-    lines : OrderedDict
-        Ordered dictionary of line objects in each block
+    Rule block object, subclass of ModelBlock.
 
     Methods
     -------
+    add_rule(name, name, reactants=[], products=[], rate_constants=())
+        adds a rule by making a new Rule object and passing 
+        the args/kwargs to its initialization. 
     consolidate_rules : None
-        TODO
+        XML loading makes it so that reversible rules are split
+        into two unidirectional rules. This find them and combines
+        them into a single rule to correctly represent the original 
+        model rule. 
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.name = "reaction rules"
     
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
             if name in self.items:
@@ -453,7 +439,7 @@ class RuleBlock(ModelBlock):
         else:
             self.__dict__[name] = value
 
-    def add_rule(self, *args, **kwargs):
+    def add_rule(self, *args, **kwargs) -> None:
         r = Rule(*args, **kwargs)
         self.add_item((r.name, r))
 
@@ -485,21 +471,22 @@ class RuleBlock(ModelBlock):
 
 class ActionBlock(ModelBlock):
     '''
-    Action block object that contains actions defined in the 
-    model. This is the one object that doesn't need a begin/end
-    block tag to be in the model. 
-
-    Item dictionary contains the action type as the name and a list
-    of arguments for that action as value. Each argument is of form 
-    [ArgumentName, ArgumentValue], method argument value is written
-    with quotes since that's the only one that needs quotes in BNGL.
+    Action block object, subclass of ModelBlock.This is the one object 
+    that doesn't need a begin/end block tag to be in the model. 
 
     Attributes
     ----------
     _action_list : list[str]
-        list of available action names
+        list of supported action names
+
+    Methods
+    -------
+    add_action(name, action_type=None, action_args=[])
+        adds an action by making a new Action object and passing 
+        the args/kwargs to its initialization. 
+    clear_actions()
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.name = "actions"
         self._action_list = ["generate_network", "generate_hybrid_model",
@@ -512,10 +499,10 @@ class ActionBlock(ModelBlock):
             "saveParameters", "resetParameters", "quit", "setModelName", 
             "substanceUnits", "version", "setOption"]
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value) -> None:
             self.__dict__[name] = value
 
-    def add_action(self, action_type, action_args):
+    def add_action(self, action_type, action_args) -> None:
         '''
         adds action, needs type as string and args as list of tuples
         (which preserve order) of (argument, value) pairs
@@ -527,7 +514,7 @@ class ActionBlock(ModelBlock):
         else:
             print("Action type {} not valid".format(action_type))
 
-    def clear_actions(self):
+    def clear_actions(self) -> None:
         self.items.clear()
 
     def gen_string(self) -> str:

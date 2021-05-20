@@ -9,14 +9,19 @@ class Pattern:
     _bonds : Bonds
         setting a pattern requires you to keep track of all bonds to
         correctly label them, this object tracks everything
-    compartment : str
+    _compartment : str
         compartment of the overall pattern (not the same thing as 
         molecule compartment, those have their own)
-    label : str
+    _label : str
         label of the overall pattern (not the same thing as molecule 
         label, those have their own)
     molecules : list[Molecule]
         list of molecule objects that are in the pattern
+    fixed : bool
+        used for constant species, sets "$" at the beginning of the 
+        pattern string
+    MatchOnce : bool 
+        used for matchOnce syntax, "{MatchOnce}PatternStr"
     '''
     def __init__(self, molecules=[], bonds=None, compartment=None, label=None):
         self.molecules = molecules
@@ -24,6 +29,7 @@ class Pattern:
         self._compartment = compartment
         self._label = label
         self.fixed = False
+        self.MatchOnce = False
 
     @property
     def compartment(self):
@@ -56,6 +62,8 @@ class Pattern:
         sstr = ""
         if self.fixed:
             sstr += "$"
+        if self.MatchOnce:
+            sstr += '{MatchOnce}'
         for imol, mol in enumerate(self.molecules):
             if imol == 0 and self.compartment is not None:
                 sstr += "@{}:".format(self.compartment)
@@ -80,18 +88,19 @@ class Pattern:
 
 class Molecule:
     '''
-    Pattern object. Fundamentally it's just a list of molecules
-    which are defined later. 
+    Molecule object. A pattern is a list of molecules.
+    This object also handles molecule types where components 
+    have a list of possible states.
 
     Attributes
     ----------
-    name : str
+    _name : str
         name of the molecule
-    compartment : str
+    _compartment : str
         compartment of the molecule
-    label : str
+    _label : str
         label of the molecule
-    components : list[Component]
+    _components : list[Component]
         list of components for this molecule
 
     Methods
@@ -188,19 +197,19 @@ class Molecule:
 class Component:
     '''
     Component object that describes the state, label and bonding
-    for each component.
+    for each component. Molecules can optionally contain components
 
     Attributes
     ----------
     name : str
         name of the component
-    label : str
+    _label : str
         label of the component
-    state : str
+    _state : str
         state of the component, not used for molecule types
-    states : list[str]
+    _states : list[str]
         list of states for molecule types
-    bonds : list[Bond]
+    _bonds : list[Bond]
         list of bond objects that describes bonding of the component
 
     Methods

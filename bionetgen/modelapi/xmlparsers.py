@@ -19,21 +19,23 @@ class XMLObj:
 
     Attributes
     ----------
-    xml : ??
-        XML string to be parsed for the block
+    xml : list/OrderedDict
+        XML loaded via xmltodict to be parsed. Either a
+        list of items or an OrderedDict.
     parsed_obj : obj
-        appropriate parsed object
+        appropriate parsed object, one of the Block objects
 
     Methods
     -------
     resolve_xml(xml)
-        the method that parses the XML associated with
-        the instance and adjust is appropriately 
+        the method that parses the XML given and is written
+        separately for each subclass of this one 
     gen_string()
-        the method to generate the string from the information
-        contained in the instance
+        the method to generate the string from the parsed
+        object
     '''
     def __init__(self, xml):
+        import IPython;IPython.embed()
         self.xml = xml
         self.parsed_obj = self.parse_xml(self.xml)
 
@@ -54,6 +56,9 @@ class XMLObj:
 ###### Fundamental parsing objects ######
 # This is for handling bond XMLs
 class BondsXML:
+    '''
+    Bonds XML parser, derived from XMLObj. 
+    '''
     def __init__(self, bonds_xml=None):
         self.bonds_dict = {}
         if bonds_xml is not None:
@@ -116,6 +121,18 @@ class BondsXML:
 
 # The full pattern parser
 class PatternXML(XMLObj):
+    '''
+    Pattern XML parser, derived from XMLObj. 
+
+    Methods
+    -------
+    _process_mol(xml)
+        processes a molecule XML dictionary and returns
+        a Molecule object
+    _process_comp(self, xml)
+        processes a component XML dictionary and returns
+        a list of Compartment objects
+    '''
     def __init__(self, xml) -> None:
         super().__init__(xml)
 
@@ -158,6 +175,8 @@ class PatternXML(XMLObj):
         return pattern
 
     def _process_mol(self, xml) -> Molecule:
+        '''
+        '''
         # initialize
         molecule = Molecule()
         # 
@@ -212,6 +231,16 @@ class PatternXML(XMLObj):
 
 # Helper parser for pattern list (for observables)
 class PatternListXML:
+    '''
+    Pattern list XML parser. Takes a list of patterns
+    and parses them using PatternXML and generates a 
+    list of patterns.
+
+    Attributes
+    ----------
+    patterns : list[Pattern]
+        list of patterns parsed from the XML dict list
+    '''
     def __init__(self, xml) -> None:
         self.patterns = self.parse_xml(xml)
 
@@ -228,6 +257,10 @@ class PatternListXML:
 
 ###### Parsers  ###### 
 class ParameterBlockXML(XMLObj):
+    '''
+    PatternBlock XML parser, derived from XMLObj. Creates
+    a ParameterBlock that contains the parameters parsed.
+    '''
     def __init__(self, xml) -> None:
         super().__init__(xml)
     
@@ -258,6 +291,10 @@ class ParameterBlockXML(XMLObj):
 
 # 
 class CompartmentBlockXML(XMLObj):
+    '''
+    CompartmentBlock XML parser, derived from XMLObj. Creates
+    a CompartmentBlock that contains the compartments parsed.
+    '''
     def __init__(self, xml) -> None:
         super().__init__(xml)
     
@@ -288,13 +325,8 @@ class CompartmentBlockXML(XMLObj):
 # 
 class ObservableBlockXML(XMLObj):
     '''
-    Observable XML object. Observables are a list of 
-    patterns where a pattern is a list of molecules. 
-
-    Attributes
-    ----------
-    patterns : list
-        list of Pattern objects that make up the observable
+    ObservableBlock XML parser, derived from XMLObj. Creates
+    an ObservableBlock that contains the observables parsed.
     '''
     def __init__(self, xml) -> None:
         super().__init__(xml)
@@ -320,12 +352,8 @@ class ObservableBlockXML(XMLObj):
 #
 class SpeciesBlockXML(XMLObj):
     '''
-    Species XML object. Species are a list of molecules. 
-
-    Attributes
-    ----------
-    molecules : list
-        list of molecules objects that make up the species
+    SpeciesBlock XML parser, derived from XMLObj. Creates
+    a SpeciesBlock that contains the species parsed.
     '''
     def __init__(self, xml):
         super().__init__(xml)
@@ -349,19 +377,14 @@ class SpeciesBlockXML(XMLObj):
 # 
 class MoleculeTypeBlockXML(XMLObj):
     '''
-    Molecule Type XML object. Molecules types are like molecules
-    but with multiple states for each component. 
-
-    Attributes
-    ----------
-    molecule : Molecule
-        a molecule object that forms this molecule type
+    MoleculeTypeBlock XML parser, derived from XMLObj. Creates
+    a MoleculeTypeBlock that contains the molecule types parsed.
 
     Methods
     -------
-    add_component(name, states)
-        adds component with name "name" and optional states given by 
-        a list of strings
+    add_molecule_type_to_block(block,xml)
+        parses the XML to create a MoleculeType object and 
+        adds it to a given MoleculeTypeBlock object
     '''
     def __init__(self, xml):
         super().__init__(xml)
@@ -416,21 +439,14 @@ class FunctionBlockXML(XMLObj):
     # function string and it's also not used downstream. 
 
     '''
-    Function XML object. Functions are expressions and IDs which 
-    is the name of the function with potential arguments. 
+    FunctionBlock XML parser, derived from XMLObj. Creates
+    a FunctionBlock that contains the functions parsed.
 
-    Attributes
-    ----------
-    item_tuple
-        tuple of (function_str, expression) where function_str is the 
-        string that forms the name + arguments of the function (e.g. g(x))
-        and expression is the definition of the function.
-    
     Methods
     -------
-    get_arguments(arg_xml)
-        given the XML of arguments, this methods pulls out the list of 
-        arguments the function needs and returns a list of strings. 
+    get_arguments(xml)
+        parses the argument list XML and returns a list of
+        argument names
     '''
     def __init__(self, xml):
         super().__init__(xml)
@@ -459,49 +475,28 @@ class FunctionBlockXML(XMLObj):
 
         return block
 
-    def get_arguments(self, arg_xml):
+    def get_arguments(self, xml) -> list:
         args = []
-        if isinstance(arg_xml, list):
-            for arg in arg_xml:
+        if isinstance(xml, list):
+            for arg in xml:
                 args.append(arg['@id'])
             return args
         else:
-            return [arg_xml['@id']]
+            return [xml['@id']]
 
 
 class RuleBlockXML(XMLObj):
     '''
-    Molecule Type XML object. Molecules types are like molecules
-    but with multiple states for each component. 
-
-        A rule is a tuple (list of reactant patterns, list of 
-    product patterns, list of rate constant functions)
-
-    Attributes
-    ----------
-    bidirectoinal : boolean
-        list of molecules objects that make up the species
-    name : str
-        name of the rule, if exists
-    reactants : list[Pattern]
-        list of patterns that form the reactant side of the rule
-    products : list[Pattern]
-        List of patterns that form the products side of the rule
-    rate_constants : list[Str]
-        list of 1 or 2 rate constants
+    RuleBlock XML parser, derived from XMLObj. Creates
+    a RuleBlock that contains the rules parsed.
 
     Methods
     -------
-    side_string(name, states)
-        gets the string for a side of the reaction, given a list of pattern objects
-    set_rate_constants(rate_cts)
-        takes an iterable of 1 or 2 rate constants and adjust the object
-        and sets bidirectionality
-    resolve_rate_law(rate_xml)
-        parses XML for rate constants and adds it to the object
-    resolve_rxn_side(side_xml)
-        parses the XML for either reactants or products and adds it to 
-        the object
+    resolve_ratelaw(xml)
+        parses a rate law XML and returns the rate constant
+    resolve_rxn_side(xml)
+        parses either reactants or products XML and returns 
+        a list of Pattern objects
     '''
     def __init__(self, xml):
         self.bidirectional = False
