@@ -35,7 +35,6 @@ class XMLObj:
         object
     '''
     def __init__(self, xml):
-        import IPython;IPython.embed()
         self.xml = xml
         self.parsed_obj = self.parse_xml(self.xml)
 
