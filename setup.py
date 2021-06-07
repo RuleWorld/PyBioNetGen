@@ -6,11 +6,14 @@ VERSION = get_version()
 
 #### BNG DOWNLOAD START ####
 # Handle BNG download and inclusion
-import platform,json
+import time,json
 import urllib.request
 # let's pull URLs for each distribution
 # in the latest distribution
 rls_url = "https://api.github.com/repos/RuleWorld/bionetgen/releases/latest"
+# sometimes we exceed the rate, we want to 
+# ensure this doesn't happen, ever
+time.sleep(5)
 rls_resp = urllib.request.urlopen(rls_url)
 rls_json_txt = rls_resp.read()
 rls_json = json.loads(rls_json_txt)
