@@ -136,5 +136,6 @@ setup(
         "pyyaml",
         "colorlog",
         "xmltodict",
+        "seaborn",
     ]
 )
