@@ -66,7 +66,7 @@ class BNGParser:
             model_obj.reset_compilation_tags()
         else:
             print("The extension of {} is not supported".format(model_file))
-            raise NotImplemented
+            raise NotImplementedError
 
     def parse_xml(self, xml_str, model_obj) -> None:
         xml_dict = xmltodict.parse(xml_str)

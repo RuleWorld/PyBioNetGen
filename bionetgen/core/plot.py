@@ -43,7 +43,7 @@ class BNGPlotter:
             self._datplot()
         else:
             print("File type not recognized, only gdat/cdat and scan files are implemented")
-            raise NotImplemented
+            raise NotImplementedError
 
     def _datplot(self):
         # get the data out of result object

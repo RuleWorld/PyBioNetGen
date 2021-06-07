@@ -299,13 +299,13 @@ class Component:
         self._bonds = value
 
     def _add_state(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def add_state(self):
         self._add_state()
 
     def _add_bond(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def add_bond(self):
         self._add_bond()
