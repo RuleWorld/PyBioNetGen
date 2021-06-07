@@ -218,8 +218,9 @@ class bngmodel:
                 self.simulator = bng.sim_getter(model_str=tpath.read(), sim_type=sim_type)
         else:
             print("Sim type {} is not recognized, only libroadrunner \
-                   is supported currently by passing libRR to \
+                   is supported currently by passing \"libRR\" to \
                    sim_type keyword argument".format(sim_type))
+            return None
         return self.simulator
 
 ###### CORE OBJECT AND PARSING FRONT-END ######

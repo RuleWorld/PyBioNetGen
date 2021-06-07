@@ -44,7 +44,7 @@ class BNGParser:
         '''
         self._parse_model_bngpl(model_obj)
 
-    def _parse_model_bngpl(self, model_obj) -> None:      
+    def _parse_model_bngpl(self, model_obj) -> None:
         # get file path
         model_file = self.bngfile.path
         
@@ -54,11 +54,11 @@ class BNGParser:
             print("Attempting to generate XML")
             with TemporaryFile("w+") as xml_file:
                 if self.bngfile.generate_xml(xml_file):
-                    print("Parsing XML")
+                    print("Parsing")
                     self.parse_xml(xml_file.read(), model_obj)
                     model_obj.reset_compilation_tags()
                 else:
-                    print("XML file couldn't be generated")
+                    raise ValueError("XML file couldn't be generated")
         elif model_file.endswith(".xml"):
             with open(model_file, "r") as f:
                 xml_str = f.read()
@@ -119,4 +119,4 @@ class BNGParser:
                     xml_parser = FunctionBlockXML(funcs)
                     model_obj.add_block(xml_parser.parsed_obj)
         # And that's the end of parsing
-        print("XML parsed")
+        print("Parsing complete")

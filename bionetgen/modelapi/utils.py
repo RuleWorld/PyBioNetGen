@@ -31,16 +31,14 @@ def find_BNG_path(BNGPATH=None):
     if BNGPATH is None:
         bngexec = "BNG2.pl"
         if test_bngexec(bngexec):
-            print("BNG2.pl seems to be working")
+            # print("BNG2.pl seems to be working")
             # get the source of BNG2.pl
             BNGPATH = spawn.find_executable("BNG2.pl")
             BNGPATH, _ = os.path.split(BNGPATH)
     else:
         bngexec = os.path.join(BNGPATH, "BNG2.pl")
-        if test_bngexec(bngexec):
-            print("BNG2.pl seems to be working")
-        else:
-            print("BNG2.pl not working, simulator won't run")
+        if not test_bngexec(bngexec):
+            RuntimeError("BNG2.pl is not working")
     return BNGPATH, bngexec
 
 def test_bngexec(bngexec):

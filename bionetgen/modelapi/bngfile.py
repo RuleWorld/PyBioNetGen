@@ -68,7 +68,12 @@ class BNGFile:
             # TODO: take stdout option from app instead
             rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
             if rc.returncode == 1:
-                print("XML generation failed")
+                # if we fail, print out what we have to 
+                # let the user know what BNG2.pl says
+                if rc.stdout is not None:
+                    print(rc.stdout.decode('utf-8'))
+                if rc.stderr is not None:
+                    print(rc.stderr.decode('utf-8'))
                 # go back to our original location
                 os.chdir(cur_dir)
                 # shutil.rmtree(temp_folder)
