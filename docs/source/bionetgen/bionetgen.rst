@@ -7,8 +7,8 @@ Subpackages
 .. toctree::
 
     bionetgen.core
+    bionetgen.modelapi
     bionetgen.simulator
-    bionetgen.xmlapi
 
 Submodules
 ----------

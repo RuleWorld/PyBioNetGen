@@ -129,7 +129,7 @@ Molecule types contains different components and all possible states of those co
    :linenos:
 
    # let's say we have a molecule type "X()" as the first one
-   X_obj = model.moltypes[0] # this is the object for "X()" molecule type
+   X_obj = model.molecule_types[0] # this is the object for "X()" molecule type
    print(X_obj) # will print the molecule type string
    X_obj.add_component("p", states=["0","1"]) # adds a component with states
    print(X_obj) # prints "X(p~0~1)" now

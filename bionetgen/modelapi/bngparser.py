@@ -4,7 +4,9 @@ from bionetgen.main import BioNetGen
 from tempfile import TemporaryFile
 
 from .bngfile import BNGFile
-from .structs import Parameters, Species, MoleculeTypes, Observables, Functions, Compartments, Rules, Actions
+from .xmlparsers import ParameterBlockXML, CompartmentBlockXML, ObservableBlockXML
+from .xmlparsers import SpeciesBlockXML, MoleculeTypeBlockXML, FunctionBlockXML
+from .xmlparsers import RuleBlockXML
 
 # This allows access to the CLIs config setup
 app = BioNetGen()
@@ -76,52 +78,45 @@ class BNGParser:
                 param_list = xml_model[listkey]
                 if param_list is not None:
                     params = param_list['Parameter']
-                    model_obj.parameters = Parameters()
-                    model_obj.parameters.parse_xml_block(params)
-                    model_obj.active_blocks.append("parameters")
+                    xml_parser = ParameterBlockXML(params)
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfObservables":
                 obs_list = xml_model[listkey]
                 if obs_list is not None:
                     obs = obs_list['Observable']
-                    model_obj.observables = Observables()
-                    model_obj.observables.parse_xml_block(obs)
-                    model_obj.active_blocks.append("observables")
+                    xml_parser = ObservableBlockXML(obs)
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfCompartments":
                 comp_list = xml_model[listkey]
                 if comp_list is not None:
-                    model_obj.compartments = Compartments()
                     comps = comp_list['compartment']
-                    model_obj.compartments.parse_xml_block(comps)
-                    model_obj.active_blocks.append("compartments")
+                    xml_parser = CompartmentBlockXML(comps)
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfMoleculeTypes":
                 mtypes_list = xml_model[listkey]
                 if mtypes_list is not None:
                     mtypes = mtypes_list["MoleculeType"]
-                    model_obj.moltypes = MoleculeTypes()
-                    model_obj.moltypes.parse_xml_block(mtypes)
-                    model_obj.active_blocks.append("moltypes")
+                    xml_parser = MoleculeTypeBlockXML(mtypes)
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfSpecies":
                 species_list = xml_model[listkey]
                 if species_list is not None:
                     species = species_list["Species"]
-                    model_obj.species = Species()
-                    model_obj.species.parse_xml_block(species)
-                    model_obj.active_blocks.append("species")
+                    xml_parser = SpeciesBlockXML(species)
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfReactionRules":
                 rrules_list = xml_model[listkey]
                 if rrules_list is not None:
                     rrules = rrules_list["ReactionRule"]
-                    model_obj.rules = Rules()
-                    model_obj.rules.parse_xml_block(rrules)
-                    model_obj.active_blocks.append("rules")
+                    xml_parser = RuleBlockXML(rrules)
+                    model_obj.add_block(xml_parser.parsed_obj)
             elif listkey == "ListOfFunctions":
                 # TODO: Optional expression parsing?
                 # TODO: Add arguments correctly
                 func_list = xml_model[listkey]
                 if func_list is not None:
-                    model_obj.functions = Functions()
                     funcs = func_list['Function']
-                    model_obj.functions.parse_xml_block(funcs)
-                    model_obj.active_blocks.append("functions")
+                    xml_parser = FunctionBlockXML(funcs)
+                    model_obj.add_block(xml_parser.parsed_obj)
         # And that's the end of parsing
         print("XML parsed")

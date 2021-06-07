@@ -22,15 +22,22 @@ class BNGFile:
     Attributes
     ----------
     path : str
+        path to the file the object needs to deal with
     _action_list : list[str]
+        list of acceptible actions
     BNGPATH : str
+        optional path to bng folder that contains BNG2.pl
     bngexec : str
+        path to BNG2.pl
     
     Methods
     -------
-    generate_xml : bool
-    strip_actions : str
-    write_xml : bool
+    generate_xml(xml_file, model_file=None) : bool
+        takes the given BNGL file and generates a BNG-XML from it
+    strip_actions(model_path, folder) : str
+        deletes actions from a given BNGL file
+    write_xml(open_file, xml_type="bngxml", bngl_str=None) : bool
+        given a bngl file or a string, writes an SBML or BNG-XML from it
     '''
     def __init__(self, path, BNGPATH=def_bng_path) -> None:
         self.path = path

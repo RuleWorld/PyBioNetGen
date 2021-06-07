@@ -1,11 +1,35 @@
 bionetgen.modelapi package
-========================
+==========================
 
 Submodules
 ----------
 
+bionetgen.modelapi.blocks module
+--------------------------------
+
+.. automodule:: bionetgen.modelapi.blocks
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+bionetgen.modelapi.bngfile module
+---------------------------------
+
+.. automodule:: bionetgen.modelapi.bngfile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+bionetgen.modelapi.bngparser module
+-----------------------------------
+
+.. automodule:: bionetgen.modelapi.bngparser
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 bionetgen.modelapi.model module
------------------------------
+-------------------------------
 
 .. automodule:: bionetgen.modelapi.model
     :members:
@@ -13,7 +37,7 @@ bionetgen.modelapi.model module
     :show-inheritance:
 
 bionetgen.modelapi.pattern module
--------------------------------
+---------------------------------
 
 .. automodule:: bionetgen.modelapi.pattern
     :members:
@@ -21,7 +45,7 @@ bionetgen.modelapi.pattern module
     :show-inheritance:
 
 bionetgen.modelapi.runner module
-------------------------------
+--------------------------------
 
 .. automodule:: bionetgen.modelapi.runner
     :members:
@@ -29,7 +53,7 @@ bionetgen.modelapi.runner module
     :show-inheritance:
 
 bionetgen.modelapi.structs module
--------------------------------
+---------------------------------
 
 .. automodule:: bionetgen.modelapi.structs
     :members:
@@ -37,7 +61,7 @@ bionetgen.modelapi.structs module
     :show-inheritance:
 
 bionetgen.modelapi.utils module
------------------------------
+-------------------------------
 
 .. automodule:: bionetgen.modelapi.utils
     :members:
@@ -45,7 +69,7 @@ bionetgen.modelapi.utils module
     :show-inheritance:
 
 bionetgen.modelapi.xmlparsers module
-----------------------------------
+------------------------------------
 
 .. automodule:: bionetgen.modelapi.xmlparsers
     :members:
