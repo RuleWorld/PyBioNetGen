@@ -14,6 +14,11 @@ rls_url = "https://api.github.com/repos/RuleWorld/bionetgen/releases/latest"
 rls_resp = urllib.request.urlopen(rls_url)
 rls_json_txt = rls_resp.read()
 rls_json = json.loads(rls_json_txt)
+# write BNG version tag to use later in banner
+bng_version_tag = rls_json['tag_name']
+with open("bionetgen/assets/BNGVERSION", 'w') as f:
+    f.write(bng_version_tag)
+# get assests
 assets = rls_json['assets']
 for asset in assets:
     browser_url = asset['browser_download_url']

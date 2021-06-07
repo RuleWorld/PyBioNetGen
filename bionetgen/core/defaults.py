@@ -2,6 +2,19 @@ import platform, os, subprocess
 from cement import init_defaults
 from cement.utils.version import get_version_banner
 from .version import get_version
+import urllib.request, json
+
+def get_latest_bng_version():   
+    # get the version tag for the BNG version used
+    libpath = os.path.abspath(__file__)
+    libpath = libpath.split(os.path.sep)
+    verpath = os.path.sep.join(libpath[:-2] + ["assets", "BNGVERSION"])
+    if os.path.isfile(verpath):
+        with open(verpath) as f:
+            tag = f.read()
+        return tag
+    else:
+        return "UNKNOWN"
 
 class BNGDefaults:
     def __init__(self):
@@ -51,10 +64,8 @@ class BNGDefaults:
         self.bng_path = os.path.join(lib_path, bng_name)
         self.lib_path = lib_path
         # version banner
-        VERSION_BANNER= """
-        BioNetGen simple command line interface {}
-        {}
-        """.format(get_version(), get_version_banner())
+        VERSION_BANNER= """BioNetGen simple command line interface {}\nBioNetGen version: {}\n{}
+        """.format(get_version(),  get_latest_bng_version(), get_version_banner())
         # set attributes
         self.banner = VERSION_BANNER
         # stdout
