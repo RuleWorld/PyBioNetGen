@@ -7,7 +7,7 @@ Quickstart
 Installation
 ============
 
-You can use :code:`pip` to install PyBioNetGen 
+You will need both python (3.7 and above) and perl installed. Once both are available you can use the following :code:`pip` command to install PyBioNetGen
 
 .. code-block:: shell
 
