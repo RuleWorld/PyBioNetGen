@@ -54,7 +54,10 @@ class ModelBlock:
         # overwrites what the class representation
         # shows the items in the model block in 
         # say ipython
-        return str(self.items)
+        repr_str = "{} block with {} item(s): {}".format(self.name, 
+                            len(self.items), 
+                            list([i.name for i in self.items.values()]))
+        return repr_str
 
     def __getitem__(self, key):
         if isinstance(key, int):

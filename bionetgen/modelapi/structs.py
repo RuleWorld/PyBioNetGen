@@ -221,6 +221,7 @@ class MoleculeType(ModelObj):
     '''
     def __init__(self, name, components):
         super().__init__()
+        self.name = name
         self.molecule = Molecule(name=name, components=components)
     
     def gen_string(self) -> str:
@@ -247,6 +248,7 @@ class Species(ModelObj):
         super().__init__()
         self.pattern = pattern
         self.count = count
+        self.name = str(self.pattern)
     
     def gen_string(self) -> str:
         s = "{} {}".format(self.pattern, self.count)
