@@ -60,6 +60,9 @@ class bngmodel:
         self.model_name = ""
         self.bngparser = BNGParser(bngl_model)
         self.bngparser.parse_model(self)
+        for block in self.block_order:
+            if block not in self.active_blocks:
+                self.add_empty_block(block)
 
     @property
     def recompile(self):
@@ -81,8 +84,19 @@ class bngmodel:
         '''
         model_str = "begin model\n"
         for block in self.block_order:
+            # ensure we didn't get new items into a 
+            # previously inactive block, if we did
+            # add them to the active blocks
+            if len(getattr(self, block)) > 0:
+                self.active_blocks.append(block)
+            # if we removed items from a block and
+            # it's now empty, we want to remove it 
+            # from the active blocks
+            elif len(getattr(self, block)) == 0 and block in self.active_blocks:
+                self.active_blocks.remove(block)
+            # print only the active blocks 
             if block in self.active_blocks:
-                if block != "actions":
+                if block != "actions" and len(getattr(self, block))>0:
                     model_str += str(getattr(self, block))
         model_str += "\nend model\n\n"
         if "actions" in self.active_blocks:
@@ -104,6 +118,14 @@ class bngmodel:
         block_adder = getattr(self, "add_{}_block".format(bname))
         block_adder(block)
     
+    def add_empty_block(self, block_name):
+        bname = block_name.replace(" ","_")
+        # TODO: fix this exception
+        if bname == "reaction_rules":
+            bname = "rules"
+        block_adder = getattr(self, "add_{}_block".format(bname))
+        block_adder()
+    
     def add_parameters_block(self, block=None):
         if block is not None:
             assert isinstance(block, ParameterBlock)
@@ -111,7 +133,6 @@ class bngmodel:
             self.active_blocks.append("parameters")
         else:
             self.parameters = ParameterBlock()
-            self.active_blocks.append("parameters")
     
     def add_compartments_block(self, block=None):
         if block is not None:
@@ -120,7 +141,6 @@ class bngmodel:
             self.active_blocks.append("compartments")
         else:
             self.compartments = CompartmentBlock()
-            self.active_blocks.append("compartments")
         
     def add_molecule_types_block(self, block=None):
         if block is not None:
@@ -129,7 +149,6 @@ class bngmodel:
             self.active_blocks.append("molecule_types")
         else:
             self.molecule_types = MoleculeTypeBlock()
-            self.active_blocks.append("molecule_types")
     
     def add_species_block(self, block=None):
         if block is not None:
@@ -138,7 +157,6 @@ class bngmodel:
             self.active_blocks.append("species")
         else:
             self.species = SpeciesBlock()
-            self.active_blocks.append("species")
     
     def add_observables_block(self, block=None):
         if block is not None:
@@ -147,7 +165,6 @@ class bngmodel:
             self.active_blocks.append("observables")
         else:
             self.observables = ObservableBlock()
-            self.active_blocks.append("observables")
     
     def add_functions_block(self, block=None):
         if block is not None:
@@ -156,7 +173,6 @@ class bngmodel:
             self.active_blocks.append("functions")
         else:
             self.functions = FunctionBlock()
-            self.active_blocks.append("functions")
 
     def add_rules_block(self, block=None):
         if block is not None:
@@ -165,7 +181,6 @@ class bngmodel:
             self.active_blocks.append("rules")
         else:
             self.rules = RuleBlock()
-            self.active_blocks.append("rules")
 
     def add_actions_block(self, block=None):
         if block is not None:
@@ -174,7 +189,6 @@ class bngmodel:
             self.active_blocks.append("actions")
         else:
             self.actions = ActionBlock()
-            self.active_blocks.append("actions")
 
     def reset_compilation_tags(self):
         for block in self.active_blocks:
