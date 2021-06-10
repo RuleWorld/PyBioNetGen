@@ -87,3 +87,6 @@ Updating BioNetGen version to 2.6.0
 
 ## 0.3.0
 Massive model object restructuring complete and XML parsing is separated from model object. Fixed XML parsing of certain features like constant species. 
+
+## 0.3.1
+Various changes fixing issues #1 and #7. BNG2.pl output is immediately piped out stdout. 
