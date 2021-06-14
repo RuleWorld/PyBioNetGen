@@ -2,7 +2,7 @@ import bionetgen as bng
 import subprocess, os, xmltodict, sys
 
 from bionetgen.main import BioNetGen
-from .utils import find_BNG_path
+from .utils import find_BNG_path, run_command
 from tempfile import TemporaryDirectory
 from tempfile import TemporaryFile
 
@@ -66,14 +66,15 @@ class BNGFile:
             # run with --xml 
             os.chdir(temp_folder)
             # TODO: take stdout option from app instead
-            rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
-            if rc.returncode == 1:
+            # rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
+            rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], capture_output=True, bufsize=0)
+            if rc == 1:
                 # if we fail, print out what we have to 
                 # let the user know what BNG2.pl says
-                if rc.stdout is not None:
-                    print(rc.stdout.decode('utf-8'))
-                if rc.stderr is not None:
-                    print(rc.stderr.decode('utf-8'))
+                # if rc.stdout is not None:
+                #     print(rc.stdout.decode('utf-8'))
+                # if rc.stderr is not None:
+                #     print(rc.stderr.decode('utf-8'))
                 # go back to our original location
                 os.chdir(cur_dir)
                 # shutil.rmtree(temp_folder)
@@ -140,8 +141,9 @@ class BNGFile:
             # run with --xml 
             # TODO: Make output supression an option somewhere
             if xml_type == "bngxml":
-                rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], stdout=bng.defaults.stdout)
-                if rc.returncode == 1:
+                # rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], stdout=bng.defaults.stdout)
+                rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], capture_output=True, bufsize=0)
+                if rc == 1:
                     print("XML generation failed")
                     # go back to our original location
                     os.chdir(cur_dir)
@@ -156,8 +158,11 @@ class BNGFile:
                     os.chdir(cur_dir)
                     return True
             elif xml_type == "sbml":
-                rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], stdout=bng.defaults.stdout)
-                if rc.returncode == 1:
+                # rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], stdout=bng.defaults.stdout)
+                # rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], capture_output=True, bufsize=1)
+                command = ["perl",self.bngexec, "temp.bngl"]
+                rc = run_command(command)
+                if rc == 1:
                     print("SBML generation failed")
                     # go back to our original location
                     os.chdir(cur_dir)

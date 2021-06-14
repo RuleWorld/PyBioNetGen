@@ -1,3 +1,4 @@
+from bionetgen.modelapi.utils import run_command
 import cement, os, platform, subprocess
 import bionetgen as bng
 from cement.core.exc import CaughtSignal
@@ -117,7 +118,10 @@ class BNGBase(cement.Controller):
         stdout = getattr(subprocess, CONFIG["bionetgen"]["stdout"])
         stderr = getattr(subprocess, CONFIG["bionetgen"]["stderr"])
         if args.open:
-            rc = subprocess.run(["nbopen", fname], stdout=stdout, stderr=stderr)
+            # rc = subprocess.run(["nbopen", fname], stdout=stdout, stderr=stderr)
+            # rc = subprocess.run(["nbopen", fname], capture_output=True, bufsize=1)
+            command = ["nbopen", fname]
+            rc = run_command(command)
 
     @cement.ex(
             help="Rudimentary plotting of gdat/cdat/scan files",

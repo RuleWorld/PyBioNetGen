@@ -1,3 +1,4 @@
+from bionetgen.modelapi.utils import run_command
 import os, subprocess, shutil
 from tempfile import TemporaryDirectory
 from sys import stdout
@@ -124,14 +125,17 @@ class BNGCLI:
         except:
             stderr_loc = subprocess.STDOUT
         # run BNG2.pl
-        rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=stdout_loc, stderr=stderr_loc)
+        # rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=stdout_loc, stderr=stderr_loc)
+        # rc = subprocess.run(["perl", self.bng_exec, self.inp_path], capture_output=True, bufsize=1)
+        command = ["perl", self.bng_exec, self.inp_path]
+        rc = run_command(command)
         # write out stdout/err if they exist
         # TODO Maybe indicate that we are printing out stdout/stderr before printing
-        if rc.stdout is not None:
-            print(rc.stdout.decode('utf-8'))
-        if rc.stderr is not None:
-            print(rc.stderr.decode('utf-8'))
-        if rc.returncode == 0:
+        # if rc.stdout is not None:
+        #     print(rc.stdout.decode('utf-8'))
+        # if rc.stderr is not None:
+        #     print(rc.stderr.decode('utf-8'))
+        if rc == 0:
             # load in the result 
             self.result = BNGResult(os.getcwd())
             BNGResult.process_return = rc
