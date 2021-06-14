@@ -2,9 +2,10 @@ import os, subprocess
 import bionetgen as bng
 from distutils import spawn
 
+
 def find_BNG_path(BNGPATH=None):
-    '''
-    A simple function finds the path to BNG2.pl from 
+    """
+    A simple function finds the path to BNG2.pl from
     * Environment variable
     * Assuming it's under PATH
     * Given optional path as argument
@@ -15,11 +16,11 @@ def find_BNG_path(BNGPATH=None):
     Arguments
     ---------
     BNGPATH : str
-        (optional) path to the folder that contains BNG2.pl 
-    '''
-    # TODO: Figure out how to use the BNG2.pl if it's set 
+        (optional) path to the folder that contains BNG2.pl
+    """
+    # TODO: Figure out how to use the BNG2.pl if it's set
     # in the PATH variable. Solution: set os.environ BNGPATH
-    # and make everything use that route 
+    # and make everything use that route
 
     # Let's keep up the idea we pull this path from the environment
     if BNGPATH is None:
@@ -41,8 +42,9 @@ def find_BNG_path(BNGPATH=None):
             RuntimeError("BNG2.pl is not working")
     return BNGPATH, bngexec
 
+
 def test_bngexec(bngexec):
-    '''
+    """
     A simple function that test if BNG2.pl given runs
 
     Usage: test_bngexec(path)
@@ -51,7 +53,7 @@ def test_bngexec(bngexec):
     ---------
     bngexec : str
         path to BNG2.pl to test
-    '''
+    """
     # rc = subprocess.run(["perl", bngexec], stdout=bng.defaults.stdout)
     # rc = subprocess.run(["perl", bngexec], capture_output=True, bufsize=1)
     command = ["perl", bngexec]
@@ -61,11 +63,12 @@ def test_bngexec(bngexec):
     else:
         return False
 
+
 def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding='utf8')
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
     while True:
         output = process.stdout.readline()
-        if output == '' and process.poll() is not None:
+        if output == "" and process.poll() is not None:
             break
         if output:
             print(output.strip())

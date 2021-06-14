@@ -1,11 +1,12 @@
-import re 
+import re
+
 
 class BNGNotebook:
-    '''
+    """
     This is a class for writing BNG notebook from a template
-    and given arguments. 
+    and given arguments.
 
-    Initalize with keywords to replace values in the template. 
+    Initalize with keywords to replace values in the template.
     E.g. BNGNotebook(template_file, TEST="CHANGE").write(outfile)
     will write the template file to outfile while changing every
     instance of "TEST" to "CHANGE"
@@ -21,7 +22,8 @@ class BNGNotebook:
     -------
     write(outfile)
         writes the template file to outfile, replacing keywords
-    '''
+    """
+
     def __init__(self, nb_template, **kwargs):
         self.template = nb_template
         self.odict = {}
@@ -29,9 +31,9 @@ class BNGNotebook:
             self.odict[key] = kwargs[key]
 
     def write(self, outfile):
-        '''
+        """
         This method will overwrite the given arguments
-        '''
+        """
         with open(self.template, "r") as f:
             temp_lines = f.readlines()
 

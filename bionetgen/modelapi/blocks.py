@@ -1,11 +1,11 @@
 from typing import OrderedDict
 from .structs import Parameter, Compartment, Observable
-from .structs import  MoleculeType, Species, Function
+from .structs import MoleculeType, Species, Function
 from .structs import Rule, Action
 
-###### BLOCK OBJECTS ###### 
+###### BLOCK OBJECTS ######
 class ModelBlock:
-    '''
+    """
     Base block object that will be used for each block in the model.
 
     Attributes
@@ -20,9 +20,9 @@ class ModelBlock:
         a dictionary to keep track of all the changes done in a block
         after it is originally created
     _recompile : bool
-        a tag that tells a potential future simulator if the model 
+        a tag that tells a potential future simulator if the model
         needs to be recompiled. TODO: has to be computed from _changes
-        property upon get request. 
+        property upon get request.
 
     Methods
     -------
@@ -34,9 +34,10 @@ class ModelBlock:
     add_items(item_list)
         loops over every element in the list and uses add_item on it
     gen_string()
-        for every block this method generates the BNGL string of the 
+        for every block this method generates the BNGL string of the
         block. it has to be overwritten for each block.
-    '''
+    """
+
     def __init__(self) -> None:
         self.name = "ModelBlock"
         self.comment = (None, None)
@@ -47,16 +48,16 @@ class ModelBlock:
     def __str__(self) -> str:
         return self.gen_string()
 
-    def __len__(self)-> int:
+    def __len__(self) -> int:
         return len(self.items)
 
-    def __repr__(self)-> str:
+    def __repr__(self) -> str:
         # overwrites what the class representation
-        # shows the items in the model block in 
+        # shows the items in the model block in
         # say ipython
-        repr_str = "{} block with {} item(s): {}".format(self.name, 
-                            len(self.items), 
-                            list([i.name for i in self.items.values()]))
+        repr_str = "{} block with {} item(s): {}".format(
+            self.name, len(self.items), list([i.name for i in self.items.values()])
+        )
         return repr_str
 
     def __getitem__(self, key):
@@ -65,27 +66,27 @@ class ModelBlock:
             return list(self.items.keys())[key]
         return self.items[key]
 
-    def __setitem__(self, key, value)-> None:
+    def __setitem__(self, key, value) -> None:
         self.items[key] = value
 
-    def __delitem__(self, key)-> None:
+    def __delitem__(self, key) -> None:
         if key in self.items:
             self.items.pop(key)
-        else: 
+        else:
             print("Item {} not found".format(key))
 
     def __iter__(self):
         return self.items.keys().__iter__()
 
-    def __contains__(self, key)-> bool:
+    def __contains__(self, key) -> bool:
         return key in self.items
-    
+
     # TODO: Think extensively how this is going to work
-    def __setattr__(self, name, value)-> None:
+    def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
             if name in self.items.keys():
-                try: 
+                try:
                     new_value = float(value)
                     changed = True
                     self.items[name] = new_value
@@ -96,7 +97,7 @@ class ModelBlock:
                     self.__dict__[name] = new_value
         else:
             self.__dict__[name] = value
-    
+
     def gen_string(self) -> str:
         # each block can have a comment at the start
         if self.comment[0] is not None:
@@ -109,21 +110,21 @@ class ModelBlock:
         # each block can have a comment at the start
         if self.comment[1] is not None:
             block_lines.append("end {} #{}\n".format(self.name, self.comment[1]))
-        else :
+        else:
             block_lines.append("end {}\n".format(self.name))
         # join everything with new lines
         return "\n".join(block_lines)
-    
-    def reset_compilation_tags(self)-> None:
-        # TODO: Make these properties such that it checks each 
+
+    def reset_compilation_tags(self) -> None:
+        # TODO: Make these properties such that it checks each
         # item for changes/recompile tags
         # for item in self.items:
         #     self.items[item]._recompile = False
         #     self.items[item]._changes = {}
         self._changes = OrderedDict()
         self._recompile = False
-    
-    def add_item(self, item_tpl)-> None:
+
+    def add_item(self, item_tpl) -> None:
         # TODO: try adding evaluation of the parameter here
         # for the future, in case we want people to be able
         # to adjust the math
@@ -141,25 +142,26 @@ class ModelBlock:
             except:
                 print("can't set {} to {}".format(name, value))
                 pass
-        # we just added an item to a block, let's assume we need 
+        # we just added an item to a block, let's assume we need
         # to recompile if we have a compiled simulator
         self._recompile = True
 
-    def add_items(self, item_list)-> None:
+    def add_items(self, item_list) -> None:
         for item in item_list:
             self.add_item(item)
-    
+
 
 class ParameterBlock(ModelBlock):
-    '''
+    """
     Parameter block object, subclass of ModelBlock.
 
     Methods
     -------
     add_parameter(name, value, expr=None)
-        adds a parameter by making a new Parameter object and passing 
-        the args/kwargs to its initialization. 
-    '''
+        adds a parameter by making a new Parameter object and passing
+        the args/kwargs to its initialization.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.name = "parameters"
@@ -172,17 +174,21 @@ class ParameterBlock(ModelBlock):
                     changed = True
                     self.items[name] = value
                 elif isinstance(value, str):
-                    if self.items[name]['value'] != value:
+                    if self.items[name]["value"] != value:
                         changed = True
-                        self.items[name]['value'] = value
+                        self.items[name]["value"] = value
                 else:
                     try:
                         value = float(value)
-                        if self.items[name]['value'] != value:
+                        if self.items[name]["value"] != value:
                             changed = True
-                            self.items[name]['value'] = value
+                            self.items[name]["value"] = value
                     except:
-                        print("can't set parameter {} to {}".format(self.items[name]['name'],value))
+                        print(
+                            "can't set parameter {} to {}".format(
+                                self.items[name]["name"], value
+                            )
+                        )
                 if changed:
                     self._changes[name] = value
                     self.__dict__[name] = value
@@ -197,19 +203,20 @@ class ParameterBlock(ModelBlock):
 
 
 class CompartmentBlock(ModelBlock):
-    '''
+    """
     Compartment block object, subclass of ModelBlock.
 
     Methods
     -------
-    add_compartment(name, dim, size, outside=None) 
-        adds a compartment by making a new Compartment object and passing 
-        the args/kwargs to its initialization. 
-    '''
+    add_compartment(name, dim, size, outside=None)
+        adds a compartment by making a new Compartment object and passing
+        the args/kwargs to its initialization.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.name = "compartments"
-        
+
     def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
@@ -218,17 +225,21 @@ class CompartmentBlock(ModelBlock):
                     changed = True
                     self.items[name] = value
                 elif isinstance(value, str):
-                    if self.items[name]['name'] != value:
+                    if self.items[name]["name"] != value:
                         changed = True
-                        self.items[name]['name'] = value
+                        self.items[name]["name"] = value
                 else:
                     try:
                         value = float(value)
-                        if self.items[name]['size'] != value:
+                        if self.items[name]["size"] != value:
                             changed = True
-                            self.items[name]['size'] = value
+                            self.items[name]["size"] = value
                     except:
-                        print("can't set compartment {} to {}".format(self.items[name]['name'],value))
+                        print(
+                            "can't set compartment {} to {}".format(
+                                self.items[name]["name"], value
+                            )
+                        )
                 if changed:
                     self._changes[name] = value
                     self.__dict__[name] = value
@@ -243,19 +254,20 @@ class CompartmentBlock(ModelBlock):
 
 
 class ObservableBlock(ModelBlock):
-    '''
+    """
     Observable block object, subclass of ModelBlock.
 
     Methods
     -------
     add_observable(name, otype, patterns=[])
-        adds an observable by making a new Observable object and passing 
-        the args/kwargs to its initialization.  
-    '''
+        adds an observable by making a new Observable object and passing
+        the args/kwargs to its initialization.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.name = "observables"
-    
+
     def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
@@ -264,11 +276,15 @@ class ObservableBlock(ModelBlock):
                     changed = True
                     self.items[name] = value
                 elif isinstance(value, str):
-                    if self.items[name]['name'] != value:
+                    if self.items[name]["name"] != value:
                         changed = True
-                        self.items[name]['name'] = value
+                        self.items[name]["name"] = value
                 else:
-                    print("can't set observable {} to {}".format(self.items[name]['name'],value))
+                    print(
+                        "can't set observable {} to {}".format(
+                            self.items[name]["name"], value
+                        )
+                    )
                 if changed:
                     self._changes[name] = value
                     self.__dict__[name] = value
@@ -283,15 +299,16 @@ class ObservableBlock(ModelBlock):
 
 
 class SpeciesBlock(ModelBlock):
-    '''
+    """
     Species block object, subclass of ModelBlock.
 
     Methods
     -------
     add_species(name, pattern=Pattern(), count=0)
-        adds a species by making a new Species object and passing 
-        the args/kwargs to its initialization. 
-    '''
+        adds a species by making a new Species object and passing
+        the args/kwargs to its initialization.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.name = "species"
@@ -304,11 +321,15 @@ class SpeciesBlock(ModelBlock):
                     changed = True
                     self.items[name] = value
                 elif isinstance(value, str):
-                    if self.items[name]['name'] != value:
+                    if self.items[name]["name"] != value:
                         changed = True
-                        self.items[name]['name'] = value
+                        self.items[name]["name"] = value
                 else:
-                    print("can't set species {} to {}".format(self.items[name]['name'],value))
+                    print(
+                        "can't set species {} to {}".format(
+                            self.items[name]["name"], value
+                        )
+                    )
                 if changed:
                     self._changes[name] = value
                     self.__dict__[name] = value
@@ -323,19 +344,20 @@ class SpeciesBlock(ModelBlock):
 
 
 class MoleculeTypeBlock(ModelBlock):
-    '''
+    """
     Molecule type block, subclass of ModelBlock.
 
     Methods
     -------
     add_molecule_type(name, name, components)
-        adds a molecule type by making a new MoleculeType object and passing 
-        the args/kwargs to its initialization. 
-    '''
+        adds a molecule type by making a new MoleculeType object and passing
+        the args/kwargs to its initialization.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.name = "molecule types"
-    
+
     def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
@@ -344,11 +366,15 @@ class MoleculeTypeBlock(ModelBlock):
                     changed = True
                     self.items[name] = value
                 elif isinstance(value, str):
-                    if self.items[name]['name'] != value:
+                    if self.items[name]["name"] != value:
                         changed = True
-                        self.items[name]['name'] = value
+                        self.items[name]["name"] = value
                 else:
-                    print("can't set molecule type {} to {}".format(self.items[name]['name'],value))
+                    print(
+                        "can't set molecule type {} to {}".format(
+                            self.items[name]["name"], value
+                        )
+                    )
                 if changed:
                     self._changes[name] = value
                     self.__dict__[name] = value
@@ -356,22 +382,23 @@ class MoleculeTypeBlock(ModelBlock):
                 self.__dict__[name] = value
         else:
             self.__dict__[name] = value
-    
+
     def add_molecule_type(self, name, components) -> None:
         mt = MoleculeType(name=name, components=components)
         self.add_item((name, mt))
 
 
 class FunctionBlock(ModelBlock):
-    '''
+    """
     Function block object, subclass of ModelBlock.
 
     Methods
     -------
     add_function(name, name, expr, args=None)
-        adds a function by making a new Function object and passing 
-        the args/kwargs to its initialization. 
-    '''
+        adds a function by making a new Function object and passing
+        the args/kwargs to its initialization.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.name = "functions"
@@ -384,11 +411,15 @@ class FunctionBlock(ModelBlock):
                     changed = True
                     self.items[name] = value
                 elif isinstance(value, str):
-                    if self.items[name]['expr'] != value:
+                    if self.items[name]["expr"] != value:
                         changed = True
-                        self.items[name]['expr'] = value
+                        self.items[name]["expr"] = value
                 else:
-                    print("can't set function {} to {}".format(self.items[name]['name'],value))
+                    print(
+                        "can't set function {} to {}".format(
+                            self.items[name]["name"], value
+                        )
+                    )
                 if changed:
                     self._changes[name] = value
                     self.__dict__[name] = value
@@ -396,31 +427,32 @@ class FunctionBlock(ModelBlock):
                 self.__dict__[name] = value
         else:
             self.__dict__[name] = value
-    
+
     def add_function(self, *args, **kwargs) -> None:
         f = Function(*args, **kwargs)
         self.add_item((f.name, f))
 
 
 class RuleBlock(ModelBlock):
-    '''
+    """
     Rule block object, subclass of ModelBlock.
 
     Methods
     -------
     add_rule(name, name, reactants=[], products=[], rate_constants=())
-        adds a rule by making a new Rule object and passing 
-        the args/kwargs to its initialization. 
+        adds a rule by making a new Rule object and passing
+        the args/kwargs to its initialization.
     consolidate_rules : None
         XML loading makes it so that reversible rules are split
         into two unidirectional rules. This find them and combines
-        them into a single rule to correctly represent the original 
-        model rule. 
-    '''
+        them into a single rule to correctly represent the original
+        model rule.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.name = "reaction rules"
-    
+
     def __setattr__(self, name, value) -> None:
         changed = False
         if hasattr(self, "items"):
@@ -429,11 +461,15 @@ class RuleBlock(ModelBlock):
                     changed = True
                     self.items[name] = value
                 elif isinstance(value, str):
-                    if self.items[name]['name'] != value:
+                    if self.items[name]["name"] != value:
                         changed = True
-                        self.items[name]['name'] = value
+                        self.items[name]["name"] = value
                 else:
-                    print("can't set rule {} to {}".format(self.items[name]['name'],value))
+                    print(
+                        "can't set rule {} to {}".format(
+                            self.items[name]["name"], value
+                        )
+                    )
                 if changed:
                     self._changes[name] = value
                     self.__dict__[name] = value
@@ -447,15 +483,15 @@ class RuleBlock(ModelBlock):
         self.add_item((r.name, r))
 
     def consolidate_rules(self) -> None:
-        '''
+        """
         Generated XML only has unidirectional rules
-        and uses "_reverse_" tag to make bidirectional 
+        and uses "_reverse_" tag to make bidirectional
         rules for NFSim. Take all the "_reverse_" tagged
         rules and convert them to bidirectional rules
-        '''
+        """
         delete_list = []
         for item_key in self.items:
-            rxn_obj  = self.items[item_key]
+            rxn_obj = self.items[item_key]
             if item_key.startswith("_reverse_"):
                 # this is the reverse of another reaction
                 reverse_of = item_key.replace("_reverse_", "")
@@ -464,7 +500,7 @@ class RuleBlock(ModelBlock):
                     # make bidirectional and add rate law
                     r1 = self.items[reverse_of].rate_constants[0]
                     r2 = rxn_obj.rate_constants[0]
-                    self.items[reverse_of].set_rate_constants((r1,r2))
+                    self.items[reverse_of].set_rate_constants((r1, r2))
                     # mark reverse for deletion
                     delete_list.append(item_key)
         # delete items marked for deletion
@@ -473,9 +509,9 @@ class RuleBlock(ModelBlock):
 
 
 class ActionBlock(ModelBlock):
-    '''
-    Action block object, subclass of ModelBlock.This is the one object 
-    that doesn't need a begin/end block tag to be in the model. 
+    """
+    Action block object, subclass of ModelBlock.This is the one object
+    that doesn't need a begin/end block tag to be in the model.
 
     Attributes
     ----------
@@ -485,34 +521,58 @@ class ActionBlock(ModelBlock):
     Methods
     -------
     add_action(name, action_type=None, action_args=[])
-        adds an action by making a new Action object and passing 
-        the args/kwargs to its initialization. 
+        adds an action by making a new Action object and passing
+        the args/kwargs to its initialization.
     clear_actions()
-    '''
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.name = "actions"
-        self._action_list = ["generate_network", "generate_hybrid_model",
-            "simulate", "simulate_ode", "simulate_ssa", "simulate_pla", 
-            "simulate_nf", "parameter_scan", "bifurcate", "readFile", 
-            "writeFile", "writeModel", "writeNetwork", "writeXML", 
-            "writeSBML", "writeMfile", "writeMexfile", "writeMDL", 
-            "visualize", "setConcentration", "addConcentration", 
-            "saveConcentration", "resetConcentrations", "setParameter", 
-            "saveParameters", "resetParameters", "quit", "setModelName", 
-            "substanceUnits", "version", "setOption"]
+        self._action_list = [
+            "generate_network",
+            "generate_hybrid_model",
+            "simulate",
+            "simulate_ode",
+            "simulate_ssa",
+            "simulate_pla",
+            "simulate_nf",
+            "parameter_scan",
+            "bifurcate",
+            "readFile",
+            "writeFile",
+            "writeModel",
+            "writeNetwork",
+            "writeXML",
+            "writeSBML",
+            "writeMfile",
+            "writeMexfile",
+            "writeMDL",
+            "visualize",
+            "setConcentration",
+            "addConcentration",
+            "saveConcentration",
+            "resetConcentrations",
+            "setParameter",
+            "saveParameters",
+            "resetParameters",
+            "quit",
+            "setModelName",
+            "substanceUnits",
+            "version",
+            "setOption",
+        ]
 
     def __setattr__(self, name, value) -> None:
-            self.__dict__[name] = value
+        self.__dict__[name] = value
 
     def add_action(self, action_type, action_args) -> None:
-        '''
+        """
         adds action, needs type as string and args as list of tuples
         (which preserve order) of (argument, value) pairs
-        '''
+        """
         if action_type in self._action_list:
-            a = Action(action_type=action_type,
-                        action_args=action_args)
+            a = Action(action_type=action_type, action_args=action_args)
             self.add_item((action_type, a))
         else:
             print("Action type {} not valid".format(action_type))
