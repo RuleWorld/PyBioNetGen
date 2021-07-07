@@ -1,7 +1,11 @@
-from typing import OrderedDict
 from .structs import Parameter, Compartment, Observable
 from .structs import MoleculeType, Species, Function
 from .structs import Rule, Action
+# this import fails on some python versions
+try:
+    from typing import OrderedDict
+except ImportError:
+    from collections import OrderedDict
 
 ###### BLOCK OBJECTS ######
 class ModelBlock:
