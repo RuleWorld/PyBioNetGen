@@ -23,6 +23,7 @@ class BNGResult:
         loads in the direct path to the file and returns
         numpy.recarray
     """
+
     def __init__(self, path=None, direct_path=None):
         # TODO Make it so that with path you can supply an
         # extension or a list of extensions to load in
@@ -50,7 +51,7 @@ class BNGResult:
             print(
                 "BNGResult needs either a path or a direct path kwarg to load gdat/cdat/scan files from"
             )
-        
+
     def __repr__(self) -> str:
         s = f"gdats from {len(self.gdats)} models: "
         for r in self.gdats.keys():
@@ -64,15 +65,15 @@ class BNGResult:
             for r in self.scans.keys():
                 s += f"{r}"
         return s
-    
+
     def __getitem__(self, key):
         if isinstance(key, int):
             k = list(self.gdats.keys())[key]
             it = self.gdats[k]
         else:
             it = self.gdats[key]
-        return it 
-    
+        return it
+
     def __iter__(self):
         return self.gdats.__iter__()
 
@@ -97,13 +98,13 @@ class BNGResult:
         for dat_file in gdat_files:
             name = dat_file.replace(f".{ext}", "")
             self.gnames[name] = dat_file
-        
+
         ext = "cdat"
         cdat_files = filter(lambda x: x.endswith(f".{ext}"), files)
         for dat_file in cdat_files:
             name = dat_file.replace(f".{ext}", "")
             self.cnames[name] = dat_file
-        
+
         ext = "scan"
         scan_files = filter(lambda x: x.endswith(f".{ext}"), files)
         for dat_file in scan_files:
@@ -123,7 +124,6 @@ class BNGResult:
         for name in self.snames:
             scan_path = os.path.join(self.path, self.snames[name])
             self.scans[name] = self.load(scan_path)
-        
 
     def _load_dat(self, path, dformat="f8"):
         """
