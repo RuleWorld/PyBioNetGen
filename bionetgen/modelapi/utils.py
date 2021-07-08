@@ -57,20 +57,24 @@ def test_bngexec(bngexec):
     # rc = subprocess.run(["perl", bngexec], stdout=bng.defaults.stdout)
     # rc = subprocess.run(["perl", bngexec], capture_output=True, bufsize=1)
     command = ["perl", bngexec]
-    rc = run_command(command)
+    rc = run_command(command, suppress=True)
     if rc == 0:
         return True
     else:
         return False
 
 
-def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
-    while True:
-        output = process.stdout.readline()
-        if output == "" and process.poll() is not None:
-            break
-        if output:
-            print(output.strip())
-    rc = process.poll()
-    return rc
+def run_command(command, suppress=False):
+    if suppress:
+        with open(os.devnull, 'w') as dnull:
+            subprocess.run(command, stdout=dnull, stderr=dnull)
+    else:
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
+        while True:
+            output = process.stdout.readline()
+            if output == "" and process.poll() is not None:
+                break
+            if output:
+                print(output.strip())
+        rc = process.poll()
+        return rc

@@ -53,10 +53,12 @@ class BNGParser:
         # this route runs BNG2.pl on the bngl and parses
         # the XML instead
         if model_file.endswith(".bngl"):
-            print("Attempting to generate XML")
+            # TODO: Add verbosity option to the library
+            # print("Attempting to generate XML")
             with TemporaryFile("w+") as xml_file:
                 if self.bngfile.generate_xml(xml_file):
-                    print("Parsing")
+                    # TODO: Add verbosity option to the library
+                    # print("Parsing")
                     self.parse_xml(xml_file.read(), model_obj)
                     model_obj.reset_compilation_tags()
                 else:
@@ -121,4 +123,5 @@ class BNGParser:
                     xml_parser = FunctionBlockXML(funcs)
                     model_obj.add_block(xml_parser.parsed_obj)
         # And that's the end of parsing
-        print("Parsing complete")
+        # TODO: Add verbosity option to the library
+        # print("Parsing complete")
