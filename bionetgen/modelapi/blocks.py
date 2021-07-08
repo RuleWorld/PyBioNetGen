@@ -176,18 +176,24 @@ class ParameterBlock(ModelBlock):
         if hasattr(self, "items"):
             if name in self.items:
                 if isinstance(value, Parameter):
+                    # New parameter object
                     changed = True
                     self.items[name] = value
                 elif isinstance(value, str):
+                    # A new expression
                     if self.items[name]["value"] != value:
                         changed = True
                         self.items[name]["value"] = value
+                        self.items[name].write_expr = True
                 else:
                     try:
+                        # try a new value, we need to make sure
+                        # to stop printing out the expression
                         value = float(value)
                         if self.items[name]["value"] != value:
                             changed = True
                             self.items[name]["value"] = value
+                            self.items[name].write_expr = False
                     except:
                         print(
                             "can't set parameter {} to {}".format(
