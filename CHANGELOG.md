@@ -93,3 +93,6 @@ Various changes fixing issues #1 and #7. BNG2.pl output is immediately piped out
 
 ## 0.3.2
 Updated BNGResult object to be user friendly, updated OrderedDict import to try collections library.
+
+## 0.3.3
+`run` command can now run bngmodel objects directly, creates a temporary file to do so. 

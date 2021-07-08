@@ -135,9 +135,11 @@ class BNGCLI:
         except:
             stderr_loc = subprocess.STDOUT
         # run BNG2.pl
-        
+
         if self.is_bngmodel:
-            with NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False, suffix=".bngl") as tfile:
+            with NamedTemporaryFile(
+                mode="w+", encoding="utf-8", delete=False, suffix=".bngl"
+            ) as tfile:
                 tfile.write(str(self.inp_file))
             command = ["perl", self.bng_exec, tfile.name]
         else:
