@@ -4,7 +4,6 @@ import subprocess, os, xmltodict, sys
 from bionetgen.main import BioNetGen
 from .utils import find_BNG_path, run_command
 from tempfile import TemporaryDirectory
-from tempfile import TemporaryFile
 
 # This allows access to the CLIs config setup
 app = BioNetGen()

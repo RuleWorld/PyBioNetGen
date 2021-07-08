@@ -1,11 +1,12 @@
-from bionetgen.modelapi.utils import run_command
-import os, subprocess, shutil
-from tempfile import TemporaryDirectory
-from sys import stdout
-from re import sub
 import bionetgen as bng
 from bionetgen.core import BNGResult
 from bionetgen.core import BNGPlotter
+from bionetgen.modelapi.utils import run_command
+import bionetgen.modelapi.model as mdl
+
+import os, subprocess
+from tempfile import NamedTemporaryFile
+
 
 # TODO Consolidate how config is being accessed. It's
 # almost like each function accesses the configs from
@@ -91,8 +92,12 @@ class BNGCLI:
 
     def __init__(self, inp_file, output, bngpath, suppress=False):
         self.inp_file = inp_file
-        # ensure correct path to the input file
-        self.inp_path = os.path.abspath(self.inp_file)
+        if isinstance(inp_file, mdl.bngmodel):
+            self.is_bngmodel = True
+        else:
+            self.is_bngmodel = False
+            # ensure correct path to the input file
+            self.inp_path = os.path.abspath(self.inp_file)
         # pull other arugments out
         self._set_output(output)
         # sedml_file = sedml
@@ -130,10 +135,17 @@ class BNGCLI:
         except:
             stderr_loc = subprocess.STDOUT
         # run BNG2.pl
-        # rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=stdout_loc, stderr=stderr_loc)
-        # rc = subprocess.run(["perl", self.bng_exec, self.inp_path], capture_output=True, bufsize=1)
-        command = ["perl", self.bng_exec, self.inp_path]
+        
+        if self.is_bngmodel:
+            with NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False, suffix=".bngl") as tfile:
+                tfile.write(str(self.inp_file))
+            command = ["perl", self.bng_exec, tfile.name]
+        else:
+            command = ["perl", self.bng_exec, self.inp_path]
         rc = run_command(command, suppress=self.suppress)
+
+        if self.is_bngmodel:
+            os.remove(tfile.name)
         # write out stdout/err if they exist
         # TODO Maybe indicate that we are printing out stdout/stderr before printing
         # if rc.stdout is not None:
