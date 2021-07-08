@@ -66,8 +66,10 @@ def test_bngexec(bngexec):
 
 def run_command(command, suppress=False):
     if suppress:
-        with open(os.devnull, "w") as dnull:
-            subprocess.run(command, stdout=dnull, stderr=dnull)
+        rc = subprocess.run(
+            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+        return rc.returncode
     else:
         process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
         while True:

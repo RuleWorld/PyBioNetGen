@@ -9,7 +9,7 @@ app.setup()
 conf = app.config["bionetgen"]
 
 
-def run(inp, out=None):
+def run(inp, out=None, suppress=False):
     """
     Convenience function to run BNG2.pl as a library
 
@@ -28,7 +28,7 @@ def run(inp, out=None):
         cur_dir = os.getcwd()
         with TemporaryDirectory() as out:
             # instantiate a CLI object with the info
-            cli = BNGCLI(inp, out, conf["bngpath"])
+            cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
             try:
                 cli.run()
             except:
@@ -37,7 +37,7 @@ def run(inp, out=None):
             os.chdir(cur_dir)
     else:
         # instantiate a CLI object with the info
-        cli = BNGCLI(inp, out, conf["bngpath"])
+        cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
         try:
             cli.run()
         except:

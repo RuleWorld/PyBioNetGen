@@ -89,7 +89,7 @@ class BNGCLI:
         runs the model in the given output folder
     """
 
-    def __init__(self, inp_file, output, bngpath):
+    def __init__(self, inp_file, output, bngpath, suppress=False):
         self.inp_file = inp_file
         # ensure correct path to the input file
         self.inp_path = os.path.abspath(self.inp_file)
@@ -108,6 +108,7 @@ class BNGCLI:
         self.result = None
         self.stdout = "PIPE"
         self.stderr = "STDOUT"
+        self.suppress = suppress
 
     def _set_output(self, output):
         # setting up output area
@@ -132,7 +133,7 @@ class BNGCLI:
         # rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=stdout_loc, stderr=stderr_loc)
         # rc = subprocess.run(["perl", self.bng_exec, self.inp_path], capture_output=True, bufsize=1)
         command = ["perl", self.bng_exec, self.inp_path]
-        rc = run_command(command)
+        rc = run_command(command, suppress=self.suppress)
         # write out stdout/err if they exist
         # TODO Maybe indicate that we are printing out stdout/stderr before printing
         # if rc.stdout is not None:
