@@ -599,9 +599,9 @@ class RuleBlockXML(XMLObj):
             if isinstance(side, list):
                 # this is a list of reactant patterns
                 for ireact, react in enumerate(side):
-                    sl.append(PatternXML(react))
+                    sl.append(PatternXML(react).parsed_obj)
             else:
-                sl.append(PatternXML(side))
+                sl.append(PatternXML(side).parsed_obj)
             return sl
         elif "ProductPattern" in xml:
             # rhs/product side
@@ -614,9 +614,9 @@ class RuleBlockXML(XMLObj):
             if isinstance(side, list):
                 # this is a list of product patterns
                 for iprod, prod in enumerate(side):
-                    sl.append(PatternXML(prod))
+                    sl.append(PatternXML(prod).parsed_obj)
             else:
-                sl.append(PatternXML(side))
+                sl.append(PatternXML(side).parsed_obj)
             return sl
         else:
             print("Can't parse rule XML {}".format(xml))
