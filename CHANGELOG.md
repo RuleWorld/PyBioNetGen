@@ -97,3 +97,6 @@ Updated BNGResult object to be user friendly, updated OrderedDict import to try 
 ## 0.3.3
 `run` command can now run bngmodel objects directly, creates a temporary file to do so. Changing 
 a parameter value now correctly changes what's being written (expression vs value). 
+
+## 0.3.4
+Small bugfix where XML parsing wasn't returning the parsed objects for pattern objects
