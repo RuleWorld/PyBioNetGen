@@ -105,7 +105,8 @@ class bngmodel:
             # previously inactive block, if we did
             # add them to the active blocks
             if len(getattr(self, block)) > 0:
-                self.active_blocks.append(block)
+                if block.name not in self.active_blocks:
+                    self.active_blocks.append(block)
             # if we removed items from a block and
             # it's now empty, we want to remove it
             # from the active blocks
@@ -149,7 +150,8 @@ class bngmodel:
         if block is not None:
             assert isinstance(block, ParameterBlock)
             self.parameters = block
-            self.active_blocks.append("parameters")
+            if "parameters" not in self.active_blocks:
+                self.active_blocks.append("parameters")
         else:
             self.parameters = ParameterBlock()
 
@@ -157,7 +159,8 @@ class bngmodel:
         if block is not None:
             assert isinstance(block, CompartmentBlock)
             self.compartments = block
-            self.active_blocks.append("compartments")
+            if "compartments" not in self.active_blocks:
+                self.active_blocks.append("compartments")
         else:
             self.compartments = CompartmentBlock()
 
@@ -165,7 +168,8 @@ class bngmodel:
         if block is not None:
             assert isinstance(block, MoleculeTypeBlock)
             self.molecule_types = block
-            self.active_blocks.append("molecule_types")
+            if "molecule_types" not in self.active_blocks:
+                self.active_blocks.append("molecule_types")
         else:
             self.molecule_types = MoleculeTypeBlock()
 
@@ -173,7 +177,8 @@ class bngmodel:
         if block is not None:
             assert isinstance(block, SpeciesBlock)
             self.species = block
-            self.active_blocks.append("species")
+            if "species" not in self.active_blocks:
+                self.active_blocks.append("species")
         else:
             self.species = SpeciesBlock()
 
@@ -181,7 +186,8 @@ class bngmodel:
         if block is not None:
             assert isinstance(block, ObservableBlock)
             self.observables = block
-            self.active_blocks.append("observables")
+            if "observables" not in self.active_blocks:
+                self.active_blocks.append("observables")
         else:
             self.observables = ObservableBlock()
 
@@ -189,7 +195,8 @@ class bngmodel:
         if block is not None:
             assert isinstance(block, FunctionBlock)
             self.functions = block
-            self.active_blocks.append("functions")
+            if "functions" not in self.active_blocks:
+                self.active_blocks.append("functions")
         else:
             self.functions = FunctionBlock()
 
@@ -197,7 +204,8 @@ class bngmodel:
         if block is not None:
             assert isinstance(block, RuleBlock)
             self.rules = block
-            self.active_blocks.append("rules")
+            if "rules" not in self.active_blocks:
+                self.active_blocks.append("rules")
         else:
             self.rules = RuleBlock()
 
@@ -205,7 +213,8 @@ class bngmodel:
         if block is not None:
             assert isinstance(block, ActionBlock)
             self.actions = block
-            self.active_blocks.append("actions")
+            if "actions" not in self.active_blocks:
+                self.active_blocks.append("actions")
         else:
             self.actions = ActionBlock()
 
@@ -217,7 +226,8 @@ class bngmodel:
         # add actions block and to active list
         if not hasattr(self, "actions"):
             self.actions = ActionBlock()
-            self.active_blocks.append("actions")
+            if "actions" not in self.active_blocks:
+                self.active_blocks.append("actions")
         self.actions.add_action(action_type, action_args)
 
     def write_model(self, file_name):
