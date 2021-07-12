@@ -54,7 +54,7 @@ class BNGPlotter:
 
     def _datplot(self):
         # get the data out of result object
-        self.data = self.result.results[self.result.file_name]
+        self.data = self.result[self.result.file_name]
         # get species names
         names = self.data.dtype.names
         x_name = names[0]
