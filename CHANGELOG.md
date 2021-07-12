@@ -104,3 +104,6 @@ Small bugfix where XML parsing wasn't returning the parsed objects for pattern o
 ## 0.3.5
 Small bugfix where BNGResult object was incorrectly referring to "results" attribute. Updated 
 required pandas version in requirements.txt to avoid incompatibility issues between numpy>=1.20 and older pandas versions.
+
+## 0.3.6
+Small bugfix to ensure the model file is opened with UTF-8 encoding which caused some issues on (some) windows machines. s
