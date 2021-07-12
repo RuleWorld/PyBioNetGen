@@ -132,7 +132,7 @@ class BNGFile:
         # Get model name and setup path stuff
         path, model_file = os.path.split(model_path)
         # open model and strip actions
-        with open(model_path, "r") as mf:
+        with open(model_path, "r", encoding="UTF-8") as mf:
             # read and strip actions
             mlines = mf.readlines()
             stripped_lines = filter(lambda x: self._not_action(x), mlines)
