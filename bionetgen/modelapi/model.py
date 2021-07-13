@@ -105,7 +105,7 @@ class bngmodel:
             # previously inactive block, if we did
             # add them to the active blocks
             if len(getattr(self, block)) > 0:
-                if block.name not in self.active_blocks:
+                if getattr(self, block).name not in self.active_blocks:
                     self.active_blocks.append(block)
             # if we removed items from a block and
             # it's now empty, we want to remove it
