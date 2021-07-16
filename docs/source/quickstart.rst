@@ -9,7 +9,7 @@ Installation
 
 You will need both Python (3.7 and above) and Perl installed.
 The required versions of Python can be retrieved from _________.
-For Windows users, Perl can be installed from <http://strawberryperl.com/>. ## necessary for Mac users too?
+For Windows users, Perl can be installed from <http://strawberryperl.com/>.
 
 Once both are available, you can use the following :code:`pip` command to install PyBioNetGen:
 
