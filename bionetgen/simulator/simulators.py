@@ -26,12 +26,12 @@ def sim_getter(model_file=None, model_str=None, sim_type="libRR"):
     """
     if model_file is not None:
         if sim_type == "libRR":
-            return libRRSimulator(model_file=model_file)
+            return libRRSimulator(model_file=model_file).simulator
         else:
             print("simulator type {} not supported".format(sim_type))
     elif model_str is not None:
         if sim_type == "libRR":
-            return libRRSimulator(model_str=model_str)
+            return libRRSimulator(model_str=model_str).simulator
         else:
             print("simulator type {} not supported".format(sim_type))
 
@@ -116,7 +116,7 @@ class libRRSimulator(BNGSimulator):
     Attributes
     ----------
     sbml: str
-        the SBML used by the underlying libRoarRunner simulator
+        the SBML used by the underlying libRoadRunner simulator
 
     Properties
     ----------

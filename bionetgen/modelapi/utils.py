@@ -56,6 +56,7 @@ def test_bngexec(bngexec):
     """
     # rc = subprocess.run(["perl", bngexec], stdout=bng.defaults.stdout)
     # rc = subprocess.run(["perl", bngexec], capture_output=True, bufsize=1)
+    # TODO: return better error messaging if Perl is missing
     command = ["perl", bngexec]
     rc = run_command(command, suppress=True)
     if rc == 0:
