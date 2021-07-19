@@ -16,30 +16,26 @@ def test_bionetgen_help():
 
 def test_bionetgen_input():
     # test basic command help
-    os.chdir(tfold)
-    argv = ['run','-i', 'test.bngl', '-o', "test"]
+    argv = ['run','-i', 'test.bngl', '-o', os.path.join(tfold, 'test')]
     to_match = ['test.xml', 'test.cdat', 'test.gdat', 'test.net']
     with BioNetGenTest(argv=argv) as app:
         app.run()
         assert app.exit_code == 0
-        file_list = os.listdir("test")
+        file_list = os.listdir(os.path.join(tfold, 'test'))
         assert file_list.sort() == to_match.sort()
-    shutil.rmtree("test")
     
-
 def test_bionetgen_model():
-    os.chdir(tfold)
-    fpath = os.path.abspath("test.bngl")
+    fpath = os.path.join(tfold, 'test.bngl')
+    fpath = os.path.abspath(fpath)
     m = bng.bngmodel(fpath)
 
 def test_bionetgen_all_model_loading():
-    os.chdir(os.path.join(tfold, "models"))
-    models = glob.glob("*.bngl")
+    mpattern = os.path.join(tfold, "models") + os.path.pathsep + "*.bngl"
+    models = glob.glob(mpattern)
     succ = []
     fail = []
     success = 0
     fails = 0 
-    models = glob.glob("*.bngl")
     for model in models:
         try:
             m = bng.bngmodel(model)
