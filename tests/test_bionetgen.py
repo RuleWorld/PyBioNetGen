@@ -1,4 +1,5 @@
 import os, glob
+import shutil
 from pytest import raises
 import bionetgen as bng
 from bionetgen.main import BioNetGenTest
@@ -13,22 +14,25 @@ def test_bionetgen_help():
             app.run()
             assert app.exit_code == 0
 
-def test_bionetgen_input(tmp):
+def test_bionetgen_input():
     # test basic command help
-    argv = ['run','-i', 'test.bngl', '-o', tmp.dir]
+    os.chdir(tfold)
+    argv = ['run','-i', 'test.bngl', '-o', "test"]
     to_match = ['test.xml', 'test.cdat', 'test.gdat', 'test.net']
     with BioNetGenTest(argv=argv) as app:
         app.run()
         assert app.exit_code == 0
-        file_list = os.listdir(tmp.dir)
+        file_list = os.listdir("test")
         assert file_list.sort() == to_match.sort()
+    shutil.rmtree("test")
+    
 
-def test_bionetgen_model(tmp):
+def test_bionetgen_model():
     os.chdir(tfold)
     fpath = os.path.abspath("test.bngl")
     m = bng.bngmodel(fpath)
 
-def test_bionetgen_all_model_loading(tmp):
+def test_bionetgen_all_model_loading():
     os.chdir(os.path.join(tfold, "models"))
     models = glob.glob("*.bngl")
     succ = []
