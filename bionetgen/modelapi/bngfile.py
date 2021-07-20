@@ -78,6 +78,7 @@ class BNGFile:
         BNGPATH, bngexec = find_BNG_path(BNGPATH)
         self.BNGPATH = BNGPATH
         self.bngexec = bngexec
+        self.parsed_actions = []
 
     def generate_xml(self, xml_file, model_file=None) -> bool:
         """ """
@@ -136,6 +137,9 @@ class BNGFile:
             # read and strip actions
             mlines = mf.readlines()
             stripped_lines = filter(lambda x: self._not_action(x), mlines)
+            self.parsed_actions = list(
+                filter(lambda x: not self._not_action(x), mlines)
+            )
         # TODO: read stripped lines and store the actions
         # open new file and write just the model
         stripped_model = os.path.join(folder, model_file)
