@@ -1,16 +1,16 @@
-import time,json,urllib
+import time, json, urllib
 import urllib.request
 
 # GH API has rate exceeded issues if more than 60
-# within an hour. To avoid this entirely, we'll 
-# download and save the JSON and have setup.py 
+# within an hour. To avoid this entirely, we'll
+# download and save the JSON and have setup.py
 # work on that instead
 
 # let's pull URLs for each distribution
 # in the latest distribution
 rls_url = "https://api.github.com/repos/RuleWorld/bionetgen/releases/latest"
-# sometimes we exceed the rate, we want to 
-# ensure this doesn't happen, but we also 
+# sometimes we exceed the rate, we want to
+# ensure this doesn't happen, but we also
 # _must_ get the response. We'll slap it into
 # a loop and break if need be
 ctr = 0
