@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 from bionetgen.core.version import get_version
+import sys
 import itertools as itt
 
 VERSION = get_version()
@@ -12,9 +13,20 @@ import urllib.request
 # in the latest distribution
 rls_url = "https://api.github.com/repos/RuleWorld/bionetgen/releases/latest"
 # sometimes we exceed the rate, we want to 
-# ensure this doesn't happen, ever
-time.sleep(5)
-rls_resp = urllib.request.urlopen(rls_url)
+# ensure this doesn't happen, but we also 
+# _must_ get the response. We'll slap it into
+# a loop and break if need be
+ctr = 0
+while ctr < 100:
+    ctr += 1
+    try:
+        rls_resp = urllib.request.urlopen(rls_url)
+    except:
+        time.sleep(5)
+if ctr >= 100:
+    print("Connection to GitHub couldn't be established, quitting")
+    sys.exit(1)
+  
 rls_json_txt = rls_resp.read()
 rls_json = json.loads(rls_json_txt)
 # write BNG version tag to use later in banner
