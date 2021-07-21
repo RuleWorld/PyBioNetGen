@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 import sys, os, json, urllib, subprocess
+
 subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
 import urllib.request
 import itertools as itt
