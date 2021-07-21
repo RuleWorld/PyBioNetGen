@@ -1,4 +1,5 @@
 import bionetgen as bng
+import copy
 
 from bionetgen.main import BioNetGen
 from tempfile import TemporaryFile
@@ -248,6 +249,8 @@ class bngmodel:
         """
         if sim_type == "libRR":
             # we need to add writeSBML action for now
+            curr_actions = copy.deepcopy(self.actions)
+            self.actions.clear_actions()
             self.add_action("generate_network", [("overwrite", 1)])
             self.add_action("writeSBML", [])
             # temporary file
@@ -263,6 +266,10 @@ class bngmodel:
                 self.simulator = bng.sim_getter(
                     model_str=tpath.read(), sim_type=sim_type
                 )
+                # let's deal with observables here
+                selections = ["time"] + [obs for obs in self.observables]
+                self.simulator.simulator.timeCourseSelections = selections
+            self.actions = curr_actions
         else:
             print(
                 'Sim type {} is not recognized, only libroadrunner \

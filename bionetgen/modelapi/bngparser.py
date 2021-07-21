@@ -81,7 +81,10 @@ class BNGParser:
             ablock = ActionBlock()
             # we have actions in file, let's get them
             for action in self.bngfile.parsed_actions:
+                action = re.sub("\#.*", "", action)
                 action = re.sub("\s", "", action)
+                if len(action) == 0:
+                    continue
                 m = re.match(r"^\s*(\S+)\(\s*(\S*)\s*\)(\;)?\s*(\#\s*\S*)?\s*", action)
                 if m is not None:
                     # here we have an action
