@@ -107,3 +107,6 @@ required pandas version in requirements.txt to avoid incompatibility issues betw
 
 ## 0.3.6
 Small bugfix to ensure the model file is opened with UTF-8 encoding which caused some issues on (some) windows machines. s
+
+## 0.3.7
+Removing numpy dependency from setup.py, action reading off of BNGL file. 

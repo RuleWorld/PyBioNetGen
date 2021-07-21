@@ -3,9 +3,10 @@ import sys, os, json, urllib, subprocess
 subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
 import urllib.request
 import itertools as itt
-from bionetgen.core.version import get_version
 
-VERSION = get_version()
+with open("VERSION", "r") as f:
+    vfile = f.read()
+VERSION = ".".join(vfile.split()[:3])
 
 #### BNG DOWNLOAD START ####
 # Handle BNG download and inclusion
