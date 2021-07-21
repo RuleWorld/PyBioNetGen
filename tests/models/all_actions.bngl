@@ -1,0 +1,43 @@
+begin parameters
+	k		1
+end parameters
+begin molecule types
+	A()
+end molecule types
+begin seed species
+	A()	100
+end seed species
+begin reaction rules
+	A() -> 0		k
+end reaction rules
+
+# with {}
+generate_network({overwrite=>1})
+generate_hybrid_model({overwrite=>0})
+simulate({method=>"ode",t_end=>1,n_steps=>10})
+parameter_scan({method=>"ode",t_start=>0,t_end=>10,n_steps=>10,parameter=>"k",par_min=>0.1,par_max=>1,n_scan_pts=>10,log_scale=>0})
+bifurcate({t_start=>0,t_end=>10,n_steps=>10,parameter=>"k",par_min=>0.1,par_max=>1,n_scan_pts=>10,log_scale=>0})
+readFile({file=>"test.bngl",atomize=>0})
+writeFile({format=>"bngl",overwrite=>0})
+visualize({type=>"contactmap"})
+# 
+writeModel()
+writeNetwork()
+writeXML()
+writeSBML()
+writeMfile()
+writeMexfile()
+writeMDL() # test
+# without {}
+setConcentration("test",10)
+addConcentration("test", 10) # action loader will remove whitespace so this will work
+saveConcentrations("test")
+resetConcentrations()
+setParameter("test",10)
+saveParameters("test")
+resetParameters("test")
+quit()
+setModelName("test")
+substanceUnits("test")
+version()
+setOption("test",10)

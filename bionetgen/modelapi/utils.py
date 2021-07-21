@@ -2,6 +2,47 @@ import os, subprocess
 import bionetgen as bng
 from distutils import spawn
 
+class ActionList:
+    def __init__(self):
+        self.normal_types = [
+            "generate_network",
+            "generate_hybrid_model",
+            "simulate",
+            "simulate_ode",
+            "simulate_ssa",
+            "simulate_pla",
+            "simulate_nf",
+            "parameter_scan",
+            "bifurcate",
+            "readFile",
+            "writeFile",
+            "writeModel",
+            "writeNetwork",
+            "writeXML",
+            "writeSBML",
+            "writeMfile",
+            "writeMexfile",
+            "writeMDL",
+            "visualize",  
+        ]
+        self.no_setter_syntax = [
+            "setConcentration",
+            "addConcentration",
+            "setParameter",
+            "saveParameters",
+            "quit",
+            "setModelName",
+            "substanceUnits",
+            "version",
+            "setOption",
+        ]
+        self.square_braces = [
+            "saveConcentrations",
+            "resetConcentrations",
+            "resetParameters",
+        ]
+        self.possible_types = self.normal_types + self.no_setter_syntax + self.square_braces
+
 
 def find_BNG_path(BNGPATH=None):
     """

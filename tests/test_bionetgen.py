@@ -51,3 +51,8 @@ def test_bionetgen_all_model_loading():
     print("fail: {}".format(fails))
     print(sorted(fail))
     assert fails == 0
+
+def test_action_loading():
+    all_action_model = os.path.join(*[tfold,"models","all_actions.bngl"])
+    m = bng.bngmodel(all_action_model)
+    assert len(m.actions) == 27
