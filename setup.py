@@ -5,7 +5,7 @@ subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
 import urllib.request
 import itertools as itt
 
-with open("VERSION", "r") as f:
+with open(os.path.join(*["bionetgen","assets","VERSION"]), "r") as f:
     vfile = f.read()
 VERSION = ".".join(vfile.split()[:3])
 

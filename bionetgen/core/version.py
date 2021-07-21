@@ -2,11 +2,9 @@ import os
 from cement.utils.version import get_version as cement_get_version
 
 # Find VERSION file
-vpath = os.path.abspath(__file__)
-vpath = os.path.dirname(vpath)
-vpath = vpath.split(os.path.sep)
-vpath = os.path.sep.join(vpath[:-2])
-vpath = os.path.join(vpath, "VERSION")
+vpath = os.path.dirname(os.path.abspath(__file__))
+vpath = os.path.split(vpath)[0]
+vpath = os.path.join(*[vpath, "assets", "VERSION"])
 with open(vpath, "r") as f:
     v = f.read()
 vtuple = [0, 0, 0, 0, 0]
