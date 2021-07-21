@@ -89,7 +89,7 @@ class BNGParser:
                     in_parans = m.group(2)
                     if len(in_parans) > 0:
                         # in paranthesis group can have curly or square braces
-                        m = re.match(r"\{(\S*)\}",in_parans)
+                        m = re.match(r"\{(\S*)\}", in_parans)
                         arg_tuples = []
                         if m is not None:
                             # this is a normal action
@@ -101,20 +101,20 @@ class BNGParser:
                                     # add to arg_tuples
                                     arg = m.group(1)
                                     val = m.group(2)
-                                    arg_tuples.append((arg,val))
+                                    arg_tuples.append((arg, val))
                         else:
                             m = re.match(r"\[(\S*)\]", in_parans)
                             if m is not None:
                                 # this is a list of items
                                 arg_list_str = m.group(1)
                             else:
-                                # what we have in parantheses has to 
+                                # what we have in parantheses has to
                                 # be a simple list of arguments
                                 arg_list_str = in_parans
                             arg_list = arg_list_str.split(",")
                             for arg_str in arg_list:
                                 # add to arg_tuples
-                                arg_tuples.append((arg_str,None))
+                                arg_tuples.append((arg_str, None))
                         ablock.add_action(atype, arg_tuples)
                     else:
                         ablock.add_action(atype, [])

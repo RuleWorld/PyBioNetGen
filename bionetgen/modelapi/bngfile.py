@@ -43,7 +43,7 @@ class BNGFile:
     def __init__(self, path, BNGPATH=def_bng_path) -> None:
         self.path = path
         AList = ActionList()
-        self._action_list = [i+"(" for i in AList.possible_types]
+        self._action_list = [i + "(" for i in AList.possible_types]
         BNGPATH, bngexec = find_BNG_path(BNGPATH)
         self.BNGPATH = BNGPATH
         self.bngexec = bngexec

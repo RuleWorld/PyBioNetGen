@@ -334,7 +334,7 @@ class Action(ModelObj):
         # TODO: figure out every argument that has special
         # requirements, e.g. method requires the value to
         # be a string
-        action_str = "{}(".format(self.type) 
+        action_str = "{}(".format(self.type)
         # we can skip curly if we don't have arguments
         # and we NEED to skip it for some actions
         if self.type in self.normal_types and not len(self.args) == 0:
@@ -349,9 +349,9 @@ class Action(ModelObj):
                 action_str += ","
             # some actions need =>, some don't
             if self.type in self.normal_types:
-                action_str += f'{arg}=>{val}'
+                action_str += f"{arg}=>{val}"
             else:
-                action_str += f'{arg}'
+                action_str += f"{arg}"
         # we can skip curly if we don't have arguments
         # and we NEED to skip it for some actions
         if self.type in self.normal_types and not len(self.args) == 0:

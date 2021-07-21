@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 from bionetgen.core.version import get_version
-import sys, os, json, urllib
+import sys, os, json, urllib, subprocess
 import urllib.request
 import itertools as itt
-sys.subprocess.check_call([sys.executable, '-m', 'pip', 'install' 'numpy'])
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'numpy'])
 
 VERSION = get_version()
 

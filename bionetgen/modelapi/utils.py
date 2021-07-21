@@ -2,6 +2,7 @@ import os, subprocess
 import bionetgen as bng
 from distutils import spawn
 
+
 class ActionList:
     def __init__(self):
         self.normal_types = [
@@ -23,7 +24,7 @@ class ActionList:
             "writeMfile",
             "writeMexfile",
             "writeMDL",
-            "visualize",  
+            "visualize",
         ]
         self.no_setter_syntax = [
             "setConcentration",
@@ -41,7 +42,9 @@ class ActionList:
             "resetConcentrations",
             "resetParameters",
         ]
-        self.possible_types = self.normal_types + self.no_setter_syntax + self.square_braces
+        self.possible_types = (
+            self.normal_types + self.no_setter_syntax + self.square_braces
+        )
 
 
 def find_BNG_path(BNGPATH=None):
