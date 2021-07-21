@@ -50,7 +50,7 @@ class BNGFile:
         self.parsed_actions = []
 
     def generate_xml(self, xml_file, model_file=None) -> bool:
-        """ 
+        """
         generates an BNG-XML file from a given model file. Defaults
         to self.path if model_file is not given
         """
