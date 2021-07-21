@@ -39,6 +39,7 @@ def test_bionetgen_all_model_loading():
     for model in models:
         try:
             m = bng.bngmodel(model)
+            mstr = str(m)
             success += 1
             succ.append(model)
         except:

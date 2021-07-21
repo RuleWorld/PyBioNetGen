@@ -315,6 +315,7 @@ class Action(ModelObj):
 
     def __init__(self, action_type=None, action_args=[]) -> None:
         super().__init__()
+        self.name = action_type
         self.type = action_type
         self.args = action_args
 

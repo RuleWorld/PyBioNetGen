@@ -1,4 +1,4 @@
-import xmltodict
+import xmltodict, re
 
 from bionetgen.main import BioNetGen
 from tempfile import TemporaryFile
@@ -7,6 +7,7 @@ from .bngfile import BNGFile
 from .xmlparsers import ParameterBlockXML, CompartmentBlockXML, ObservableBlockXML
 from .xmlparsers import SpeciesBlockXML, MoleculeTypeBlockXML, FunctionBlockXML
 from .xmlparsers import RuleBlockXML
+from .blocks import ActionBlock
 
 # This allows access to the CLIs config setup
 app = BioNetGen()
@@ -36,7 +37,8 @@ class BNGParser:
         parses given xml string and adds everything to a given model object
     """
 
-    def __init__(self, path, BNGPATH=def_bng_path) -> None:
+    def __init__(self, path, BNGPATH=def_bng_path, parse_actions=True) -> None:
+        self.to_parse_actions = parse_actions
         self.bngfile = BNGFile(path)
 
     def parse_model(self, model_obj) -> None:
@@ -45,6 +47,8 @@ class BNGParser:
         parser
         """
         self._parse_model_bngpl(model_obj)
+        if self.to_parse_actions:
+            self.parse_actions(model_obj)
 
     def _parse_model_bngpl(self, model_obj) -> None:
         # get file path
@@ -71,6 +75,35 @@ class BNGParser:
         else:
             print("The extension of {} is not supported".format(model_file))
             raise NotImplementedError
+
+    def parse_actions(self, model_obj):
+        if len(self.bngfile.parsed_actions) > 0:
+            ablock = ActionBlock()
+            # we have actions in file, let's get them
+            # import ipdb;ipdb.set_trace()
+            for action in self.bngfile.parsed_actions:
+                m = re.match(r"^\s*(\S+)\(({)?(\S*)(?=}|\))(})?\)(\;)?\s*", action)
+                print(action)
+                if m is not None:
+                    # import IPython;IPython.embed()
+                    print(m.groups())
+                    # import ipdb;ipdb.set_trace()
+                    arg_tuples = []
+                    for igrp, grp in enumerate(m.groups()):
+                        if grp is None:
+                            continue
+                        elif igrp == 0:
+                            atype = grp
+                        elif "=>" in grp:
+                            args = grp
+                            arg_list = args.split(",")
+                            for arg_el in arg_list:
+                                a, b = arg_el.split("=>")
+                                arg_tuples.append((a, b))
+                        elif grp == "{" or grp == "}":
+                            continue
+                    ablock.add_action(atype, arg_tuples)
+        model_obj.add_block(ablock)
 
     def parse_xml(self, xml_str, model_obj) -> None:
         xml_dict = xmltodict.parse(xml_str)
