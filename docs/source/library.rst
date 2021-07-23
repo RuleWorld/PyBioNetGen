@@ -46,3 +46,8 @@ of the loaded model.
    librr_simulator.simulate(0,1,10) # librr_simulator is the simulator object 
 
 This is an easy way to generate data for analyses of your model using Python.
+
+Tutorial
+========
+
+See :ref:`lib_tut` for a short tutorial using the library.

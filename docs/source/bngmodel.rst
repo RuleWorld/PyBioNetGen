@@ -90,7 +90,7 @@ The following sections will detail how each block behaves
 Parameters
 ----------
 
-Parameters are a list of names and values associated with those names. Parameters block also
+Parameters are a list of names and values associated with those names. The parameters block also
 stores the parameter expressions in case they are written as functions in the original model.
 
 .. code-block:: 
@@ -105,7 +105,7 @@ stores the parameter expressions in case they are written as functions in the or
 Compartments
 ------------
 
-Compartments are comprised of a compartment name, dimensionality, volume and an optional
+Compartments are comprised of a compartment name, dimensionality, volume, and an optional
 parent compartment name
 
 .. code-block:: 
