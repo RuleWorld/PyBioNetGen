@@ -6,7 +6,7 @@ total = len(models)
 succ = []
 fail = []
 success = 0
-fails = 0 
+fails = 0
 for model in models:
     try:
         m = bng.bngmodel(model)
@@ -21,4 +21,3 @@ print("succ: {}".format(success))
 print(sorted(succ))
 print("fail: {}".format(fails))
 print(sorted(fail))
-

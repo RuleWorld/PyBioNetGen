@@ -1,4 +1,5 @@
 from bionetgen.modelapi.pattern import Molecule, Pattern
+from bionetgen.modelapi.utils import ActionList
 
 
 class ModelObj:
@@ -315,24 +316,50 @@ class Action(ModelObj):
 
     def __init__(self, action_type=None, action_args=[]) -> None:
         super().__init__()
+        AList = ActionList()
+        self.normal_types = AList.normal_types
+        self.no_setter_syntax = AList.no_setter_syntax
+        self.square_braces = AList.square_braces
+        self.possible_types = AList.possible_types
+        # Set initial values
+        self.name = action_type
         self.type = action_type
         self.args = action_args
+        # check type
+        if self.type not in self.possible_types:
+            print("Action type not recognized!")
+            raise RuntimeError
 
     def gen_string(self) -> str:
         # TODO: figure out every argument that has special
         # requirements, e.g. method requires the value to
         # be a string
-        action_str = "{}(".format(self.type) + "{"
-        for iarg, arg in enumerate(self.args):
-            val = arg[1]
-            arg = arg[0]
+        action_str = "{}(".format(self.type)
+        # we can skip curly if we don't have arguments
+        # and we NEED to skip it for some actions
+        if self.type in self.normal_types and not len(self.args) == 0:
+            action_str += "{"
+        elif self.type in self.square_braces:
+            action_str += "["
+        # add arguments
+        for iarg, args in enumerate(self.args):
+            arg = args[0]
+            val = args[1]
             if iarg > 0:
                 action_str += ","
-            if arg == "method":
-                action_str += '{}=>"{}"'.format(arg, val)
+            # some actions need =>, some don't
+            if self.type in self.normal_types:
+                action_str += f"{arg}=>{val}"
             else:
-                action_str += "{}=>{}".format(arg, val)
-        action_str += "})"
+                action_str += f"{arg}"
+        # we can skip curly if we don't have arguments
+        # and we NEED to skip it for some actions
+        if self.type in self.normal_types and not len(self.args) == 0:
+            action_str += "}"
+        elif self.type in self.square_braces:
+            action_str += "]"
+        # close up the action
+        action_str += ")"
         return action_str
 
     def print_line(self) -> str:
