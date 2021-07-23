@@ -2,7 +2,7 @@ import bionetgen as bng
 import subprocess, os, xmltodict, sys
 
 from bionetgen.main import BioNetGen
-from .utils import find_BNG_path, run_command
+from .utils import find_BNG_path, run_command, ActionList
 from tempfile import TemporaryDirectory
 
 # This allows access to the CLIs config setup
@@ -42,46 +42,18 @@ class BNGFile:
 
     def __init__(self, path, BNGPATH=def_bng_path) -> None:
         self.path = path
-        self._action_list = [
-            "generate_network(",
-            "generate_hybrid_model(",
-            "simulate(",
-            "simulate_ode(",
-            "simulate_ssa(",
-            "simulate_pla(",
-            "simulate_nf(",
-            "parameter_scan(",
-            "bifurcate(",
-            "readFile(",
-            "writeFile(",
-            "writeModel(",
-            "writeNetwork(",
-            "writeXML(",
-            "writeSBML(",
-            "writeMfile(",
-            "writeMexfile(",
-            "writeMDL(",
-            "visualize(",
-            "setConcentration(",
-            "addConcentration(",
-            "saveConcentration(",
-            "resetConcentrations(",
-            "setParameter(",
-            "saveParameters(",
-            "resetParameters(",
-            "quit(",
-            "setModelName(",
-            "substanceUnits(",
-            "version(",
-            "setOption(",
-        ]
+        AList = ActionList()
+        self._action_list = [i + "(" for i in AList.possible_types]
         BNGPATH, bngexec = find_BNG_path(BNGPATH)
         self.BNGPATH = BNGPATH
         self.bngexec = bngexec
         self.parsed_actions = []
 
     def generate_xml(self, xml_file, model_file=None) -> bool:
-        """ """
+        """
+        generates an BNG-XML file from a given model file. Defaults
+        to self.path if model_file is not given
+        """
         if model_file is None:
             model_file = self.path
         cur_dir = os.getcwd()

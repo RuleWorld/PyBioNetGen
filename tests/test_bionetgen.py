@@ -6,28 +6,32 @@ from bionetgen.main import BioNetGenTest
 
 tfold = os.path.dirname(__file__)
 
+
 def test_bionetgen_help():
     # test basic command help
     with raises(SystemExit):
-        argv = ['--help']
+        argv = ["--help"]
         with BioNetGenTest(argv=argv) as app:
             app.run()
             assert app.exit_code == 0
 
+
 def test_bionetgen_input():
     # test basic command help
-    argv = ['run','-i', 'test.bngl', '-o', os.path.join(tfold, 'test')]
-    to_match = ['test.xml', 'test.cdat', 'test.gdat', 'test.net']
+    argv = ["run", "-i", "test.bngl", "-o", os.path.join(tfold, "test")]
+    to_match = ["test.xml", "test.cdat", "test.gdat", "test.net"]
     with BioNetGenTest(argv=argv) as app:
         app.run()
         assert app.exit_code == 0
-        file_list = os.listdir(os.path.join(tfold, 'test'))
+        file_list = os.listdir(os.path.join(tfold, "test"))
         assert file_list.sort() == to_match.sort()
-    
+
+
 def test_bionetgen_model():
-    fpath = os.path.join(tfold, 'test.bngl')
+    fpath = os.path.join(tfold, "test.bngl")
     fpath = os.path.abspath(fpath)
     m = bng.bngmodel(fpath)
+
 
 def test_bionetgen_all_model_loading():
     mpattern = os.path.join(tfold, "models") + os.path.pathsep + "*.bngl"
@@ -35,7 +39,7 @@ def test_bionetgen_all_model_loading():
     succ = []
     fail = []
     success = 0
-    fails = 0 
+    fails = 0
     for model in models:
         try:
             m = bng.bngmodel(model)
@@ -51,3 +55,9 @@ def test_bionetgen_all_model_loading():
     print("fail: {}".format(fails))
     print(sorted(fail))
     assert fails == 0
+
+
+def test_action_loading():
+    all_action_model = os.path.join(*[tfold, "models", "all_actions.bngl"])
+    m = bng.bngmodel(all_action_model)
+    assert len(m.actions) == 27

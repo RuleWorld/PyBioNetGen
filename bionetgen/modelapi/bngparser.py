@@ -80,29 +80,47 @@ class BNGParser:
         if len(self.bngfile.parsed_actions) > 0:
             ablock = ActionBlock()
             # we have actions in file, let's get them
-            # import ipdb;ipdb.set_trace()
             for action in self.bngfile.parsed_actions:
-                m = re.match(r"^\s*(\S+)\(({)?(\S*)(?=}|\))(})?\)(\;)?\s*", action)
-                print(action)
+                action = re.sub("\#.*", "", action)
+                action = re.sub("\s", "", action)
+                if len(action) == 0:
+                    continue
+                m = re.match(r"^\s*(\S+)\(\s*(\S*)\s*\)(\;)?\s*(\#\s*\S*)?\s*", action)
                 if m is not None:
-                    # import IPython;IPython.embed()
-                    print(m.groups())
-                    # import ipdb;ipdb.set_trace()
-                    arg_tuples = []
-                    for igrp, grp in enumerate(m.groups()):
-                        if grp is None:
-                            continue
-                        elif igrp == 0:
-                            atype = grp
-                        elif "=>" in grp:
-                            args = grp
-                            arg_list = args.split(",")
-                            for arg_el in arg_list:
-                                a, b = arg_el.split("=>")
-                                arg_tuples.append((a, b))
-                        elif grp == "{" or grp == "}":
-                            continue
-                    ablock.add_action(atype, arg_tuples)
+                    # here we have an action
+                    atype = m.group(1)
+                    in_parans = m.group(2)
+                    if len(in_parans) > 0:
+                        # in paranthesis group can have curly or square braces
+                        m = re.match(r"\{(\S*)\}", in_parans)
+                        arg_tuples = []
+                        if m is not None:
+                            # this is a normal action
+                            arg_list_str = m.group(1)
+                            arg_list = arg_list_str.split(",")
+                            for arg_str in arg_list:
+                                m = re.match(r"(\S*)\=\>(\S*)", arg_str)
+                                if m is not None:
+                                    # add to arg_tuples
+                                    arg = m.group(1)
+                                    val = m.group(2)
+                                    arg_tuples.append((arg, val))
+                        else:
+                            m = re.match(r"\[(\S*)\]", in_parans)
+                            if m is not None:
+                                # this is a list of items
+                                arg_list_str = m.group(1)
+                            else:
+                                # what we have in parantheses has to
+                                # be a simple list of arguments
+                                arg_list_str = in_parans
+                            arg_list = arg_list_str.split(",")
+                            for arg_str in arg_list:
+                                # add to arg_tuples
+                                arg_tuples.append((arg_str, None))
+                        ablock.add_action(atype, arg_tuples)
+                    else:
+                        ablock.add_action(atype, [])
         model_obj.add_block(ablock)
 
     def parse_xml(self, xml_str, model_obj) -> None:

@@ -1,6 +1,7 @@
 from .structs import Parameter, Compartment, Observable
 from .structs import MoleculeType, Species, Function
 from .structs import Rule, Action
+from .utils import ActionList
 
 # this import fails on some python versions
 try:
@@ -540,39 +541,8 @@ class ActionBlock(ModelBlock):
     def __init__(self) -> None:
         super().__init__()
         self.name = "actions"
-        self._action_list = [
-            "generate_network",
-            "generate_hybrid_model",
-            "simulate",
-            "simulate_ode",
-            "simulate_ssa",
-            "simulate_pla",
-            "simulate_nf",
-            "parameter_scan",
-            "bifurcate",
-            "readFile",
-            "writeFile",
-            "writeModel",
-            "writeNetwork",
-            "writeXML",
-            "writeSBML",
-            "writeMfile",
-            "writeMexfile",
-            "writeMDL",
-            "visualize",
-            "setConcentration",
-            "addConcentration",
-            "saveConcentration",
-            "resetConcentrations",
-            "setParameter",
-            "saveParameters",
-            "resetParameters",
-            "quit",
-            "setModelName",
-            "substanceUnits",
-            "version",
-            "setOption",
-        ]
+        AList = ActionList()
+        self._action_list = AList.possible_types
 
     def __setattr__(self, name, value) -> None:
         self.__dict__[name] = value
