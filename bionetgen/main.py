@@ -1,5 +1,6 @@
 from bionetgen.modelapi.utils import run_command
-import cement, os, platform, subprocess
+import cement
+import subprocess
 import bionetgen as bng
 from cement.core.exc import CaughtSignal
 from .core.exc import BioNetGenError
@@ -145,8 +146,6 @@ class BNGBase(cement.Controller):
         stdout = getattr(subprocess, CONFIG["bionetgen"]["stdout"])
         stderr = getattr(subprocess, CONFIG["bionetgen"]["stderr"])
         if args.open:
-            # rc = subprocess.run(["nbopen", fname], stdout=stdout, stderr=stderr)
-            # rc = subprocess.run(["nbopen", fname], capture_output=True, bufsize=1)
             command = ["nbopen", fname]
             rc = run_command(command)
 
@@ -207,10 +206,12 @@ class BNGBase(cement.Controller):
                     "default": False,
                 },
             ),
-            (["--xlabel"], {"help": "x-axis label (default: time)", "default": False}),
+            (["--xlabel"],
+             {"help": "x-axis label (default: time)", "default": False}),
             (
                 ["--ylabel"],
-                {"help": "y-axis label (default: concentration)", "default": False},
+                {"help": "y-axis label (default: concentration)",
+                 "default": False},
             ),
             (
                 ["--title"],

@@ -1,4 +1,5 @@
-import os, subprocess
+import os
+import subprocess
 import bionetgen as bng
 from distutils import spawn
 
@@ -98,8 +99,6 @@ def test_bngexec(bngexec):
     bngexec : str
         path to BNG2.pl to test
     """
-    # rc = subprocess.run(["perl", bngexec], stdout=bng.defaults.stdout)
-    # rc = subprocess.run(["perl", bngexec], capture_output=True, bufsize=1)
     command = ["perl", bngexec]
     rc = run_command(command, suppress=True)
     if rc == 0:
@@ -110,12 +109,12 @@ def test_bngexec(bngexec):
 
 def run_command(command, suppress=False):
     if suppress:
-        rc = subprocess.run(
-            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
-        return rc.returncode
+        process = subprocess.Popen(
+            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1)
+        return process.poll()
     else:
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, encoding="utf8")
         while True:
             output = process.stdout.readline()
             if output == "" and process.poll() is not None:

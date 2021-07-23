@@ -1,7 +1,5 @@
 import os
 import numpy as np
-import seaborn as sbrn
-import matplotlib.pyplot as plt
 from bionetgen.core import BNGResult
 
 
@@ -53,6 +51,8 @@ class BNGPlotter:
             raise NotImplementedError
 
     def _datplot(self):
+        import seaborn as sbrn
+        import matplotlib.pyplot as plt
         # get the data out of result object
         self.data = self.result[self.result.file_name]
         # get species names
