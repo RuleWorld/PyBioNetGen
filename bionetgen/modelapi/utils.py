@@ -110,11 +110,11 @@ def test_bngexec(bngexec):
 def run_command(command, suppress=False):
     if suppress:
         process = subprocess.Popen(
-            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1)
+            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1
+        )
         return process.poll()
     else:
-        process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, encoding="utf8")
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
         while True:
             output = process.stdout.readline()
             if output == "" and process.poll() is not None:

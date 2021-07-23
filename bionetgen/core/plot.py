@@ -53,6 +53,7 @@ class BNGPlotter:
     def _datplot(self):
         import seaborn as sbrn
         import matplotlib.pyplot as plt
+
         # get the data out of result object
         self.data = self.result[self.result.file_name]
         # get species names

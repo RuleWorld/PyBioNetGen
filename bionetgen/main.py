@@ -206,12 +206,10 @@ class BNGBase(cement.Controller):
                     "default": False,
                 },
             ),
-            (["--xlabel"],
-             {"help": "x-axis label (default: time)", "default": False}),
+            (["--xlabel"], {"help": "x-axis label (default: time)", "default": False}),
             (
                 ["--ylabel"],
-                {"help": "y-axis label (default: concentration)",
-                 "default": False},
+                {"help": "y-axis label (default: concentration)", "default": False},
             ),
             (
                 ["--title"],
