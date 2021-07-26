@@ -9,7 +9,10 @@ PyBioNetGen - A lightweight BioNetGen CLI
 
 PyBioNetGen is a lightweight command line interface (CLI) for `BioNetGen <https://bionetgen.org>`_.
 PyBioNetGen comes with a command line entry point as well as a library with useful functions. 
-Please see :ref:`Quickstart` to learn how to install and use PyBioNetGen. 
+Please see :ref:`Quickstart` to learn how to install and use PyBioNetGen.
+
+For best user experience, please use PyBioNetGen and the
+`BioNetGen VSCode extension <https://bng-vscode-extension.readthedocs.io/en/latest/index.html>`_ together.
 
 .. toctree::
    :maxdepth: 2
@@ -18,7 +21,6 @@ Please see :ref:`Quickstart` to learn how to install and use PyBioNetGen.
    quickstart
    cli
    library
-   bngmodel
 
 
 Indices and tables

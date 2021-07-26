@@ -62,8 +62,3 @@ and the resulting notebook will be ready to load in your model using PyBioNetGen
 .. code-block:: shell
    
    bionetgen notebook -i mymodel.bngl -o mynotebook.ipynb
-
-Tutorial
-========
-
-See :ref:`cli_tut` for a short tutorial using the command line interface.

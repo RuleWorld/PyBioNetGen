@@ -7,7 +7,7 @@ Quickstart
 Installation
 ============
 
-You will need both `Python <https://www.python.org/>` (3.7 and above) and `Perl <http://strawberryperl.com/>` (for Windows users) installed.
+You will need both `Python <https://www.python.org/>`_ (3.7 and above) and `Perl <http://strawberryperl.com/>`_ (for Windows users) installed.
 
 Once both are available, you can use the following :code:`pip` command to install PyBioNetGen:
 
