@@ -92,16 +92,16 @@ html_theme = "sphinx_rtd_theme"
 # documentation.
 #
 # html_theme_options = {}
-html_theme_options = {
-    "external_links": [
-        {"name": "BioNetGen", "url": "https://bionetgen.org/"},
-        {
-            "name": "BioNetGen VSCode Extension",
-            "url": "https://github.com/RuleWorld/BNG_vscode_extension",
-        },
-        {"name": "PyBioNetGen", "url": "https://github.com/RuleWorld/PyBioNetGen"},
-    ]
-}
+#html_theme_options = {
+#    "external_links": [
+#        {"name": "BioNetGen", "url": "https://bionetgen.org/"},
+#        {
+#            "name": "BioNetGen VSCode Extension",
+#            "url": "https://github.com/RuleWorld/BNG_vscode_extension",
+#        },
+#        {"name": "PyBioNetGen", "url": "https://github.com/RuleWorld/PyBioNetGen"},
+#    ]
+#}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
