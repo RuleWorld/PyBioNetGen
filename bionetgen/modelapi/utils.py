@@ -1,4 +1,5 @@
-import os, subprocess
+import os
+import subprocess
 import bionetgen as bng
 from distutils import spawn
 
@@ -111,10 +112,10 @@ def test_bngexec(bngexec):
 
 def run_command(command, suppress=False):
     if suppress:
-        rc = subprocess.run(
-            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        process = subprocess.Popen(
+            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1
         )
-        return rc.returncode
+        return process.poll()
     else:
         process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
         while True:
