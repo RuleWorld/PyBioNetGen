@@ -110,3 +110,6 @@ Small bugfix to ensure the model file is opened with UTF-8 encoding which caused
 
 ## 0.3.7
 Removing numpy dependency from setup.py, action reading off of BNGL file. 
+
+## 0.3.8
+Moving imports around, removing unnecessary ones to speed up CLI performance. 

@@ -2,7 +2,6 @@ import platform, os, subprocess
 from cement import init_defaults
 from cement.utils.version import get_version_banner
 from .version import get_version
-import urllib.request, json
 
 
 def get_latest_bng_version():
