@@ -50,7 +50,7 @@ class ModelObj:
         return self._comment
 
     @comment.setter
-    def comment(self, val) -> str:
+    def comment(self, val) -> None:
         # TODO: regex handling of # instead
         if val.startswith("#"):
             self._comment = val[1:]
