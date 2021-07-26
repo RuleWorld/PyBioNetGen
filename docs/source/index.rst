@@ -15,7 +15,7 @@ For best user experience, please use PyBioNetGen and the
 `BioNetGen VSCode extension <https://bng-vscode-extension.readthedocs.io/en/latest/index.html>`_ together.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    quickstart

@@ -91,11 +91,15 @@ html_theme = "sphinx_rtd_theme"
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
+# html_theme_options = {}
 html_theme_options = {
     "external_links": [
-        {"name": "BioNetGen", "url":"https://bionetgen.org/"},
-        {"name": "BioNetGen VSCode Extension", "url":"https://github.com/RuleWorld/BNG_vscode_extension"},
-        {"name": "PyBioNetGen", "url":"https://github.com/RuleWorld/PyBioNetGen"}
+        {"name": "BioNetGen", "url": "https://bionetgen.org/"},
+        {
+            "name": "BioNetGen VSCode Extension",
+            "url": "https://github.com/RuleWorld/BNG_vscode_extension",
+        },
+        {"name": "PyBioNetGen", "url": "https://github.com/RuleWorld/PyBioNetGen"},
     ]
 }
 
