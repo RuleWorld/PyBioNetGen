@@ -183,6 +183,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "x-axis minimum (default: determined from data)",
                     "default": None,
+                    "type": float,
                 },
             ),
             (
@@ -190,6 +191,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "x-axis maximum (default: determined from data)",
                     "default": False,
+                    "type": float,
                 },
             ),
             (
@@ -197,6 +199,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "y-axis minimum (default: determined from data)",
                     "default": False,
+                    "type": float,
                 },
             ),
             (
@@ -204,6 +207,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "y-axis maximum (default: determined from data)",
                     "default": False,
+                    "type": float,
                 },
             ),
             (["--xlabel"], {"help": "x-axis label (default: time)", "default": False}),
