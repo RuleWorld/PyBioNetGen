@@ -34,5 +34,5 @@ BioNetGen Home & GitHub Links
 =============================
 
 * BioNetGen: https://bionetgen.org/
-* BNG VSCode Extension GitHub: https://github.com/RuleWorld/BNG_vscode_extension>
-* PyBioNetGen GitHub: https://github.com/RuleWorld/PyBioNetGen>
+* BNG VSCode Extension GitHub: https://github.com/RuleWorld/BNG_vscode_extension
+* PyBioNetGen GitHub: https://github.com/RuleWorld/PyBioNetGen
