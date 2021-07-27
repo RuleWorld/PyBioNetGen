@@ -30,10 +30,9 @@ Indices and Tables:
 * :ref:`modindex`
 * :ref:`search`
 
-.. toctree::
-   :maxdepth: 1
-   :caption: BioNetGen Home & GitHub Links:
+BioNetGen Home & GitHub Links
+=============================
 
-   `BioNetGen <https://bionetgen.org/>`_
-   `BioNetGen VSCode Extension <https://github.com/RuleWorld/BNG_vscode_extension>`_
-   `PyBioNetGen <https://github.com/RuleWorld/PyBioNetGen>`_
+`BioNetGen: <https://bionetgen.org/>`_
+`BNG VSCode Extension GitHub <https://github.com/RuleWorld/BNG_vscode_extension>`_
+`PyBioNetGen GitHub <https://github.com/RuleWorld/PyBioNetGen>`_
