@@ -1,5 +1,8 @@
 import bionetgen as bng
-import subprocess, os, xmltodict, sys
+import subprocess
+import os
+import xmltodict
+import sys
 
 from bionetgen.main import BioNetGen
 from .utils import find_BNG_path, run_command, ActionList
@@ -65,11 +68,7 @@ class BNGFile:
             os.chdir(temp_folder)
             # TODO: take stdout option from app instead
             # rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
-            rc = subprocess.run(
-                ["perl", self.bngexec, "--xml", stripped_bngl],
-                capture_output=True,
-                bufsize=0,
-            )
+            rc = run_command(["perl", self.bngexec, "--xml", stripped_bngl])
             if rc == 1:
                 # if we fail, print out what we have to
                 # let the user know what BNG2.pl says
@@ -146,12 +145,7 @@ class BNGFile:
             # run with --xml
             # TODO: Make output supression an option somewhere
             if xml_type == "bngxml":
-                # rc = subprocess.run(["perl",self.bngexec, "--xml", "temp.bngl"], stdout=bng.defaults.stdout)
-                rc = subprocess.run(
-                    ["perl", self.bngexec, "--xml", "temp.bngl"],
-                    capture_output=True,
-                    bufsize=0,
-                )
+                rc = run_command(["perl", self.bngexec, "--xml", "temp.bngl"])
                 if rc == 1:
                     print("XML generation failed")
                     # go back to our original location
@@ -167,8 +161,6 @@ class BNGFile:
                     os.chdir(cur_dir)
                     return True
             elif xml_type == "sbml":
-                # rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], stdout=bng.defaults.stdout)
-                # rc = subprocess.run(["perl",self.bngexec, "temp.bngl"], capture_output=True, bufsize=1)
                 command = ["perl", self.bngexec, "temp.bngl"]
                 rc = run_command(command)
                 if rc == 1:
@@ -186,4 +178,5 @@ class BNGFile:
                     return True
             else:
                 print("XML type {} not recognized".format(xml_type))
+                return False
             return False
