@@ -26,7 +26,7 @@ If no output folder is specified, then the temporary folder used while running t
 Plot
 ====
 
-This subcommand allows you to make a simple plot from a gdat/cdat file:
+This subcommand allows you to make a simple plot from a gdat/cdat or scan file:
 
 .. code-block:: shell
    
@@ -62,3 +62,9 @@ and the resulting notebook will be ready to load in your model using PyBioNetGen
 .. code-block:: shell
    
    bionetgen notebook -i mymodel.bngl -o mynotebook.ipynb
+
+Tutorial
+========
+
+For a tutorial showing how to use the CLI on a simple BNGL model,
+please see :ref:`cli_tut`.

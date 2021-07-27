@@ -11,7 +11,7 @@ PyBioNetGen is a lightweight command line interface (CLI) for `BioNetGen <https:
 PyBioNetGen comes with a command line entry point as well as a library with useful functions. 
 Please see :ref:`Quickstart` to learn how to install and use PyBioNetGen.
 
-For best user experience, please use PyBioNetGen and the
+For the best user experience, please use PyBioNetGen and the
 `BioNetGen VSCode extension <https://bng-vscode-extension.readthedocs.io/en/latest/index.html>`_ together.
 
 .. toctree::
@@ -23,9 +23,17 @@ For best user experience, please use PyBioNetGen and the
    library
 
 
-Indices and tables
-==================
+Indices and Tables:
+===================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. toctree::
+   :maxdepth: 1
+   :caption: BioNetGen Home & GitHub Links:
+
+   `BioNetGen <https://bionetgen.org/>`_
+   `BioNetGen VSCode Extension <https://github.com/RuleWorld/BNG_vscode_extension>`_
+   `PyBioNetGen <https://github.com/RuleWorld/PyBioNetGen>`_

@@ -33,7 +33,7 @@ This method allows you to load in a model into a python object.
 Basic Usage
 -----------
 
-his is designed to be a pythonic object representing the BNGL model given. It 
+This is designed to be a pythonic object representing the BNGL model given. It 
 currently has some limited options to modify the model. You can load the model
 object using
 
@@ -237,3 +237,8 @@ of the loaded model.
    librr_simulator.simulate(0,1,10) # librr_simulator is the simulator object 
 
 This is an easy way to generate data for analyses of your model using Python.
+
+Tutorials
+=========
+
+Tutorials for using the library can be found in the PyBioNetGen files under "docs" > "source" > "tutorials".
