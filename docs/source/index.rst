@@ -22,7 +22,6 @@ For the best user experience, please use PyBioNetGen and the
    cli
    library
 
-
 Indices and Tables:
 ===================
 
