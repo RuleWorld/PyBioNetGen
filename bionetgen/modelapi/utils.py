@@ -100,7 +100,7 @@ def test_bngexec(bngexec):
         path to BNG2.pl to test
     """
     command = ["perl", bngexec]
-    rc = run_command(command, suppress=True)
+    rc, _ = run_command(command, suppress=True)
     if rc == 0:
         return True
     else:
@@ -112,14 +112,17 @@ def run_command(command, suppress=False):
         process = subprocess.Popen(
             command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1
         )
-        return process.poll()
+        return process.poll(), None
     else:
         process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
+        out = []
         while True:
             output = process.stdout.readline()
             if output == "" and process.poll() is not None:
                 break
             if output:
-                print(output.strip())
+                o = output.strip()
+                out.append(o)
+                print(o)
         rc = process.poll()
-        return rc
+        return rc, out

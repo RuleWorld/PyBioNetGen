@@ -19,7 +19,7 @@ def test_bionetgen_input():
     # test basic command help
     os.chdir(tfold)
     argv = ["run", "-i", "test.bngl", "-o", os.path.join(tfold, "test")]
-    to_match = ["test.xml", "test.cdat", "test.gdat", "test.net"]
+    to_match = ["test.xml", "test.cdat", "test.gdat", "test.net", "test.log"]
     with BioNetGenTest(argv=argv) as app:
         app.run()
         assert app.exit_code == 0

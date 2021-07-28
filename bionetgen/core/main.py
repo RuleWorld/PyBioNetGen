@@ -143,8 +143,16 @@ class BNGCLI:
                 tfile.write(str(self.inp_file))
             command = ["perl", self.bng_exec, tfile.name]
         else:
+            fname = os.path.basename(self.inp_path)
+            fname = fname.replace(".bngl", "")
             command = ["perl", self.bng_exec, self.inp_path]
-        rc = run_command(command, suppress=self.suppress)
+        rc, out = run_command(command, suppress=self.suppress)
+        # write a log file
+        log_path, log_name = os.path.split(self.inp_file)
+        log_name = log_name.replace(".bngl", "")
+        log_name += ".log"
+        with open(os.path.join(log_path, log_name), "w") as f:
+            f.write("\n".join(out))
 
         if self.is_bngmodel:
             os.remove(tfile.name)

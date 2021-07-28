@@ -67,8 +67,7 @@ class BNGFile:
             # run with --xml
             os.chdir(temp_folder)
             # TODO: take stdout option from app instead
-            # rc = subprocess.run(["perl",self.bngexec, "--xml", stripped_bngl], stdout=bng.defaults.stdout)
-            rc = run_command(["perl", self.bngexec, "--xml", stripped_bngl])
+            rc, _ = run_command(["perl", self.bngexec, "--xml", stripped_bngl])
             if rc == 1:
                 # if we fail, print out what we have to
                 # let the user know what BNG2.pl says
@@ -145,7 +144,7 @@ class BNGFile:
             # run with --xml
             # TODO: Make output supression an option somewhere
             if xml_type == "bngxml":
-                rc = run_command(["perl", self.bngexec, "--xml", "temp.bngl"])
+                rc, _ = run_command(["perl", self.bngexec, "--xml", "temp.bngl"])
                 if rc == 1:
                     print("XML generation failed")
                     # go back to our original location
@@ -162,7 +161,7 @@ class BNGFile:
                     return True
             elif xml_type == "sbml":
                 command = ["perl", self.bngexec, "temp.bngl"]
-                rc = run_command(command)
+                rc, _ = run_command(command)
                 if rc == 1:
                     print("SBML generation failed")
                     # go back to our original location

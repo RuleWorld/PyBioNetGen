@@ -147,7 +147,7 @@ class BNGBase(cement.Controller):
         stderr = getattr(subprocess, CONFIG["bionetgen"]["stderr"])
         if args.open:
             command = ["nbopen", fname]
-            rc = run_command(command)
+            rc, _ = run_command(command)
 
     @cement.ex(
         help="Rudimentary plotting of gdat/cdat/scan files",
