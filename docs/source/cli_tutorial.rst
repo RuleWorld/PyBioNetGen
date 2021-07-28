@@ -1,4 +1,4 @@
-.. cli_tut:
+.. _cli_tut:
 
 ############
 CLI Tutorial
