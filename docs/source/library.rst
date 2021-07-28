@@ -16,7 +16,7 @@ This method allows you to do a simple run of a BNGL model and returns the result
 .. code-block:: python
 
    import bionetgen
-   result = bionetgen.run("mymodel.bngl", output="myfolder")
+   result = bionetgen.run("mymodel.bngl", out="myfolder")
    result["mymodel"] # this will contain the gdat results of the run
 
 bngmodel

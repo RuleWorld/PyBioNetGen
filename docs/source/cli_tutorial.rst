@@ -13,13 +13,13 @@ Getting Started
 
 Make sure you have PyBioNetGen properly installed by running
 
-.. code_block:: shell
+.. code-block:: shell
 
     bionetgen -h
 
 If this command doesn't print out help information, install PyBioNetGen with
 
-.. code_block:: shell
+.. code-block:: shell
 
     pip install bionetgen
 
@@ -46,25 +46,25 @@ To simply plot the gdat or cdat file, use the :code:`plot` subcommand with the a
 
 The resulting gdat plot should look like this:
 
-.. image::static/SIR.png
+.. image::assets/SIR.png
 
 However, there are many optional arguments, such as including a legend or changing axes. Use :code:`bionetgen plot -h` to see them.
 For example, if we wanted to look at a smaller timeframe, change some labels, and include a legend, we would run:
 
-.. code_block:: shell
+.. code-block:: shell
 
     bionetgen plot -i SIR.gdat --legend --xmax 10 --ylabel "individuals" --title "SIR Populations"
 
 The updated plot should look like this:
 
-.. image::static/SIR_example.png
+.. image::assets/SIR_example.png
 
 Creating a Notebook
 ===================
 
 Finally, use the :code:`notebook` subcommand to create a `Jupyter notebook <https://jupyter.org/>`_:
 
-.. code_block:: shell
+.. code-block:: shell
 
     bionetgen notebook -i SIR.bngl -o SIR_notebook.ipynb
 
