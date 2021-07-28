@@ -179,4 +179,3 @@ class BNGFile:
             else:
                 print("XML type {} not recognized".format(xml_type))
                 return False
-            return False

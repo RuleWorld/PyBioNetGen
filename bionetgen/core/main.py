@@ -158,8 +158,14 @@ class BNGCLI:
             # load in the result
             self.result = BNGResult(os.getcwd())
             BNGResult.process_return = rc
+            # set BNGPATH back
+            if self.old_bngpath is not None:
+                os.environ["BNGPATH"] = self.old_bngpath
         else:
             self.result = None
-        # set BNGPATH back
-        if self.old_bngpath is not None:
-            os.environ["BNGPATH"] = self.old_bngpath
+            # set BNGPATH back
+            if self.old_bngpath is not None:
+                os.environ["BNGPATH"] = self.old_bngpath
+            raise ValueError(
+                "Failed to run your BNGL file, there might be an issue with your model!"
+            )

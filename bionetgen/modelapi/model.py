@@ -256,9 +256,12 @@ class bngmodel:
             # temporary file
             with TemporaryFile(mode="w+") as tpath:
                 # write the sbml
-                self.bngparser.bngfile.write_xml(
-                    tpath, xml_type="sbml", bngl_str=str(self)
-                )
+                if not (
+                    self.bngparser.bngfile.write_xml(
+                        tpath, xml_type="sbml", bngl_str=str(self)
+                    )
+                ):
+                    raise ValueError("SBML couldn't be generated for libRR simulator")
                 # TODO: Only clear the writeSBML action
                 # by adding a mechanism to do so
                 self.actions.clear_actions()
