@@ -166,7 +166,7 @@ class BNGCLI:
                     full_log_path = self.log_file
             else:
                 # doesn't exist, so we assume it's a file
-                # and we keep it as if
+                # and we keep it as is
                 full_log_path = self.log_file
 
             with open(full_log_path, "w") as f:
