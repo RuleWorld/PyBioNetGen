@@ -113,3 +113,7 @@ Removing numpy dependency from setup.py, action reading off of BNGL file.
 
 ## 0.3.8
 Moving imports around, removing unnecessary ones to speed up CLI performance. 
+
+## 0.3.9
+A couple bugfixes to plotting, running the CLI on a model can now generate a log file with the option
+-l/--log. Failing to run now raises a ValueError (will be changed with custom errors in the future). Added some input and output file checks to notebook subcommand.

@@ -83,6 +83,9 @@ class BNGPlotter:
         ymin = self.kwargs.get("ymin", False) or oymin
         ymax = self.kwargs.get("ymax", False) or oymax
 
+        assert xmax > xmin, "--xmin is bigger than --xmax!"
+        assert ymax > ymin, "--ymin is bigger than --ymax!"
+
         fax.set_xlim(left=xmin, right=xmax)
         fax.set_ylim(bottom=ymin, top=ymax)
         # labels and title

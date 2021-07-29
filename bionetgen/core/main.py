@@ -29,10 +29,11 @@ def runCLI(config, args):
     # this pulls out the arguments
     inp_file = args.input
     output = args.output
+    log_file = args.log_file
     # if you set args.bngpath it should take precedence
     config_bngpath = config.get("bionetgen", "bngpath")
     # and instantiates the CLI object
-    cli = BNGCLI(inp_file, output, config_bngpath)
+    cli = BNGCLI(inp_file, output, config_bngpath, log_file=log_file)
     cli.stdout = config.get("bionetgen", "stdout")
     cli.stderr = config.get("bionetgen", "stderr")
     cli.run()
@@ -90,7 +91,7 @@ class BNGCLI:
         runs the model in the given output folder
     """
 
-    def __init__(self, inp_file, output, bngpath, suppress=False):
+    def __init__(self, inp_file, output, bngpath, suppress=False, log_file=None):
         self.inp_file = inp_file
         if isinstance(inp_file, mdl.bngmodel):
             self.is_bngmodel = True
@@ -114,6 +115,7 @@ class BNGCLI:
         self.stdout = "PIPE"
         self.stderr = "STDOUT"
         self.suppress = suppress
+        self.log_file = log_file
 
     def _set_output(self, output):
         # setting up output area
@@ -147,12 +149,28 @@ class BNGCLI:
             fname = fname.replace(".bngl", "")
             command = ["perl", self.bng_exec, self.inp_path]
         rc, out = run_command(command, suppress=self.suppress)
-        # write a log file
-        log_path, log_name = os.path.split(self.inp_file)
-        log_name = log_name.replace(".bngl", "")
-        log_name += ".log"
-        with open(os.path.join(log_path, log_name), "w") as f:
-            f.write("\n".join(out))
+        if self.log_file is not None:
+            # test if we were given a path
+            # TODO: This is a simple hack, might need to adjust it
+            # trying to check if given file is an absolute/relative
+            # path and if so, use that one. Otherwise, divine the
+            # current path.
+            if os.path.exists(self.log_file):
+                # file or folder exists, check if folder
+                if os.path.isdir(self.log_file):
+                    fname = os.path.basename(self.inp_path)
+                    fname = fname.replace(".bngl", "")
+                    full_log_path = os.path.join(self.log_file, fname + ".log")
+                else:
+                    # it's intended to be file, so we keep it as is
+                    full_log_path = self.log_file
+            else:
+                # doesn't exist, so we assume it's a file
+                # and we keep it as if
+                full_log_path = self.log_file
+
+            with open(full_log_path, "w") as f:
+                f.write("\n".join(out))
 
         if self.is_bngmodel:
             os.remove(tfile.name)
