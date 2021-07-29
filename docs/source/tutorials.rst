@@ -12,9 +12,8 @@ Sample Model
 These tutorials use a simple BNGL model as an example. The "SIR.bngl" file can be found 
 `here <https://github.com/cjarmstrong97/PyBioNetGen/blob/main/docs/source/assets/SIR.bngl>`_.
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Tutorials:
+Tutorials
+=========
 
-   cli_tut
-   lib_tut
+* :ref:`cli_tut`
+* :ref:`lib_tut`
