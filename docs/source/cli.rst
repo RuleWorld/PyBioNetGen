@@ -66,5 +66,4 @@ and the resulting notebook will be ready to load in your model using PyBioNetGen
 Tutorial
 ========
 
-For a tutorial showing how to use the CLI on a simple BNGL model,
-please see :ref:`cli_tut`.
+For a brief tutorial showing how to use the CLI on a simple BNGL model, please see :ref:`tutorials`.

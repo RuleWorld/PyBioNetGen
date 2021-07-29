@@ -21,6 +21,7 @@ For the best user experience, please use PyBioNetGen and the
    quickstart
    cli
    library
+   tutorials
 
 Indices and Tables:
 ===================

@@ -241,4 +241,4 @@ This is an easy way to generate data for analyses of your model using Python.
 Tutorials
 =========
 
-Tutorials for using the library can be found in the PyBioNetGen files under "docs" > "source" > "tutorials".
+For a brief tutorial showing how to use the library on a simple BNGL model, please see :ref:`tutorials`.
