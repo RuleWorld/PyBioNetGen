@@ -46,7 +46,7 @@ To simply plot the gdat or cdat file, use the :code:`plot` subcommand with the a
 
 The resulting gdat plot should look like this:
 
-.. image:: ../../assets/SIR.png
+.. image:: ./assets/SIR.png
 
 However, there are many optional arguments, such as including a legend or changing axes. Use :code:`bionetgen plot -h` to see them.
 For example, if we wanted to look at a smaller timeframe, change some labels, and include a legend, we would run:
@@ -57,7 +57,7 @@ For example, if we wanted to look at a smaller timeframe, change some labels, an
 
 The updated plot should look like this:
 
-.. image:: ../../assets/SIR_example.png
+.. image:: ./assets/SIR_example.png
 
 Creating a Notebook
 ===================
