@@ -98,5 +98,5 @@ Jupyter Notebooks
 Interactive Jupyter notebooks versions of these tutorials can be found
 here: 
 
-* `Running and Plotting <./assets/library_tutorial.ipynb>`_
-* `bngmodel <./assets/lib_bngmodel_tutorial.ipynb>`_
+* `Running and Plotting <./assets/library_tutorial>`_
+* `bngmodel <./assets/lib_bngmodel_tutorial>`_
