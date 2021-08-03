@@ -52,7 +52,9 @@ You can see all the available options by running :code:`bionetgen plot -h`
       --ylabel YLABEL       y-axis label (default: concentration)
       --title TITLE         title of plot (default: determined from input file)
 
-################# add example plot here
+Resulting plots should look similar to this:
+
+.. image:: ./assets/SIR.png
 
 Notebook
 ========
