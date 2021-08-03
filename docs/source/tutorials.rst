@@ -10,7 +10,7 @@ Sample Model
 ------------
 
 These tutorials use a simple BNGL model as an example. The "SIR.bngl" file can be found 
-`here <./assets/SIR.bngl>`_.
+:download:`here <./assets/SIR.bngl>`.
 
 Tutorials
 =========
