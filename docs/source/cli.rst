@@ -52,6 +52,8 @@ You can see all the available options by running :code:`bionetgen plot -h`
       --ylabel YLABEL       y-axis label (default: concentration)
       --title TITLE         title of plot (default: determined from input file)
 
+################# add example plot here
+
 Notebook
 ========
 
@@ -66,4 +68,4 @@ and the resulting notebook will be ready to load in your model using PyBioNetGen
 Tutorial
 ========
 
-For a brief tutorial showing how to use the CLI on a simple BNGL model, please see :ref:`tutorials`.
+For a brief tutorial showing how to use the CLI on a simple BNGL model, please see :ref:`cli_tut`.

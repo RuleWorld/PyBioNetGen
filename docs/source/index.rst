@@ -19,9 +19,9 @@ For the best user experience, please use PyBioNetGen and the
    :caption: Contents:
 
    quickstart
+   tutorials
    cli
    library
-   tutorials
 
 Indices and Tables:
 ===================
@@ -33,6 +33,6 @@ Indices and Tables:
 BioNetGen Home & GitHub Links
 =============================
 
-* BioNetGen: https://bionetgen.org/
-* BNG VSCode Extension GitHub: https://github.com/RuleWorld/BNG_vscode_extension
-* PyBioNetGen GitHub: https://github.com/RuleWorld/PyBioNetGen
+* `BioNetGen <https://bionetgen.org/>`_
+* `BNG VSCode Extension GitHub <https://github.com/RuleWorld/BNG_vscode_extension>`_
+* `PyBioNetGen GitHub <https://github.com/RuleWorld/PyBioNetGen>`_

@@ -233,7 +233,7 @@ of the loaded model.
 
    import bionetgen
    model = bionetgen.bngmodel("mymodel.bngl") # generates BNG-XML and reads it
-   librr_simulator = model.setup_simulator().simulator
+   librr_simulator = model.setup_simulator()
    librr_simulator.simulate(0,1,10) # librr_simulator is the simulator object 
 
 This is an easy way to generate data for analyses of your model using Python.
@@ -241,4 +241,4 @@ This is an easy way to generate data for analyses of your model using Python.
 Tutorials
 =========
 
-For a brief tutorial showing how to use the library on a simple BNGL model, please see :ref:`tutorials`.
+For a brief tutorial showing how to use the library on a simple BNGL model, please see :ref:`lib_tut`.

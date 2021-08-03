@@ -10,7 +10,7 @@ Sample Model
 ------------
 
 These tutorials use a simple BNGL model as an example. The "SIR.bngl" file can be found 
-`here <https://github.com/cjarmstrong97/PyBioNetGen/blob/main/docs/source/assets/SIR.bngl>`_.
+`here <./assets/SIR.bngl>`_.
 
 Tutorials
 =========
