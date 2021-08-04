@@ -55,7 +55,7 @@ with open("new_model.bngl", "w") as f:
 librr_sim = model.setup_simulator()._simulator
 ```
 
-More documentation and tutorials are in progress.
+You can find more tutorials [here](https://pybionetgen.readthedocs.io/en/latest/tutorials.html).
 
 ### Environment Setup
 
