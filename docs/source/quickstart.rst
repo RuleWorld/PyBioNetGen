@@ -7,31 +7,43 @@ Quickstart
 Installation
 ============
 
-You will need both python (3.7 and above) and perl installed. Once both are available you can use the following :code:`pip` command to install PyBioNetGen
+You will need both `Python <https://www.python.org/>`_ (3.7 and above) and `Perl <http://strawberryperl.com/>`_ (for Windows users) installed.
+
+Once both are available, you can use the following :code:`pip` command to install PyBioNetGen:
 
 .. code-block:: shell
 
     pip install bionetgen
 
-which comes with the latest version of `BioNetGen <https://bionetgen.org>`_. Please note that,
+This comes with the latest version of `BioNetGen <https://bionetgen.org>`_. Please note that,
 at the moment, PyBioNetGen does not support Atomizer but eventually will.
 
-Basic usage
-===========
-
-After installation complete you can test to see if PyBioNetGen is properly installed with
+After installation is complete, you can test to see if PyBioNetGen is properly installed with
 
 .. code-block:: shell
 
    bionetgen -h
 
-if this command prints out help, the command line tool is installed.
+If this command prints out help, the command line tool is installed.
 
-You can use PyBioNetGen to simply run a BNGL model
+Basic Usage
+===========
+
+PyBioNetGen's CLI can be used to simply run a BNGL model
 
 .. code-block:: shell
 
    bionetgen run -i mymodel.bngl -o output_folder
 
-which will create :code:`output_folder` and run :code:`mymodel.bngl` inside that folder. For 
-more information on how to use PyBioNetGen please see :ref:`cli` and :ref:`library`.
+which will create :code:`output_folder` and run :code:`mymodel.bngl` inside that folder.
+For other subcommands or more information on how to use PyBioNetGen's CLI, please see :ref:`cli`.
+
+PyBioNetGen's library can also be used to run a BNGL model
+
+.. code-block:: shell
+
+   import bionetgen
+   result = bionetgen.run("mymodel.bngl", output="myfolder")
+
+which will create numpy record arrays.
+For other methods or more information on how to use PyBioNetGen's library, please see :ref:`library`.
