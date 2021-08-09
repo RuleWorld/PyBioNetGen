@@ -1,0 +1,22 @@
+{
+    "reactionDefinition" : [
+
+    ],
+    "complexDefinition" : [
+    ],
+    "modificationDefinition": {
+        "Ras":[],
+        "GDP":[],
+        "GTP":[],
+        "Rasm":["Ras"],
+        "Ras_GTP":["Ras","GTP"],
+        "Ras_GDP":["Ras","GDP"],
+        "Ras_GTPm":["Rasm","GTP"],
+        "Rasi_GTP":["Ras_GTP"],
+        "Rasi_GTPm":["Ras_GTPm"]
+    },
+    "partialComplexDefinition" : [
+    [["Ras","GDP","Sos"], [["Ras","sos",["b",1],"gap",["b",-1]],["Sos", "ras", ["b",1]],["GAP","ras",["b",-1]]]],
+    [["Ras","GTP","GAP"], [["Ras","gap",["b",1],"sos",["b",-1]],["GAP", "ras", ["b",1]],["Sos","ras",["b",-1]]]]
+    ]
+}

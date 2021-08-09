@@ -1,9 +1,6 @@
 import bionetgen as bng
-from bionetgen.core import BNGResult
-from bionetgen.core import BNGPlotter
 from bionetgen.modelapi.utils import run_command
 import bionetgen.modelapi.model as mdl
-
 import os, subprocess
 from tempfile import NamedTemporaryFile
 
@@ -11,7 +8,6 @@ from tempfile import NamedTemporaryFile
 # TODO Consolidate how config is being accessed. It's
 # almost like each function accesses the configs from
 # a different path
-
 
 def runCLI(config, args):
     """
@@ -65,9 +61,15 @@ def plotDAT(inp, out=".", kw=dict()):
         fnoext, ext = os.path.splitext(fname)
         out = os.path.join(path, "{}.png".format(fnoext))
     # use the plotter object to get the plot
+    from bionetgen.core import BNGPlotter
     plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()
 
+def runAtomizeTool(config, args):
+    from bionetgen.atomizer import AtomizeTool
+    a = AtomizeTool(parser_namespace=args)
+    # do config specific stuff here if need be, or remove the config requirement
+    a.run()
 
 class BNGCLI:
     """
@@ -182,6 +184,7 @@ class BNGCLI:
         #     print(rc.stderr.decode('utf-8'))
         if rc == 0:
             # load in the result
+            from bionetgen.core import BNGResult
             self.result = BNGResult(os.getcwd())
             BNGResult.process_return = rc
             # set BNGPATH back

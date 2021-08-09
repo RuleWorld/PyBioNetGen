@@ -6,6 +6,7 @@ from cement.core.exc import CaughtSignal
 from .core.exc import BioNetGenError
 from .core.main import runCLI
 from .core.main import plotDAT
+from .core.main import runAtomizeTool
 from .core.notebook import BNGNotebook
 
 # pull defaults defined in core/defaults
@@ -272,6 +273,138 @@ class BNGBase(cement.Controller):
             or args.input.endswith(".scan")
         ), "Input file has to be either a gdat or a cdat file"
         plotDAT(args.input, args.output, kw=dict(args._get_kwargs()))
+
+    @cement.ex(
+        help="SBML to BNGL translator",
+        arguments=[
+            (
+                ["-i", "--input"],
+                {
+                    "help": "input SBML file",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-o", "--output"],
+                {
+                    "help": 'output SBML file',
+                    "default": ".",
+                    "type": str,
+                },
+            ),
+            (
+                ["-t", "--annotation"],
+                {
+                    "help": "keep annotation information",
+                    "default": False,
+                    "action": "store_true",
+                },
+            ),
+            (
+                ["-c", "--convention-file"],
+                {
+                    "help": "Conventions file",
+                    "type": str,
+                },
+            ),
+            (
+                ["-n", "--naming-conventions"],
+                {
+                    "help": "Naming conventions file",
+                    "type": str,
+                },
+            ),
+            (
+                ["-u", "--user-structures"],
+                {
+                    "help": "User defined species",
+                    "type": str,
+                },
+            ),
+            (
+                ["-id", "--molecule-id"],
+                {
+                    "help": "use SBML molecule ids instead of names. IDs are less descriptive but more bngl friendly. Use only if the generated BNGL has syntactic errors",
+                    "default": False,
+                    "action": "store_true",
+                },
+            ),
+            (
+                ["-a", "--atomize"],
+                {
+                    "help": "Infer molecular structure",
+                    "default": False,
+                    "action": "store_true",
+                },
+            ),
+            (
+                ["-p", "--pathwaycommons"],
+                {
+                    "help": "Use pathway commons to infer molecule binding. This setting requires an internet connection and will query the pathway commons web service.",
+                    "default": False,
+                    "action": "store_true",
+                },
+            ),
+            (
+                ["-s", "--isomorphism-check"],
+                {
+                    "help": "disallow atomizations that produce the same graph structure",
+                    "action":'store_true',
+                },
+            ),
+            (
+                ["-I", "--ignore"],
+                {
+                    "help": "ignore atomization translation errors",
+                    "action":'store_true',
+                },
+            ),
+            (
+                ["-mr", "--memoized-resolver"],
+                {
+                    "help": "sometimes the dependency graph is too large and might cause a very large memory requirement. This option will slow the translator down but will decrease memory usage",
+                    "default": False,
+                    "action": "store_true"
+                },
+            ),
+            (
+                ["-k", "--keep-local-parameters"],
+                {
+                    "help": "this option will keep the local parameters unresolved so that they can be controlled from the parameter section in the BNGL. Without this option, local parameters will be resolved to their values in functions",
+                    "default": False,
+                    "action": "store_true"
+                },
+            ),
+            (
+                ["-q", "--quiet-mode"],
+                {
+                    "help": "this option will supress logging into STDIO and instead will write the logging into a file",
+                    "default": False,
+                    "action": "store_true"
+                },
+            ),
+            (
+                ["-ll", "--log-level"],
+                {
+                    "help": 'This option allows you to select a logging level, from quietest to loudest options are: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG". Default is set to DEBUG',
+                    "default": "DEBUG",
+                    "type": str,
+                },
+            ),
+            # (
+            #     ["-cu", "--convert-units"],
+            #     {
+            #         "help": "convert units. Otherwise units are copied straight from sbml to bngl",
+            #         "default": True,
+            #         "action": "store_false",
+            #     },
+            # ),
+        ],
+    )
+    def atomize(self):
+        runAtomizeTool(self.app.config, args)
 
 
 class BioNetGen(cement.App):
