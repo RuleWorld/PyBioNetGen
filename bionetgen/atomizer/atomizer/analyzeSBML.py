@@ -20,6 +20,7 @@ import itertools
 import math
 from collections import Counter
 import re
+import os
 from bionetgen.atomizer.utils.util import pmemoize as memoize
 
 """
@@ -756,10 +757,49 @@ class SBMLAnalyzer:
         as such
         """
         reactionDefinition = ""
-        if fileName == "":
-            return []
-        with open(fileName, "r") as fp:
-            reactionDefinition = json.load(fp)
+        if fileName is not None:
+            if fileName == "":
+                return []
+            if os.path.isfile(fileName):
+                with open(fileName, "r") as fp:
+                    reactionDefinition = json.load(fp)
+                return reactionDefinition
+        reactionDefinition = {
+            "reactions": [
+                [["S0", "S1"], ["S2"]],
+                [["S2"], ["S0", "S1"]],
+                [[], ["S0"]],
+                [["S0"], []],
+                [["S0", "S1", "S2"], ["S3"]],
+                [["S3"], ["S0", "S1", "S2"]],
+            ],
+            "reactionsNames": [
+                "Binding",
+                "Binding",
+                "Binding",
+                "Binding",
+                "Generation",
+                "Decay",
+                "Phosporylation",
+                "Double-Phosporylation",
+                "iMod",
+                "mMod",
+                "Ubiquitination",
+            ],
+            "definitions": [
+                [{"r": [0]}, {"n": []}],
+                [{"r": [1]}, {"n": []}],
+                [{"r": [4]}, {"n": []}],
+                [{"r": [5]}, {"n": []}],
+                [{"r": [2]}],
+                [{"r": [3]}],
+                [{"n": [0]}],
+                [{"n": []}],
+                [{"n": []}],
+                [{"n": []}],
+                [{"n": []}],
+            ],
+        }
         return reactionDefinition
 
     def identifyReactions2(self, rule, reactionDefinition):

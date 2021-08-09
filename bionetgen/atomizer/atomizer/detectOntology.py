@@ -10,6 +10,7 @@ from collections import Counter
 import json
 import ast
 import pickle
+import os
 from os import listdir
 from os.path import isfile, join
 import numpy as np
@@ -77,13 +78,31 @@ def getDifferences(scoreMatrix, speciesName, threshold):
 
 
 def loadOntology(ontologyFile):
-    tmp = {}
-    with open(ontologyFile, "r") as fp:
-        ontology = json.load(fp)
-    for element in ontology["patterns"]:
-        tmp[ast.literal_eval(element)] = ontology["patterns"][element]
-    ontology["patterns"] = tmp
-    return ontology
+    if os.path.isfile(ontologyFile):
+        tmp = {}
+        with open(ontologyFile, "r") as fp:
+            ontology = json.load(fp)
+        for element in ontology["patterns"]:
+            tmp[ast.literal_eval(element)] = ontology["patterns"][element]
+        ontology["patterns"] = tmp
+        return ontology
+    else:
+        tmp = {}
+        ontology = {
+            "modificationList": ["Phosporylation", "Double-Phosporylation"],
+            "reactionSite": ["phospho"],
+            "reactionState": ["P", "PP"],
+            "definitions": [{"rsi": 0, "rst": 0}, {"rsi": 0, "rst": 1}],
+            "patterns": {
+                "('+ _', '+ P', '+ P')": "Double-Phosporylation",
+                "('+ P', '+ P', '+ _')": "Double-Phosporylation",
+                "('+ p', '+ p')": "Double-Phosporylation",
+            },
+        }
+        for element in ontology["patterns"]:
+            tmp[ast.literal_eval(element)] = ontology["patterns"][element]
+        ontology["patterns"] = tmp
+        return ontology
 
 
 def findLongestSubstring(speciesA, speciesB):
