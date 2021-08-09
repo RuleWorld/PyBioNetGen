@@ -288,11 +288,7 @@ class BNGBase(cement.Controller):
             ),
             (
                 ["-o", "--output"],
-                {
-                    "help": 'output SBML file',
-                    "default": ".",
-                    "type": str,
-                },
+                {"help": "output SBML file", "default": ".", "type": str,},
             ),
             (
                 ["-t", "--annotation"],
@@ -302,26 +298,14 @@ class BNGBase(cement.Controller):
                     "action": "store_true",
                 },
             ),
-            (
-                ["-c", "--convention-file"],
-                {
-                    "help": "Conventions file",
-                    "type": str,
-                },
-            ),
+            (["-c", "--convention-file"], {"help": "Conventions file", "type": str,},),
             (
                 ["-n", "--naming-conventions"],
-                {
-                    "help": "Naming conventions file",
-                    "type": str,
-                },
+                {"help": "Naming conventions file", "type": str,},
             ),
             (
                 ["-u", "--user-structures"],
-                {
-                    "help": "User defined species",
-                    "type": str,
-                },
+                {"help": "User defined species", "type": str,},
             ),
             (
                 ["-id", "--molecule-id"],
@@ -351,14 +335,14 @@ class BNGBase(cement.Controller):
                 ["-s", "--isomorphism-check"],
                 {
                     "help": "disallow atomizations that produce the same graph structure",
-                    "action":'store_true',
+                    "action": "store_true",
                 },
             ),
             (
                 ["-I", "--ignore"],
                 {
                     "help": "ignore atomization translation errors",
-                    "action":'store_true',
+                    "action": "store_true",
                 },
             ),
             (
@@ -366,7 +350,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "sometimes the dependency graph is too large and might cause a very large memory requirement. This option will slow the translator down but will decrease memory usage",
                     "default": False,
-                    "action": "store_true"
+                    "action": "store_true",
                 },
             ),
             (
@@ -374,7 +358,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "this option will keep the local parameters unresolved so that they can be controlled from the parameter section in the BNGL. Without this option, local parameters will be resolved to their values in functions",
                     "default": False,
-                    "action": "store_true"
+                    "action": "store_true",
                 },
             ),
             (
@@ -382,7 +366,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "this option will supress logging into STDIO and instead will write the logging into a file",
                     "default": False,
-                    "action": "store_true"
+                    "action": "store_true",
                 },
             ),
             (
@@ -404,6 +388,7 @@ class BNGBase(cement.Controller):
         ],
     )
     def atomize(self):
+        args = self.app.pargs
         runAtomizeTool(self.app.config, args)
 
 

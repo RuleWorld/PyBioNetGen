@@ -8,3 +8,5 @@ pyyaml
 colorlog
 nbopen
 libroadrunner
+python-libsbml
+pylru

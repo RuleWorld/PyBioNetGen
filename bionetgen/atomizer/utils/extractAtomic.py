@@ -1,11 +1,12 @@
 # 2013.10.10 11:42:06 EDT
-#Embedded file name: ../utils/extractAtomic.py
+# Embedded file name: ../utils/extractAtomic.py
 """
 Created on Wed Aug  7 20:54:17 2013
 
 @author: proto
 """
 from collections import Counter
+
 
 def extractMolecules(action, site1, site2, chemicalArray, differentiateDimers=False):
     """
@@ -25,7 +26,9 @@ def extractMolecules(action, site1, site2, chemicalArray, differentiateDimers=Fa
     reactionCenterC = Counter()
     contextC = Counter()
     for reactant in chemicalArray:
-        ta, tr, tc = reactant.extractAtomicPatterns(action, site1, site2,differentiateDimers)
+        ta, tr, tc = reactant.extractAtomicPatterns(
+            action, site1, site2, differentiateDimers
+        )
         atomicPatterns.update(ta)
         for element in tr:
             reactionCenter.add(element)
@@ -46,9 +49,13 @@ def solveWildcards(atomicArray):
     can potentially resolve to
     """
     standinArray = {}
-    for wildcard in [ x for x in atomicArray if '+' in x ]:
-        for atomic in [ x for x in atomicArray if '+' not in x and len(atomicArray[x].molecules) > 1 ]:
-            if atomicArray[wildcard].molecules[0].name in [ x.name for x in atomicArray[atomic].molecules ]:
+    for wildcard in [x for x in atomicArray if "+" in x]:
+        for atomic in [
+            x for x in atomicArray if "+" not in x and len(atomicArray[x].molecules) > 1
+        ]:
+            if atomicArray[wildcard].molecules[0].name in [
+                x.name for x in atomicArray[atomic].molecules
+            ]:
                 if wildcard not in standinArray:
                     standinArray[wildcard] = []
                 standinArray[wildcard].append(atomicArray[atomic])
@@ -59,7 +66,7 @@ def solveWildcards(atomicArray):
 def getMapping(mapp, site):
     for mapping in mapp:
         if site in mapping:
-            return [ x for x in mapping if x != site ][0]
+            return [x for x in mapping if x != site][0]
 
 
 def extractTransformations(rules, differentiateDimers=False):
@@ -77,31 +84,59 @@ def extractTransformations(rules, differentiateDimers=False):
     for rule, _, reationRate, reactionSymbol in rules:
         index += 1
         for action in rule.actions:
-            atomic, reactionCenter, context = extractMolecules(action.action, action.site1, action.site2, rule.reactants, differentiateDimers)
+            atomic, reactionCenter, context = extractMolecules(
+                action.action,
+                action.site1,
+                action.site2,
+                rule.reactants,
+                differentiateDimers,
+            )
             transformationCenter.append(reactionCenter)
             transformationContext.append(context)
             atomicArray.update(atomic)
-            productSites = [getMapping(rule.mapping, action.site1), getMapping(rule.mapping, action.site2)]
-            atomic, rc, _ = extractMolecules(action.action, productSites[0], productSites[1], rule.products, differentiateDimers)
+            productSites = [
+                getMapping(rule.mapping, action.site1),
+                getMapping(rule.mapping, action.site2),
+            ]
+            atomic, rc, _ = extractMolecules(
+                action.action,
+                productSites[0],
+                productSites[1],
+                rule.products,
+                differentiateDimers,
+            )
             productElements.append(rc)
             atomicArray.update(atomic)
-            actionName.append('%i-%s' % (index, action.action))
-            r = '+'.join([str(x) for x in rule.reactants])
-            p = '+'.join([str(x) for x in rule.products])
-            label.append('->'.join([r, p, '%i-%s' % (index, action.action)]))
+            actionName.append("%i-%s" % (index, action.action))
+            r = "+".join([str(x) for x in rule.reactants])
+            p = "+".join([str(x) for x in rule.products])
+            label.append("->".join([r, p, "%i-%s" % (index, action.action)]))
 
     solveWildcards(atomicArray)
-    return (atomicArray, transformationCenter, transformationContext, productElements, actionName, label)
+    return (
+        atomicArray,
+        transformationCenter,
+        transformationContext,
+        productElements,
+        actionName,
+        label,
+    )
 
 
 if __name__ == "__main__":
     import readBNGXML
-    _, rules, _ = readBNGXML.parseXML('output48.xml')
+
+    _, rules, _ = readBNGXML.parseXML("output48.xml")
     for idx, rule in enumerate(rules):
-        tatomicArray, ttransformationCenter, ttransformationContext, \
-            tproductElements, tactionNames, tlabelArray = extractTransformations(
-                [rule], True)
-        if rule[0].label == '_reverse_v7':
+        (
+            tatomicArray,
+            ttransformationCenter,
+            ttransformationContext,
+            tproductElements,
+            tactionNames,
+            tlabelArray,
+        ) = extractTransformations([rule], True)
+        if rule[0].label == "_reverse_v7":
             print(str(rule[0]))
             print(ttransformationContext)
             print(tproductElements)

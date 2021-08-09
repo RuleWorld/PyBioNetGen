@@ -48,15 +48,15 @@ class Species:
                     else:
                         counter += 1
             self.molecules.append(molecule)
-            #self.molecules.append(molecule)
-            #for element in self.molecules:
+            # self.molecules.append(molecule)
+            # for element in self.molecules:
             #    if element.name == molecule.name:
-                
+
     def addCompartment(self, tags):
         for molecule in self.molecules:
             molecule.setCompartment(tags)
-    
-    def deleteMolecule(self,moleculeName):
+
+    def deleteMolecule(self, moleculeName):
         deadMolecule = None
         for element in self.molecules:
             if element.name == moleculeName:
@@ -70,62 +70,63 @@ class Species:
                 for number in bondNumbers:
                     if str(number) in component.bonds:
                         component.bonds.remove(str(number))
-    
-    def getMolecule(self,moleculeName):
+
+    def getMolecule(self, moleculeName):
         for molecule in self.molecules:
             if moleculeName == molecule.name:
                 return molecule
         return None
+
     def getSize(self):
         return len(self.molecules)
-        
+
     def getMoleculeNames(self):
         return [x.name for x in self.molecules]
-    
-    def contains(self,moleculeName):
+
+    def contains(self, moleculeName):
         for molecule in self.molecules:
             if moleculeName == molecule.name:
                 return True
         return False
-        
-    def addChunk(self,tags,moleculesComponents,precursors):
-        '''
+
+    def addChunk(self, tags, moleculesComponents, precursors):
+        """
         temporary transitional method
-        '''
-        for (tag,components) in zip (tags,moleculesComponents):
+        """
+        for (tag, components) in zip(tags, moleculesComponents):
             if self.contains(tag):
                 tmp = self.getMolecule(tag)
             else:
                 tmp = Molecule(tag)
-                #for element in precursors:
+                # for element in precursors:
                 #    if element.getMolecule(tag) != None:
                 #        tmp = element.getMolecule(tag)
-            
+
             for component in components:
                 if tmp.contains(component[0][0]):
                     tmpCompo = tmp.getComponent(component[0][0])
-                    #continue
+                    # continue
                 else:
                     tmpCompo = Component(component[0][0])
-                
-                for index in range(1,len(component[0])):
+
+                for index in range(1, len(component[0])):
                     tmpCompo.addState(component[0][index])
                 if len(component) > 1:
                     tmpCompo.addBond(component[1])
-                if not tmp.contains(component[0][0]):   
+                if not tmp.contains(component[0][0]):
                     tmp.addComponent(tmpCompo)
             if not self.contains(tag):
                 self.molecules.append(tmp)
-                
-    def extend(self,species,update=True):
-        if(len(self.molecules) == len(species.molecules)):
-            list1 = sorted(self.molecules,key=lambda x:len(x.components))
-            list1 = sorted(list1,key=lambda x:x.name)
-            list2 = sorted(species.molecules,key=lambda x:len(x.components))
-            list2 = sorted(list2,key=lambda x:x.name)
-            
-            for (selement,oelement) in zip(list1,list2):
-               
+
+    def extend(self, species, update=True):
+        if len(self.molecules) == len(species.molecules):
+            list1 = sorted(self.molecules, key=lambda x: len(x.components))
+            list1 = sorted(list1, key=lambda x: x.name)
+            list2 = sorted(species.molecules, key=lambda x: len(x.components))
+            list2 = sorted(list2, key=lambda x: x.name)
+
+            for (selement, oelement) in zip(list1, list2):
+
                 cocomponents = Counter([x.name for x in oelement.components])
                 for component in oelement.components:
                     refcomponents = Counter([x.name for x in selement.components])
@@ -135,37 +136,36 @@ class Species:
                     else:
                         for element in selement.components:
                             if element.name == component.name:
-                                element.addStates(component.states,update)
-                                
+                                element.addStates(component.states, update)
+
         else:
             for element in species.molecules:
                 if element.name not in [x.name for x in self.molecules]:
-                    
-                    self.addMolecule(deepcopy(element),update)
+
+                    self.addMolecule(deepcopy(element), update)
                 else:
-                     
-                    bond1 = sum([x.bonds for x in element.components],[])
+
+                    bond1 = sum([x.bonds for x in element.components], [])
                     bondList = []
                     for x in [z for z in self.molecules if z.name == element.name]:
-                        bondList.append((x,sum([y.bonds for y in x.components],[])))
+                        bondList.append((x, sum([y.bonds for y in x.components], [])))
                     score = 0
                     for x in bondList:
-                        if difflib.SequenceMatcher(None,x[1],bond1).ratio() >= score:
-                            score = difflib.SequenceMatcher(None,x[1],bond1).ratio()
+                        if difflib.SequenceMatcher(None, x[1], bond1).ratio() >= score:
+                            score = difflib.SequenceMatcher(None, x[1], bond1).ratio()
                             molecule = x[0]
-                    #sortedArray = sorted(bondList,
+                    # sortedArray = sorted(bondList,
                     #    key=lambda y:difflib.SequenceMatcher(None,y[1],bond1),reverse=True)
-                    #molecule = sortedArray[0][0]
-                        
+                    # molecule = sortedArray[0][0]
+
                     for component in element.components:
                         if component.name not in [x.name for x in molecule.components]:
-                            molecule.addComponent(deepcopy(component),update)
+                            molecule.addComponent(deepcopy(component), update)
                         else:
                             comp = molecule.getComponent(component.name)
                             for state in component.states:
-                                comp.addState(state,update)
-                    
-    
+                                comp.addState(state, update)
+
     def updateBonds(self, bondNumbers):
         newBondNumbers = deepcopy(bondNumbers)
         correspondence = {}
@@ -174,7 +174,7 @@ class Species:
         for element in self.molecules:
             for component in element.components:
                 component.bonds = [int(x) + newBase for x in component.bonds]
-                '''
+                """
                 for index in range(0,len(component.bonds)):
                     if int(component.bonds[index]) in intersection:
 
@@ -183,8 +183,8 @@ class Species:
                         else:
                             correspondence[component.bonds[index]] = max(intersection) + 1
                             component.bonds[index] = max(intersection) + 1
-                '''
-                        #intersection = [int(x) for x in newBondNumbers if x in self.getBondNumbers()]
+                """
+                # intersection = [int(x) for x in newBondNumbers if x in self.getBondNumbers()]
 
     def deleteBond(self, moleculePair):
         for molecule in self.molecules:
@@ -196,7 +196,7 @@ class Species:
                         component.bonds = []
 
     def append(self, species):
-        newSpecies = (deepcopy(species))
+        newSpecies = deepcopy(species)
         newSpecies.updateBonds(self.getBondNumbers())
 
         for element in newSpecies.molecules:
@@ -208,22 +208,33 @@ class Species:
         then the negative sum of the bond index, then number of active states, then string length
         """
 
-        self.molecules.sort(key=lambda molecule: (len(molecule.components),
-                                                      -min([int(y) if y not in ['?','+'] else 999 for x in molecule.components for y in x.bonds] + [999]),
-                                                      -len([x for x in molecule.components if len(x.bonds) > 0]),
-                                                      -len([x for x in molecule.components if x.activeState not in [0, '0']]),
-                                                      len(str(molecule)),
-                                                      str(molecule)),
-                                reverse=True)
-        #self.molecules.sort(key=lambda x:(-len(x.components),x.evaluateMolecule(),x.name))
+        self.molecules.sort(
+            key=lambda molecule: (
+                len(molecule.components),
+                -min(
+                    [
+                        int(y) if y not in ["?", "+"] else 999
+                        for x in molecule.components
+                        for y in x.bonds
+                    ]
+                    + [999]
+                ),
+                -len([x for x in molecule.components if len(x.bonds) > 0]),
+                -len([x for x in molecule.components if x.activeState not in [0, "0"]]),
+                len(str(molecule)),
+                str(molecule),
+            ),
+            reverse=True,
+        )
+        # self.molecules.sort(key=lambda x:(-len(x.components),x.evaluateMolecule(),x.name))
 
     def __str__(self):
         self.sort()
-        return '.'.join([x.toString().replace('-', '_') for x in self.molecules])
+        return ".".join([x.toString().replace("-", "_") for x in self.molecules])
 
     def str2(self):
         self.sort()
-        return '.'.join([x.str2().replace('-', '_') for x in self.molecules])
+        return ".".join([x.str2().replace("-", "_") for x in self.molecules])
 
     def reset(self):
         for element in self.molecules:
@@ -234,36 +245,37 @@ class Species:
 
 
 import pickle
+
+
 class Molecule:
     def __init__(self, name):
-        '''
+        """
         Initializes an empty molecule
 
         >>> str(Molecule('mol'))
         'mol()'
 
-        '''
+        """
         self.components = []
         self.name = name
-        self.compartment = ''
-        self.trueName = ''
-        
+        self.compartment = ""
+        self.trueName = ""
+
         a = numpy.random.rand(10, 100)
         self.hash = hashlib.sha1(a).digest()
-        
-        
+
     def copy(self):
         molecule = Molecule(self.name)
         for element in self.components:
             molecule.components.append(element.copy())
-        return molecule 
-        
-    def addChunk(self,chunk):
+        return molecule
+
+    def addChunk(self, chunk):
         component = Component(chunk[0][0][0][0])
         component.addState(chunk[0][0][0][1])
         self.addComponent(component)
-        
-    def addComponent(self,component,overlap=0):
+
+    def addComponent(self, component, overlap=0):
         """
         Adds a component, optionally refusing to add a component if it already exists and sorting components by name
         ---
@@ -291,88 +303,106 @@ class Molecule:
                 compo = self.getComponent(component.name)
                 for state in component.states:
                     compo.addState(state)
-        self.components = sorted(self.components,key=lambda x:x.name)
-    
+        self.components = sorted(self.components, key=lambda x: x.name)
+
     def setCompartment(self, compartment):
         self.compartment = compartment
-             
+
     def getBondNumbers(self):
         bondNumbers = []
         for element in self.components:
-                bondNumbers.extend([int(x) for x in element.bonds])
+            bondNumbers.extend([int(x) for x in element.bonds])
         return bondNumbers
-        
+
     def getComponent(self, componentName):
         for component in self.components:
             if componentName == component.getName():
                 return component
-                
+
     def removeComponent(self, componentName):
         x = [x for x in self.components if x.name == componentName]
         if x != []:
             self.components.remove(x[0])
-            
-    def removeComponents(self,components):
+
+    def removeComponents(self, components):
         for element in components:
             if element in self.components:
                 self.components.remove(element)
-                
-    def addBond(self,componentName,bondName):
+
+    def addBond(self, componentName, bondName):
         bondNumbers = self.getBondNumbers()
         while bondName in bondNumbers:
             bondName += 1
         component = self.getComponent(componentName)
         component.addBond(bondName)
-        
+
     def getComponentWithBonds(self):
         return [x.name for x in self.components if x.bonds != []]
-        
-    def contains(self,componentName):
+
+    def contains(self, componentName):
         return componentName in [x.name for x in self.components]
-        
-        
+
     def evaluateMolecule(self):
         try:
             return min([self.evaluateBonds(x.bonds) for x in self.components])
         except ValueError:
             return 999999
 
-    def evaluateBonds(self,bonds):
+    def evaluateBonds(self, bonds):
         if len(bonds) == 0:
             return 9999999
         return bonds[0]
 
     def sort(self):
-        self.components.sort(key=lambda x:(x.name,self.evaluateBonds(x.bonds)))
+        self.components.sort(key=lambda x: (x.name, self.evaluateBonds(x.bonds)))
+
     def __str__(self):
 
         self.sort()
-        tmp = self.name.replace('-','_')
-        if tmp == '0':
+        tmp = self.name.replace("-", "_")
+        if tmp == "0":
             return tmp
         if tmp[0].isdigit():
-            tmp = 'm__' + tmp
-        return tmp + '(' + ','.join([str(x) for x in self.components]) + ')' + self.compartment
-      
-    def signature(self,component):
-        #tmpComponents = deepcopy(self.components)
-        #tmpComponents.sort(key=lambda x:x.name)
-        tmp = self.name.replace('-','_')
-        return tmp + '(' + ','.join([x.signature() for x in self.components if (self.name,x.name) not in component]) + ')' + self.compartment
+            tmp = "m__" + tmp
+        return (
+            tmp
+            + "("
+            + ",".join([str(x) for x in self.components])
+            + ")"
+            + self.compartment
+        )
+
+    def signature(self, component):
+        # tmpComponents = deepcopy(self.components)
+        # tmpComponents.sort(key=lambda x:x.name)
+        tmp = self.name.replace("-", "_")
+        return (
+            tmp
+            + "("
+            + ",".join(
+                [
+                    x.signature()
+                    for x in self.components
+                    if (self.name, x.name) not in component
+                ]
+            )
+            + ")"
+            + self.compartment
+        )
 
     def toString(self):
         return self.__str__()
-        
+
     def str2(self):
         self.sort()
-        self.components = sorted(self.components,key=lambda x:x.name)
-        tmp = self.name.replace('-','_')
+        self.components = sorted(self.components, key=lambda x: x.name)
+        tmp = self.name.replace("-", "_")
         if tmp[0].isdigit():
-            tmp = 'm__' + tmp
-        
-        return tmp + '(' + ','.join([x.str2() for x in self.components]) + ')'
-        
-    def extend(self,molecule):
+            tmp = "m__" + tmp
+
+        return tmp + "(" + ",".join([x.str2() for x in self.components]) + ")"
+
+    def extend(self, molecule):
         for element in molecule.components:
             comp = [x for x in self.components if x.name == element.name]
             if len(comp) == 0:
@@ -382,20 +412,20 @@ class Molecule:
                     comp[0].addBond(bond)
                 for state in element.states:
                     comp[0].addState(state)
-                    
+
     def reset(self):
         for element in self.components:
             element.reset()
-            
-    def update(self,molecule):
+
+    def update(self, molecule):
         for comp in molecule.components:
             if comp.name not in [x.name for x in self.components]:
                 self.components.append(deepcopy(comp))
-                
-    
+
+
 class Component:
-    def __init__(self,name,bonds = [],states=[]):
-        '''
+    def __init__(self, name, bonds=[], states=[]):
+        """
         Component initialization setting only the name field
         ---
         Args:
@@ -405,15 +435,14 @@ class Component:
             ['test']
             >>> [str(Component('1test'))]
             ['_1test']
-        '''
+        """
         self.name = name
         self.states = []
         self.bonds = []
-        self.activeState = ''
-        
-        
+        self.activeState = ""
+
     def copy(self):
-        '''
+        """
         Returns an indepent copy of this component
         
         >>> c = Component('first')
@@ -421,13 +450,13 @@ class Component:
         >>> c2.name = 'second'
         >>> [str(c), str(c2)]
         ['first', 'second']
-        '''
-        component = Component(self.name,deepcopy(self.bonds),deepcopy(self.states))
-        component.activeState = deepcopy(self.activeState)     
+        """
+        component = Component(self.name, deepcopy(self.bonds), deepcopy(self.states))
+        component.activeState = deepcopy(self.activeState)
         return component
-        
-    def addState(self,state,update=True):
-        '''
+
+    def addState(self, state, update=True):
+        """
         Adds an state to this component, optionally become the active state. The method adds base state 0 if the state
         doesnt exist
         ---
@@ -443,16 +472,17 @@ class Component:
             >>> c.states.sort()
             >>> [str(c), c.str2()]
             ['comp~first', 'comp~0~first~second']
-        '''
+        """
         if not state in self.states:
             self.states.append(state)
         if update:
             self.setActiveState(state)
-        if not '0' in self.states:
-            self.states.append('0')
-        #print 'LALALA',state
-    def addStates(self,states,update=True):
-        '''
+        if not "0" in self.states:
+            self.states.append("0")
+        # print 'LALALA',state
+
+    def addStates(self, states, update=True):
+        """
         adds a state list to this component, the active state will be the last component in the lsit
         ----
         Args:
@@ -463,13 +493,13 @@ class Component:
             >>> c.states.sort()
             >>> [str(c), c.str2()]
             ['comp~z2', 'comp~0~z1~z2']
-        '''
+        """
         for state in states:
             if state not in self.states:
-                self.addState(state,update)
-        
-    def addBond(self,bondName):
-        '''
+                self.addState(state, update)
+
+    def addBond(self, bondName):
+        """
         Adds bond information to this component while checking that the bond doesn't already exist
         ---
         Args:
@@ -481,16 +511,16 @@ class Component:
             >>> result = c.addBond('1')
             >>> [result, str(c)]
             [False, 'comp!1']
-        '''
-        #if len(self.bonds) == 0:
+        """
+        # if len(self.bonds) == 0:
         #    self.bonds.append('U')
         if not bondName in self.bonds:
             self.bonds.append(bondName)
             return True
         return False
-        
-    def setActiveState(self,state):
-        '''
+
+    def setActiveState(self, state):
+        """
         Sets the active state of the component if the state already exists
         ---
         Args:
@@ -504,64 +534,64 @@ class Component:
             >>> result = c.setActiveState('nonexistant')
             >>> [result, str(c)]
             [False, 'comp~0']
-        '''
+        """
         if state not in self.states:
             return False
         self.activeState = state
         return True
-        
+
     def getRuleStr(self):
-        tmp = self.name 
+        tmp = self.name
         if len(self.bonds) > 0:
-            tmp += '!' + '!'.join([str(x) for x in self.bonds])
-        if self.activeState != '':
-            tmp += '~' + self.activeState
+            tmp += "!" + "!".join([str(x) for x in self.bonds])
+        if self.activeState != "":
+            tmp += "~" + self.activeState
         return tmp
-        
+
     def getTotalStr(self):
-        return self.name + '~'.join(self.states)
-    
+        return self.name + "~".join(self.states)
+
     def getName(self):
-        return self.name 
-        
+        return self.name
+
     def __str__(self):
         tmp = self.getRuleStr()
-        #edit to meet bng string requirements
+        # edit to meet bng string requirements
         if tmp[0].isdigit():
-            tmp = '_' + tmp
-        tmp = tmp.replace('-','_')
+            tmp = "_" + tmp
+        tmp = tmp.replace("-", "_")
         return tmp
-        
+
     def str2(self):
         tmp = self.name
 
         if len(self.bonds) > 0:
-            tmp += '!' + '!'.join([str(x) for x in self.bonds])
+            tmp += "!" + "!".join([str(x) for x in self.bonds])
         if len(self.states) > 0:
-            tmp += '~' + '~'.join([str(x) for x in self.states])
+            tmp += "~" + "~".join([str(x) for x in self.states])
 
         if tmp[0].isdigit():
-            tmp = '_' + tmp
+            tmp = "_" + tmp
 
-        return tmp        
-        
+        return tmp
+
     def signature(self):
         tmp = self.name
         if len(self.bonds) > 0:
-            tmp += '!+'
-        if self.activeState != '':
-            tmp += '~{0}'.format(self.activeState)
-        return tmp        
-        
+            tmp += "!+"
+        if self.activeState != "":
+            tmp += "~{0}".format(self.activeState)
+        return tmp
+
     def __hash__(self):
         return self.name
-        
+
     def reset(self):
         self.bonds = []
-        if '0' in self.states:
-            self.activeState = '0'
-        
-        
+        if "0" in self.states:
+            self.activeState = "0"
+
+
 class Databases:
     def __init__(self):
         # dictionary contains molecule vs bionetgen structure defitions
@@ -574,14 +604,14 @@ class Databases:
         self.assumptions = defaultdict(set)
         self.softConstraints = False
         self.constructedSpecies = set([])
-        self.processName = ''
-        
+        self.processName = ""
+
     def getRawDatabase(self):
         return self.rawDatabase
-        
+
     def getLabelDictionary(self):
         return self.labelDictionary
-        
+
     def add2LabelDictionary(self, key, value):
         temp = tuple(key)
         temp = temp.sort()
@@ -589,7 +619,6 @@ class Databases:
 
     def add2RawDatabase(self, rawDatabase):
         pass
-    
+
     def getTranslator(self):
         return self.translator
-    
