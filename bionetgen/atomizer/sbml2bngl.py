@@ -289,7 +289,7 @@ class SBML2BNGL:
         from an SBML related to a particular species.
         It returns id,initialConcentration,(bool)isconstant and isboundary,
         and the compartment
-        It also accounts for the fact that sometimes ppl use the same name for 
+        It also accounts for the fact that sometimes ppl use the same name for
         molecules with different identifiers
         """
         identifier = species.getId()
@@ -599,7 +599,7 @@ class SBML2BNGL:
 
     def calculate_factor(self, react, prod, expr, removed):
         """
-        Calculates factors from reactants and products? 
+        Calculates factors from reactants and products?
         """
         ifStack = Counter()
         remainderPatterns = []
@@ -748,7 +748,7 @@ class SBML2BNGL:
         split_rxn=False,
     ):
         """
-        This functions attempts to obtain the left and right hand sides of a rate reaction 
+        This functions attempts to obtain the left and right hand sides of a rate reaction
         function given a MathML tree. It also removes compartments and chemical factors from the function
 
         Keyword arguments:
@@ -1089,10 +1089,14 @@ class SBML2BNGL:
 
         # in case a given species was defined as the zero molecule don't include it in the rate correction method
         for x in reaction.getListOfReactants():
-            if x.getSpecies().lower() not in zerospecies and x.getStoichiometry() not in [
-                0,
-                "0",
-            ]:
+            if (
+                x.getSpecies().lower() not in zerospecies
+                and x.getStoichiometry()
+                not in [
+                    0,
+                    "0",
+                ]
+            ):
                 if not x.getConstant() and pymath.isnan(x.getStoichiometry()):
                     logMess(
                         "ERROR:SIM241",
@@ -1114,10 +1118,14 @@ class SBML2BNGL:
                         continue
                     rReactant.append((x.getSpecies(), x.getStoichiometry()))
         for x in reaction.getListOfProducts():
-            if x.getSpecies().lower() not in zerospecies and x.getStoichiometry() not in [
-                0,
-                "0",
-            ]:
+            if (
+                x.getSpecies().lower() not in zerospecies
+                and x.getStoichiometry()
+                not in [
+                    0,
+                    "0",
+                ]
+            ):
                 if not x.getConstant() and pymath.isnan(x.getStoichiometry()):
                     logMess(
                         "ERROR:SIM241",
@@ -1552,7 +1560,7 @@ class SBML2BNGL:
 
     def __getRawCompartments(self, compartment):
         """
-        Private method used by the getCompartments method 
+        Private method used by the getCompartments method
         """
         idid = compartment.getId()
         name = compartment.getName()
@@ -2141,8 +2149,8 @@ class SBML2BNGL:
         functions,
     ):
         """
-        assignment rules require further adjustment after parsed 
-        to their initial values.  
+        assignment rules require further adjustment after parsed
+        to their initial values.
         """
         # We'll need this to write nicely
         prnter = StrPrinter({"full_prec": False})
@@ -2278,7 +2286,7 @@ class SBML2BNGL:
     ):
         """
         this method obtains an SBML rate rules and assignment rules. They
-        require special handling since rules are often both defined as rules 
+        require special handling since rules are often both defined as rules
         and parameters initialized as 0, so they need to be removed from the parameters list
         """
         # FIXME: This function removes compartment info and this leads to mis-replacement of variables downstream. e.g. Calc@ER and Calc@MIT both gets written as Calc and downstream the replacement is wrong.
@@ -2442,9 +2450,9 @@ class SBML2BNGL:
             # it is an assigment rule
             elif arule_obj.isAssignment:
                 """
-                 normal species observables references in functions keep the format <speciesName>_<compartment> in function references,
-                 and observables dict keeps track of that. however when a species is defined by an assignment function we wish to 
-                 keep track of reference <speciesName> that points to a standard BNGL function
+                normal species observables references in functions keep the format <speciesName>_<compartment> in function references,
+                and observables dict keeps track of that. however when a species is defined by an assignment function we wish to
+                keep track of reference <speciesName> that points to a standard BNGL function
                 """
                 # it was originially defined as a zero parameter, so delete it from the parameter list definition
                 if rawArule[0] in zRules:

@@ -374,8 +374,10 @@ class SCTSolver:
                             continue
 
                         # can we just match it up through existing species instead of forcing a modification?
-                        greedyMatch = self.database.sbmlAnalyzer.greedyModificationMatching(
-                            mod, self.database.dependencyGraph.keys()
+                        greedyMatch = (
+                            self.database.sbmlAnalyzer.greedyModificationMatching(
+                                mod, self.database.dependencyGraph.keys()
+                            )
                         )
 
                         if greedyMatch not in [-1, -2, []]:
@@ -1330,8 +1332,10 @@ class SCTSolver:
 
                             if not self.database.softConstraints:
                                 if loginformation:
-                                    modification = sbmlAnalyzer.findMatchingModification(
-                                        reactant, candidates[0][0]
+                                    modification = (
+                                        sbmlAnalyzer.findMatchingModification(
+                                            reactant, candidates[0][0]
+                                        )
                                     )
                                     modification = (
                                         modification[0] if modification else "mod"
@@ -1609,7 +1613,7 @@ class SCTSolver:
     @memoize
     def measureGraph(self, element, path):
         """
-        Calculates the weight of individual paths as the sum of the weights of the individual candidates plus the number of 
+        Calculates the weight of individual paths as the sum of the weights of the individual candidates plus the number of
         candidates. The weight of an individual candidate is equal to the sum of strings contained in that candidate different
         from the original reactant
         >>> dummy = SCTSolver(None)
@@ -1637,7 +1641,7 @@ class SCTSolver:
     # graph doesn't get the same inputs, memoization doesn't pay off.
     def measureGraph2(self, element, path):
         """
-        Identical to previous function but iterative instead of 
+        Identical to previous function but iterative instead of
         recursive
         """
         counter = 1

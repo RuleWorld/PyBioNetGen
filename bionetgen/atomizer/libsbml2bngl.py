@@ -96,7 +96,7 @@ import os.path
 
 
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
+    """Get absolute path to resource, works for dev and for PyInstaller"""
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
@@ -838,7 +838,7 @@ def changeNames(functions, dictionary):
 # ASS - We need to rename the functions if they are the same as obs
 def changeDefs(functions, dictionary):
     """
-    changes the names of the functions (RHS) instead of the LHS 
+    changes the names of the functions (RHS) instead of the LHS
     """
     tmpArray = []
     for function in functions:
@@ -1955,7 +1955,9 @@ def listFiles(minReactions, directory):
     ]
     outputList = []
     for xml in xmlFiles:
-        print(".",)
+        print(
+            ".",
+        )
         reader = libsbml.SBMLReader()
         document = reader.readSBMLFromFile(directory + xml)
         model = document.getModel()

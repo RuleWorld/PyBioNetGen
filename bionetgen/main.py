@@ -288,7 +288,11 @@ class BNGBase(cement.Controller):
             ),
             (
                 ["-o", "--output"],
-                {"help": "output SBML file", "default": ".", "type": str,},
+                {
+                    "help": "output SBML file",
+                    "default": ".",
+                    "type": str,
+                },
             ),
             (
                 ["-t", "--annotation"],
@@ -298,14 +302,26 @@ class BNGBase(cement.Controller):
                     "action": "store_true",
                 },
             ),
-            (["-c", "--convention-file"], {"help": "Conventions file", "type": str,},),
+            (
+                ["-c", "--convention-file"],
+                {
+                    "help": "Conventions file",
+                    "type": str,
+                },
+            ),
             (
                 ["-n", "--naming-conventions"],
-                {"help": "Naming conventions file", "type": str,},
+                {
+                    "help": "Naming conventions file",
+                    "type": str,
+                },
             ),
             (
                 ["-u", "--user-structures"],
-                {"help": "User defined species", "type": str,},
+                {
+                    "help": "User defined species",
+                    "type": str,
+                },
             ),
             (
                 ["-id", "--molecule-id"],

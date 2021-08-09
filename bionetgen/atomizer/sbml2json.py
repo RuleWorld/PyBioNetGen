@@ -204,7 +204,7 @@ time	 second	 second
 
     def getPrunnedTree(self, math, remainderPatterns):
         """
-        remove mass action factors 
+        remove mass action factors
         """
         while (math.getCharacter() == "*" or math.getCharacter() == "/") and len(
             remainderPatterns

@@ -47,7 +47,7 @@ def getDifferences(scoreMatrix, speciesName, threshold):
     """
     given a list of strings and a scoreMatrix, return the list of difference between
     those strings with a levenshtein difference of less than threshold
-    returns: 
+    returns:
         namePairs: list of tuples containing strings with distance <2
         differenceList: list of differences between the tuples in namePairs
     """

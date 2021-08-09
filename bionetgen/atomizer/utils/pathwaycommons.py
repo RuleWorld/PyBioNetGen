@@ -180,8 +180,10 @@ def name2uniprot(nameStr, organism):
 
     if response in ["", None]:
         url = "http://www.uniprot.org/uniprot/?"
-        xparams = "query={0}&columns=entry name,id&format=tab&limit=5&sort=score".format(
-            nameStr
+        xparams = (
+            "query={0}&columns=entry name,id&format=tab&limit=5&sort=score".format(
+                nameStr
+            )
         )
         try:
             response = urllib.request.urlopen(url, xparams).read()

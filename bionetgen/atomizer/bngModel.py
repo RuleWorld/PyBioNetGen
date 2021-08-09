@@ -342,8 +342,10 @@ class Function:
                         )
                         idx += 1
                     elif argList[idx] == "floor":
-                        parsedString += "min(rint(({0}) -0.5),rint(({0}) + 0.5))".format(
-                            constructFromList(argList[idx + 1], optionList)
+                        parsedString += (
+                            "min(rint(({0}) -0.5),rint(({0}) + 0.5))".format(
+                                constructFromList(argList[idx + 1], optionList)
+                            )
                         )
                         idx += 1
                     elif argList[idx] in ["pow"]:
@@ -876,8 +878,8 @@ class ARule:
 
 class bngModel:
     """
-    Takes in atomizer stuff and turns everything 
-    into objects which can be used to print the 
+    Takes in atomizer stuff and turns everything
+    into objects which can be used to print the
     final model
     """
 
@@ -1011,7 +1013,7 @@ class bngModel:
     def consolidate_arules(self):
         """
         this figures out what to do with particular
-        assignment rules pulled from SBML. 
+        assignment rules pulled from SBML.
         a) A non-constant parameter gets turned into
            a function
         b) Any species in the system can be modified

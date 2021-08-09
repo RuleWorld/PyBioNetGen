@@ -54,7 +54,7 @@ import argparse
 
 def getFiles(directory, extension):
     """
-    Gets a list of <*.extension> files. include subdirectories and return the absolute 
+    Gets a list of <*.extension> files. include subdirectories and return the absolute
     path. also sorts by size.
     """
     matches = []

@@ -751,7 +751,7 @@ class SBMLAnalyzer:
 
     def loadConfigFiles(self, fileName):
         """
-        the reactionDefinition file must contain the definitions of the basic reaction types 
+        the reactionDefinition file must contain the definitions of the basic reaction types
         we wnat to parse and what are the requirements of a given reaction type to be considered
         as such
         """
@@ -918,7 +918,7 @@ class SBMLAnalyzer:
         [[[['EGF_EGFR_2'], ['EGF_EGFR_2_P']], '_p', ('+ _', '+ p')]]
         >>> sa.processAdHocNamingConventions('A', 'A_P', {}, False,['A','A_P']) #changes neeed to be at least 3 characters long
         [[[['A'], ['A_P']], None, None]]
-        >>> sa.processAdHocNamingConventions('Ras_GDP', 'Ras_GTP', {}, False,['Ras_GDP','Ras_GTP', 'Ras']) 
+        >>> sa.processAdHocNamingConventions('Ras_GDP', 'Ras_GTP', {}, False,['Ras_GDP','Ras_GTP', 'Ras'])
         [[[['Ras'], ['Ras_GDP']], '_gdp', ('+ _', '+ g', '+ d', '+ p')], [[['Ras'], ['Ras_GTP']], '_gtp', ('+ _', '+ g', '+ t', '+ p')]]
         >>> sa.processAdHocNamingConventions('cRas_GDP', 'cRas_GTP', {}, False,['cRas_GDP','cRas_GTP'])
         [[[['cRas'], ['cRas_GDP']], '_gdp', ('+ _', '+ g', '+ d', '+ p')], [[['cRas'], ['cRas_GTP']], '_gtp', ('+ _', '+ g', '+ t', '+ p')]]
@@ -1690,7 +1690,7 @@ class SBMLAnalyzer:
     def getReactionProperties(self):
         """
         if we are using a naming convention definition in the json file
-        this method will return the component and state names that this 
+        this method will return the component and state names that this
         reaction uses
         """
 
@@ -1783,12 +1783,15 @@ class SBMLAnalyzer:
                         idx1 += 1
                         idx2 += 1
                     elif "-" in element[idx1] and "-" in element[idx2]:
-                        if tuple(
-                            [
-                                element[idx1].replace("-", "+"),
-                                element[idx2].replace("-", "+"),
-                            ]
-                        ) in list(conventionDict.keys()):
+                        if (
+                            tuple(
+                                [
+                                    element[idx1].replace("-", "+"),
+                                    element[idx2].replace("-", "+"),
+                                ]
+                            )
+                            in list(conventionDict.keys())
+                        ):
                             matches[index].reverse()
                             transformedPattern = conventionDict[
                                 tuple(

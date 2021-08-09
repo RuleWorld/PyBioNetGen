@@ -444,7 +444,7 @@ class Component:
     def copy(self):
         """
         Returns an indepent copy of this component
-        
+
         >>> c = Component('first')
         >>> c2 = c.copy()
         >>> c2.name = 'second'
@@ -487,7 +487,7 @@ class Component:
         ----
         Args:
             states (list): list of states to add to this component
-            
+
             >>> c = Component('comp')
             >>> c.addStates(['z1','z2'])
             >>> c.states.sort()

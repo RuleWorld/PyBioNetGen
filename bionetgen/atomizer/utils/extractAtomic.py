@@ -17,7 +17,7 @@ def extractMolecules(action, site1, site2, chemicalArray, differentiateDimers=Fa
         The entire system will be put into the atomicPatterns dictionary
     Keyword arguments:
     site1,site2 -- where the action takes place
-    chemicalArray -- the list of species we will be extracting atomic patters 
+    chemicalArray -- the list of species we will be extracting atomic patters
     from
     """
     atomicPatterns = {}

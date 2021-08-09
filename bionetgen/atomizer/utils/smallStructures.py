@@ -653,10 +653,10 @@ class Molecule:
                 """
                 if len(c1.bonds) != len(c2.bonds) or '?' in c1.bonds or '?' in c2.bonds:
                     c1.bonds = ['?']
-            
+
                 else:
                     c1.bonds = ['+']
-            """
+                """
 
 
 class Component:

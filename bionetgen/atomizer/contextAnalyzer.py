@@ -343,9 +343,7 @@ def findNewParameters(parameters, bngParameters):
 
 
 def extractRedundantContext(rules, transformationCenter, transformationContext):
-    """'
-
-    """
+    """'"""
     centerDict = groupByReactionCenter(transformationCenter)
     redundantDict = groupByReactionCenterAndRateAndActions2(rules, centerDict)
     # redundantDict['{0}.{1}'.format(element, element2)] = tmpDict[element2]

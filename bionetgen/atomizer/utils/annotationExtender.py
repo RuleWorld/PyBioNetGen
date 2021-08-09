@@ -53,7 +53,7 @@ import argparse
 
 def getFiles(directory, extension):
     """
-    Gets a list of <*.extension> files. include subdirectories and return the absolute 
+    Gets a list of <*.extension> files. include subdirectories and return the absolute
     path. also sorts by size.
     """
     matches = []
@@ -425,7 +425,7 @@ def writeSBML(document, fileName):
 
 def createDataStructures(bnglContent):
     """
-    create an atomized biomodels in a temporary file to obtain relevant 
+    create an atomized biomodels in a temporary file to obtain relevant
     bng information
     """
 
