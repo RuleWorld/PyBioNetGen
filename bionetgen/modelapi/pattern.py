@@ -133,7 +133,7 @@ class Molecule:
             mol_str += "%{}".format(self.label)
         # we have a null species
         if not self.name == "0":
-            mol_str += "("  
+            mol_str += "("
         # we _could_ just not do () if components
         # don't exist but that has other issues,
         # especially for extension highlighting

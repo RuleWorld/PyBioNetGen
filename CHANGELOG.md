@@ -116,4 +116,7 @@ Moving imports around, removing unnecessary ones to speed up CLI performance.
 
 ## 0.3.9
 A couple bugfixes to plotting, running the CLI on a model can now generate a log file with the option
--l/--log. Failing to run now raises a ValueError (will be changed with custom errors in the future). Added some input and output file checks to notebook subcommand. Fixed a but where "0" species was being printed as "0()". Action block is now a list and not a dictionary which was disallowing multiple actions of the same type. 
+-l/--log. Failing to run now raises a ValueError (will be changed with custom errors in the future). Added some input and output file checks to notebook subcommand. 
+
+## 0.4.0 
+Fixed a but where "0" species was being printed as "0()". Action block is now a list and not a dictionary which was disallowing multiple actions of the same type. 

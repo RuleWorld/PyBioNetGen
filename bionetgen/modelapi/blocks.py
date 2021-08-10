@@ -552,7 +552,7 @@ class ActionBlock(ModelBlock):
         name, value = item_tpl
         # set the line
         self.items.append(value)
-    
+
     def __repr__(self) -> str:
         # overwrites what the class representation
         # shows the items in the model block in
