@@ -120,3 +120,6 @@ A couple bugfixes to plotting, running the CLI on a model can now generate a log
 
 ## 0.4.0 
 Fixed a but where "0" species was being printed as "0()". Action block is now a list and not a dictionary which was disallowing multiple actions of the same type. 
+
+## 0.4.1
+Changed `bionetgen.run` behavior when called with a `bngmodel` object. Now the model file is saved and if it exists, it's overwritten with a warning. Slightly better error reporting when the `run` call fails. 

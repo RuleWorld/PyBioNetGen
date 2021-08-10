@@ -137,13 +137,14 @@ class BNGCLI:
         except:
             stderr_loc = subprocess.STDOUT
         # run BNG2.pl
-
         if self.is_bngmodel:
-            with NamedTemporaryFile(
-                mode="w+", encoding="utf-8", delete=False, suffix=".bngl"
-            ) as tfile:
+            write_to = self.inp_file.model_name + ".bngl"
+            write_to = os.path.abspath(write_to)
+            if os.path.isfile(write_to):
+                print(f"WARNIING: Overwriting file {write_to}")
+            with open(write_to, "w") as tfile:
                 tfile.write(str(self.inp_file))
-            command = ["perl", self.bng_exec, tfile.name]
+            command = ["perl", self.bng_exec, write_to]
         else:
             fname = os.path.basename(self.inp_path)
             fname = fname.replace(".bngl", "")
@@ -172,8 +173,8 @@ class BNGCLI:
             with open(full_log_path, "w") as f:
                 f.write("\n".join(out))
 
-        if self.is_bngmodel:
-            os.remove(tfile.name)
+        # if self.is_bngmodel:
+        #     os.remove(tfile.name)
         # write out stdout/err if they exist
         # TODO Maybe indicate that we are printing out stdout/stderr before printing
         # if rc.stdout is not None:
