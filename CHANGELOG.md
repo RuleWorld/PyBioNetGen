@@ -123,3 +123,6 @@ Fixed a but where "0" species was being printed as "0()". Action block is now a 
 
 ## 0.4.1
 Changed `bionetgen.run` behavior when called with a `bngmodel` object. Now the model file is saved and if it exists, it's overwritten with a warning. Slightly better error reporting when the `run` call fails. 
+
+## 0.4.2
+Changed `bionetgen.run` behavior again, how calling the method with an `out` argument doesn't leave you in the output folder when it's done executing and it will return you back to the folder you started with. Bugfix where parsing a model without actions failed. 

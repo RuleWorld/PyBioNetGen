@@ -24,8 +24,8 @@ def run(inp, out=None, suppress=False):
         into. If it doesn't exist, it will be created.
     """
     # if out is None we make a temp directory
+    cur_dir = os.getcwd()
     if out is None:
-        cur_dir = os.getcwd()
         with TemporaryDirectory() as out:
             # instantiate a CLI object with the info
             cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
@@ -35,9 +35,6 @@ def run(inp, out=None, suppress=False):
                 # TODO: Better error reporting
                 print("Couldn't run the simulation")
                 print(e)
-
-            # if we are not in the original folder, go back
-            os.chdir(cur_dir)
     else:
         # instantiate a CLI object with the info
         cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
@@ -47,4 +44,5 @@ def run(inp, out=None, suppress=False):
             # TODO: Better error reporting
             print("Couldn't run the simulation")
             print(e)
+    os.chdir(cur_dir)
     return cli.result
