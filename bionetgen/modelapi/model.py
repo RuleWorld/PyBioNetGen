@@ -282,7 +282,8 @@ class bngmodel:
                 )
             )
             return None
-        return self.simulator
+        # for now we return the underlying simulator
+        return self.simulator.simulator
 
 
 ###### CORE OBJECT AND PARSING FRONT-END ######

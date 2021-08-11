@@ -126,3 +126,6 @@ Changed `bionetgen.run` behavior when called with a `bngmodel` object. Now the m
 
 ## 0.4.2
 Changed `bionetgen.run` behavior again, how calling the method with an `out` argument doesn't leave you in the output folder when it's done executing and it will return you back to the folder you started with. Bugfix where parsing a model without actions failed. 
+
+## 0.4.3
+Bugfix where the libroadrunner simulator object was not handled correctly. 
