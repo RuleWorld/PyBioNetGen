@@ -68,18 +68,22 @@ def plotDAT(inp, out=".", kw=dict()):
     plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()
 
+
 def printInfo(config, args):
     """
     ___
     """
     # this pulls out the arguments
-    #inp_file = args.input
-    #output = args.output
+    # inp_file = args.input
+    # output = args.output
     # if you set args.bngpath it should take precedence
-    #config_bngpath = config.get("bionetgen", "bngpath")
+    # config_bngpath = config.get("bionetgen", "bngpath")
     # and instantiates the CLI object
-    info = BNGInfo({},{})
+    info = BNGInfo({}, {})
+    info.gatherInfo()
+    info.messageGeneration()
     info.run()
+
 
 class BNGCLI:
     """

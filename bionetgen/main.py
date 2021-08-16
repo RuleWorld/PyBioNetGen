@@ -245,21 +245,20 @@ class BNGBase(cement.Controller):
         plotDAT(args.input, args.output, kw=dict(args._get_kwargs()))
 
     @cement.ex(
-        help="____",
+        help="Provides version information for BNG and dependencies",
         arguments=[
             (
                 ["-d", "--detail"],
-                {
-                    "help": "Path to BNGL file (required)",
-                    "default": False,
-                    "action": "store_true"
-                },
+                {"help": "___", "default": False, "action": "store_true"},
             ),
         ],
     )
     def info(self):
         """
-        ___
+        Information subcommand to provide installation versions and paths.
+
+        Currently provides version information for BioNetGen, the BNG CLI, Perl,
+        numpy, pandas, and libroadrunner. Also provides BNG installation path.
         """
         args = self.app.pargs
         printInfo(self.app.config, args)
