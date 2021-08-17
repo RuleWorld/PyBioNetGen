@@ -1,4 +1,5 @@
 import os
+from re import sub
 import subprocess
 import bionetgen as bng
 from distutils import spawn
@@ -107,22 +108,27 @@ def test_bngexec(bngexec):
         return False
 
 
-def run_command(command, suppress=False):
-    if suppress:
-        process = subprocess.Popen(
-            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1
-        )
-        return process.poll(), None
+def run_command(command, suppress=False, timeout=None):
+    if timeout is not None:
+        # I am unsure how to do both timeout and the live polling of stdo
+        rc = subprocess.run(command, timeout=timeout, capture_output=True)
+        return rc.returncode, rc
     else:
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
-        out = []
-        while True:
-            output = process.stdout.readline()
-            if output == "" and process.poll() is not None:
-                break
-            if output:
-                o = output.strip()
-                out.append(o)
-                print(o)
-        rc = process.poll()
-        return rc, out
+        if suppress:
+            process = subprocess.Popen(
+                command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1
+            )
+            return process.poll(), process
+        else:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
+            out = []
+            while True:
+                output = process.stdout.readline()
+                if output == "" and process.poll() is not None:
+                    break
+                if output:
+                    o = output.strip()
+                    out.append(o)
+                    print(o)
+            rc = process.poll()
+            return rc, out

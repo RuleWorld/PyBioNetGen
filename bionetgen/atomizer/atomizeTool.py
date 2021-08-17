@@ -1,5 +1,8 @@
 import bionetgen.atomizer.libsbml2bngl as ls2b
-import yaml
+from bionetgen.core.defaults import BNGDefaults
+import yaml, os
+
+d = BNGDefaults()
 
 
 class AtomizeTool:
@@ -10,14 +13,16 @@ class AtomizeTool:
             "input": None,  # we need this, check at the end and fail if we don't have it
             "annotation": False,
             "output": None,
-            "convention_file": None,  # wtf do we do here?
-            "naming_conventions": None,  # wtf do we do here?
-            "user_structures": None,  # wtf do we do here?
+            "convention_file": None,
+            "naming_conventions": None,
+            "user_structures": None,
             "molecule_id": False,
             "convert_units": False,  # currently not supported
             "atomize": False,  # default is flat translation
             "pathwaycommons": False,  # requires connection so default is false
-            "bionetgen_analysis": "",  # TODO: get it from app config
+            "bionetgen_analysis": os.path.join(
+                d.bng_path, "BNG2.pl"
+            ),  # TODO: get it from app config
             "isomorphism_check": False,  # wtf do we do here?
             "ignore": False,  # wtf do we do here?
             "memoized_resolver": False,
@@ -98,16 +103,25 @@ class AtomizeTool:
             logLevel=self.config["logLevel"],
         )
 
-        if self.config["bionetgenAnalysis"] and self.returnArray:
-            ls2b.postAnalyzeFile(
-                self.config["outputFile"],
-                self.config.bionetgen_analysis,
-                self.returnArray.database,
-                replaceLocParams=self.config["replaceLocParams"],
-            )
-
-        if self.config["annotation"] and self.returnArray:
-            with open(self.config["outputFile"] + ".yml", "w") as f:
-                f.write(
-                    yaml.dump(self.returnArray.annotation, default_flow_style=False)
+        try:
+            if self.config["bionetgenAnalysis"] and self.returnArray:
+                ls2b.postAnalyzeFile(
+                    self.config["outputFile"],
+                    self.config["bionetgenAnalysis"],
+                    self.returnArray.database,
+                    replaceLocParams=self.config["replaceLocParams"],
                 )
+        except Exception as e:
+            print("Post analysis failed")
+            print(e)
+
+        try:
+            if self.config["annotation"] and self.returnArray:
+                with open(self.config["outputFile"] + ".yml", "w") as f:
+                    f.write(
+                        yaml.dump(self.returnArray.annotation, default_flow_style=False)
+                    )
+        except Exception as e:
+            print("annotation file writing failed")
+            print(e)
+        return self.returnArray
