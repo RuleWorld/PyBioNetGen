@@ -31,7 +31,7 @@ class BNGBase(cement.Controller):
     plot
         plots a gdat/cdat/scan file given by -i into file supplied by -o
     info
-        ##gives info##
+        provides version and path information about the BNG installation and dependencies
     """
 
     class Meta:

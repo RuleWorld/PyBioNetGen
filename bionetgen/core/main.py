@@ -80,7 +80,7 @@ def printInfo(config, args):
     # config_bngpath = config.get("bionetgen", "bngpath")
     # and instantiates the CLI object
     info = BNGInfo({}, {})
-    info.gatherInfo()
+    info.gatherInfo(config)
     info.messageGeneration()
     info.run()
 

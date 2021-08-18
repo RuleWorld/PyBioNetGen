@@ -2,45 +2,28 @@ class BNGInfo:
     def __init__(self, config, args):
         return
 
-    def gatherInfo(self):
+    def gatherInfo(self, config):
         import subprocess
         import os
-        import platform
 
         self.info = {}
 
-        # Get BNG version # Note: could use subprocess 'bionetgen -v'
+        # Get BNG version # Note:
         with open(
             os.path.join(*["bionetgen", "assets", "BNGVERSION"]), "r"
-        ) as f:  # 'PyBioNetGen/bionetgen/assets/BNGVERSION'
+        ) as f:
             read_data = f.read()
         self.info["BNG version"] = read_data[10:15]
 
-        # Get CLI version # Note: could use subprocess 'bionetgen -v'
+        # Get CLI version
         with open(
             os.path.join(*["bionetgen", "assets", "VERSION"]), "r"
-        ) as f:  # 'PyBioNetGen/bionetgen/assets/VERSION'
+        ) as f:
             read_data = f.read()
-        self.info["CLI version"] = read_data  # TODO: add decimals to version num?
+        self.info["CLI version"] = read_data
 
-        # # Get BNG2.pl path
-        # # Determine OS
-        # get_os = platform.system
-        # # Get path based on OS
-        # if get_os == 'Windows':
-        #     #os.path.join(*["bionetgen", "bng-win", "BNG2.pl"]), "r")
-        #     pass
-
-        # elif get_os == 'Darwin':
-        #     with open(os.path.join(*["bionetgen", "bng-mac", "BNG2.pl"]), "r") as f:
-        #         read_data = f.read()
-        #     self.info['BNG2.pl path'] = read_data[1:2]
-        # elif get_os == 'Linux':
-        #     with open(os.path.join(*["bionetgen", "bng-linux", "BNG2.pl"]), "r") as f:
-        #         read_data = f.read()
-        #     self.info["BNG2.pl path"] = read_data[1:2]
-        # else:
-        #     pass
+        # Get BNG2.pl path
+        self.info["BNG2.pl path"] = config.get("bionetgen", "bngpath")
 
         # Get pyBNG path
         # Read in CLI text
@@ -102,7 +85,7 @@ class BNGInfo:
             text = str(key + ": " + self.info[key] + "\n")
             message_lines.append(text)
 
-        self.message = " ".join((message_lines))
+        self.message = "".join((message_lines))
 
         return self.message
 
