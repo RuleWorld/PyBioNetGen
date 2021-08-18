@@ -8,17 +8,13 @@ class BNGInfo:
 
         self.info = {}
 
-        # Get BNG version # Note:
-        with open(
-            os.path.join(*["bionetgen", "assets", "BNGVERSION"]), "r"
-        ) as f:
+        # Get BNG version
+        with open(os.path.join(*["bionetgen", "assets", "BNGVERSION"]), "r") as f:
             read_data = f.read()
         self.info["BNG version"] = read_data[10:15]
 
         # Get CLI version
-        with open(
-            os.path.join(*["bionetgen", "assets", "VERSION"]), "r"
-        ) as f:
+        with open(os.path.join(*["bionetgen", "assets", "VERSION"]), "r") as f:
             read_data = f.read()
         self.info["CLI version"] = read_data
 
