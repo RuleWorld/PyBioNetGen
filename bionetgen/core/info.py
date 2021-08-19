@@ -1,5 +1,5 @@
 class BNGInfo:
-    def __init__(self, config, args = None):
+    def __init__(self, config, args=None):
         self.config = config
         self.args = args
 
