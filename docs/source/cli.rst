@@ -52,7 +52,9 @@ You can see all the available options by running :code:`bionetgen plot -h`
       --ylabel YLABEL       y-axis label (default: concentration)
       --title TITLE         title of plot (default: determined from input file)
 
-################# add example plot here
+Resulting plots should look similar to this:
+
+.. image:: ./assets/SIR.png
 
 Notebook
 ========
@@ -64,6 +66,15 @@ and the resulting notebook will be ready to load in your model using PyBioNetGen
 .. code-block:: shell
    
    bionetgen notebook -i mymodel.bngl -o mynotebook.ipynb
+
+Info
+====
+
+This subcommand simply prints out information about software versions and installation paths.
+
+.. code-block: shell
+
+   bionetgen info
 
 Tutorial
 ========

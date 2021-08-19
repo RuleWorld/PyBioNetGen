@@ -1,10 +1,15 @@
 class BNGInfo:
-    def __init__(self, config, args):
-        return
+    def __init__(self, config, args = None):
+        self.config = config
+        self.args = args
 
-    def gatherInfo(self, config):
+    def gatherInfo(self):
         import subprocess
         import os
+        import bionetgen
+        import numpy
+        import pandas
+        import roadrunner
 
         self.info = {}
 
@@ -19,17 +24,11 @@ class BNGInfo:
         self.info["CLI version"] = read_data
 
         # Get BNG2.pl path
-        self.info["BNG2.pl path"] = config.get("bionetgen", "bngpath")
+        self.info["BNG2.pl path"] = self.config.get("bionetgen", "bngpath")
 
         # Get pyBNG path
-        # Read in CLI text
-        result = subprocess.run(["pip", "show", "bionetgen"], stdout=subprocess.PIPE)
-        text = str(result.stdout)
-        # Find start & end indices
-        num_start = text.find("Location") + 10
-        num_end = text.find("Requires") - 4
-        # Save path info
-        self.info["pyBNG path"] = text[num_start:num_end]
+        # IPython, os.path
+        self.info["pyBNG path"] = ""
 
         # Get Perl version
         # Read in CLI text
@@ -42,34 +41,14 @@ class BNGInfo:
         self.info["Perl version"] = text[num_start:num_end]
 
         # Get numpy version #
-        # Read in CLI text
-        result = subprocess.run(["pip", "show", "numpy"], stdout=subprocess.PIPE)
-        text = str(result.stdout)
-        # Find start & end indices
-        num_start = text.find("Version") + 9
-        num_end = text.find("Summary") - 4
-        # Save version info
-        self.info["numpy version"] = text[num_start:num_end]
+        self.info["numpy version"] = numpy.version.version
 
         # Get pandas version
-        # Read in CLI text
-        result = subprocess.run(["pip", "show", "pandas"], stdout=subprocess.PIPE)
-        text = str(result.stdout)
-        # Find start & end indices
-        num_start = text.find("Version") + 9
-        num_end = text.find("Summary") - 4
-        # Save version info
-        self.info["pandas version"] = text[num_start:num_end]
+        self.info["pandas version"] = pandas.__version__
 
         # Get libRoadRunner version
-        # Read in CLI text
-        result = subprocess.run(["pip", "show", "pandas"], stdout=subprocess.PIPE)
-        text = str(result.stdout)
-        # Find start & end indices
-        num_start = text.find("Version") + 9
-        num_end = text.find("Summary") - 4
-        # Save version info
-        self.info["libRoadRunner version"] = text[num_start:num_end]
+        text = roadrunner.getVersionStr()
+        self.info["libRoadRunner version"] = text[0:5]
 
         return self.info
 
