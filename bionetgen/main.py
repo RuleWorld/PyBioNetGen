@@ -20,7 +20,7 @@ class BNGBase(cement.Controller):
 
     Used to set meta attributes like program name (label) as well
     as command line arguments. Each method is a subcommand in the
-    command line with it's own command line arguments.
+    command line with its own command line arguments.
 
     Subcommands
     -------
@@ -290,19 +290,10 @@ class BNGBase(cement.Controller):
         Information subcommand to provide installation versions and paths.
 
         Currently provides version information for BioNetGen, the BNG CLI, Perl,
-        numpy, pandas, and libroadrunner. Also provides BNG and pyBNG installation paths.
+        numpy, pandas, and libroadrunner. Also provides BNG2.pl and pyBNG paths.
         """
         args = self.app.pargs
         printInfo(self.app.config, args)
-
-        # import cProfile, pstats
-        # from pstats import SortKey
-        # profiler = cProfile.Profile()
-        # profiler.enable()
-        # printInfo(self.app.config, args)
-        # profiler.disable()
-        # stats = pstats.Stats(profiler).sort_stats('ncalls')
-        # stats.sort_stats(SortKey.TIME).print_stats(20)
 
 
 class BioNetGen(cement.App):
