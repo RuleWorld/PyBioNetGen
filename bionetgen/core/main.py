@@ -79,8 +79,8 @@ def printInfo(config, args):
     # if you set args.bngpath it should take precedence
     # config_bngpath = config.get("bionetgen", "bngpath")
     # and instantiates the CLI object
-    info = BNGInfo({}, {})
-    info.gatherInfo(config)
+    info = BNGInfo(config=config)
+    info.gatherInfo()
     info.messageGeneration()
     info.run()
 
