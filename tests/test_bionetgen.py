@@ -62,6 +62,7 @@ def test_action_loading():
     m = bng.bngmodel(all_action_model)
     assert len(m.actions) == 27
 
+
 def test_bionetgen_info():
     # test info subcommand
     argv = ["info"]
