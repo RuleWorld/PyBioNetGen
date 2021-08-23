@@ -1,6 +1,7 @@
 import bionetgen as bng
 from bionetgen.core import BNGResult
 from bionetgen.core import BNGPlotter
+from bionetgen.core import BNGInfo
 from bionetgen.modelapi.utils import run_command
 import bionetgen.modelapi.model as mdl
 
@@ -67,6 +68,22 @@ def plotDAT(inp, out=".", kw=dict()):
     # use the plotter object to get the plot
     plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()
+
+
+def printInfo(config, args):
+    """
+    ___
+    """
+    # this pulls out the arguments
+    # inp_file = args.input
+    # output = args.output
+    # if you set args.bngpath it should take precedence
+    # config_bngpath = config.get("bionetgen", "bngpath")
+    # and instantiates the CLI object
+    info = BNGInfo(config=config)
+    info.gatherInfo()
+    info.messageGeneration()
+    info.run()
 
 
 class BNGCLI:

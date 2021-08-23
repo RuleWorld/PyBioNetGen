@@ -61,3 +61,11 @@ def test_action_loading():
     all_action_model = os.path.join(*[tfold, "models", "all_actions.bngl"])
     m = bng.bngmodel(all_action_model)
     assert len(m.actions) == 27
+
+
+def test_bionetgen_info():
+    # test info subcommand
+    argv = ["info"]
+    with BioNetGenTest(argv=argv) as app:
+        app.run()
+        assert app.exit_code == 0

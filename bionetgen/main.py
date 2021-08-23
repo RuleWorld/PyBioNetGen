@@ -6,6 +6,7 @@ from cement.core.exc import CaughtSignal
 from .core.exc import BioNetGenError
 from .core.main import runCLI
 from .core.main import plotDAT
+from .core.main import printInfo
 from .core.notebook import BNGNotebook
 
 # pull defaults defined in core/defaults
@@ -19,7 +20,7 @@ class BNGBase(cement.Controller):
 
     Used to set meta attributes like program name (label) as well
     as command line arguments. Each method is a subcommand in the
-    command line with it's own command line arguments.
+    command line with its own command line arguments.
 
     Subcommands
     -------
@@ -29,6 +30,8 @@ class BNGBase(cement.Controller):
         generates and opens a notebook for a model given by -i, optional
     plot
         plots a gdat/cdat/scan file given by -i into file supplied by -o
+    info
+        provides version and path information about the BNG installation and dependencies
     """
 
     class Meta:
@@ -272,6 +275,25 @@ class BNGBase(cement.Controller):
             or args.input.endswith(".scan")
         ), "Input file has to be either a gdat or a cdat file"
         plotDAT(args.input, args.output, kw=dict(args._get_kwargs()))
+
+    @cement.ex(
+        help="Provides version information for BNG and dependencies",
+        arguments=[
+            (
+                ["-d", "--detail"],
+                {"help": "___", "default": False, "action": "store_true"},
+            ),
+        ],
+    )
+    def info(self):
+        """
+        Information subcommand to provide installation versions and paths.
+
+        Currently provides version information for BioNetGen, the BNG CLI, Perl,
+        numpy, pandas, and libroadrunner. Also provides BNG2.pl and pyBNG paths.
+        """
+        args = self.app.pargs
+        printInfo(self.app.config, args)
 
 
 class BioNetGen(cement.App):
