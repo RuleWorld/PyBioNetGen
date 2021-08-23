@@ -31,7 +31,12 @@ class BNGInfo:
         self.info["\nThe following are related to BioNetGen and its execution"] = ""
 
         # Get BNG version
-        with open(os.path.join(*["bionetgen", "assets", "BNGVERSION"]), "r") as f:
+        with open(
+            os.path.join(
+                *[os.path.dirname(bionetgen.__file__), "assets", "BNGVERSION"]
+            ),
+            "r",
+        ) as f:
             read_data = f.read()
         self.info["BNG version"] = read_data[10:15]
 
@@ -51,7 +56,10 @@ class BNGInfo:
         self.info["Perl version"] = text[num_start:num_end] + " (used to run BNG2.pl)"
 
         # Get CLI version
-        with open(os.path.join(*["bionetgen", "assets", "VERSION"]), "r") as f:
+        with open(
+            os.path.join(*[os.path.dirname(bionetgen.__file__), "assets", "VERSION"]),
+            "r",
+        ) as f:
             read_data = f.read()
         self.info["CLI version"] = read_data
 
