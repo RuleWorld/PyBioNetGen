@@ -35,6 +35,7 @@ def run(inp, out=None, suppress=False):
                 # TODO: Better error reporting
                 print("Couldn't run the simulation")
                 print(e)
+                raise
     else:
         # instantiate a CLI object with the info
         cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
@@ -44,5 +45,6 @@ def run(inp, out=None, suppress=False):
             # TODO: Better error reporting
             print("Couldn't run the simulation")
             print(e)
+            raise
     os.chdir(cur_dir)
     return cli.result
