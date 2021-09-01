@@ -31,15 +31,20 @@ def run(inp, out=None, suppress=False):
             cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
             try:
                 cli.run()
-            except:
+            except Exception as e:
+                # TODO: Better error reporting
                 print("Couldn't run the simulation")
-            # if we are not in the original folder, go back
-            os.chdir(cur_dir)
+                print(e)
+                raise
     else:
         # instantiate a CLI object with the info
         cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
         try:
             cli.run()
-        except:
+        except Exception as e:
+            # TODO: Better error reporting
             print("Couldn't run the simulation")
+            print(e)
+            raise
+    os.chdir(cur_dir)
     return cli.result

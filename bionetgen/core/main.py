@@ -30,10 +30,11 @@ def runCLI(config, args):
     # this pulls out the arguments
     inp_file = args.input
     output = args.output
+    log_file = args.log_file
     # if you set args.bngpath it should take precedence
     config_bngpath = config.get("bionetgen", "bngpath")
     # and instantiates the CLI object
-    cli = BNGCLI(inp_file, output, config_bngpath)
+    cli = BNGCLI(inp_file, output, config_bngpath, log_file=log_file)
     cli.stdout = config.get("bionetgen", "stdout")
     cli.stderr = config.get("bionetgen", "stderr")
     cli.run()
@@ -107,7 +108,7 @@ class BNGCLI:
         runs the model in the given output folder
     """
 
-    def __init__(self, inp_file, output, bngpath, suppress=False):
+    def __init__(self, inp_file, output, bngpath, suppress=False, log_file=None):
         self.inp_file = inp_file
         if isinstance(inp_file, mdl.bngmodel):
             self.is_bngmodel = True
@@ -131,6 +132,7 @@ class BNGCLI:
         self.stdout = "PIPE"
         self.stderr = "STDOUT"
         self.suppress = suppress
+        self.log_file = log_file
 
     def _set_output(self, output):
         # setting up output area
@@ -152,31 +154,63 @@ class BNGCLI:
         except:
             stderr_loc = subprocess.STDOUT
         # run BNG2.pl
-
         if self.is_bngmodel:
-            with NamedTemporaryFile(
-                mode="w+", encoding="utf-8", delete=False, suffix=".bngl"
-            ) as tfile:
+            write_to = self.inp_file.model_name + ".bngl"
+            write_to = os.path.abspath(write_to)
+            if os.path.isfile(write_to):
+                print(f"WARNIING: Overwriting file {write_to}")
+            with open(write_to, "w") as tfile:
                 tfile.write(str(self.inp_file))
-            command = ["perl", self.bng_exec, tfile.name]
+            command = ["perl", self.bng_exec, write_to]
         else:
+            fname = os.path.basename(self.inp_path)
+            fname = fname.replace(".bngl", "")
             command = ["perl", self.bng_exec, self.inp_path]
-        rc = run_command(command, suppress=self.suppress)
+        rc, out = run_command(command, suppress=self.suppress)
+        if self.log_file is not None:
+            # test if we were given a path
+            # TODO: This is a simple hack, might need to adjust it
+            # trying to check if given file is an absolute/relative
+            # path and if so, use that one. Otherwise, divine the
+            # current path.
+            if os.path.exists(self.log_file):
+                # file or folder exists, check if folder
+                if os.path.isdir(self.log_file):
+                    fname = os.path.basename(self.inp_path)
+                    fname = fname.replace(".bngl", "")
+                    full_log_path = os.path.join(self.log_file, fname + ".log")
+                else:
+                    # it's intended to be file, so we keep it as is
+                    full_log_path = self.log_file
+            else:
+                # doesn't exist, so we assume it's a file
+                # and we keep it as is
+                full_log_path = self.log_file
 
-        if self.is_bngmodel:
-            os.remove(tfile.name)
+            with open(full_log_path, "w") as f:
+                f.write("\n".join(out))
+
+        # if self.is_bngmodel:
+        #     os.remove(tfile.name)
         # write out stdout/err if they exist
         # TODO Maybe indicate that we are printing out stdout/stderr before printing
         # if rc.stdout is not None:
         #     print(rc.stdout.decode('utf-8'))
         # if rc.stderr is not None:
         #     print(rc.stderr.decode('utf-8'))
+        import ipdb;ipdb.set_trace()
         if rc == 0:
             # load in the result
             self.result = BNGResult(os.getcwd())
             BNGResult.process_return = rc
+            # set BNGPATH back
+            if self.old_bngpath is not None:
+                os.environ["BNGPATH"] = self.old_bngpath
         else:
             self.result = None
-        # set BNGPATH back
-        if self.old_bngpath is not None:
-            os.environ["BNGPATH"] = self.old_bngpath
+            # set BNGPATH back
+            if self.old_bngpath is not None:
+                os.environ["BNGPATH"] = self.old_bngpath
+            raise ValueError(
+                "Failed to run your BNGL file, there might be an issue with your model!"
+            )
