@@ -70,7 +70,7 @@ class AtomizeTool:
         options["bionetgenAnalysis"] = config["bionetgen_analysis"]
         options["isomorphismCheck"] = config["isomorphism_check"]
         options["ignore"] = config["ignore"]
-        options["noConversion"] = config["convert_units"]
+        options["noConversion"] = not config["convert_units"]
         options["memoizedResolver"] = config["memoized_resolver"]
         options["replaceLocParams"] = not config["keep_local_parameters"]
         options["quietMode"] = config["quiet_mode"]

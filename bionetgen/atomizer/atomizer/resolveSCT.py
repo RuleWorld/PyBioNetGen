@@ -1716,7 +1716,7 @@ class SCTSolver:
                 tmpGraph[elem] = []
         # Now we should have a traditional graph implementation
         # I also want to unroll every element to turn this into a hashable
-        # touple of tuples type deal
+        # tuple of tuples type deal
         for key in sorted(tmpGraph):
             tmpGraph[key] = functools.reduce(
                 lambda x, y: x + y, sorted(tmpGraph[key]), []

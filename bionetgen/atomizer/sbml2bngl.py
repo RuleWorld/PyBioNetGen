@@ -1226,6 +1226,9 @@ class SBML2BNGL:
             if not self.useID:
                 srateL = self.convertToName(rateL)
                 srateR = self.convertToName(rateR)
+            else:
+                srateL = rateL
+                srateR = rateR
             if uReversible:
                 pass
             # return compartments if the reaction is unimolecular
@@ -3370,8 +3373,6 @@ def standardizeName(name):
         "α": "a",
         "β": "b",
         "γ": "g",
-        "(": "__",
-        ")": "__",
         " ": "",
         "+": "pl",
         "/": "_",
@@ -3380,8 +3381,14 @@ def standardizeName(name):
         ".": "_",
         "?": "unkn",
         ",": "_",
-        "[": "__",
-        "]": "__",
+        "(": "",
+        ")": "",
+        "[": "",
+        "]": "",
+        # "(": "__",
+        # ")": "__",
+        # "[": "__",
+        # "]": "__",
         ">": "_",
         "<": "_",
     }
