@@ -83,8 +83,11 @@ class BNGPlotter:
         ymin = self.kwargs.get("ymin", False) or oymin
         ymax = self.kwargs.get("ymax", False) or oymax
 
-        fax.set_xlim(xmin, xmax)
-        fax.set_ylim(ymin, ymax)
+        assert xmax > xmin, "--xmin is bigger than --xmax!"
+        assert ymax > ymin, "--ymin is bigger than --ymax!"
+
+        fax.set_xlim(left=xmin, right=xmax)
+        fax.set_ylim(bottom=ymin, top=ymax)
         # labels and title
         _ = plt.xlabel(self.kwargs.get("xlabel") or x_name)
         _ = plt.ylabel(self.kwargs.get("ylabel") or "concentration")

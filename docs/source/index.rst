@@ -30,8 +30,8 @@ Indices and Tables:
 * :ref:`modindex`
 * :ref:`search`
 
-BioNetGen Home & GitHub Links
-=============================
+BioNetGen Home & GitHub Links:
+==============================
 
 * `BioNetGen <https://bionetgen.org/>`_
 * `BNG VSCode Extension GitHub <https://github.com/RuleWorld/BNG_vscode_extension>`_

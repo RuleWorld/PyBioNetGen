@@ -24,8 +24,8 @@ def run(inp, out=None, suppress=False):
         into. If it doesn't exist, it will be created.
     """
     # if out is None we make a temp directory
+    cur_dir = os.getcwd()
     if out is None:
-        cur_dir = os.getcwd()
         with TemporaryDirectory() as out:
             # instantiate a CLI object with the info
             cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)

@@ -1,6 +1,6 @@
 from bionetgen.modelapi.utils import run_command
 import cement
-import subprocess
+import subprocess, os
 import bionetgen as bng
 from cement.core.exc import CaughtSignal
 from .core.exc import BioNetGenError
@@ -74,6 +74,15 @@ class BNGBase(cement.Controller):
                     "type": str,
                 },
             ),
+            (
+                ["-l", "--log"],
+                {
+                    "help": "saves BNG2.pl log to a file given (default: None)",
+                    "default": None,
+                    "type": str,
+                    "dest": "log_file",
+                },
+            ),
         ],
     )
     def run(self):
@@ -132,6 +141,16 @@ class BNGBase(cement.Controller):
         args = self.app.pargs
         if args.input is not None:
             # we want to use the template to write a custom notebok
+            assert args.input.endswith(
+                ".bngl"
+            ), f"File {args.input} doesn't have bngl extension!"
+            try:
+                import bionetgen
+
+                m = bionetgen.bngmodel(args.input)
+                str(m)
+            except:
+                raise RuntimeError(f"Couldn't import given model: {args.input}!")
             notebook = BNGNotebook(
                 CONFIG["bionetgen"]["notebook"]["template"], INPUT_ARG=args.input
             )
@@ -144,13 +163,22 @@ class BNGBase(cement.Controller):
         else:
             fname = args.output
         # write the notebook out
+        if os.path.isdir(fname):
+            if args.input is not None:
+                basename = os.path.basename(args.input)
+                mname = basename.replace(".bngl", "")
+                fname = mname + ".ipynb"
+            else:
+                mname = CONFIG["bionetgen"]["notebook"]["name"]
+                fname = os.path.join(args.output, mname)
+
         notebook.write(fname)
         # open the notebook with nbopen
         stdout = getattr(subprocess, CONFIG["bionetgen"]["stdout"])
         stderr = getattr(subprocess, CONFIG["bionetgen"]["stderr"])
         if args.open:
             command = ["nbopen", fname]
-            rc = run_command(command)
+            rc, _ = run_command(command)
 
     @cement.ex(
         help="Rudimentary plotting of gdat/cdat/scan files",
@@ -186,6 +214,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "x-axis minimum (default: determined from data)",
                     "default": None,
+                    "type": float,
                 },
             ),
             (
@@ -193,6 +222,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "x-axis maximum (default: determined from data)",
                     "default": False,
+                    "type": float,
                 },
             ),
             (
@@ -200,6 +230,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "y-axis minimum (default: determined from data)",
                     "default": False,
+                    "type": float,
                 },
             ),
             (
@@ -207,6 +238,7 @@ class BNGBase(cement.Controller):
                 {
                     "help": "y-axis maximum (default: determined from data)",
                     "default": False,
+                    "type": float,
                 },
             ),
             (["--xlabel"], {"help": "x-axis label (default: time)", "default": False}),

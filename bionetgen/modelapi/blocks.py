@@ -543,9 +543,43 @@ class ActionBlock(ModelBlock):
         self.name = "actions"
         AList = ActionList()
         self._action_list = AList.possible_types
+        self.items = []
 
     def __setattr__(self, name, value) -> None:
         self.__dict__[name] = value
+
+    def add_item(self, item_tpl) -> None:
+        name, value = item_tpl
+        # set the line
+        self.items.append(value)
+
+    def __repr__(self) -> str:
+        # overwrites what the class representation
+        # shows the items in the model block in
+        # say ipython
+        repr_str = "{} block with {} item(s): {}".format(
+            self.name, len(self.items), self.items
+        )
+        return repr_str
+
+    def __getitem__(self, key):
+        return self.items[key]
+
+    def __setitem__(self, key, value) -> None:
+        self.items[key] = value
+
+    def __delitem__(self, key) -> None:
+        try:
+            return self.items.pop(key)
+        # TODO: more specific except statements
+        except:
+            print("Item {} not found".format(key))
+
+    def __iter__(self):
+        return self.items.__iter__()
+
+    def __contains__(self, key) -> bool:
+        return key in self.items
 
     def add_action(self, action_type, action_args) -> None:
         """
@@ -564,7 +598,7 @@ class ActionBlock(ModelBlock):
     def gen_string(self) -> str:
         block_lines = []
         # we just loop over lines for actions
-        for item in self.items.keys():
-            block_lines.append(self.items[item].print_line())
+        for item in self.items:
+            block_lines.append(item.print_line())
         # join everything with new lines
         return "\n".join(block_lines)

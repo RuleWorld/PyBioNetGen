@@ -73,17 +73,18 @@ tfold = os.path.dirname(__file__)
 
 # def test_model_running_CLI():
 #     # test running a few models using the CLI
-#     models = ["test_MM.bngl","motor.bngl","simple_system.bngl"]
+#     models = ["test_MM.bngl", "motor.bngl", "simple_system.bngl"]
 #     succ = []
 #     fail = []
 #     success = 0
 #     fails = 0
 #     for model in models:
+#         fpath = os.path.join(*[tfold, "models", model])
+#         fpath = os.path.abspath(fpath)
 #         try:
-#             # how to track "successes"?
 #             fpath = os.path.join(*[tfold, "models", model])
 #             fpath = os.path.abspath(fpath)
-#             argv = ["run", "-i", fpath]
+#             argv = ["run", "-i", fpath, "-o", "cli_test_runs"]
 #             with BioNetGenTest(argv=argv) as app:
 #                 app.run()
 #                 assert app.exit_code == 0
@@ -93,6 +94,7 @@ tfold = os.path.dirname(__file__)
 #             print("can't run model {}".format(model))
 #             fails += 1
 #             fail.append(model)
+#     del model, fpath
 #     print("succ: {}".format(success))
 #     print(sorted(succ))
 #     print("fail: {}".format(fails))
@@ -102,7 +104,8 @@ tfold = os.path.dirname(__file__)
 
 def test_model_running_lib():
     # test running a few models using the library
-    models = ["test_MM.bngl","motor.bngl","simple_system.bngl"]
+    # models = ["test_MM.bngl", "motor.bngl", "simple_system.bngl"]
+    models = ["test_MM.bngl"]
     succ = []
     fail = []
     success = 0
@@ -111,7 +114,10 @@ def test_model_running_lib():
         fpath = os.path.join(*[tfold, "models", model])
         fpath = os.path.abspath(fpath)
         try:
-            result = bng.run(fpath)
+            # result = bng.run(fpath, out="lib_test_runs")
+            # ONLY works if out folder is specified -- WHY?
+            # seems like an issue with try-except - works fine in separate .ipynb
+            bng.run(fpath)
             success += 1
             succ.append(model)
         except:

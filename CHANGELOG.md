@@ -113,3 +113,19 @@ Removing numpy dependency from setup.py, action reading off of BNGL file.
 
 ## 0.3.8
 Moving imports around, removing unnecessary ones to speed up CLI performance. 
+
+## 0.3.9
+A couple bugfixes to plotting, running the CLI on a model can now generate a log file with the option
+-l/--log. Failing to run now raises a ValueError (will be changed with custom errors in the future). Added some input and output file checks to notebook subcommand. 
+
+## 0.4.0 
+Fixed a but where "0" species was being printed as "0()". Action block is now a list and not a dictionary which was disallowing multiple actions of the same type. 
+
+## 0.4.1
+Changed `bionetgen.run` behavior when called with a `bngmodel` object. Now the model file is saved and if it exists, it's overwritten with a warning. Slightly better error reporting when the `run` call fails. 
+
+## 0.4.2
+Changed `bionetgen.run` behavior again, how calling the method with an `out` argument doesn't leave you in the output folder when it's done executing and it will return you back to the folder you started with. Bugfix where parsing a model without actions failed. 
+
+## 0.4.3
+Bugfix where the libroadrunner simulator object was not handled correctly. 

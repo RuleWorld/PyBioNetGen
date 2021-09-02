@@ -121,7 +121,7 @@ class BNGParser:
                         ablock.add_action(atype, arg_tuples)
                     else:
                         ablock.add_action(atype, [])
-        model_obj.add_block(ablock)
+            model_obj.add_block(ablock)
 
     def parse_xml(self, xml_str, model_obj) -> None:
         xml_dict = xmltodict.parse(xml_str)
