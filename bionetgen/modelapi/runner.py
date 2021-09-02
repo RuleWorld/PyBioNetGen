@@ -31,7 +31,9 @@ def run(inp, out=None, suppress=False):
             cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
             try:
                 cli.run()
+                os.chdir(cur_dir)
             except Exception as e:
+                os.chdir(cur_dir)
                 # TODO: Better error reporting
                 print("Couldn't run the simulation")
                 print(e)
@@ -41,10 +43,11 @@ def run(inp, out=None, suppress=False):
         cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress)
         try:
             cli.run()
+            os.chdir(cur_dir)
         except Exception as e:
+            os.chdir(cur_dir)
             # TODO: Better error reporting
             print("Couldn't run the simulation")
             print(e)
             raise
-    os.chdir(cur_dir)
     return cli.result
