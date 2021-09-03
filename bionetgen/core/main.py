@@ -145,9 +145,6 @@ class BNGCLI:
             os.chdir(output)
 
     def run(self):
-        import ipdb
-
-        ipdb.set_trace()
         try:
             stdout_loc = getattr(subprocess, self.stdout)
         except:
@@ -201,7 +198,6 @@ class BNGCLI:
         #     print(rc.stdout.decode('utf-8'))
         # if rc.stderr is not None:
         #     print(rc.stderr.decode('utf-8'))
-        # import ipdb;ipdb.set_trace()
         if rc == 0:
             # load in the result
             self.result = BNGResult(os.getcwd())
