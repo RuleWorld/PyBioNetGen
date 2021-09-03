@@ -93,9 +93,15 @@ def test_model_running_CLI():
     if not os.path.isdir(test_run_folder):
         os.mkdir(test_run_folder)
     for model in models:
-        model_name = os.path.basename(model).replace(".bngl","")
+        model_name = os.path.basename(model).replace(".bngl", "")
         try:
-            argv = ["run", "-i", model, "-o", os.path.join(*[tfold, "models", "cli_test_runs", model_name])]
+            argv = [
+                "run",
+                "-i",
+                model,
+                "-o",
+                os.path.join(*[tfold, "models", "cli_test_runs", model_name]),
+            ]
             with BioNetGenTest(argv=argv) as app:
                 app.run()
                 assert app.exit_code == 0
