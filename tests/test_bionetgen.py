@@ -17,7 +17,13 @@ def test_bionetgen_help():
 
 def test_bionetgen_input():
     # test basic command help
-    argv = ["run", "-i", os.path.join(tfold, "test.bngl"), "-o", os.path.join(tfold, "test")]
+    argv = [
+        "run",
+        "-i",
+        os.path.join(tfold, "test.bngl"),
+        "-o",
+        os.path.join(tfold, "test"),
+    ]
     to_match = ["test.xml", "test.cdat", "test.gdat", "test.net"]
     with BioNetGenTest(argv=argv) as app:
         app.run()
