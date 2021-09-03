@@ -64,9 +64,13 @@ def test_bionetgen_all_model_loading():
 
 def test_action_loading():
     # tests a BNGL file containing all BNG actions
-    all_action_model = os.path.join(*[tfold, "models", "all_actions.bngl"])
-    m = bng.bngmodel(all_action_model)
-    assert len(m.actions) == 27
+    all_action_model = os.path.join(*[tfold, "models", "actions", "all_actions.bngl"])
+    m1 = bng.bngmodel(all_action_model)
+    assert len(m1.actions) == 27
+
+    no_action_model = os.path.join(*[tfold, "models", "actions", "no_actions.bngl"])
+    m2 = bng.bngmodel(no_action_model)
+    assert len(m2.actions) == 0
 
 
 def test_bionetgen_info():
@@ -85,9 +89,13 @@ def test_model_running_CLI():
     fail = []
     success = 0
     fails = 0
+    test_run_folder = os.path.join(tfold, "models", "cli_test_runs")
+    if not os.path.isdir(test_run_folder):
+        os.mkdir(test_run_folder)
     for model in models:
+        model_name = os.path.basename(model).replace(".bngl","")
         try:
-            argv = ["run", "-i", model, "-o", "cli_test_runs"]
+            argv = ["run", "-i", model, "-o", os.path.join(*[tfold, "models", "cli_test_runs", model_name])]
             with BioNetGenTest(argv=argv) as app:
                 app.run()
                 assert app.exit_code == 0
@@ -117,6 +125,8 @@ def test_model_running_lib():
     success = 0
     fails = 0
     for model in models:
+        if "test_tfun" in model:
+            continue
         try:
             bng.run(model)
             success += 1
