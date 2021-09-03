@@ -79,7 +79,7 @@ def test_bionetgen_info():
 
 def test_model_running_CLI():
     # tests running a list of models using the CLI
-    mpattern = os.path.join(tfold, "models") + os.sep +"*.bngl"
+    mpattern = os.path.join(tfold, "models") + os.sep + "*.bngl"
     models = glob.glob(mpattern)
     succ = []
     fail = []
