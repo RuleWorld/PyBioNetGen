@@ -267,6 +267,7 @@ class bngmodel:
                 self.actions.clear_actions()
                 # get the simulator
                 import bionetgen as bng
+
                 self.simulator = bng.sim_getter(
                     model_str=tpath.read(), sim_type=sim_type
                 )

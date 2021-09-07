@@ -1,5 +1,6 @@
 import os, subprocess
 
+
 class BNGCLI:
     """
     Command Line Interface class to run BNG2.pl on a given
@@ -25,6 +26,7 @@ class BNGCLI:
     def __init__(self, inp_file, output, bngpath, suppress=False, log_file=None):
         self.inp_file = inp_file
         import bionetgen.modelapi.model as mdl
+
         if isinstance(inp_file, mdl.bngmodel):
             self.is_bngmodel = True
         else:
@@ -61,6 +63,7 @@ class BNGCLI:
 
     def run(self):
         from bionetgen.modelapi.utils import run_command
+
         try:
             stdout_loc = getattr(subprocess, self.stdout)
         except:
@@ -116,6 +119,7 @@ class BNGCLI:
         #     print(rc.stderr.decode('utf-8'))
         if rc == 0:
             from bionetgen.tools import BNGResult
+
             # load in the result
             self.result = BNGResult(os.getcwd())
             BNGResult.process_return = rc

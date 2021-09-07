@@ -86,10 +86,10 @@ def printInfo(config, args):
 
 
 def visualizeModel(config, args):
-    '''
-    Uses BNGVisualize class to visualize BNGL models using 
+    """
+    Uses BNGVisualize class to visualize BNGL models using
     arguments and configuration from Cement framework.
-    '''
+    """
     inp = args.input
     out = args.output
     vtype = args.type
@@ -97,4 +97,3 @@ def visualizeModel(config, args):
     config_bngpath = config.get("bionetgen", "bngpath")
     viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath)
     viz.run()
-
