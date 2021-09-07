@@ -129,3 +129,6 @@ Changed `bionetgen.run` behavior again, how calling the method with an `out` arg
 
 ## 0.4.3
 Bugfix where the libroadrunner simulator object was not handled correctly. 
+
+## 0.4.4
+New info subcommand, major updates to test suite, some updates to error reporting. 
