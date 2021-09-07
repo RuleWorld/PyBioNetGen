@@ -30,10 +30,10 @@ end observables
 begin functions
   mctr = dum/1e4
   # various tests on TFUN
-  k1 = TFUN(mctr,'DAT_validate/test.dat')
-  k2 = (TFUN(mctr, "DAT_validate/test.dat")/1e1)
-  k3 = (TFUN(mctr, "DAT_validate/test.dat")/k_t)
-  k4 = (TFUN(mctr, "DAT_validate/test.dat")/mctr)
+  k1 = TFUN(mctr, "../../DAT_validate/test.dat")
+  k2 = (TFUN(mctr, "../../DAT_validate/test.dat")/1e1)
+  k3 = (TFUN(mctr, "../../DAT_validate/test.dat")/k_t)
+  k4 = (TFUN(mctr, "../../DAT_validate/test.dat")/mctr)
 end functions
 
 begin reaction rules
