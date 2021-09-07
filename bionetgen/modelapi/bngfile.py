@@ -84,7 +84,6 @@ class BNGFile:
                 path, model_name = os.path.split(stripped_bngl)
                 model_name = model_name.replace(".bngl", "")
                 written_xml_file = model_name + ".xml"
-                # import ipdb;ipdb.set_trace()
                 with open(written_xml_file, "r") as f:
                     content = f.read()
                     xml_file.write(content)

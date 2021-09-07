@@ -1,4 +1,3 @@
-import bionetgen as bng
 import copy
 
 from bionetgen.main import BioNetGen
@@ -105,14 +104,15 @@ class bngmodel:
             # ensure we didn't get new items into a
             # previously inactive block, if we did
             # add them to the active blocks
-            if len(getattr(self, block)) > 0:
-                if getattr(self, block).name not in self.active_blocks:
-                    self.active_blocks.append(block)
-            # if we removed items from a block and
-            # it's now empty, we want to remove it
-            # from the active blocks
-            elif len(getattr(self, block)) == 0 and block in self.active_blocks:
-                self.active_blocks.remove(block)
+            if hasattr(self, block):
+                if len(getattr(self, block)) > 0:
+                    if getattr(self, block).name not in self.active_blocks:
+                        self.active_blocks.append(block)
+                # if we removed items from a block and
+                # it's now empty, we want to remove it
+                # from the active blocks
+                elif len(getattr(self, block)) == 0 and block in self.active_blocks:
+                    self.active_blocks.remove(block)
             # print only the active blocks
             if block in self.active_blocks:
                 if block != "actions" and len(getattr(self, block)) > 0:
@@ -266,6 +266,7 @@ class bngmodel:
                 # by adding a mechanism to do so
                 self.actions.clear_actions()
                 # get the simulator
+                import bionetgen as bng
                 self.simulator = bng.sim_getter(
                     model_str=tpath.read(), sim_type=sim_type
                 )

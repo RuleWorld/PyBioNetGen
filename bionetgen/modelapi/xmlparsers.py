@@ -584,7 +584,6 @@ class RuleBlockXML(XMLObj):
         return rate_cts
 
     def resolve_rxn_side(self, xml):
-        # import ipdb;ipdb.set_trace()
         # this is either reactant or product
         if xml is None:
             return [Molecule()]

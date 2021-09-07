@@ -1,7 +1,7 @@
 import os
 from tempfile import TemporaryDirectory
 from bionetgen.main import BioNetGen
-from bionetgen.core.main import BNGCLI
+from bionetgen.tools import BNGCLI
 
 # This allows access to the CLIs config setup
 app = BioNetGen()

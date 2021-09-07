@@ -132,3 +132,6 @@ Bugfix where the libroadrunner simulator object was not handled correctly.
 
 ## 0.4.4
 New info subcommand, major updates to test suite, some updates to error reporting. 
+
+## 0.4.5
+New visualize subcommand that automatically runs a visualize action on a model and returns the resulting file. 

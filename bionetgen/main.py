@@ -7,6 +7,7 @@ from .core.exc import BioNetGenError
 from .core.main import runCLI
 from .core.main import plotDAT
 from .core.main import printInfo
+from .core.main import visualizeModel
 from .core.notebook import BNGNotebook
 
 # pull defaults defined in core/defaults
@@ -281,7 +282,11 @@ class BNGBase(cement.Controller):
         arguments=[
             (
                 ["-d", "--detail"],
-                {"help": "___", "default": False, "action": "store_true"},
+                {
+                    "help": "Adds more detail to the information printed.",
+                    "default": False,
+                    "action": "store_true",
+                },
             ),
         ],
     )
@@ -294,6 +299,52 @@ class BNGBase(cement.Controller):
         """
         args = self.app.pargs
         printInfo(self.app.config, args)
+
+    @cement.ex(
+        help="",
+        arguments=[
+            (
+                ["-i", "--input"],
+                {
+                    "help": "Path to BNGL model to visualize",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-o", "--output"],
+                {
+                    "help": "(optional) Output folder, defaults to current folder",
+                    "default": None,
+                    "type": str,
+                },
+            ),
+            (
+                ["-t", "--type"],
+                {
+                    "help": "(optional) Type of visualization requested. Valid options are: "
+                    + "'ruleviz_pattern','ruleviz_operation', 'contactmap' and 'regulatory'."
+                    + " Defaults to 'contactmap'.",
+                    "default": "",
+                    "type": str,
+                },
+            ),
+        ],
+    )
+    def visualize(self):
+        """
+        Subcommand to generate visualizations. Currently only supports visualize
+        action from BioNetGen.
+
+        Types of visualizations and their options
+        - Rule pattern visualization: Visualization of each rule as a bipartite graph
+        - Rule operation visualization: Visualization of each rule showing explicit graph operations
+        - Contact map: Visualize the contact map of the model
+        - Regulatory graph: Visualize the regulatory graph of the model
+        """
+        args = self.app.pargs
+        visualizeModel(self.app.config, args)
 
 
 class BioNetGen(cement.App):

@@ -1,6 +1,5 @@
 import os
 import subprocess
-import bionetgen as bng
 from distutils import spawn
 
 
