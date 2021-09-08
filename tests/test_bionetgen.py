@@ -5,7 +5,6 @@ from bionetgen.main import BioNetGenTest
 
 tfold = os.path.dirname(__file__)
 
-
 def test_bionetgen_help():
     # tests basic command help
     with raises(SystemExit):
@@ -13,7 +12,6 @@ def test_bionetgen_help():
         with BioNetGenTest(argv=argv) as app:
             app.run()
             assert app.exit_code == 0
-
 
 def test_bionetgen_input():
     argv = [
@@ -36,6 +34,23 @@ def test_bionetgen_model():
     fpath = os.path.abspath(fpath)
     m = bng.bngmodel(fpath)
 
+def test_bionetgen_visualize():
+    vis_types = ["contactmap", 'ruleviz_pattern','ruleviz_operation', 'regulatory']
+    for vis_name in vis_types:
+        argv = [
+            "visualize",
+            "-i",
+            os.path.join(tfold, "test.bngl"),
+            "-o",
+            os.path.join(tfold, "viz"),
+            "-t",
+            vis_name
+        ]
+        with BioNetGenTest(argv=argv) as app:
+            app.run()
+            assert app.exit_code == 0
+            gmls = glob.glob("*.gml")
+            assert any([vis_name in i for i in gmls])
 
 def test_bionetgen_all_model_loading():
     # tests library model loading using many models

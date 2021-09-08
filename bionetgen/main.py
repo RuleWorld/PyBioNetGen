@@ -33,6 +33,8 @@ class BNGBase(cement.Controller):
         plots a gdat/cdat/scan file given by -i into file supplied by -o
     info
         provides version and path information about the BNG installation and dependencies
+    visualize
+        provides various visualization options for BNG models
     """
 
     class Meta:
@@ -40,17 +42,16 @@ class BNGBase(cement.Controller):
         description = "A simple CLI to bionetgen <https://bionetgen.org>. Note that you need Perl installed."
         help = "bionetgen"
         arguments = [
-            # TODO figure out a good solution for when bngpath is set from config file AND CLI
-            # until then we'll disable the CLI argument
-            # (['-bp','--bngpath'],dict(type=str,
-            #                           default=CONFIG['bionetgen']['bngpath'],
-            #                           help="Optional path to BioNetGen folder you want the CLI to use")),
             # TODO: Auto-load in BioNetGen version here
             (["-v", "--version"], dict(action="version", version=VERSION_BANNER)),
             # (['-s','--sedml'],dict(type=str,
             #                        default=CONFIG['bionetgen']['bngpath'],
             #                        help="Optional path to SED-ML file, if available the simulation \
             #                              protocol described in SED-ML will be ran")),
+            # (["-req", "--require"], dict(action="require", type=str)), 
+            # TODO: add this functionality that _requires_ a version 
+            # of PyBNG or above. For now, just quit with a warning if the current version is behind the 
+            # required version
         ]
 
     # This overwrites the default behavior and runs the CLI object from core/main
