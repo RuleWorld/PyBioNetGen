@@ -2,7 +2,6 @@ numpy>=1.14.0
 pandas>=1.0.5
 cement>=3.0.4
 xmltodict>=0.12.0
-networkx
 matplotlib
 seaborn
 pyyaml

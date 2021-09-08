@@ -1,5 +1,4 @@
-import os, networkx, bionetgen, glob, json, re
-from networkx.readwrite import json_graph
+import os, bionetgen, glob
 from tempfile import TemporaryDirectory
 
 
@@ -27,21 +26,6 @@ class VisResult:
                 with open(gml, "r") as f:
                     l = f.read()
                 self.file_strs[gml] = l
-                # lines = l.split("\n")
-                # ctr = 0
-                # for iline, line in enumerate(lines):
-                #     m = re.match('(.+)(label \"\")(.+)', line)
-                #     if m is not None:
-                #         b,a = m.group(1), m.group(3)
-                #         nlabel = f'label "G{ctr}"'
-                #         lines[iline] = b + nlabel + a
-                #         ctr += 1
-                # self.file_strs[gml] = "\n".join(lines)
-                # with open(gml, "w") as f:
-                #         f.write(self.file_strs[gml])
-                if self.vtype == "contactmap":
-                    # now load all using networkx
-                    self.file_graphs[gml] = networkx.read_gml(gml)
             else:
                 # pull GMLs that contain the name
                 if self.name in gml:
@@ -50,21 +34,6 @@ class VisResult:
                     with open(gml, "r") as f:
                         l = f.read()
                     self.file_strs[gml] = l
-                    # lines = l.split("\n")
-                    # ctr = 0
-                    # for iline, line in enumerate(lines):
-                    #     m = re.match('(.+)(label \"\")(.+)', line)
-                    #     if m is not None:
-                    #         b,a = m.group(1), m.group(3)
-                    #         nlabel = f'label "G{ctr}"'
-                    #         lines[iline] = b + nlabel + a
-                    #         ctr += 1
-                    # self.file_strs[gml] = "\n".join(lines)
-                    # with open(gml, "w") as f:
-                    #     f.write(self.file_strs[gml])
-                    if self.vtype == "contactmap":
-                        # now load all using networkx
-                        self.file_graphs[gml] = networkx.read_gml(gml)
 
     def _dump_files(self, folder) -> None:
         os.chdir(folder)
@@ -72,10 +41,6 @@ class VisResult:
             gml_name = os.path.split(gml)[-1]
             with open(gml_name, "w") as f:
                 f.write(self.file_strs[gml])
-            if self.vtype == "contactmap":
-                jdict = json_graph.cytoscape_data(self.file_graphs[gml])
-                with open(f"{gml_name.replace('.gml','')}.json", "w") as f:
-                    json.dump(jdict, f)
 
 
 class BNGVisualize:
