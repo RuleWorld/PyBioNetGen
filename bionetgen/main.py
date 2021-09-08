@@ -48,9 +48,9 @@ class BNGBase(cement.Controller):
             #                        default=CONFIG['bionetgen']['bngpath'],
             #                        help="Optional path to SED-ML file, if available the simulation \
             #                              protocol described in SED-ML will be ran")),
-            # (["-req", "--require"], dict(action="require", type=str)), 
-            # TODO: add this functionality that _requires_ a version 
-            # of PyBNG or above. For now, just quit with a warning if the current version is behind the 
+            # (["-req", "--require"], dict(action="require", type=str)),
+            # TODO: add this functionality that _requires_ a version
+            # of PyBNG or above. For now, just quit with a warning if the current version is behind the
             # required version
         ]
 

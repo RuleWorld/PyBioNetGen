@@ -2,6 +2,7 @@ import os, networkx, bionetgen, glob, json, re
 from networkx.readwrite import json_graph
 from tempfile import TemporaryDirectory
 
+
 class VisResult:
     def __init__(self, input_folder, name=None, vtype=None) -> None:
         self.input_folder = input_folder
@@ -117,7 +118,9 @@ class BNGVisualize:
                     cli.run()
                     # load vis
                     vis_res = VisResult(
-                        os.path.abspath(os.getcwd()), name=model.model_name, vtype=self.vtype
+                        os.path.abspath(os.getcwd()),
+                        name=model.model_name,
+                        vtype=self.vtype,
                     )
                     # go back
                     os.chdir(cur_dir)
@@ -136,7 +139,11 @@ class BNGVisualize:
             try:
                 cli.run()
                 # load vis
-                vis_res = VisResult(os.path.abspath(os.getcwd()), name=model.model_name, vtype=self.vtype)
+                vis_res = VisResult(
+                    os.path.abspath(os.getcwd()),
+                    name=model.model_name,
+                    vtype=self.vtype,
+                )
                 # go back
                 os.chdir(cur_dir)
                 # dump files
