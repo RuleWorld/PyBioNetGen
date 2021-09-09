@@ -15,7 +15,7 @@ CONFIG = bng.defaults.config
 VERSION_BANNER = bng.defaults.banner
 
 # require version argparse action
-import argparse
+import argparse, sys
 from pkg_resources import packaging
 
 
@@ -32,9 +32,10 @@ class requireAction(argparse.Action):
             cver = bng.core.version.get_version()
             cur_version = packaging.version.parse(cver)
             # if we don't meet requirement, warn user
+            sys.tracebacklimit = 0
             if not (cur_version >= req_version):
                 raise RuntimeError(
-                    f"Version {values} is required but current version is only {cver}. \n"
+                    f"Version {values} is required but current version is {cver}. \n"
                     + "Try running `pip install bionetgen --upgrade`"
                 )
         # return super().__call__(parser, namespace, values, option_string=option_string)
