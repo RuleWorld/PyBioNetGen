@@ -14,6 +14,25 @@ from .core.notebook import BNGNotebook
 CONFIG = bng.defaults.config
 VERSION_BANNER = bng.defaults.banner
 
+# require version argparse action
+import argparse
+from pkg_resources import packaging
+class requireAction(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError("nargs not allowed")
+        super().__init__(option_strings, dest, **kwargs)
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values)
+        if values is not None:
+            req_version = packaging.version.parse(values)
+            cver = bng.core.version.get_version()
+            cur_version = packaging.version.parse(cver)
+            # if we don't meet requirement, warn user
+            if not (cur_version >= req_version):
+                raise RuntimeError(f"Version {values} is required but current version is only {cver}. \n" +
+                    "Try running `pip install bionetgen --upgrade`")
+        # return super().__call__(parser, namespace, values, option_string=option_string)
 
 class BNGBase(cement.Controller):
     """
@@ -48,10 +67,7 @@ class BNGBase(cement.Controller):
             #                        default=CONFIG['bionetgen']['bngpath'],
             #                        help="Optional path to SED-ML file, if available the simulation \
             #                              protocol described in SED-ML will be ran")),
-            # (["-req", "--require"], dict(action="require", type=str)),
-            # TODO: add this functionality that _requires_ a version
-            # of PyBNG or above. For now, just quit with a warning if the current version is behind the
-            # required version
+            (["-req", "--require"], dict(action=requireAction, type=str, default=None)),
         ]
 
     # This overwrites the default behavior and runs the CLI object from core/main
