@@ -1,10 +1,9 @@
-import bionetgen as bng
 from bionetgen.tools import BNGPlotter
 from bionetgen.tools import BNGInfo
 from bionetgen.tools import BNGVisualize
 from bionetgen.tools import BNGCLI
 
-import os
+import os, sys
 
 
 # TODO Consolidate how config is being accessed. It's
@@ -26,6 +25,7 @@ def runCLI(config, args):
         arguments parsed from the command line with argparser.
     """
     # this pulls out the arguments
+    sys.tracebacklimit = args.traceback_depth
     inp_file = args.input
     output = args.output
     log_file = args.log_file

@@ -85,6 +85,16 @@ class BNGBase(cement.Controller):
                     "dest": "log_file",
                 },
             ),
+            (
+                ["--traceback-depth"],
+                {
+                    "help": "Sets the traceback depth for python. "
+                    + "Defaults to 0 to avoid long tracebacks after a failed BNG2.pl call",
+                    "default": 0,
+                    "type": int,
+                    "dest": "traceback_depth",
+                },
+            ),
         ],
     )
     def run(self):
@@ -302,7 +312,7 @@ class BNGBase(cement.Controller):
         printInfo(self.app.config, args)
 
     @cement.ex(
-        help="",
+        help="Provides a simple way to get various visualizations of the model.",
         arguments=[
             (
                 ["-i", "--input"],
