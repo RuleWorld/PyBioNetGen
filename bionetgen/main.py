@@ -17,11 +17,14 @@ VERSION_BANNER = bng.defaults.banner
 # require version argparse action
 import argparse
 from pkg_resources import packaging
+
+
 class requireAction(argparse.Action):
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
         if nargs is not None:
             raise ValueError("nargs not allowed")
         super().__init__(option_strings, dest, **kwargs)
+
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, values)
         if values is not None:
@@ -30,9 +33,12 @@ class requireAction(argparse.Action):
             cur_version = packaging.version.parse(cver)
             # if we don't meet requirement, warn user
             if not (cur_version >= req_version):
-                raise RuntimeError(f"Version {values} is required but current version is only {cver}. \n" +
-                    "Try running `pip install bionetgen --upgrade`")
+                raise RuntimeError(
+                    f"Version {values} is required but current version is only {cver}. \n"
+                    + "Try running `pip install bionetgen --upgrade`"
+                )
         # return super().__call__(parser, namespace, values, option_string=option_string)
+
 
 class BNGBase(cement.Controller):
     """
