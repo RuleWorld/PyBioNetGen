@@ -134,4 +134,4 @@ Bugfix where the libroadrunner simulator object was not handled correctly.
 New info subcommand, major updates to test suite, some updates to error reporting. 
 
 ## 0.4.5
-New visualize subcommand that automatically runs a visualize action on a model and returns the resulting file. 
+Early development version of a new visualize subcommand that automatically runs a visualize action on a model and returns the resulting file. New require keyword that quits if the current version is not equal to or greater than the required one. 
