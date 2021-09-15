@@ -82,8 +82,12 @@ class BNGParser:
             ablock = ActionBlock()
             # we have actions in file, let's get them
             for action in self.bngfile.parsed_actions:
-                action = re.sub(r"\#.*", "", action) # should this be (r"\#.*) or just ("\#.*")
-                action = re.sub(r"\s", "", action) # should this be (r"\s) or just ("\s")
+                action = re.sub(
+                    r"\#.*", "", action
+                )  # should this be (r"\#.*) or just ("\#.*")
+                action = re.sub(
+                    r"\s", "", action
+                )  # should this be (r"\s) or just ("\s")
                 if len(action) == 0:
                     continue
                 m = re.match(r"^\s*(\S+)\(\s*(\S*)\s*\)(\;)?\s*(\#\s*\S*)?\s*", action)
@@ -99,11 +103,17 @@ class BNGParser:
                             # First let's check for lists
                             L = re.match(r"\S+\[(\S*)\]\S*", m.group(1))
                             if L is not None:
-                                test_parens = re.sub(r"\[(\S*)\]", lambda x: x.group(0).replace(",","_"), in_parens)
+                                test_parens = re.sub(
+                                    r"\[(\S*)\]",
+                                    lambda x: x.group(0).replace(",", "_"),
+                                    in_parens,
+                                )
                                 m = re.match(r"\{(\S*)\}", test_parens)
                             # this is a normal action
                             arg_list_str = m.group(1)
-                            arg_list = arg_list_str.split(",")  # here is where the comma messes up matching
+                            arg_list = arg_list_str.split(
+                                ","
+                            )  # here is where the comma messes up matching
                             for arg_str in arg_list:
                                 m = re.match(r"(\S*)\=\>(\S*)", arg_str)
                                 if m is not None:
