@@ -73,51 +73,61 @@ class BNGParser:
                 self.parse_xml(xml_str, model_obj)
             model_obj.reset_compilation_tags()
         else:
-            print("The extension of {} is not supported".format(model_file))
-            raise NotImplementedError
+            raise NotImplementedError(
+                "The extension of {} is not supported".format(model_file)
+            )
 
     def parse_actions(self, model_obj):
         if len(self.bngfile.parsed_actions) > 0:
             ablock = ActionBlock()
             # we have actions in file, let's get them
             for action in self.bngfile.parsed_actions:
-                action = re.sub("\#.*", "", action)
-                action = re.sub("\s", "", action)
+                action = re.sub(r"\#.*", "", action) # should this be (r"\#.*) or just ("\#.*")
+                action = re.sub(r"\s", "", action) # should this be (r"\s) or just ("\s")
                 if len(action) == 0:
                     continue
                 m = re.match(r"^\s*(\S+)\(\s*(\S*)\s*\)(\;)?\s*(\#\s*\S*)?\s*", action)
                 if m is not None:
                     # here we have an action
                     atype = m.group(1)
-                    in_parans = m.group(2)
-                    if len(in_parans) > 0:
-                        # in paranthesis group can have curly or square braces
-                        m = re.match(r"\{(\S*)\}", in_parans)
+                    in_parens = m.group(2)
+                    if len(in_parens) > 0:
+                        # in parenthesis group can have curly or square braces
+                        m = re.match(r"\{(\S*)\}", in_parens)
                         arg_tuples = []
                         if m is not None:
+                            # First let's check for lists
+                            L = re.match(r"\S+\[(\S*)\]\S*", m.group(1))
+                            if L is not None:
+                                test_parens = re.sub(r"\[(\S*)\]", lambda x: x.group(0).replace(",","_"), in_parens)
+                                m = re.match(r"\{(\S*)\}", test_parens)
                             # this is a normal action
                             arg_list_str = m.group(1)
-                            arg_list = arg_list_str.split(",")
+                            arg_list = arg_list_str.split(",")  # here is where the comma messes up matching
                             for arg_str in arg_list:
                                 m = re.match(r"(\S*)\=\>(\S*)", arg_str)
                                 if m is not None:
                                     # add to arg_tuples
                                     arg = m.group(1)
                                     val = m.group(2)
+                                    # now we need to check if we have a list
+                                    if "_" in val:
+                                        val = val.replace("_", ",")
+                                    # add the tuple to the list
                                     arg_tuples.append((arg, val))
                         else:
-                            m = re.match(r"\[(\S*)\]", in_parans)
+                            m = re.match(r"\[(\S*)\]", in_parens)
                             if m is not None:
                                 # this is a list of items
                                 arg_list_str = m.group(1)
                             else:
-                                # what we have in parantheses has to
+                                # what we have in parentheses has to
                                 # be a simple list of arguments
-                                arg_list_str = in_parans
+                                arg_list_str = in_parens
                             arg_list = arg_list_str.split(",")
                             for arg_str in arg_list:
                                 # add to arg_tuples
-                                arg_tuples.append((arg_str, None))
+                                arg_tuples.append((arg_str, None))  # Why is this None?
                         ablock.add_action(atype, arg_tuples)
                     else:
                         ablock.add_action(atype, [])
