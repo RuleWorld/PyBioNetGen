@@ -97,30 +97,35 @@ class BNGParser:
                     in_parens = m.group(2)
                     if len(in_parens) > 0:
                         # in parenthesis group can have curly or square braces
-                        m = re.match(r"\{(\S*)\}", in_parens)
+                        m = re.match(r"\{(\S*)\}$", in_parens)
                         arg_tuples = []
                         if m is not None:
+                            arg_list_str = m.group(1)
                             # First let's check for lists
+                            # Please note that this will only replace a single list that doesn't reoccur
                             L = re.match(r"\S+\[(\S*)\]\S*", m.group(1))
                             if L is not None:
-                                test_parens = re.sub(
-                                    r"\[(\S*)\]",
-                                    lambda x: x.group(0).replace(",", "_"),
-                                    in_parens,
+                                arg_list_str = re.sub(
+                                    f"[{L.group(1)}]",
+                                    f"[{L.group(1).replace(',','_')}]",
+                                    arg_list_str,
                                 )
-                                m = re.match(r"\{(\S*)\}", test_parens)
-                            # this is a normal action
-                            arg_list_str = m.group(1)
-                            arg_list = arg_list_str.split(
-                                ","
-                            )  # here is where the comma messes up matching
+                            # Now check for curly braces
+                            # Please note that this will only replace a single dictionary that doesn't reoccur
+                            L = re.match(r"\S+\{(\S*)\}\S*", m.group(1))
+                            if L is not None:
+                                arg_list_str = re.sub(
+                                    "{%s}" % L.group(1),
+                                    "{%s}" % L.group(1).replace(",", "_"),
+                                    arg_list_str,
+                                )
+                            arg_list = arg_list_str.split(",")
                             for arg_str in arg_list:
-                                m = re.match(r"(\S*)\=\>(\S*)", arg_str)
-                                if m is not None:
-                                    # add to arg_tuples
-                                    arg = m.group(1)
-                                    val = m.group(2)
-                                    # now we need to check if we have a list
+                                splt = arg_str.split("=>")
+                                if len(splt) > 1:
+                                    arg = splt[0]
+                                    val = "=>".join(splt[1:])
+                                    # now we need to check if we have a list/dictionary
                                     if "_" in val:
                                         val = val.replace("_", ",")
                                     # add the tuple to the list

@@ -93,6 +93,10 @@ class ActionList:
             "print_functions",
             "netfile",
             "seed",
+            # TODO: arguments for a method called "psa" that is not documented in
+            # https://docs.google.com/spreadsheets/d/1Co0bPgMmOyAFxbYnGCmwKzoEsY2aUCMtJXQNpQCEUag/
+            "poplevel",
+            "check_product_scale",
         ]
         self.arg_dict["simulate_ode"] = [
             "prefix",
@@ -201,6 +205,15 @@ class ActionList:
             "utl",
             "param",
         ]
+        self.arg_dict["simulate"] = list(
+            set(
+                self.arg_dict["simulate"]
+                + self.arg_dict["simulate_ode"]
+                + self.arg_dict["simulate_ssa"]
+                + self.arg_dict["simulate_pla"]
+                + self.arg_dict["simulate_nf"]
+            )
+        )
         self.arg_dict["parameter_scan"] = [
             "prefix",
             "suffix",
@@ -232,6 +245,9 @@ class ActionList:
             "par_scan_vals",
             "reset_conc",
         ]
+        self.arg_dict["parameter_scan"] = list(
+            set(self.arg_dict["parameter_scan"] + self.arg_dict["simulate"])
+        )
         self.arg_dict["bifurcate"] = [
             "prefix",
             "suffix",
@@ -262,6 +278,10 @@ class ActionList:
             "log_scale",
             "par_scan_vals",
         ]
+        self.arg_dict["bifurcate"] = list(
+            set(self.arg_dict["bifurcate"] + self.arg_dict["parameter_scan"])
+        )
+        self.arg_dict["bifurcate"].remove("reset_conc")
         self.arg_dict["readFile"] = ["file", "blocks", "atomize", "skip_actions"]
         self.arg_dict["writeFile"] = [
             "format",
@@ -355,15 +375,15 @@ class ActionList:
             "opts",
         ]
         # no_setter_syntax
-        self.arg_dict["setConcentration"] = ["val"]
-        self.arg_dict["addConcentration"] = ["val"]
-        self.arg_dict["setParameter"] = ["val"]
+        self.arg_dict["setConcentration"] = []
+        self.arg_dict["addConcentration"] = []
+        self.arg_dict["setParameter"] = []
         self.arg_dict["saveParameters"] = []
-        self.arg_dict["quit"] = []
+        self.arg_dict["quit"] = None
         self.arg_dict["setModelName"] = []
         self.arg_dict["substanceUnits"] = []
         self.arg_dict["version"] = []
-        self.arg_dict["setOption"] = ["val"]
+        self.arg_dict["setOption"] = []
         # square_braces
         self.arg_dict["saveConcentrations"] = []
         self.arg_dict["resetConcentrations"] = []

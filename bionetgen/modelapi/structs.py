@@ -328,13 +328,28 @@ class Action(ModelObj):
         # check type
         if self.type not in self.possible_types:
             raise RuntimeError(f"Action type {self.type} not recognized!")
+        seen_args = []
         for arg in action_args:
             arg_name, arg_value = arg
-            if arg_name not in AList.arg_dict[self.type]:
+            valid_arg_list = AList.arg_dict[self.type]
+            # TODO: actions that don't take argument names should be parsed separately to check validity of arg-val tuples
+            # TODO: currently not type checking arguments
+            if valid_arg_list is None:
                 raise RuntimeError(
-                    f"Action argument {arg} not recognized!\nCheck to make sure action is correctly formatted"
+                    f"Argument {arg_name} is given, but action {self.type} does not take arguments"
                 )
-            # TODO: If arg_value is the correct type
+            if len(valid_arg_list) > 0:
+                if arg_name not in AList.arg_dict[self.type]:
+                    raise RuntimeError(
+                        f"Action argument {arg_name} not recognized!\nCheck to make sure action is correctly formatted"
+                    )
+                # TODO: If arg_value is the correct type
+            if arg_name in seen_args:
+                print(
+                    f"Warning: argument {arg_name} already given, using latter value {arg_value}"
+                )
+            else:
+                seen_args.append(arg_name)
 
     def gen_string(self) -> str:
         # TODO: figure out every argument that has special
