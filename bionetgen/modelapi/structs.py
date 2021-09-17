@@ -314,7 +314,7 @@ class Action(ModelObj):
         (argument,value) pair list for the action
     """
 
-    def __init__(self, action_type=None, action_args=[]) -> None:
+    def __init__(self, action_type=None, action_args={}) -> None:
         super().__init__()
         AList = ActionList()
         self.normal_types = AList.normal_types
@@ -327,8 +327,29 @@ class Action(ModelObj):
         self.args = action_args
         # check type
         if self.type not in self.possible_types:
-            print("Action type not recognized!")
-            raise RuntimeError
+            raise RuntimeError(f"Action type {self.type} not recognized!")
+        seen_args = []
+        for arg in action_args:
+            arg_name, arg_value = arg
+            valid_arg_list = AList.arg_dict[self.type]
+            # TODO: actions that don't take argument names should be parsed separately to check validity of arg-val tuples
+            # TODO: currently not type checking arguments
+            if valid_arg_list is None:
+                raise RuntimeError(
+                    f"Argument {arg_name} is given, but action {self.type} does not take arguments"
+                )
+            if len(valid_arg_list) > 0:
+                if arg_name not in AList.arg_dict[self.type]:
+                    raise RuntimeError(
+                        f"Action argument {arg_name} not recognized!\nCheck to make sure action is correctly formatted"
+                    )
+                # TODO: If arg_value is the correct type
+            if arg_name in seen_args:
+                print(
+                    f"Warning: argument {arg_name} already given, using latter value {arg_value}"
+                )
+            else:
+                seen_args.append(arg_name)
 
     def gen_string(self) -> str:
         # TODO: figure out every argument that has special
