@@ -31,6 +31,9 @@ begin observables
 	Species    R3       R==3
 	Species    R4       R==4
     Species    R5       R>4
+	Species    R5le		R<=4
+	Species	   R5l		R<4
+	Species	   R5ge		R>=4
 end observables
 begin reaction rules
 	R(l!1).L(r!1)          ->  R(l)  +  L(r)          koff
@@ -45,5 +48,5 @@ end population maps
 end model
 
 ## actions ##
-generate_hybrid_model({overwrite=>1, execute=>1, verbose=>1, safe=>0, actions=>["writeXML()"]})
-
+#generate_hybrid_model({overwrite=>1, execute=>1, verbose=>1, safe=>0, actions=>["writeXML()"]})
+writeXML()

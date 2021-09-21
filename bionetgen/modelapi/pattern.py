@@ -31,6 +31,8 @@ class Pattern:
         self._label = label
         self.fixed = False
         self.MatchOnce = False
+        self.relation = None
+        self.quantity = None
 
     @property
     def compartment(self):
@@ -73,6 +75,8 @@ class Pattern:
             if imol > 0:
                 sstr += "."
             sstr += str(mol)
+        if self.relation is not None:
+            sstr += f"{self.relation}{self.quantity}"
         return sstr
 
     def __repr__(self):
