@@ -394,11 +394,12 @@ class ActionList:
         self.arg_dict["saveConcentrations"] = []
         self.arg_dict["resetConcentrations"] = []
         self.arg_dict["resetParameters"] = []
-    
+
     def is_before_model(self, action_name):
         if action_name in self.before_model:
             return True
         return False
+
 
 def find_BNG_path(BNGPATH=None):
     """
