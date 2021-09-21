@@ -167,8 +167,8 @@ class PatternXML(XMLObj):
             quantity = xml["@quantity"]
             pattern.relation = relation
             try:
-                n = int(pattern.quantity)
-                f = float(pattern.quantity)
+                n = int(quantity)
+                f = float(quantity)
                 if n == f:
                     pattern.quantity = quantity
             except ValueError as e:
