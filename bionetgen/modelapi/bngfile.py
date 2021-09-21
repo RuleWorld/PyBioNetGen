@@ -102,11 +102,17 @@ class BNGFile:
         with open(model_path, "r", encoding="UTF-8") as mf:
             # read and strip actions
             mstr = mf.read()
+            # TODO: Clean this up _a lot_
             # this removes any new line escapes (\ \n) to continue
             # to another line, so we can just remove the action lines
             mstr = re.sub(r"\\\n", "", mstr)
             mlines = mstr.split("\n")
             stripped_lines = list(filter(lambda x: self._not_action(x), mlines))
+            # remove spaces, actions don't allow them
+            self.parsed_actions = [
+                x.replace(" ", "")
+                for x in filter(lambda x: not self._not_action(x), mlines)
+            ]
             # let's remove begin/end actions, rarely used but should be removed
             remove_from = -1
             remove_to = -1
@@ -129,11 +135,6 @@ class BNGFile:
                     raise RuntimeError(
                         f'There is an "end actions" statement at line {remove_to} without a matching "begin actions" statement'
                     )
-            # remove spaces, actions don't allow them
-            self.parsed_actions = [
-                x.replace(" ", "")
-                for x in filter(lambda x: not self._not_action(x), mlines)
-            ]
         # TODO: read stripped lines and store the actions
         # open new file and write just the model
         stripped_model = os.path.join(folder, model_file)

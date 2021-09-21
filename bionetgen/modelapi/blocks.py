@@ -541,17 +541,22 @@ class ActionBlock(ModelBlock):
     def __init__(self) -> None:
         super().__init__()
         self.name = "actions"
-        AList = ActionList()
-        self._action_list = AList.possible_types
+        self.AList = ActionList()
+        self._action_list = self.AList.possible_types
         self.items = []
+        self.before_model = []
 
     def __setattr__(self, name, value) -> None:
         self.__dict__[name] = value
 
     def add_item(self, item_tpl) -> None:
         name, value = item_tpl
-        # set the line
-        self.items.append(value)
+        # check to see if it's a before model action
+        if self.AList.is_before_model(name):
+            self.before_model.append(value)
+        else:
+            # set the line
+            self.items.append(value)
 
     def __repr__(self) -> str:
         # overwrites what the class representation
@@ -579,7 +584,7 @@ class ActionBlock(ModelBlock):
         return self.items.__iter__()
 
     def __contains__(self, key) -> bool:
-        return key in self.items
+        return (key in self.items) or (key in [x.name for x in self.items])
 
     def add_action(self, action_type, action_args) -> None:
         """
