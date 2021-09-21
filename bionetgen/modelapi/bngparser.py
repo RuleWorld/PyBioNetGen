@@ -62,14 +62,18 @@ class BNGParser:
             with TemporaryFile("w+") as xml_file:
                 if self.bngfile.generate_xml(xml_file):
                     # TODO: Add verbosity option to the library
-                    # print("Parsing")
-                    self.parse_xml(xml_file.read(), model_obj)
+                    xmlstr = xml_file.read()
+                    # < is not a valid XML character, we need to replace it
+                    xmlstr = xmlstr.replace('relation="<', 'relation="&lt;')
+                    self.parse_xml(xmlstr, model_obj)
                     model_obj.reset_compilation_tags()
                 else:
                     raise ValueError("XML file couldn't be generated")
         elif model_file.endswith(".xml"):
             with open(model_file, "r") as f:
                 xml_str = f.read()
+                # < is not a valid XML character, we need to replace it
+                xmlstr = xml_str.replace('relation="<', 'relation="&lt;')
                 self.parse_xml(xml_str, model_obj)
             model_obj.reset_compilation_tags()
         else:

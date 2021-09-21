@@ -99,7 +99,14 @@ class bngmodel:
         """
         write the model to str
         """
-        model_str = "begin model\n"
+        model_str = ""
+        # gotta check for "before model" type actions
+        if hasattr(self, "actions"):
+            ablock = getattr(self, "actions")
+            if len(ablock.before_model) > 0:
+                for baction in ablock.before_model:
+                    model_str += str(baction) + "\n"
+        model_str += "begin model\n"
         for block in self.block_order:
             # ensure we didn't get new items into a
             # previously inactive block, if we did

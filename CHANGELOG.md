@@ -135,3 +135,6 @@ New info subcommand, major updates to test suite, some updates to error reportin
 
 ## 0.4.5
 Early development version of a new visualize subcommand that automatically runs a visualize action on a model and returns the resulting file. New require keyword that quits if the current version is not equal to or greater than the required one. 
+
+## 0.4.6
+Minor bugfix for notebook template, numpy requirement removed for issue #11, fixes for issues #15, #16 and partially #21. 
