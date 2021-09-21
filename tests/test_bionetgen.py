@@ -85,7 +85,7 @@ def test_action_loading():
     # tests a BNGL file containing all BNG actions
     all_action_model = os.path.join(*[tfold, "models", "actions", "all_actions.bngl"])
     m1 = bng.bngmodel(all_action_model)
-    assert len(m1.actions) == 29
+    assert len(m1.actions) + len(m1.actions.before_model) == 29
 
     no_action_model = os.path.join(*[tfold, "models", "actions", "no_actions.bngl"])
     m2 = bng.bngmodel(no_action_model)
