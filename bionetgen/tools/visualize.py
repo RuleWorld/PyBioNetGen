@@ -70,7 +70,7 @@ class BNGVisualize:
     def run(self) -> VisResult:
         model = bionetgen.modelapi.bngmodel(self.input)
         model.actions.clear_actions()
-        model.add_action("visualize", action_args=[("type", f"'{self.vtype}'")])
+        model.add_action("visualize", action_args={"type": f"'{self.vtype}'"})
         # TODO: Work in temp folder
         cur_dir = os.getcwd()
         from bionetgen.core.main import BNGCLI

@@ -258,8 +258,8 @@ class bngmodel:
             # we need to add writeSBML action for now
             curr_actions = copy.deepcopy(self.actions)
             self.actions.clear_actions()
-            self.add_action("generate_network", [("overwrite", 1)])
-            self.add_action("writeSBML", [])
+            self.add_action("generate_network", {"overwrite": 1})
+            self.add_action("writeSBML", {})
             # temporary file
             with TemporaryFile(mode="w+") as tpath:
                 # write the sbml

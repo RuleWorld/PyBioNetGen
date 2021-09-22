@@ -150,15 +150,15 @@ class BNGParser:
                             arg_list = arg_list_str.split(",")
                             for arg_str in arg_list:
                                 # add to arg_tuples
-                                if arg in arg_dict:
+                                if arg_str in arg_dict:
                                     # TODO: make this a warning
                                     print(
-                                        f"WARNING: argument {arg} for action {atype} is given twice"
+                                        f"WARNING: argument {arg_str} for action {atype} is given twice"
                                     )
-                                arg_dict[arg] = None
+                                arg_dict[arg_str] = None
                         ablock.add_action(atype, arg_dict)
                     else:
-                        ablock.add_action(atype, [])
+                        ablock.add_action(atype, {})
             model_obj.add_block(ablock)
 
     def parse_xml(self, xml_str, model_obj) -> None:
