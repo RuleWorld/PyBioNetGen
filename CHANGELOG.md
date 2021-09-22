@@ -138,3 +138,6 @@ Early development version of a new visualize subcommand that automatically runs 
 
 ## 0.4.6
 Minor bugfix for notebook template, numpy requirement removed for issue #11, fixes for issues #15, #16 and partially #21. 
+
+## 0.4.7
+Action arguments are now dictionaries, actions like `setModelName` that needs to be used before the model are now parsed correctly, a bug where using a new line with `\` broke parsing is fixed, minor change to parsing to allow for observable quantifiers `<` and `<=`, `sample_times` argument parsing fixes and more informative errors if it fails. 

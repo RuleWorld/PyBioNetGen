@@ -83,6 +83,7 @@ class BNGParser:
 
     def parse_actions(self, model_obj):
         if len(self.bngfile.parsed_actions) > 0:
+            # import ipdb;ipdb.set_trace();
             ablock = ActionBlock()
             # we have actions in file, let's get them
             for action in self.bngfile.parsed_actions:
@@ -102,26 +103,24 @@ class BNGParser:
                     if len(in_parens) > 0:
                         # in parenthesis group can have curly or square braces
                         m = re.match(r"\{(\S*)\}$", in_parens)
-                        arg_tuples = []
+                        arg_dict = {}
                         if m is not None:
                             arg_list_str = m.group(1)
                             # First let's check for lists
                             # Please note that this will only replace a single list that doesn't reoccur
                             L = re.match(r"\S+\[(\S*)\]\S*", m.group(1))
                             if L is not None:
-                                arg_list_str = re.sub(
+                                arg_list_str = arg_list_str.replace(
                                     f"[{L.group(1)}]",
                                     f"[{L.group(1).replace(',','_')}]",
-                                    arg_list_str,
                                 )
                             # Now check for curly braces
                             # Please note that this will only replace a single dictionary that doesn't reoccur
                             L = re.match(r"\S+\{(\S*)\}\S*", m.group(1))
                             if L is not None:
-                                arg_list_str = re.sub(
+                                arg_list_str = arg_list_str.replace(
                                     "{%s}" % L.group(1),
                                     "{%s}" % L.group(1).replace(",", "_"),
-                                    arg_list_str,
                                 )
                             arg_list = arg_list_str.split(",")
                             for arg_str in arg_list:
@@ -133,7 +132,12 @@ class BNGParser:
                                     if "_" in val:
                                         val = val.replace("_", ",")
                                     # add the tuple to the list
-                                    arg_tuples.append((arg, val))
+                                    if arg in arg_dict:
+                                        # TODO: make this a warning
+                                        print(
+                                            f"WARNING: argument {arg} for action {atype} is given twice, using the last value {val}"
+                                        )
+                                    arg_dict[arg] = val
                         else:
                             m = re.match(r"\[(\S*)\]", in_parens)
                             if m is not None:
@@ -146,8 +150,13 @@ class BNGParser:
                             arg_list = arg_list_str.split(",")
                             for arg_str in arg_list:
                                 # add to arg_tuples
-                                arg_tuples.append((arg_str, None))  # Why is this None?
-                        ablock.add_action(atype, arg_tuples)
+                                if arg in arg_dict:
+                                    # TODO: make this a warning
+                                    print(
+                                        f"WARNING: argument {arg} for action {atype} is given twice"
+                                    )
+                                arg_dict[arg] = None
+                        ablock.add_action(atype, arg_dict)
                     else:
                         ablock.add_action(atype, [])
             model_obj.add_block(ablock)

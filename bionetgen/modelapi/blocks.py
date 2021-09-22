@@ -532,7 +532,7 @@ class ActionBlock(ModelBlock):
 
     Methods
     -------
-    add_action(name, action_type=None, action_args=[])
+    add_action(name, action_type=None, action_args={})
         adds an action by making a new Action object and passing
         the args/kwargs to its initialization.
     clear_actions()

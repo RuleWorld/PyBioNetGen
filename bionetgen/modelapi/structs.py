@@ -310,8 +310,8 @@ class Action(ModelObj):
     ----------
     type : str
         type of action, e.g. simulate or writeFile
-    args : list[(arg_name,arg_value)]
-        (argument,value) pair list for the action
+    args : dict[arg_name] = arg_value
+        action arguments as keys and their values as values
     """
 
     def __init__(self, action_type=None, action_args={}) -> None:
@@ -330,7 +330,7 @@ class Action(ModelObj):
             raise RuntimeError(f"Action type {self.type} not recognized!")
         seen_args = []
         for arg in action_args:
-            arg_name, arg_value = arg
+            arg_name, arg_value = arg, action_args[arg]
             valid_arg_list = AList.arg_dict[self.type]
             # TODO: actions that don't take argument names should be parsed separately to check validity of arg-val tuples
             # TODO: currently not type checking arguments
@@ -363,9 +363,8 @@ class Action(ModelObj):
         elif self.type in self.square_braces:
             action_str += "["
         # add arguments
-        for iarg, args in enumerate(self.args):
-            arg = args[0]
-            val = args[1]
+        for iarg, arg in enumerate(self.args):
+            val = self.args[arg]
             if iarg > 0:
                 action_str += ","
             # some actions need =>, some don't
