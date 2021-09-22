@@ -151,17 +151,29 @@ class PatternXML(XMLObj):
             bonds = BondsXML()
             pattern._bonds = bonds
             self._bonds = bonds
-        #
+        # check for compartment and add if exists
         if "@compartment" in xml:
             pattern.compartment = xml["@compartment"]
-        #
+        # check for label and add if exists
         if "@label" in xml:
             pattern.label = xml["@label"]
-        #
+        # check to see if pattern is fixed
         if "@Fixed" in xml:
             if xml["@Fixed"] == "1":
                 pattern.fixed = True
-        #
+        # check for relation & quantity, add if exist
+        if ("@relation" in xml) and ("@quantity" in xml):
+            relation = xml["@relation"]
+            quantity = xml["@quantity"]
+            pattern.relation = relation
+            try:
+                n = int(quantity)
+                f = float(quantity)
+                if n == f:
+                    pattern.quantity = quantity
+            except ValueError as e:
+                print("Quantity needs to be an integer")
+        # check for either list of molecules or single molecule, add if exist
         mols = xml["ListOfMolecules"]["Molecule"]
         molecules = []
         if isinstance(mols, list):
@@ -262,7 +274,7 @@ class PatternListXML:
         return patterns
 
 
-###### Parsers  ######
+###### Parsers ######
 class ParameterBlockXML(XMLObj):
     """
     PatternBlock XML parser, derived from XMLObj. Creates
