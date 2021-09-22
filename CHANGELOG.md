@@ -141,3 +141,6 @@ Minor bugfix for notebook template, numpy requirement removed for issue #11, fix
 
 ## 0.4.7
 Action arguments are now dictionaries, actions like `setModelName` that needs to be used before the model are now parsed correctly, a bug where using a new line with `\` broke parsing is fixed, added observable pattern quantifier parsing and minor change to parsing to allow for observable quantifiers `<` and `<=`, `sample_times` argument parsing fixes and more informative errors if it fails.
+
+## 0.4.8
+Added observable quantifier parsing. Fixes to `actions` argument parsing. 

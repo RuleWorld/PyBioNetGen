@@ -81,6 +81,8 @@ class BNGParser:
                 "The extension of {} is not supported".format(model_file)
             )
 
+    # TODO: This requires a massive clean up. Might need
+    # to make a grammar for it.
     def parse_actions(self, model_obj):
         if len(self.bngfile.parsed_actions) > 0:
             # import ipdb;ipdb.set_trace();
@@ -95,6 +97,21 @@ class BNGParser:
                 )  # should this be (r"\s) or just ("\s")
                 if len(action) == 0:
                     continue
+                # gotta find if actions argument is given
+                # import ipdb;ipdb.set_trace()
+                actions_arg = None
+                amatch = re.match(r".*(actions=>\[(.*)\]).*", action)
+                if amatch is not None:
+                    # we have an actions argument, let's put that aside for now
+                    actions_arg_match = re.match(r".*\[(.*)\].*", amatch.group(1))
+                    if actions_arg_match is not None:
+                        actions_arg = actions_arg_match.group(1)
+                    # let's remove the action argument to allow regular parsing
+                    action = action.replace(amatch.group(1), "")
+                    # let's make sure we don't have two commas back to back now
+                    commatch = re.match(r".*(\,\s*\,).*", action)
+                    if commatch is not None:
+                        action = action.replace(commatch.group(1), ",")
                 m = re.match(r"^\s*(\S+)\(\s*(\S*)\s*\)(\;)?\s*(\#\s*\S*)?\s*", action)
                 if m is not None:
                     # here we have an action
@@ -104,6 +121,8 @@ class BNGParser:
                         # in parenthesis group can have curly or square braces
                         m = re.match(r"\{(\S*)\}$", in_parens)
                         arg_dict = {}
+                        if actions_arg is not None:
+                            arg_dict["actions"] = f"[{actions_arg}]"
                         if m is not None:
                             arg_list_str = m.group(1)
                             # First let's check for lists
