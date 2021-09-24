@@ -579,7 +579,7 @@ class RuleBlockXML(XMLObj):
             rate_cts = rate_cts_xml["RateConstant"]["@value"]
         elif rate_type == "Function":
             rate_cts = xml["@name"]
-        elif rate_type == "MM" or rate_type == "Sat":
+        elif rate_type == "MM" or rate_type == "Sat" or rate_type == "Hill":
             # A function type
             rate_cts = rate_type + "("
             args = xml["ListOfRateConstants"]["RateConstant"]
