@@ -19,28 +19,30 @@ class VisResult:
         # at least for now
         # use the name, if given, search for GMLs if not
         gmls = glob.glob("*.gml")
-        for gml in gmls:
+        graphmls = glob.glob("*.graphml")
+        graphfiles = gmls + graphmls
+        for gfile in graphfiles:
             if self.name is None:
-                self.files.append(gml)
+                self.files.append(gfile)
                 # now load into string
-                with open(gml, "r") as f:
+                with open(gfile, "r") as f:
                     l = f.read()
-                self.file_strs[gml] = l
+                self.file_strs[gfile] = l
             else:
                 # pull GMLs that contain the name
-                if self.name in gml:
-                    self.files.append(gml)
+                if self.name in gfile:
+                    self.files.append(gfile)
                     # now load into string
-                    with open(gml, "r") as f:
+                    with open(gfile, "r") as f:
                         l = f.read()
-                    self.file_strs[gml] = l
+                    self.file_strs[gfile] = l
 
     def _dump_files(self, folder) -> None:
         os.chdir(folder)
-        for gml in self.files:
-            gml_name = os.path.split(gml)[-1]
-            with open(gml_name, "w") as f:
-                f.write(self.file_strs[gml])
+        for gfile in self.files:
+            g_name = os.path.split(gfile)[-1]
+            with open(g_name, "w") as f:
+                f.write(self.file_strs[gfile])
 
 
 class BNGVisualize:
@@ -56,10 +58,17 @@ class BNGVisualize:
             "ruleviz_operation",
             "regulatory",
         ]
+        self.accept_types = [
+            "contactmap",
+            "ruleviz_pattern",
+            "ruleviz_operation",
+            "regulatory",
+            "all",
+        ]
         # set visualization type, default yo contactmap
         if vtype is None or len(vtype) == 0:
             vtype = "contactmap"
-        if vtype not in self.valid_types:
+        if vtype not in self.accept_types:
             raise ValueError(f"{vtype} is not a valid visualization type")
         self.vtype = vtype
         # set output
@@ -70,7 +79,11 @@ class BNGVisualize:
     def run(self) -> VisResult:
         model = bionetgen.modelapi.bngmodel(self.input)
         model.actions.clear_actions()
-        model.add_action("visualize", action_args={"type": f"'{self.vtype}'"})
+        if self.vtype == "all":
+            for valid_type in self.valid_types:
+                model.add_action("visualize", action_args={"type": f"'{valid_type}'"})
+        else:
+            model.add_action("visualize", action_args={"type": f"'{self.vtype}'"})
         # TODO: Work in temp folder
         cur_dir = os.getcwd()
         from bionetgen.core.main import BNGCLI
