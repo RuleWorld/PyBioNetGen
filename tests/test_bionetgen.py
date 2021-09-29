@@ -38,7 +38,13 @@ def test_bionetgen_model():
 
 
 def test_bionetgen_visualize():
-    vis_types = ["contactmap", "ruleviz_pattern", "ruleviz_operation", "regulatory", "all"]
+    vis_types = [
+        "contactmap",
+        "ruleviz_pattern",
+        "ruleviz_operation",
+        "regulatory",
+        "all",
+    ]
     for vis_name in vis_types:
         argv = [
             "visualize",
