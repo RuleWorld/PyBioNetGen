@@ -144,3 +144,6 @@ Action arguments are now dictionaries, actions like `setModelName` that needs to
 
 ## 0.4.8
 Added observable quantifier parsing. Fixes to `actions` argument parsing. 
+
+## 0.4.9
+Internal BNG version updated to 2.7.0, added visualization type `all` to get all visualization types in one command. 
