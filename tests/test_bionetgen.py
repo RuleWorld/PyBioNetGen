@@ -38,7 +38,7 @@ def test_bionetgen_model():
 
 
 def test_bionetgen_visualize():
-    vis_types = ["contactmap", "ruleviz_pattern", "ruleviz_operation", "regulatory"]
+    vis_types = ["contactmap", "ruleviz_pattern", "ruleviz_operation", "regulatory", "all"]
     for vis_name in vis_types:
         argv = [
             "visualize",
@@ -52,8 +52,12 @@ def test_bionetgen_visualize():
         with BioNetGenTest(argv=argv) as app:
             app.run()
             assert app.exit_code == 0
-            gmls = glob.glob("*.gml")
-            assert any([vis_name in i for i in gmls])
+            # gmls = glob.glob("*.gml")
+            graphmls = glob.glob("*.graphml")
+            if not vis_name == "all":
+                assert any([vis_name in i for i in graphmls])
+            else:
+                assert len(graphmls) == 4
 
 
 def test_bionetgen_all_model_loading():
