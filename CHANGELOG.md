@@ -147,3 +147,6 @@ Added observable quantifier parsing. Fixes to `actions` argument parsing.
 
 ## 0.4.9
 Internal BNG version updated to 2.7.0, added visualization type `all` to get all visualization types in one command. 
+
+## 0.5.0
+Minor behavior change to visualize where, if output is specified the files won't copy back to the original folder. 
