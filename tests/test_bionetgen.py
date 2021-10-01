@@ -59,7 +59,7 @@ def test_bionetgen_visualize():
             app.run()
             assert app.exit_code == 0
             # gmls = glob.glob("*.gml")
-            graphmls = glob.glob("*.graphml")
+            graphmls = glob.glob(os.path.join(tfold, "viz") + os.sep + "*.graphml")
             if not vis_name == "all":
                 assert any([vis_name in i for i in graphmls])
             else:
