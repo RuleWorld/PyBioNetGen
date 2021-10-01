@@ -5,13 +5,7 @@ Created on Mon Nov 19 14:28:16 2012
 @author: proto
 """
 from lxml import etree
-import sys
-
-sys.path.append("/home/monoid/Development/fresh_atomizer_checks/atomizer/stats/")
-import smallStructures as st
-
-# from . import smallStructures as st
-# from cStringIO import StringIO
+from . import smallStructures as st
 from io import StringIO
 
 # http://igraph.sourceforge.net/documentation.html
