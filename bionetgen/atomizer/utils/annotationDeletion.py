@@ -95,7 +95,6 @@ def standardizeName(name):
         "α": "a",
         "β": "b",
         "γ": "g",
-      
         " ": "",
         "+": "pl",
         "/": "_",

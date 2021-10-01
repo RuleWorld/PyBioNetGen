@@ -116,7 +116,10 @@ def run_command(command, suppress=False, timeout=None):
     else:
         if suppress:
             process = subprocess.Popen(
-                command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                bufsize=-1,
             )
             return process.poll(), process
         else:

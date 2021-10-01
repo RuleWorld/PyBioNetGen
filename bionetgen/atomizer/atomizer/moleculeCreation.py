@@ -16,6 +16,7 @@ from . import analyzeSBML
 import bionetgen.atomizer.utils.structures as st
 from bionetgen.atomizer.utils.util import logMess
 import re
+
 # import biogrid
 import marshal
 import functools
@@ -960,7 +961,7 @@ Please choose among the possible binding candidates that had the most observed f
                 bindingTroubleLog[trouble], trouble
             ),
         )
-    # renaming of components as needed for readability. 
+    # renaming of components as needed for readability.
     # import ipdb;ipdb.set_trace()
     for spname in translator:
         species = translator[spname]
@@ -969,25 +970,25 @@ Please choose among the possible binding candidates that had the most observed f
             for component in molec.components:
                 if component.name.startswith("_"):
                     # component starts with "_", adjust
-                    component.name = re.sub("^(_)+","",component.name)
+                    component.name = re.sub("^(_)+", "", component.name)
                 if component.name.endswith("_"):
                     # component starts with "_", adjust
-                    component.name = re.sub("(_)+$","",component.name)
+                    component.name = re.sub("(_)+$", "", component.name)
                 for ist, state in enumerate(component.states):
                     orig_state = state
                     if state.startswith("_"):
-                        component.states[ist] = re.sub("^(_)+","",state)
+                        component.states[ist] = re.sub("^(_)+", "", state)
                     if state.endswith("_"):
-                        component.states[ist] = re.sub("(_)+$","",state)
+                        component.states[ist] = re.sub("(_)+$", "", state)
                     # ensure active state is updated
                     if orig_state == component.activeState:
-                            component.activeState = component.states[ist]
+                        component.activeState = component.states[ist]
         # log the info
         new_species_str2 = species.str2()
-        if  new_species_str2 != orig_species_st2:
+        if new_species_str2 != orig_species_st2:
             logMess(
-                        "INFO:ATO032",
-                        f"Renamed species from {orig_species_st2} to {new_species_str2}",
+                "INFO:ATO032",
+                f"Renamed species from {orig_species_st2} to {new_species_str2}",
             )
     # renaming can introduce name clashes of components, we need to renumber them
     # if necessary. First pass for counting
@@ -1018,18 +1019,18 @@ Please choose among the possible binding candidates that had the most observed f
                     continue
                 # we do have multiples, check where we are at
                 if component.name not in comp_counter_2:
-                    # our first encounter 
+                    # our first encounter
                     comp_counter_2[component.name] = 1
                     component.name += "1"
                 else:
                     comp_counter_2[component.name] += 1
                     component.name += f"{comp_counter_2[component.name]}"
-        # report 
+        # report
         new_species_str2 = species.str2()
-        if  new_species_str2 != orig_species_st2:
+        if new_species_str2 != orig_species_st2:
             logMess(
-                        "INFO:ATO033",
-                        f"Renumbered components from {orig_species_st2} to {new_species_str2}",
+                "INFO:ATO033",
+                f"Renumbered components from {orig_species_st2} to {new_species_str2}",
             )
     # import IPython;IPython.embed()
 

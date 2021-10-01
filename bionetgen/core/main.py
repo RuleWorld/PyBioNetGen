@@ -98,7 +98,9 @@ class BNGCLI:
         runs the model in the given output folder
     """
 
-    def __init__(self, inp_file, output, bngpath, suppress=False, log_file=None, timeout=None):
+    def __init__(
+        self, inp_file, output, bngpath, suppress=False, log_file=None, timeout=None
+    ):
         self.inp_file = inp_file
         if isinstance(inp_file, mdl.bngmodel):
             self.is_bngmodel = True
