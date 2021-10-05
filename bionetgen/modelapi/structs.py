@@ -413,7 +413,7 @@ class Rule(ModelObj):
         list of patterns for reactants
     products : list[Pattern]
         list of patterns for products
-    
+
 
     Methods
     -------
@@ -426,7 +426,9 @@ class Rule(ModelObj):
         on one side of a rule definition
     """
 
-    def __init__(self, name, reactants=[], products=[], rate_constants=(), modifier=[]) -> None: # should this be list?
+    def __init__(
+        self, name, reactants=[], products=[], rate_constants=(), modifier=[]
+    ) -> None:  # should this be list?
         super().__init__()
         self.name = name
         self.reactants = reactants
@@ -452,7 +454,7 @@ class Rule(ModelObj):
                 self.side_string(self.products),
                 self.rate_constants[0],
                 self.rate_constants[1],
-                self.modifier
+                self.modifier,
             )
         else:
             return "{}: {} -> {} {} {}".format(
