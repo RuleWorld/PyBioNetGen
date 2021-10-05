@@ -74,12 +74,14 @@ def plotDAT(inp, out=".", kw=dict()):
     plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()
 
+
 def runAtomizeTool(config, args):
     from bionetgen.atomizer import AtomizeTool
 
     a = AtomizeTool(parser_namespace=args)
     # do config specific stuff here if need be, or remove the config requirement
     a.run()
+
 
 def printInfo(config, args):
     """
@@ -110,6 +112,7 @@ def visualizeModel(config, args):
     config_bngpath = config.get("bionetgen", "bngpath")
     viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath)
     viz.run()
+
 
 class BNGCLI:
     def __init__(

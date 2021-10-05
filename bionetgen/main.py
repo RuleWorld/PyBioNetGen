@@ -323,7 +323,7 @@ class BNGBase(cement.Controller):
                     "action": "store_true",
                 },
             ),
-        ]
+        ],
     )
     def info(self):
         """
