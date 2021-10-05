@@ -1,10 +1,10 @@
 .. _cli:
 
 ######################
-Command line Interface
+Command Line Interface
 ######################
 
-The command line tool comes with several subcommands. For each command you can see the help
+The command line tool comes with several subcommands. For each command, you can see the help
 text with the command
 
 .. code-block:: shell
@@ -14,18 +14,19 @@ text with the command
 Run
 ===
 
-You can use this subcommand to run a model with
+This subcommand simply runs a model:
 
 .. code-block:: shell
    
    bionetgen run -i mymodel.bngl -o output_folder
 
-which will run :code:`mymodel.bngl` under the folder :code:`output_folder`. 
+This will run :code:`mymodel.bngl` under the folder :code:`output_folder`.
+If no output folder is specified, then the temporary folder used while running the subcommand will be deleted upon completion.
 
 Plot
 ====
 
-This subcommand allows you to make a simple plot from a gdat/cdat file
+This subcommand allows you to make a simple plot from a gdat/cdat or scan file:
 
 .. code-block:: shell
    
@@ -51,13 +52,22 @@ You can see all the available options by running :code:`bionetgen plot -h`
       --ylabel YLABEL       y-axis label (default: concentration)
       --title TITLE         title of plot (default: determined from input file)
 
+Resulting plots should look similar to this:
+
+.. image:: ./assets/SIR.png
+
 Notebook
 ========
 
-This subcommand is in it's early stages of development. The subcommand is used to generate a
+This subcommand is in its early stages of development. The subcommand is used to generate a
 simple `Jupyter notebook <https://jupyter.org/>`_. You can also give your model as an argument
 and the resulting notebook will be ready to load in your model using PyBioNetGen library. 
 
 .. code-block:: shell
    
    bionetgen notebook -i mymodel.bngl -o mynotebook.ipynb
+
+Tutorial
+========
+
+For a brief tutorial showing how to use the CLI on a simple BNGL model, please see :ref:`cli_tut`.

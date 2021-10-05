@@ -1,0 +1,59 @@
+{
+    "reactionDefinition" : [
+    ],
+    "complexDefinition" : [
+    ["STAT1", [["STAT1","gp130",[]]]],
+    ["STAT3",[["STAT3","c",["s","0"],"n",["s","0"],"m",["s","M"],"gp130",[],"r",[]]]],
+    ["SOCS3",[["SOCS3", "gp130",[]]]],
+    ["JAK",[["JAK","r",[],"gp130",[]]]],
+    ["R",[["R","r",[],"ifn",[],"socs1",[],"stat3",[], "jak",[],"shp2",[]]]],
+    ["IFN",[["IFN","r",[]]]],
+    ["gp80",[["gp80","gp130",[],"gp80",[],"il6",[]]]],
+    ["IL6",[["IL6","gp80",[]]]],
+    ["gp130",[["gp130","gp80",[],"stat3",[],"shp2",[],"socs3",[],"stat1",[],"jak",[]]]],
+    ["SHP2",[["SHP2","gp130",[],"r",[]]]],
+    ["SOCS1",[["SOCS1","r",[]]]],
+    ["Ras",[["Ras","sos",[]]]],
+    ["SOS",[["SOS","ras",[]]]]
+
+    ]
+    ,
+    "modificationDefinition": {
+    "Ras":[],
+    "Ras_GDP":["Ras"],
+    "Phosp2":[],
+    "Phosp1":[],
+    "Phosp3":[],
+    "Ras_GTP":["Ras"],
+    "JAK__IL_6__":["JAK"],
+    "JAK__IFN__":["JAK"],
+    "gp130_JAK":["gp130","JAK__IL_6__"],
+    "R_JAK":["R","JAK__IFN__"],
+    "ERK_PP":["ERK_P"],
+    "MEK_PP":["MEK_P"],
+    "STAT1m":["STAT1"],
+    "STAT1N":["STAT1"],
+    "STAT3m":["STAT3"],
+    "STAT1Cm":["STAT1C"],
+    "STAT1Nm":["STAT1N"],
+    "STAT3Nm":["STAT3N"],
+    "STAT3Cm":["STAT3C"],
+    "STAT1Cm_2":["STAT1Cm","STAT1Cm"],
+    "STAT1Nm_2":["STAT1Nm","STAT1Nm"],
+    "STAT3Cm_2":["STAT3Cm","STAT3Cm"],
+    "STAT3Nm_2":["STAT3Nm","STAT3Nm"],
+    "mJAK__IFN__":["JAK__IFN__"],
+    "mJAK__IL_6__":["JAK__IL_6__"],
+    "__STAT1Cm__2":["STAT1Cm","STAT1Cm"],
+    "__STAT1Nm__2":["STAT1Nm","STAT1Nm"],
+    "__STAT3Cm__2":["STAT3Cm","STAT3Cm"],
+    "__STAT3Nm__2":["STAT3Nm","STAT3Nm"],
+
+    "__IL6_gp80_gp130_JAK__2m":["IL6_gp80","IL6_gp80","gp130","gp130","mJAK__IL_6__","mJAK__IL_6__"],
+    "__IL6_gp80_gp130_JAK__2m_STAT1C":["__IL6_gp80_gp130_JAK__2m","STAT1C"],
+    "__IFN_R_JAK__2m":["IFN","IFN","R","R","mJAK__IFN__","mJAK__IFN__"],
+    "__IFN_R_JAK__2m_STAT1C_SHP2":["__IFN_R_JAK__2m","STAT1C","SHP2"]
+    }
+    
+    
+}

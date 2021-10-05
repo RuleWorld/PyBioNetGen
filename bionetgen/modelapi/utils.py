@@ -1,10 +1,57 @@
-import os, subprocess
+import os
+from re import sub
+import subprocess
 import bionetgen as bng
 from distutils import spawn
 
+
+class ActionList:
+    def __init__(self):
+        self.normal_types = [
+            "generate_network",
+            "generate_hybrid_model",
+            "simulate",
+            "simulate_ode",
+            "simulate_ssa",
+            "simulate_pla",
+            "simulate_nf",
+            "parameter_scan",
+            "bifurcate",
+            "readFile",
+            "writeFile",
+            "writeModel",
+            "writeNetwork",
+            "writeXML",
+            "writeSBML",
+            "writeMfile",
+            "writeMexfile",
+            "writeMDL",
+            "visualize",
+        ]
+        self.no_setter_syntax = [
+            "setConcentration",
+            "addConcentration",
+            "setParameter",
+            "saveParameters",
+            "quit",
+            "setModelName",
+            "substanceUnits",
+            "version",
+            "setOption",
+        ]
+        self.square_braces = [
+            "saveConcentrations",
+            "resetConcentrations",
+            "resetParameters",
+        ]
+        self.possible_types = (
+            self.normal_types + self.no_setter_syntax + self.square_braces
+        )
+
+
 def find_BNG_path(BNGPATH=None):
-    '''
-    A simple function finds the path to BNG2.pl from 
+    """
+    A simple function finds the path to BNG2.pl from
     * Environment variable
     * Assuming it's under PATH
     * Given optional path as argument
@@ -15,11 +62,11 @@ def find_BNG_path(BNGPATH=None):
     Arguments
     ---------
     BNGPATH : str
-        (optional) path to the folder that contains BNG2.pl 
-    '''
-    # TODO: Figure out how to use the BNG2.pl if it's set 
+        (optional) path to the folder that contains BNG2.pl
+    """
+    # TODO: Figure out how to use the BNG2.pl if it's set
     # in the PATH variable. Solution: set os.environ BNGPATH
-    # and make everything use that route 
+    # and make everything use that route
 
     # Let's keep up the idea we pull this path from the environment
     if BNGPATH is None:
@@ -41,8 +88,9 @@ def find_BNG_path(BNGPATH=None):
             RuntimeError("BNG2.pl is not working")
     return BNGPATH, bngexec
 
+
 def test_bngexec(bngexec):
-    '''
+    """
     A simple function that test if BNG2.pl given runs
 
     Usage: test_bngexec(path)
@@ -51,23 +99,39 @@ def test_bngexec(bngexec):
     ---------
     bngexec : str
         path to BNG2.pl to test
-    '''
-    # rc = subprocess.run(["perl", bngexec], stdout=bng.defaults.stdout)
-    # rc = subprocess.run(["perl", bngexec], capture_output=True, bufsize=1)
+    """
     command = ["perl", bngexec]
-    rc = run_command(command)
+    rc, _ = run_command(command, suppress=True)
     if rc == 0:
         return True
     else:
         return False
 
-def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding='utf8')
-    while True:
-        output = process.stdout.readline()
-        if output == '' and process.poll() is not None:
-            break
-        if output:
-            print(output.strip())
-    rc = process.poll()
-    return rc
+
+def run_command(command, suppress=False, timeout=None):
+    if timeout is not None:
+        # I am unsure how to do both timeout and the live polling of stdo
+        rc = subprocess.run(command, timeout=timeout, capture_output=True)
+        return rc.returncode, rc
+    else:
+        if suppress:
+            process = subprocess.Popen(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                bufsize=-1,
+            )
+            return process.poll(), process
+        else:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
+            out = []
+            while True:
+                output = process.stdout.readline()
+                if output == "" and process.poll() is not None:
+                    break
+                if output:
+                    o = output.strip()
+                    out.append(o)
+                    print(o)
+            rc = process.poll()
+            return rc, out

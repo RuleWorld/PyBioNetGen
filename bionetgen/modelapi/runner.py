@@ -6,10 +6,11 @@ from bionetgen.core.main import BNGCLI
 # This allows access to the CLIs config setup
 app = BioNetGen()
 app.setup()
-conf = app.config['bionetgen']
+conf = app.config["bionetgen"]
 
-def run(inp, out=None):
-    '''
+
+def run(inp, out=None, suppress=False, timeout=None):
+    """
     Convenience function to run BNG2.pl as a library
 
     Usage: run(path_to_input_file, output_folder)
@@ -18,16 +19,16 @@ def run(inp, out=None):
     ---------
     path_to_input_file : str
         this has to point to a BNGL file
-    output_folder : str 
+    output_folder : str
         (optional) this points to a folder to put the results
         into. If it doesn't exist, it will be created.
-    '''
+    """
     # if out is None we make a temp directory
     if out is None:
         cur_dir = os.getcwd()
         with TemporaryDirectory() as out:
             # instantiate a CLI object with the info
-            cli = BNGCLI(inp, out, conf["bngpath"])
+            cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress, timeout=timeout)
             try:
                 cli.run()
             except:
@@ -36,7 +37,7 @@ def run(inp, out=None):
             os.chdir(cur_dir)
     else:
         # instantiate a CLI object with the info
-        cli = BNGCLI(inp, out, conf["bngpath"])
+        cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress, timeout=timeout)
         try:
             cli.run()
         except:

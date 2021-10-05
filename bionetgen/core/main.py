@@ -1,18 +1,17 @@
-from bionetgen.modelapi.utils import run_command
-import os, subprocess, shutil
-from tempfile import TemporaryDirectory
-from sys import stdout
-from re import sub
 import bionetgen as bng
-from bionetgen.core import BNGResult
-from bionetgen.core import BNGPlotter
+from bionetgen.modelapi.utils import run_command
+import bionetgen.modelapi.model as mdl
+import os, subprocess
+from tempfile import NamedTemporaryFile
+
 
 # TODO Consolidate how config is being accessed. It's
 # almost like each function accesses the configs from
-# a different path 
+# a different path
+
 
 def runCLI(config, args):
-    '''
+    """
     Convenience function to run BNG2.pl from the CLI app
 
     Usage: runCLI(config, args)
@@ -23,20 +22,22 @@ def runCLI(config, args):
         configuration dictionary from BioNetGen cement app
     args :  argparse.Namespace
         arguments parsed from the command line with argparser.
-    '''
+    """
     # this pulls out the arguments
     inp_file = args.input
     output = args.output
+    log_file = args.log_file
     # if you set args.bngpath it should take precedence
-    config_bngpath = config.get('bionetgen', 'bngpath')
+    config_bngpath = config.get("bionetgen", "bngpath")
     # and instantiates the CLI object
-    cli = BNGCLI(inp_file, output, config_bngpath)
+    cli = BNGCLI(inp_file, output, config_bngpath, log_file=log_file)
     cli.stdout = config.get("bionetgen", "stdout")
     cli.stderr = config.get("bionetgen", "stderr")
     cli.run()
 
+
 def plotDAT(inp, out=".", kw=dict()):
-    '''
+    """
     Convenience function to plot dat/scan files from the CLI
 
     Usage: plotDAT(inp, out, kw)
@@ -45,15 +46,15 @@ def plotDAT(inp, out=".", kw=dict()):
     ---------
     inp : str
         input gdat/cdat/scan file to plot
-    out : str 
+    out : str
         (optional) output file path, can be used to define the
-        output format as well. Default is the current folder, 
+        output format as well. Default is the current folder,
         filename is the same as the input file and default format
         is PNG.
     kw : dict
-        (optional) this is a set of keyword arguments you want to 
+        (optional) this is a set of keyword arguments you want to
         pass for certain matplotlib options. Check -h for details
-    '''
+    """
     # if we want to plot directly into the folder
     # we are in we need to get the path correctly
     if out == ".":
@@ -61,13 +62,24 @@ def plotDAT(inp, out=".", kw=dict()):
         fnoext, ext = os.path.splitext(fname)
         out = os.path.join(path, "{}.png".format(fnoext))
     # use the plotter object to get the plot
+    from bionetgen.core import BNGPlotter
+
     plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()
 
+
+def runAtomizeTool(config, args):
+    from bionetgen.atomizer import AtomizeTool
+
+    a = AtomizeTool(parser_namespace=args)
+    # do config specific stuff here if need be, or remove the config requirement
+    a.run()
+
+
 class BNGCLI:
-    '''
+    """
     Command Line Interface class to run BNG2.pl on a given
-    model. 
+    model.
 
     Usage: BNGCLI(inp_file, output, bngpath)
 
@@ -75,20 +87,27 @@ class BNGCLI:
     ---------
     inp_file : str
         path to the the BNGL file to run
-    output : str 
+    output : str
         path to the output folder to run the model in
     bngpath : str
         path to BioNetGen folder where BNG2.pl lives
-    
+
     Methods
     -------
     run()
         runs the model in the given output folder
-    '''
-    def __init__(self, inp_file, output, bngpath):
+    """
+
+    def __init__(
+        self, inp_file, output, bngpath, suppress=False, log_file=None, timeout=None
+    ):
         self.inp_file = inp_file
-        # ensure correct path to the input file
-        self.inp_path = os.path.abspath(self.inp_file)
+        if isinstance(inp_file, mdl.bngmodel):
+            self.is_bngmodel = True
+        else:
+            self.is_bngmodel = False
+            # ensure correct path to the input file
+            self.inp_path = os.path.abspath(self.inp_file)
         # pull other arugments out
         self._set_output(output)
         # sedml_file = sedml
@@ -104,6 +123,9 @@ class BNGCLI:
         self.result = None
         self.stdout = "PIPE"
         self.stderr = "STDOUT"
+        self.suppress = suppress
+        self.log_file = log_file
+        self.timeout = timeout
 
     def _set_output(self, output):
         # setting up output area
@@ -116,19 +138,56 @@ class BNGCLI:
             os.chdir(output)
 
     def run(self):
-        try: 
+        try:
             stdout_loc = getattr(subprocess, self.stdout)
         except:
             stdout_loc = subprocess.PIPE
-        try: 
+        try:
             stderr_loc = getattr(subprocess, self.stderr)
         except:
             stderr_loc = subprocess.STDOUT
         # run BNG2.pl
-        # rc = subprocess.run(["perl", self.bng_exec, self.inp_path], stdout=stdout_loc, stderr=stderr_loc)
-        # rc = subprocess.run(["perl", self.bng_exec, self.inp_path], capture_output=True, bufsize=1)
-        command = ["perl", self.bng_exec, self.inp_path]
-        rc = run_command(command)
+
+        if self.is_bngmodel:
+            with NamedTemporaryFile(
+                mode="w+", encoding="utf-8", delete=False, suffix=".bngl"
+            ) as tfile:
+                tfile.write(str(self.inp_file))
+            command = ["perl", self.bng_exec, tfile.name]
+        else:
+            fname = os.path.basename(self.inp_path)
+            fname = fname.replace(".bngl", "")
+            command = ["perl", self.bng_exec, self.inp_path]
+        rc, process = run_command(command, suppress=self.suppress, timeout=self.timeout)
+        if isinstance(process, str):
+            out = process
+        else:
+            out = process.stdout
+        if self.log_file is not None:
+            # test if we were given a path
+            # TODO: This is a simple hack, might need to adjust it
+            # trying to check if given file is an absolute/relative
+            # path and if so, use that one. Otherwise, divine the
+            # current path.
+            if os.path.exists(self.log_file):
+                # file or folder exists, check if folder
+                if os.path.isdir(self.log_file):
+                    fname = os.path.basename(self.inp_path)
+                    fname = fname.replace(".bngl", "")
+                    full_log_path = os.path.join(self.log_file, fname + ".log")
+                else:
+                    # it's intended to be file, so we keep it as is
+                    full_log_path = self.log_file
+            else:
+                # doesn't exist, so we assume it's a file
+                # and we keep it as is
+                full_log_path = self.log_file
+
+            with open(full_log_path, "w") as f:
+                f.write("\n".join(out))
+
+        if self.is_bngmodel:
+            os.remove(tfile.name)
         # write out stdout/err if they exist
         # TODO Maybe indicate that we are printing out stdout/stderr before printing
         # if rc.stdout is not None:
@@ -136,12 +195,21 @@ class BNGCLI:
         # if rc.stderr is not None:
         #     print(rc.stderr.decode('utf-8'))
         if rc == 0:
-            # load in the result 
+            # load in the result
+            from bionetgen.core import BNGResult
+
             self.result = BNGResult(os.getcwd())
             BNGResult.process_return = rc
+            BNGResult.process_obj = process
+            BNGResult.process_out = out
+            # set BNGPATH back
+            if self.old_bngpath is not None:
+                os.environ["BNGPATH"] = self.old_bngpath
         else:
             self.result = None
-        # set BNGPATH back
-        if self.old_bngpath is not None:
-            os.environ["BNGPATH"] = self.old_bngpath
-
+            # set BNGPATH back
+            if self.old_bngpath is not None:
+                os.environ["BNGPATH"] = self.old_bngpath
+            raise ValueError(
+                "Failed to run your BNGL file, there might be an issue with your model!"
+            )

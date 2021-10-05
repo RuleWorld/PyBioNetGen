@@ -1,7 +1,9 @@
 from bionetgen.modelapi.pattern import Molecule, Pattern
+from bionetgen.modelapi.utils import ActionList
+
 
 class ModelObj:
-    '''
+    """
     The base class for all items in a model (parameter, observable etc.).
 
     Attributes
@@ -19,20 +21,21 @@ class ModelObj:
     gen_string()
         generates the BNGL string of the object itself, separate from
         line attributes
-    '''
+    """
+
     def __init__(self):
         self._comment = None
         self._line_label = None
-    
+
     def __str__(self) -> str:
         return self.gen_string()
-    
+
     def __repr__(self) -> str:
         return self.gen_string()
 
     def __contains__(self, key):
         return hasattr(self, key)
-    
+
     def __getitem__(self, key):
         return getattr(self, key)
 
@@ -45,19 +48,19 @@ class ModelObj:
     @property
     def comment(self) -> None:
         return self._comment
-        
+
     @comment.setter
-    def comment(self, val) -> str:
+    def comment(self, val) -> None:
         # TODO: regex handling of # instead
         if val.startswith("#"):
             self._comment = val[1:]
         else:
             self._comment = val
-    
+
     @property
     def line_label(self) -> str:
         return self._line_label
-    
+
     @line_label.setter
     def line_label(self, val) -> None:
         # TODO: specific error handling
@@ -66,7 +69,7 @@ class ModelObj:
             self._line_label = "{} ".format(ll)
         except:
             self._line_label = "{}: ".format(val)
-    
+
     def print_line(self) -> str:
         s = "  "
         # let's deal with line label
@@ -80,10 +83,10 @@ class ModelObj:
 
 
 class Parameter(ModelObj):
-    '''
+    """
     Class for all parameters in the model, subclass of ModelObj.
 
-    In BNGL parameters are of the form 
+    In BNGL parameters are of the form
         parameter_name parameter_value/expression
     or
         parameter_name = parameter_value/expression
@@ -99,8 +102,9 @@ class Parameter(ModelObj):
         this exists if the parameter is a math expression, not necerssary
     write_expr : bool
         this is a boolean that determines if the generated string has
-        is in expression form or in value form. 
-    '''
+        is in expression form or in value form.
+    """
+
     def __init__(self, name, value, expr=None):
         super().__init__()
         self.name = name
@@ -111,7 +115,7 @@ class Parameter(ModelObj):
             self.write_expr = False
         except:
             self.write_expr = True
-    
+
     def gen_string(self) -> str:
         if self.write_expr:
             return "{} {}".format(self.name, self.expr)
@@ -120,11 +124,11 @@ class Parameter(ModelObj):
 
 
 class Compartment(ModelObj):
-    '''
+    """
     Class for all compartments in the model, subclass of ModelObj.
 
     In BNGL the compartments are of the form
-        compartment_name dimensions size 
+        compartment_name dimensions size
     or
         compartment_name dimensions size parent_compartment
     the second form only applies when one compartment is contained in
@@ -142,7 +146,8 @@ class Compartment(ModelObj):
         parent compartment, if exists
     write_expr : bool
         boolean that describes if the size is a volume or an expression
-    '''
+    """
+
     def __init__(self, name, dim, size, outside=None):
         super().__init__()
         self.name = name
@@ -154,16 +159,16 @@ class Compartment(ModelObj):
         except:
             self.write_expr = True
         self.outside = outside
-    
+
     def gen_string(self) -> str:
         s = "{} {} {}".format(self.name, self.dim, self.size)
         if self.outside is not None:
-            s += " {}".format(self.outside) 
+            s += " {}".format(self.outside)
         return s
 
 
 class Observable(ModelObj):
-    '''
+    """
     Class for all observable in the model, subclass of ModelObj.
 
     In BNGL the observables are of the form
@@ -178,19 +183,20 @@ class Observable(ModelObj):
         type of the observable, Molecules or Species
     patterns : list[Pattern]
         list of patterns of the observable
-    
+
     Methods
     -------
     add_pattern
-        add a Pattern object into the list of patterns 
+        add a Pattern object into the list of patterns
         for this observable
-    '''
+    """
+
     def __init__(self, name, otype, patterns=[]):
         super().__init__()
         self.name = name
         self.type = otype
         self.patterns = patterns
-    
+
     def gen_string(self) -> str:
         s = "{} {} ".format(self.type, self.name)
         for ipat, pat in enumerate(self.patterns):
@@ -198,13 +204,13 @@ class Observable(ModelObj):
                 s += ","
             s += str(pat)
         return s
-    
+
     def add_pattern(self, pat) -> None:
         self.patterns.append(pat)
 
 
 class MoleculeType(ModelObj):
-    '''
+    """
     Class for all parameters in the model, subclass of ModelObj.
 
     In BNGL the molecule types are of the form
@@ -218,23 +224,24 @@ class MoleculeType(ModelObj):
     molecule : Molecule
         a molecule type only contains a molecule object which
         can also handle multiple component states
-    '''
+    """
+
     def __init__(self, name, components):
         super().__init__()
         self.name = name
         self.molecule = Molecule(name=name, components=components)
-    
+
     def gen_string(self) -> str:
         return str(self.molecule)
-    
+
 
 class Species(ModelObj):
-    '''
+    """
     Class for all parameters in the model, subclass of ModelObj.
 
     In BNGL the species/seed species are of the form
         species count
-    where species is a single pattern and count is the starting 
+    where species is a single pattern and count is the starting
     value for that specific pattern
 
     Attributes
@@ -243,29 +250,30 @@ class Species(ModelObj):
         pattern of the seed species
     count : str
         starting value of the seed species
-    '''
+    """
+
     def __init__(self, pattern=Pattern(), count=0):
         super().__init__()
         self.pattern = pattern
         self.count = count
         self.name = str(self.pattern)
-    
+
     def gen_string(self) -> str:
         s = "{} {}".format(self.pattern, self.count)
         return s
 
 
 class Function(ModelObj):
-    '''
+    """
     Class for all parameters in the model, subclass of ModelObj.
 
     In BNGL functions are of the form
         function_name function_expression
-    or 
+    or
         function_name = function_expression
     and functions can have arguments
         function_name(arg1, arg2, ..., argN)
-    
+
 
     Attributes
     ----------
@@ -275,13 +283,14 @@ class Function(ModelObj):
         function expression
     args : list
         optional list of arguments for the function
-    '''
+    """
+
     def __init__(self, name, expr, args=None):
         super().__init__()
         self.name = name
         self.expr = expr
         self.args = args
-    
+
     def gen_string(self) -> str:
         if self.args is None:
             s = "{} = {}".format(self.name, self.expr)
@@ -291,7 +300,7 @@ class Function(ModelObj):
 
 
 class Action(ModelObj):
-    '''
+    """
     Class for all parameters in the model, subclass of ModelObj.
 
     In BNGL actions are of the form
@@ -303,27 +312,54 @@ class Action(ModelObj):
         type of action, e.g. simulate or writeFile
     args : list[(arg_name,arg_value)]
         (argument,value) pair list for the action
-    '''
+    """
+
     def __init__(self, action_type=None, action_args=[]) -> None:
         super().__init__()
+        AList = ActionList()
+        self.normal_types = AList.normal_types
+        self.no_setter_syntax = AList.no_setter_syntax
+        self.square_braces = AList.square_braces
+        self.possible_types = AList.possible_types
+        # Set initial values
+        self.name = action_type
         self.type = action_type
         self.args = action_args
+        # check type
+        if self.type not in self.possible_types:
+            print("Action type not recognized!")
+            raise RuntimeError
 
     def gen_string(self) -> str:
-        # TODO: figure out every argument that has special 
-        # requirements, e.g. method requires the value to 
+        # TODO: figure out every argument that has special
+        # requirements, e.g. method requires the value to
         # be a string
-        action_str = "{}(".format(self.type) + "{"
-        for iarg,arg in enumerate(self.args):
-            val = arg[1]
-            arg = arg[0]
+        action_str = "{}(".format(self.type)
+        # we can skip curly if we don't have arguments
+        # and we NEED to skip it for some actions
+        if self.type in self.normal_types and not len(self.args) == 0:
+            action_str += "{"
+        elif self.type in self.square_braces:
+            action_str += "["
+        # add arguments
+        for iarg, args in enumerate(self.args):
+            arg = args[0]
+            val = args[1]
             if iarg > 0:
                 action_str += ","
-            if arg == "method":
-                action_str += '{}=>"{}"'.format(arg, val)
+            # some actions need =>, some don't
+            if self.type in self.normal_types:
+                action_str += f"{arg}=>{val}"
             else:
-                action_str += '{}=>{}'.format(arg, val)
-        action_str += "})"
+                action_str += f"{arg}"
+        # we can skip curly if we don't have arguments
+        # and we NEED to skip it for some actions
+        if self.type in self.normal_types and not len(self.args) == 0:
+            action_str += "}"
+        elif self.type in self.square_braces:
+            action_str += "]"
+        # close up the action
+        action_str += ")"
         return action_str
 
     def print_line(self) -> str:
@@ -339,7 +375,7 @@ class Action(ModelObj):
 
 
 class Rule(ModelObj):
-    '''
+    """
     Class for all parameters in the model, subclass of ModelObj.
 
     Attributes
@@ -360,7 +396,8 @@ class Rule(ModelObj):
     side_string(list[Pattern])
         given a list of patterns, return a string formatted to be
         on one side of a rule definition
-    '''
+    """
+
     def __init__(self, name, reactants=[], products=[], rate_constants=()) -> None:
         super().__init__()
         self.name = name
@@ -372,21 +409,28 @@ class Rule(ModelObj):
         if len(rate_cts) == 1:
             self.rate_constants = [rate_cts[0]]
             self.bidirectional = False
-        elif len(rate_cts) == 2: 
+        elif len(rate_cts) == 2:
             self.rate_constants = [rate_cts[0], rate_cts[1]]
             self.bidirectional = True
         else:
             print("1 or 2 rate constants allowed")
-    
+
     def gen_string(self):
         if self.bidirectional:
-            return "{}: {} <-> {} {},{}".format(self.name, 
-                self.side_string(self.reactants), self.side_string(self.products), 
-                self.rate_constants[0], self.rate_constants[1])
+            return "{}: {} <-> {} {},{}".format(
+                self.name,
+                self.side_string(self.reactants),
+                self.side_string(self.products),
+                self.rate_constants[0],
+                self.rate_constants[1],
+            )
         else:
-            return "{}: {} -> {} {}".format(self.name, 
-                self.side_string(self.reactants), self.side_string(self.products), 
-                self.rate_constants[0])
+            return "{}: {} -> {} {}".format(
+                self.name,
+                self.side_string(self.reactants),
+                self.side_string(self.products),
+                self.rate_constants[0],
+            )
 
     def side_string(self, patterns):
         side_str = ""

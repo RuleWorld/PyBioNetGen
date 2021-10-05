@@ -1,8 +1,8 @@
-# All classes that deal with patterns 
+# All classes that deal with patterns
 class Pattern:
-    '''
+    """
     Pattern object. Fundamentally it's just a list of molecules
-    which are defined later. 
+    which are defined later.
 
     Attributes
     ----------
@@ -10,19 +10,20 @@ class Pattern:
         setting a pattern requires you to keep track of all bonds to
         correctly label them, this object tracks everything
     _compartment : str
-        compartment of the overall pattern (not the same thing as 
+        compartment of the overall pattern (not the same thing as
         molecule compartment, those have their own)
     _label : str
-        label of the overall pattern (not the same thing as molecule 
+        label of the overall pattern (not the same thing as molecule
         label, those have their own)
     molecules : list[Molecule]
         list of molecule objects that are in the pattern
     fixed : bool
-        used for constant species, sets "$" at the beginning of the 
+        used for constant species, sets "$" at the beginning of the
         pattern string
-    MatchOnce : bool 
+    MatchOnce : bool
         used for matchOnce syntax, "{MatchOnce}PatternStr"
-    '''
+    """
+
     def __init__(self, molecules=[], bonds=None, compartment=None, label=None):
         self.molecules = molecules
         self._bonds = bonds
@@ -33,17 +34,17 @@ class Pattern:
 
     @property
     def compartment(self):
-        return self._compartment 
+        return self._compartment
 
     @compartment.setter
     def compartment(self, value):
-        # TODO: Build in logic to set the 
+        # TODO: Build in logic to set the
         # outer compartment
         # print("Warning: Logical checks are not complete")
         self._compartment = value
         # by default, once the outer compartment is set
         # we will set the compartment of each molecule
-        # to that new compartment. 
+        # to that new compartment.
         for molec in self.molecules:
             molec.compartment = value
 
@@ -53,7 +54,7 @@ class Pattern:
 
     @label.setter
     def label(self, value):
-        # TODO: Build in logic to set 
+        # TODO: Build in logic to set
         # the outer label
         # print("Warning: Logical checks are not complete")
         self._label = value
@@ -63,7 +64,7 @@ class Pattern:
         if self.fixed:
             sstr += "$"
         if self.MatchOnce:
-            sstr += '{MatchOnce}'
+            sstr += "{MatchOnce}"
         for imol, mol in enumerate(self.molecules):
             if imol == 0 and self.compartment is not None:
                 sstr += "@{}:".format(self.compartment)
@@ -87,9 +88,9 @@ class Pattern:
 
 
 class Molecule:
-    '''
+    """
     Molecule object. A pattern is a list of molecules.
-    This object also handles molecule types where components 
+    This object also handles molecule types where components
     have a list of possible states.
 
     Attributes
@@ -106,10 +107,11 @@ class Molecule:
     Methods
     -------
     add_component(name, state=None, states=[])
-        add a component object to the list of components with name 
-        "name", current state "state" or a list of states 
+        add a component object to the list of components with name
+        "name", current state "state" or a list of states
         (for molecule types) "states"
-    '''
+    """
+
     def __init__(self, name="0", components=[], compartment=None, label=None):
         self._name = name
         self._components = components
@@ -139,8 +141,8 @@ class Molecule:
         if self.compartment is not None:
             mol_str += "@{}".format(self.compartment)
         return mol_str
-    
-    ### PROPERTIES ### 
+
+    ### PROPERTIES ###
     @property
     def name(self):
         return self._name
@@ -195,7 +197,7 @@ class Molecule:
 
 
 class Component:
-    '''
+    """
     Component object that describes the state, label and bonding
     for each component. Molecules can optionally contain components
 
@@ -219,8 +221,9 @@ class Component:
         to an existing component
     add_bond()
         not implemented. will eventually be used to add additional bonds
-        to an existing component  
-    '''
+        to an existing component
+    """
+
     def __init__(self):
         self._name = ""
         self._label = None
@@ -247,11 +250,11 @@ class Component:
                 comp_str += "!{}".format(bond)
         return comp_str
 
-    ### PROPERTIES ### 
+    ### PROPERTIES ###
     @property
     def name(self):
         return self._name
-   
+
     @name.setter
     def name(self, value):
         # TODO: Add built-in logic here
@@ -261,7 +264,7 @@ class Component:
     @property
     def label(self):
         return self._label
-   
+
     @label.setter
     def label(self, value):
         # TODO: Add built-in logic here
@@ -271,7 +274,7 @@ class Component:
     @property
     def state(self):
         return self._state
-   
+
     @state.setter
     def state(self, value):
         # TODO: Add built-in logic here
@@ -281,7 +284,7 @@ class Component:
     @property
     def states(self):
         return self._states
-   
+
     @states.setter
     def states(self, value):
         # TODO: Add built-in logic here
@@ -291,7 +294,7 @@ class Component:
     @property
     def bonds(self):
         return self._bonds
-   
+
     @bonds.setter
     def bonds(self, value):
         # TODO: Add built-in logic here

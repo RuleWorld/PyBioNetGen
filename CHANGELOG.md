@@ -89,4 +89,31 @@ Updating BioNetGen version to 2.6.0
 Massive model object restructuring complete and XML parsing is separated from model object. Fixed XML parsing of certain features like constant species. 
 
 ## 0.3.1
-Various changes fixing issues #1 and #7. BNG2.pl output is immediately piped out stdout. 
+Various changes fixing issues #1 and #7. BNG2.pl output is immediately piped out stdout.
+
+## 0.3.2
+Updated BNGResult object to be user friendly, updated OrderedDict import to try collections library.
+
+## 0.3.3
+`run` command can now run bngmodel objects directly, creates a temporary file to do so. Changing 
+a parameter value now correctly changes what's being written (expression vs value). 
+
+## 0.3.4
+Small bugfix where XML parsing wasn't returning the parsed objects for pattern objects
+
+## 0.3.5
+Small bugfix where BNGResult object was incorrectly referring to "results" attribute. Updated 
+required pandas version in requirements.txt to avoid incompatibility issues between numpy>=1.20 and older pandas versions.
+
+## 0.3.6
+Small bugfix to ensure the model file is opened with UTF-8 encoding which caused some issues on (some) windows machines. s
+
+## 0.3.7
+Removing numpy dependency from setup.py, action reading off of BNGL file. 
+
+## 0.3.8
+Moving imports around, removing unnecessary ones to speed up CLI performance. 
+
+## 0.3.9
+A couple bugfixes to plotting, running the CLI on a model can now generate a log file with the option
+-l/--log. Failing to run now raises a ValueError (will be changed with custom errors in the future). Added some input and output file checks to notebook subcommand.

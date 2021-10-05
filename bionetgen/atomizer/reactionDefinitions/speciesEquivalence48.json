@@ -1,0 +1,13 @@
+{
+	"reactionDefinition" : [
+	],
+	"complexDefinition" : [
+    ["EGFR",[["EGFR","plcg",[]]]],
+	["PLCg",[["PLCg","egfr",[]]]]
+	]
+	,
+	"modificationDefinition": {
+	}
+	
+	
+}
