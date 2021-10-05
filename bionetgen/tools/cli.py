@@ -23,7 +23,9 @@ class BNGCLI:
         runs the model in the given output folder
     """
 
-    def __init__(self, inp_file, output, bngpath, suppress=False, log_file=None):
+    def __init__(
+        self, inp_file, output, bngpath, suppress=False, log_file=None, timeout=None
+    ):
         self.inp_file = inp_file
         import bionetgen.modelapi.model as mdl
 
@@ -50,6 +52,7 @@ class BNGCLI:
         self.stderr = "STDOUT"
         self.suppress = suppress
         self.log_file = log_file
+        self.timeout = timeout
 
     def _set_output(self, output):
         # setting up output area
@@ -85,7 +88,7 @@ class BNGCLI:
             fname = os.path.basename(self.inp_path)
             fname = fname.replace(".bngl", "")
             command = ["perl", self.bng_exec, self.inp_path]
-        rc, out = run_command(command, suppress=self.suppress)
+        rc, out = run_command(command, suppress=self.suppress, timeout=self.timeout)
         if self.log_file is not None:
             # test if we were given a path
             # TODO: This is a simple hack, might need to adjust it
