@@ -151,17 +151,33 @@ class PatternXML(XMLObj):
             bonds = BondsXML()
             pattern._bonds = bonds
             self._bonds = bonds
-        #
+        # check for compartment and add if exists
         if "@compartment" in xml:
             pattern.compartment = xml["@compartment"]
-        #
+        # check for label and add if exists
         if "@label" in xml:
             pattern.label = xml["@label"]
-        #
+        # check to see if pattern is fixed
         if "@Fixed" in xml:
             if xml["@Fixed"] == "1":
                 pattern.fixed = True
-        #
+        # check to see if pattern is only matched once
+        if "@matchOnce" in xml:
+            if xml["@matchOnce"] == "1":
+                pattern.MatchOnce = True
+        # check for relation & quantity, add if exist
+        if ("@relation" in xml) and ("@quantity" in xml):
+            relation = xml["@relation"]
+            quantity = xml["@quantity"]
+            pattern.relation = relation
+            try:
+                n = int(quantity)
+                f = float(quantity)
+                if n == f:
+                    pattern.quantity = quantity
+            except ValueError as e:
+                print("Quantity needs to be an integer")
+        # check for either list of molecules or single molecule, add if exist
         mols = xml["ListOfMolecules"]["Molecule"]
         molecules = []
         if isinstance(mols, list):
@@ -262,7 +278,7 @@ class PatternListXML:
         return patterns
 
 
-###### Parsers  ######
+###### Parsers ######
 class ParameterBlockXML(XMLObj):
     """
     PatternBlock XML parser, derived from XMLObj. Creates
@@ -567,7 +583,7 @@ class RuleBlockXML(XMLObj):
             rate_cts = rate_cts_xml["RateConstant"]["@value"]
         elif rate_type == "Function":
             rate_cts = xml["@name"]
-        elif rate_type == "MM" or rate_type == "Sat":
+        elif rate_type == "MM" or rate_type == "Sat" or rate_type == "Hill":
             # A function type
             rate_cts = rate_type + "("
             args = xml["ListOfRateConstants"]["RateConstant"]
@@ -584,7 +600,6 @@ class RuleBlockXML(XMLObj):
         return rate_cts
 
     def resolve_rxn_side(self, xml):
-        # import ipdb;ipdb.set_trace()
         # this is either reactant or product
         if xml is None:
             return [Molecule()]

@@ -62,66 +62,123 @@ class BNGParser:
             with TemporaryFile("w+") as xml_file:
                 if self.bngfile.generate_xml(xml_file):
                     # TODO: Add verbosity option to the library
-                    # print("Parsing")
-                    self.parse_xml(xml_file.read(), model_obj)
+                    xmlstr = xml_file.read()
+                    # < is not a valid XML character, we need to replace it
+                    xmlstr = xmlstr.replace('relation="<', 'relation="&lt;')
+                    self.parse_xml(xmlstr, model_obj)
                     model_obj.reset_compilation_tags()
                 else:
                     raise ValueError("XML file couldn't be generated")
         elif model_file.endswith(".xml"):
             with open(model_file, "r") as f:
                 xml_str = f.read()
+                # < is not a valid XML character, we need to replace it
+                xmlstr = xml_str.replace('relation="<', 'relation="&lt;')
                 self.parse_xml(xml_str, model_obj)
             model_obj.reset_compilation_tags()
         else:
-            print("The extension of {} is not supported".format(model_file))
-            raise NotImplementedError
+            raise NotImplementedError(
+                "The extension of {} is not supported".format(model_file)
+            )
 
+    # TODO: This requires a massive clean up. Might need
+    # to make a grammar for it.
     def parse_actions(self, model_obj):
         if len(self.bngfile.parsed_actions) > 0:
+            # import ipdb;ipdb.set_trace();
             ablock = ActionBlock()
             # we have actions in file, let's get them
             for action in self.bngfile.parsed_actions:
-                action = re.sub("\#.*", "", action)
-                action = re.sub("\s", "", action)
+                action = re.sub(
+                    r"\#.*", "", action
+                )  # should this be (r"\#.*) or just ("\#.*")
+                action = re.sub(
+                    r"\s", "", action
+                )  # should this be (r"\s) or just ("\s")
                 if len(action) == 0:
                     continue
+                # gotta find if actions argument is given
+                # import ipdb;ipdb.set_trace()
+                actions_arg = None
+                amatch = re.match(r".*(actions=>\[(.*)\]).*", action)
+                if amatch is not None:
+                    # we have an actions argument, let's put that aside for now
+                    actions_arg_match = re.match(r".*\[(.*)\].*", amatch.group(1))
+                    if actions_arg_match is not None:
+                        actions_arg = actions_arg_match.group(1)
+                    # let's remove the action argument to allow regular parsing
+                    action = action.replace(amatch.group(1), "")
+                    # let's make sure we don't have two commas back to back now
+                    commatch = re.match(r".*(\,\s*\,).*", action)
+                    if commatch is not None:
+                        action = action.replace(commatch.group(1), ",")
                 m = re.match(r"^\s*(\S+)\(\s*(\S*)\s*\)(\;)?\s*(\#\s*\S*)?\s*", action)
                 if m is not None:
                     # here we have an action
                     atype = m.group(1)
-                    in_parans = m.group(2)
-                    if len(in_parans) > 0:
-                        # in paranthesis group can have curly or square braces
-                        m = re.match(r"\{(\S*)\}", in_parans)
-                        arg_tuples = []
+                    in_parens = m.group(2)
+                    if len(in_parens) > 0:
+                        # in parenthesis group can have curly or square braces
+                        m = re.match(r"\{(\S*)\}$", in_parens)
+                        arg_dict = {}
+                        if actions_arg is not None:
+                            arg_dict["actions"] = f"[{actions_arg}]"
                         if m is not None:
-                            # this is a normal action
                             arg_list_str = m.group(1)
+                            # First let's check for lists
+                            # Please note that this will only replace a single list that doesn't reoccur
+                            L = re.match(r"\S+\[(\S*)\]\S*", m.group(1))
+                            if L is not None:
+                                arg_list_str = arg_list_str.replace(
+                                    f"[{L.group(1)}]",
+                                    f"[{L.group(1).replace(',','_')}]",
+                                )
+                            # Now check for curly braces
+                            # Please note that this will only replace a single dictionary that doesn't reoccur
+                            L = re.match(r"\S+\{(\S*)\}\S*", m.group(1))
+                            if L is not None:
+                                arg_list_str = arg_list_str.replace(
+                                    "{%s}" % L.group(1),
+                                    "{%s}" % L.group(1).replace(",", "_"),
+                                )
                             arg_list = arg_list_str.split(",")
                             for arg_str in arg_list:
-                                m = re.match(r"(\S*)\=\>(\S*)", arg_str)
-                                if m is not None:
-                                    # add to arg_tuples
-                                    arg = m.group(1)
-                                    val = m.group(2)
-                                    arg_tuples.append((arg, val))
+                                splt = arg_str.split("=>")
+                                if len(splt) > 1:
+                                    arg = splt[0]
+                                    val = "=>".join(splt[1:])
+                                    # now we need to check if we have a list/dictionary
+                                    if "_" in val:
+                                        val = val.replace("_", ",")
+                                    # add the tuple to the list
+                                    if arg in arg_dict:
+                                        # TODO: make this a warning
+                                        print(
+                                            f"WARNING: argument {arg} for action {atype} is given twice, using the last value {val}"
+                                        )
+                                    arg_dict[arg] = val
                         else:
-                            m = re.match(r"\[(\S*)\]", in_parans)
+                            m = re.match(r"\[(\S*)\]", in_parens)
                             if m is not None:
                                 # this is a list of items
                                 arg_list_str = m.group(1)
                             else:
-                                # what we have in parantheses has to
+                                # what we have in parentheses has to
                                 # be a simple list of arguments
-                                arg_list_str = in_parans
+                                arg_list_str = in_parens
                             arg_list = arg_list_str.split(",")
                             for arg_str in arg_list:
                                 # add to arg_tuples
-                                arg_tuples.append((arg_str, None))
-                        ablock.add_action(atype, arg_tuples)
+                                if arg_str in arg_dict:
+                                    # TODO: make this a warning
+                                    print(
+                                        f"WARNING: argument {arg_str} for action {atype} is given twice"
+                                    )
+                                arg_dict[arg_str] = None
+                        ablock.add_action(atype, arg_dict)
                     else:
-                        ablock.add_action(atype, [])
-        model_obj.add_block(ablock)
+                        ablock.add_action(atype, {})
+            model_obj.add_block(ablock)
 
     def parse_xml(self, xml_str, model_obj) -> None:
         xml_dict = xmltodict.parse(xml_str)

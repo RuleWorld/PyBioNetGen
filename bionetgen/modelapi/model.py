@@ -1,4 +1,3 @@
-import bionetgen as bng
 import copy
 
 from bionetgen.main import BioNetGen
@@ -100,19 +99,27 @@ class bngmodel:
         """
         write the model to str
         """
-        model_str = "begin model\n"
+        model_str = ""
+        # gotta check for "before model" type actions
+        if hasattr(self, "actions"):
+            ablock = getattr(self, "actions")
+            if len(ablock.before_model) > 0:
+                for baction in ablock.before_model:
+                    model_str += str(baction) + "\n"
+        model_str += "begin model\n"
         for block in self.block_order:
             # ensure we didn't get new items into a
             # previously inactive block, if we did
             # add them to the active blocks
-            if len(getattr(self, block)) > 0:
-                if getattr(self, block).name not in self.active_blocks:
-                    self.active_blocks.append(block)
-            # if we removed items from a block and
-            # it's now empty, we want to remove it
-            # from the active blocks
-            elif len(getattr(self, block)) == 0 and block in self.active_blocks:
-                self.active_blocks.remove(block)
+            if hasattr(self, block):
+                if len(getattr(self, block)) > 0:
+                    if getattr(self, block).name not in self.active_blocks:
+                        self.active_blocks.append(block)
+                # if we removed items from a block and
+                # it's now empty, we want to remove it
+                # from the active blocks
+                elif len(getattr(self, block)) == 0 and block in self.active_blocks:
+                    self.active_blocks.remove(block)
             # print only the active blocks
             if block in self.active_blocks:
                 if block != "actions" and len(getattr(self, block)) > 0:
@@ -251,8 +258,8 @@ class bngmodel:
             # we need to add writeSBML action for now
             curr_actions = copy.deepcopy(self.actions)
             self.actions.clear_actions()
-            self.add_action("generate_network", [("overwrite", 1)])
-            self.add_action("writeSBML", [])
+            self.add_action("generate_network", {"overwrite": 1})
+            self.add_action("writeSBML", {})
             # temporary file
             with TemporaryFile(mode="w+") as tpath:
                 # write the sbml
@@ -266,6 +273,8 @@ class bngmodel:
                 # by adding a mechanism to do so
                 self.actions.clear_actions()
                 # get the simulator
+                import bionetgen as bng
+
                 self.simulator = bng.sim_getter(
                     model_str=tpath.read(), sim_type=sim_type
                 )
@@ -282,7 +291,8 @@ class bngmodel:
                 )
             )
             return None
-        return self.simulator
+        # for now we return the underlying simulator
+        return self.simulator.simulator
 
 
 ###### CORE OBJECT AND PARSING FRONT-END ######

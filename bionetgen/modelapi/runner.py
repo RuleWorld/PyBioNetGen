@@ -1,7 +1,7 @@
 import os
 from tempfile import TemporaryDirectory
 from bionetgen.main import BioNetGen
-from bionetgen.core.main import BNGCLI
+from bionetgen.tools import BNGCLI
 
 # This allows access to the CLIs config setup
 app = BioNetGen()
@@ -24,22 +24,30 @@ def run(inp, out=None, suppress=False, timeout=None):
         into. If it doesn't exist, it will be created.
     """
     # if out is None we make a temp directory
+    cur_dir = os.getcwd()
     if out is None:
-        cur_dir = os.getcwd()
         with TemporaryDirectory() as out:
             # instantiate a CLI object with the info
             cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress, timeout=timeout)
             try:
                 cli.run()
-            except:
+                os.chdir(cur_dir)
+            except Exception as e:
+                os.chdir(cur_dir)
+                # TODO: Better error reporting
                 print("Couldn't run the simulation")
-            # if we are not in the original folder, go back
-            os.chdir(cur_dir)
+                print(e)
+                raise
     else:
         # instantiate a CLI object with the info
         cli = BNGCLI(inp, out, conf["bngpath"], suppress=suppress, timeout=timeout)
         try:
             cli.run()
-        except:
+            os.chdir(cur_dir)
+        except Exception as e:
+            os.chdir(cur_dir)
+            # TODO: Better error reporting
             print("Couldn't run the simulation")
+            print(e)
+            raise
     return cli.result

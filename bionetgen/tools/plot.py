@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from bionetgen.core import BNGResult
+from bionetgen.tools import BNGResult
 
 
 class BNGPlotter:

@@ -116,4 +116,37 @@ Moving imports around, removing unnecessary ones to speed up CLI performance.
 
 ## 0.3.9
 A couple bugfixes to plotting, running the CLI on a model can now generate a log file with the option
--l/--log. Failing to run now raises a ValueError (will be changed with custom errors in the future). Added some input and output file checks to notebook subcommand.
+-l/--log. Failing to run now raises a ValueError (will be changed with custom errors in the future). Added some input and output file checks to notebook subcommand. 
+
+## 0.4.0 
+Fixed a but where "0" species was being printed as "0()". Action block is now a list and not a dictionary which was disallowing multiple actions of the same type. 
+
+## 0.4.1
+Changed `bionetgen.run` behavior when called with a `bngmodel` object. Now the model file is saved and if it exists, it's overwritten with a warning. Slightly better error reporting when the `run` call fails. 
+
+## 0.4.2
+Changed `bionetgen.run` behavior again, how calling the method with an `out` argument doesn't leave you in the output folder when it's done executing and it will return you back to the folder you started with. Bugfix where parsing a model without actions failed. 
+
+## 0.4.3
+Bugfix where the libroadrunner simulator object was not handled correctly. 
+
+## 0.4.4
+New info subcommand, major updates to test suite, some updates to error reporting. 
+
+## 0.4.5
+Early development version of a new visualize subcommand that automatically runs a visualize action on a model and returns the resulting file. New require keyword that quits if the current version is not equal to or greater than the required one. 
+
+## 0.4.6
+Minor bugfix for notebook template, numpy requirement removed for issue #11, fixes for issues #15, #16 and partially #21. 
+
+## 0.4.7
+Action arguments are now dictionaries, actions like `setModelName` that needs to be used before the model are now parsed correctly, a bug where using a new line with `\` broke parsing is fixed, added observable pattern quantifier parsing and minor change to parsing to allow for observable quantifiers `<` and `<=`, `sample_times` argument parsing fixes and more informative errors if it fails.
+
+## 0.4.8
+Added observable quantifier parsing. Fixes to `actions` argument parsing. 
+
+## 0.4.9
+Internal BNG version updated to 2.7.0, added visualization type `all` to get all visualization types in one command. 
+
+## 0.5.0
+Minor behavior change to visualize where, if output is specified the files won't copy back to the original folder. 

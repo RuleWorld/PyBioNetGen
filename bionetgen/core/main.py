@@ -3,6 +3,12 @@ from bionetgen.modelapi.utils import run_command
 import bionetgen.modelapi.model as mdl
 import os, subprocess
 from tempfile import NamedTemporaryFile
+from bionetgen.tools import BNGPlotter
+from bionetgen.tools import BNGInfo
+from bionetgen.tools import BNGVisualize
+from bionetgen.tools import BNGCLI
+
+import os, sys
 
 
 # TODO Consolidate how config is being accessed. It's
@@ -24,6 +30,7 @@ def runCLI(config, args):
         arguments parsed from the command line with argparser.
     """
     # this pulls out the arguments
+    sys.tracebacklimit = args.traceback_depth
     inp_file = args.input
     output = args.output
     log_file = args.log_file
@@ -67,7 +74,6 @@ def plotDAT(inp, out=".", kw=dict()):
     plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()
 
-
 def runAtomizeTool(config, args):
     from bionetgen.atomizer import AtomizeTool
 
@@ -75,29 +81,37 @@ def runAtomizeTool(config, args):
     # do config specific stuff here if need be, or remove the config requirement
     a.run()
 
+def printInfo(config, args):
+    """
+    Uses BNGInfo class to print BioNetGen information using
+    arguments and config from Cement framework.
+    """
+    # this pulls out the arguments
+    # inp_file = args.input
+    # output = args.output
+    # if you set args.bngpath it should take precedence
+    # config_bngpath = config.get("bionetgen", "bngpath")
+    # and instantiates the CLI object
+    info = BNGInfo(config=config)
+    info.gatherInfo()
+    info.messageGeneration()
+    info.run()
+
+
+def visualizeModel(config, args):
+    """
+    Uses BNGVisualize class to visualize BNGL models using
+    arguments and configuration from Cement framework.
+    """
+    inp = args.input
+    out = args.output
+    vtype = args.type
+    # if you set args.bngpath it should take precedence
+    config_bngpath = config.get("bionetgen", "bngpath")
+    viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath)
+    viz.run()
 
 class BNGCLI:
-    """
-    Command Line Interface class to run BNG2.pl on a given
-    model.
-
-    Usage: BNGCLI(inp_file, output, bngpath)
-
-    Arguments
-    ---------
-    inp_file : str
-        path to the the BNGL file to run
-    output : str
-        path to the output folder to run the model in
-    bngpath : str
-        path to BioNetGen folder where BNG2.pl lives
-
-    Methods
-    -------
-    run()
-        runs the model in the given output folder
-    """
-
     def __init__(
         self, inp_file, output, bngpath, suppress=False, log_file=None, timeout=None
     ):
