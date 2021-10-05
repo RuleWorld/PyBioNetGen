@@ -414,7 +414,6 @@ class Rule(ModelObj):
     products : list[Pattern]
         list of patterns for products
 
-
     Methods
     -------
     set_rate_constants((k_fwd,k_bck))
