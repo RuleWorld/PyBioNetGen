@@ -161,6 +161,10 @@ class PatternXML(XMLObj):
         if "@Fixed" in xml:
             if xml["@Fixed"] == "1":
                 pattern.fixed = True
+        # check to see if pattern is only matched once
+        if "@matchOnce" in xml:
+            if xml["@matchOnce"] == "1":
+                pattern.MatchOnce = True
         # check for relation & quantity, add if exist
         if ("@relation" in xml) and ("@quantity" in xml):
             relation = xml["@relation"]
@@ -546,12 +550,15 @@ class RuleBlockXML(XMLObj):
                         "Rule seems to be missing a rate law, please make sure that XML exporter of BNGL supports whatever you are doing!"
                     )
                 rate_constants = [self.resolve_ratelaw(rule["RateLaw"])]
+                #if 'moveConnected="1"' in xml:
+                    #modifier = ""
 
                 block.add_rule(
                     name,
                     reactants=reactants,
                     products=products,
                     rate_constants=rate_constants,
+                    #modifier = modifier
                 )
         else:
             name = xml["@name"]
@@ -562,12 +569,14 @@ class RuleBlockXML(XMLObj):
                     "Rule seems to be missing a rate law, please make sure that XML exporter of BNGL supports whatever you are doing!"
                 )
             rate_constants = [self.resolve_ratelaw(xml["RateLaw"])]
+            modifier = ""
 
             block.add_rule(
                 name,
                 reactants=reactants,
                 products=products,
                 rate_constants=rate_constants,
+                modifier = modifier
             )
         block.consolidate_rules()
         return block

@@ -195,6 +195,10 @@ class Observable(ModelObj):
         super().__init__()
         self.name = name
         self.type = otype
+        if self.type == "Species":
+            for pat in patterns:
+                if pat.MatchOnce:
+                    pat.MatchOnce = False
         self.patterns = patterns
 
     def gen_string(self) -> str:
@@ -206,6 +210,9 @@ class Observable(ModelObj):
         return s
 
     def add_pattern(self, pat) -> None:
+        # if type is species, set MatchOnce to false since all species automatically match once
+        if self.type == "Species":
+            pat.MatchOnce = False
         self.patterns.append(pat)
 
 
@@ -406,6 +413,7 @@ class Rule(ModelObj):
         list of patterns for reactants
     products : list[Pattern]
         list of patterns for products
+    
 
     Methods
     -------
@@ -418,12 +426,13 @@ class Rule(ModelObj):
         on one side of a rule definition
     """
 
-    def __init__(self, name, reactants=[], products=[], rate_constants=()) -> None:
+    def __init__(self, name, reactants=[], products=[], rate_constants=(), modifier=[]) -> None: # should this be list?
         super().__init__()
         self.name = name
         self.reactants = reactants
         self.products = products
         self.set_rate_constants(rate_constants)
+        self.modifier = modifier
 
     def set_rate_constants(self, rate_cts):
         if len(rate_cts) == 1:
@@ -437,19 +446,21 @@ class Rule(ModelObj):
 
     def gen_string(self):
         if self.bidirectional:
-            return "{}: {} <-> {} {},{}".format(
+            return "{}: {} <-> {} {},{} {}".format(
                 self.name,
                 self.side_string(self.reactants),
                 self.side_string(self.products),
                 self.rate_constants[0],
                 self.rate_constants[1],
+                self.modifier
             )
         else:
-            return "{}: {} -> {} {}".format(
+            return "{}: {} -> {} {} {}".format(
                 self.name,
                 self.side_string(self.reactants),
                 self.side_string(self.products),
                 self.rate_constants[0],
+                self.modifier,
             )
 
     def side_string(self, patterns):
