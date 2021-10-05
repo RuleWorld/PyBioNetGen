@@ -1,3 +1,7 @@
+try:
+    from typing import OrderedDict
+except ImportError:
+    from collections import OrderedDict
 from .structs import Parameter, Compartment, Observable
 from .structs import MoleculeType, Species, Function
 from .structs import Rule, Action
