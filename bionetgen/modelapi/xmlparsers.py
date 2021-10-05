@@ -161,6 +161,10 @@ class PatternXML(XMLObj):
         if "@Fixed" in xml:
             if xml["@Fixed"] == "1":
                 pattern.fixed = True
+        # check to see if pattern is only matched once
+        if "@matchOnce" in xml:
+            if xml["@matchOnce"] == "1":
+                pattern.MatchOnce = True
         # check for relation & quantity, add if exist
         if ("@relation" in xml) and ("@quantity" in xml):
             relation = xml["@relation"]
@@ -579,7 +583,7 @@ class RuleBlockXML(XMLObj):
             rate_cts = rate_cts_xml["RateConstant"]["@value"]
         elif rate_type == "Function":
             rate_cts = xml["@name"]
-        elif rate_type == "MM" or rate_type == "Sat":
+        elif rate_type == "MM" or rate_type == "Sat" or rate_type == "Hill":
             # A function type
             rate_cts = rate_type + "("
             args = xml["ListOfRateConstants"]["RateConstant"]

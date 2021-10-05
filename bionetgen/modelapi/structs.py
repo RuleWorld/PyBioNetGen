@@ -195,6 +195,10 @@ class Observable(ModelObj):
         super().__init__()
         self.name = name
         self.type = otype
+        if self.type == "Species":
+            for pat in patterns:
+                if pat.MatchOnce:
+                    pat.MatchOnce = False
         self.patterns = patterns
 
     def gen_string(self) -> str:
@@ -206,6 +210,9 @@ class Observable(ModelObj):
         return s
 
     def add_pattern(self, pat) -> None:
+        # if type is species, set MatchOnce to false since all species automatically match once
+        if self.type == "Species":
+            pat.MatchOnce = False
         self.patterns.append(pat)
 
 
