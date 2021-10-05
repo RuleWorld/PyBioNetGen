@@ -1008,9 +1008,12 @@ Please choose among the possible binding candidates that had the most observed f
                     else:
                         comp_counter[component.name] += 1
             # remove unnecessary stuff
+            to_remove = []
             for comp in comp_counter:
                 if comp_counter[comp] < 0:
-                    comp_counter.pop(comp)
+                    to_remove.append(comp)
+            for tr in to_remove:
+                comp_counter.pop(tr)
             # rename the components
             comp_counter_2 = {}
             for component in molec.components:
