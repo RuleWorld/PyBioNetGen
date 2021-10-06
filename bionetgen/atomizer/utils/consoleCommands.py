@@ -10,7 +10,7 @@ import platform
 if platform.system() != "Windows":
     import pexpect
 else:
-    import winpexpect
+    import winpexpect as pexpect
 import subprocess
 import os
 

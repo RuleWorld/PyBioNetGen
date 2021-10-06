@@ -9,3 +9,6 @@ nbopen
 libroadrunner
 python-libsbml
 pylru
+pexpect; sys_platform == 'darwin'
+pexpect; sys_platform == 'linux'
+winpexpect; sys_platform == 'win32'
