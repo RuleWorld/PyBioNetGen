@@ -32,7 +32,7 @@ def getBngExecutable():
 
 def bngl2xml(bnglFile, timeout=60):
     try:
-        if platform.system() != "Windows":            
+        if platform.system() != "Windows":
             bngconsole = pexpect.spawn(
                 "{0} --console".format(getBngExecutable()), timeout=timeout
             )
