@@ -10,7 +10,7 @@ import platform
 if platform.system() != "Windows":
     import pexpect
 else:
-    import winpexpect as pexpect
+    import winpexpect
 import subprocess
 import os
 
@@ -32,9 +32,14 @@ def getBngExecutable():
 
 def bngl2xml(bnglFile, timeout=60):
     try:
-        bngconsole = pexpect.spawn(
-            "{0} --console".format(getBngExecutable()), timeout=timeout
-        )
+        if platform.system() != "Windows":            
+            bngconsole = pexpect.spawn(
+                "{0} --console".format(getBngExecutable()), timeout=timeout
+            )
+        else:
+            bngconsole = winpexpect.winspawn(
+                "perl {0} --console".format(getBngExecutable()), timeout=timeout
+            )
         bngconsole.expect("BNG>")
         bngconsole.sendline("load {0}".format(bnglFile))
         bngconsole.expect("BNG>")
