@@ -7,6 +7,7 @@ pyyaml
 colorlog
 nbopen
 libroadrunner
+sympy
 python-libsbml
 pylru
 pexpect; sys_platform != 'win32'
