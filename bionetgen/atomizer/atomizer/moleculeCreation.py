@@ -981,7 +981,9 @@ Please choose among the possible binding candidates that had the most observed f
                         component.states[ist] = re.sub("^(_)+", "", state)
                     if state.endswith("_"):
                         component.states[ist] = re.sub("(_)+$", "", state)
-                    if (component.states[ist].lower() in component.name.lower()) and (len(component.states[ist]) > 5):
+                    if (component.states[ist].lower() in component.name.lower()) and (
+                        len(component.states[ist]) > 5
+                    ):
                         # the component state is named after component, rename
                         numbered_states = True
                     # ensure active state is updated
@@ -1051,6 +1053,7 @@ Please choose among the possible binding candidates that had the most observed f
                 "INFO:ATO033",
                 f"Renumbered components from {orig_species_st2} to {new_species_str2}",
             )
+
 
 def updateSpecies(species, referenceMolecule):
     flag = False
