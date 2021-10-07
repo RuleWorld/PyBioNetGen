@@ -196,6 +196,7 @@ def test_atomize_flat():
         file_list = os.listdir(os.path.join(tfold, "test"))
         assert file_list.sort() == to_match.sort()
 
+
 def test_atomize_atomized():
     argv = [
         "atomize",
