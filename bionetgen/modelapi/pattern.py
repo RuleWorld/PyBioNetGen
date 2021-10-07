@@ -31,6 +31,8 @@ class Pattern:
         self._label = label
         self.fixed = False
         self.MatchOnce = False
+        self.relation = None
+        self.quantity = None
 
     @property
     def compartment(self):
@@ -73,6 +75,8 @@ class Pattern:
             if imol > 0:
                 sstr += "."
             sstr += str(mol)
+        if self.relation is not None:
+            sstr += f"{self.relation}{self.quantity}"
         return sstr
 
     def __repr__(self):
@@ -131,13 +135,20 @@ class Molecule:
         mol_str = self.name
         if self.label is not None:
             mol_str += "%{}".format(self.label)
-        mol_str += "("
+        # we have a null species
+        if not self.name == "0":
+            mol_str += "("
+        # we _could_ just not do () if components
+        # don't exist but that has other issues,
+        # especially for extension highlighting
         if len(self.components) > 0:
             for icomp, comp in enumerate(self.components):
                 if icomp > 0:
                     mol_str += ","
                 mol_str += str(comp)
-        mol_str += ")"
+        # we have a null species
+        if not self.name == "0":
+            mol_str += ")"
         if self.compartment is not None:
             mol_str += "@{}".format(self.compartment)
         return mol_str

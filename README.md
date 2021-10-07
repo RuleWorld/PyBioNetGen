@@ -52,7 +52,7 @@ with open("new_model.bngl", "w") as f:
     f.write(str(model)) # writes the changed model to new_model file
 
 # this will give you a libRoadRunner instance of the model
-librr_sim = model.setup_simulator()._simulator
+librr_sim = model.setup_simulator()
 ```
 
 You can find more tutorials [here](https://pybionetgen.readthedocs.io/en/latest/tutorials.html).

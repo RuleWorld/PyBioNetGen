@@ -7,11 +7,39 @@ from .core.exc import BioNetGenError
 from .core.main import runCLI
 from .core.main import plotDAT
 from .core.main import runAtomizeTool
+from .core.main import printInfo
+from .core.main import visualizeModel
 from .core.notebook import BNGNotebook
 
 # pull defaults defined in core/defaults
 CONFIG = bng.defaults.config
 VERSION_BANNER = bng.defaults.banner
+
+# require version argparse action
+import argparse, sys
+from pkg_resources import packaging
+
+
+class requireAction(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError("nargs not allowed")
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values)
+        if values is not None:
+            req_version = packaging.version.parse(values)
+            cver = bng.core.version.get_version()
+            cur_version = packaging.version.parse(cver)
+            # if we don't meet requirement, warn user
+            sys.tracebacklimit = 0
+            if not (cur_version >= req_version):
+                raise RuntimeError(
+                    f"Version {values} is required but current version is {cver}. \n"
+                    + "Try running `pip install bionetgen --upgrade`"
+                )
+        # return super().__call__(parser, namespace, values, option_string=option_string)
 
 
 class BNGBase(cement.Controller):
@@ -20,7 +48,7 @@ class BNGBase(cement.Controller):
 
     Used to set meta attributes like program name (label) as well
     as command line arguments. Each method is a subcommand in the
-    command line with it's own command line arguments.
+    command line with its own command line arguments.
 
     Subcommands
     -------
@@ -30,6 +58,10 @@ class BNGBase(cement.Controller):
         generates and opens a notebook for a model given by -i, optional
     plot
         plots a gdat/cdat/scan file given by -i into file supplied by -o
+    info
+        provides version and path information about the BNG installation and dependencies
+    visualize
+        provides various visualization options for BNG models
     """
 
     class Meta:
@@ -37,17 +69,13 @@ class BNGBase(cement.Controller):
         description = "A simple CLI to bionetgen <https://bionetgen.org>. Note that you need Perl installed."
         help = "bionetgen"
         arguments = [
-            # TODO figure out a good solution for when bngpath is set from config file AND CLI
-            # until then we'll disable the CLI argument
-            # (['-bp','--bngpath'],dict(type=str,
-            #                           default=CONFIG['bionetgen']['bngpath'],
-            #                           help="Optional path to BioNetGen folder you want the CLI to use")),
             # TODO: Auto-load in BioNetGen version here
             (["-v", "--version"], dict(action="version", version=VERSION_BANNER)),
             # (['-s','--sedml'],dict(type=str,
             #                        default=CONFIG['bionetgen']['bngpath'],
             #                        help="Optional path to SED-ML file, if available the simulation \
             #                              protocol described in SED-ML will be ran")),
+            (["-req", "--require"], dict(action=requireAction, type=str, default=None)),
         ]
 
     # This overwrites the default behavior and runs the CLI object from core/main
@@ -79,6 +107,16 @@ class BNGBase(cement.Controller):
                     "default": None,
                     "type": str,
                     "dest": "log_file",
+                },
+            ),
+            (
+                ["--traceback-depth"],
+                {
+                    "help": "Sets the traceback depth for python. "
+                    + "Defaults to 0 to avoid long tracebacks after a failed BNG2.pl call",
+                    "default": 0,
+                    "type": int,
+                    "dest": "traceback_depth",
                 },
             ),
         ],
@@ -273,6 +311,75 @@ class BNGBase(cement.Controller):
             or args.input.endswith(".scan")
         ), "Input file has to be either a gdat or a cdat file"
         plotDAT(args.input, args.output, kw=dict(args._get_kwargs()))
+
+    @cement.ex(
+        help="Provides version information for BNG and dependencies",
+        arguments=[
+            (
+                ["-d", "--detail"],
+                {
+                    "help": "Adds more detail to the information printed.",
+                    "default": False,
+                    "action": "store_true",
+                },
+            ),
+        ],
+    )
+    def info(self):
+        """
+        Information subcommand to provide installation versions and paths.
+
+        Currently provides version information for BioNetGen, the BNG CLI, Perl,
+        numpy, pandas, and libroadrunner. Also provides BNG2.pl and pyBNG paths.
+        """
+        args = self.app.pargs
+        printInfo(self.app.config, args)
+
+    @cement.ex(
+        help="Provides a simple way to get various visualizations of the model.",
+        arguments=[
+            (
+                ["-i", "--input"],
+                {
+                    "help": "Path to BNGL model to visualize",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-o", "--output"],
+                {
+                    "help": "(optional) Output folder, defaults to current folder",
+                    "default": None,
+                    "type": str,
+                },
+            ),
+            (
+                ["-t", "--type"],
+                {
+                    "help": "(optional) Type of visualization requested. Valid options are: "
+                    + "'ruleviz_pattern','ruleviz_operation', 'contactmap' and 'regulatory'."
+                    + " Defaults to 'contactmap'.",
+                    "default": "",
+                    "type": str,
+                },
+            ),
+        ],
+    )
+    def visualize(self):
+        """
+        Subcommand to generate visualizations. Currently only supports visualize
+        action from BioNetGen.
+
+        Types of visualizations and their options
+        - Rule pattern visualization: Visualization of each rule as a bipartite graph
+        - Rule operation visualization: Visualization of each rule showing explicit graph operations
+        - Contact map: Visualize the contact map of the model
+        - Regulatory graph: Visualize the regulatory graph of the model
+        """
+        args = self.app.pargs
+        visualizeModel(self.app.config, args)
 
     @cement.ex(
         help="SBML to BNGL translator",

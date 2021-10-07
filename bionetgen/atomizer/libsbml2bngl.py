@@ -1192,9 +1192,7 @@ def analyzeHelper(
     try:
         new_funcs = []
         obs_syms = list(map(sympy.Symbol, parser.obs_names))
-        # import IPython;IPython.embed()
         for func in functions:
-            # import ipdb;ipdb.set_trace()
             splt = func.split("=")
             n = splt[0]
             f = "=".join(splt[1:])

@@ -195,6 +195,10 @@ class Observable(ModelObj):
         super().__init__()
         self.name = name
         self.type = otype
+        if self.type == "Species":
+            for pat in patterns:
+                if pat.MatchOnce:
+                    pat.MatchOnce = False
         self.patterns = patterns
 
     def gen_string(self) -> str:
@@ -206,6 +210,9 @@ class Observable(ModelObj):
         return s
 
     def add_pattern(self, pat) -> None:
+        # if type is species, set MatchOnce to false since all species automatically match once
+        if self.type == "Species":
+            pat.MatchOnce = False
         self.patterns.append(pat)
 
 
@@ -310,11 +317,11 @@ class Action(ModelObj):
     ----------
     type : str
         type of action, e.g. simulate or writeFile
-    args : list[(arg_name,arg_value)]
-        (argument,value) pair list for the action
+    args : dict[arg_name] = arg_value
+        action arguments as keys and their values as values
     """
 
-    def __init__(self, action_type=None, action_args=[]) -> None:
+    def __init__(self, action_type=None, action_args={}) -> None:
         super().__init__()
         AList = ActionList()
         self.normal_types = AList.normal_types
@@ -327,8 +334,29 @@ class Action(ModelObj):
         self.args = action_args
         # check type
         if self.type not in self.possible_types:
-            print("Action type not recognized!")
-            raise RuntimeError
+            raise RuntimeError(f"Action type {self.type} not recognized!")
+        seen_args = []
+        for arg in action_args:
+            arg_name, arg_value = arg, action_args[arg]
+            valid_arg_list = AList.arg_dict[self.type]
+            # TODO: actions that don't take argument names should be parsed separately to check validity of arg-val tuples
+            # TODO: currently not type checking arguments
+            if valid_arg_list is None:
+                raise RuntimeError(
+                    f"Argument {arg_name} is given, but action {self.type} does not take arguments"
+                )
+            if len(valid_arg_list) > 0:
+                if arg_name not in AList.arg_dict[self.type]:
+                    raise RuntimeError(
+                        f"Action argument {arg_name} not recognized!\nCheck to make sure action is correctly formatted"
+                    )
+                # TODO: If arg_value is the correct type
+            if arg_name in seen_args:
+                print(
+                    f"Warning: argument {arg_name} already given, using latter value {arg_value}"
+                )
+            else:
+                seen_args.append(arg_name)
 
     def gen_string(self) -> str:
         # TODO: figure out every argument that has special
@@ -342,9 +370,8 @@ class Action(ModelObj):
         elif self.type in self.square_braces:
             action_str += "["
         # add arguments
-        for iarg, args in enumerate(self.args):
-            arg = args[0]
-            val = args[1]
+        for iarg, arg in enumerate(self.args):
+            val = self.args[arg]
             if iarg > 0:
                 action_str += ","
             # some actions need =>, some don't

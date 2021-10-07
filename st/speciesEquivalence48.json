@@ -1,0 +1,19 @@
+{
+	"reactionDefinition" : [
+	],
+	"complexDefinition" : [
+    ["EGFR",[
+		["EGFR","egfr",[]],
+		["EGFR","egf",[]]
+	  ]
+	],
+	["EGF_EGFR2_P", [
+		["EGF","egfr",[]],
+		["EGFR","egf",["p","P"]]
+	  ]
+	]
+    ],
+	"modificationDefinition": {
+		"EGFR_P": ["EGFR"]
+	}
+}

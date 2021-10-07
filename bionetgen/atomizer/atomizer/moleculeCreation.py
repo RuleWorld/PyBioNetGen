@@ -961,8 +961,8 @@ Please choose among the possible binding candidates that had the most observed f
                 bindingTroubleLog[trouble], trouble
             ),
         )
-    # renaming of components as needed for readability.
     # import ipdb;ipdb.set_trace()
+    # renaming of components as needed for readability.
     for spname in translator:
         species = translator[spname]
         orig_species_st2 = species.str2()
@@ -974,15 +974,33 @@ Please choose among the possible binding candidates that had the most observed f
                 if component.name.endswith("_"):
                     # component starts with "_", adjust
                     component.name = re.sub("(_)+$", "", component.name)
+                numbered_states = False
                 for ist, state in enumerate(component.states):
                     orig_state = state
                     if state.startswith("_"):
                         component.states[ist] = re.sub("^(_)+", "", state)
                     if state.endswith("_"):
                         component.states[ist] = re.sub("(_)+$", "", state)
+                    if (component.states[ist].lower() in component.name.lower()) and (
+                        len(component.states[ist]) > 5
+                    ):
+                        # the component state is named after component, rename
+                        numbered_states = True
                     # ensure active state is updated
                     if orig_state == component.activeState:
                         component.activeState = component.states[ist]
+                if numbered_states:
+                    ctr = 1
+                    for ist, state in enumerate(component.states):
+                        orig_state = state
+                        if state == "0":
+                            continue
+                        else:
+                            component.states[ist] = str(ctr)
+                            ctr += 1
+                        # ensure active state is updated
+                        if orig_state == component.activeState:
+                            component.activeState = component.states[ist]
         # log the info
         new_species_str2 = species.str2()
         if new_species_str2 != orig_species_st2:
@@ -1008,9 +1026,12 @@ Please choose among the possible binding candidates that had the most observed f
                     else:
                         comp_counter[component.name] += 1
             # remove unnecessary stuff
+            to_remove = []
             for comp in comp_counter:
                 if comp_counter[comp] < 0:
-                    comp_counter.pop(comp)
+                    to_remove.append(comp)
+            for tr in to_remove:
+                comp_counter.pop(tr)
             # rename the components
             comp_counter_2 = {}
             for component in molec.components:
@@ -1032,7 +1053,6 @@ Please choose among the possible binding candidates that had the most observed f
                 "INFO:ATO033",
                 f"Renumbered components from {orig_species_st2} to {new_species_str2}",
             )
-    # import IPython;IPython.embed()
 
 
 def updateSpecies(species, referenceMolecule):

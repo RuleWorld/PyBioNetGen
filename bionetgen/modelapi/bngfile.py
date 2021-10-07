@@ -1,8 +1,5 @@
 import bionetgen as bng
-import subprocess
-import os
-import xmltodict
-import sys
+import os, re
 
 from bionetgen.main import BioNetGen
 from .utils import find_BNG_path, run_command, ActionList
@@ -84,7 +81,6 @@ class BNGFile:
                 path, model_name = os.path.split(stripped_bngl)
                 model_name = model_name.replace(".bngl", "")
                 written_xml_file = model_name + ".xml"
-                # import ipdb;ipdb.set_trace()
                 with open(written_xml_file, "r") as f:
                     content = f.read()
                     xml_file.write(content)
@@ -105,14 +101,44 @@ class BNGFile:
         # open model and strip actions
         with open(model_path, "r", encoding="UTF-8") as mf:
             # read and strip actions
-            mlines = mf.readlines()
-            stripped_lines = filter(lambda x: self._not_action(x), mlines)
-            self.parsed_actions = list(
-                filter(lambda x: not self._not_action(x), mlines)
-            )
+            mstr = mf.read()
+            # TODO: Clean this up _a lot_
+            # this removes any new line escapes (\ \n) to continue
+            # to another line, so we can just remove the action lines
+            mstr = re.sub(r"\\\n", "", mstr)
+            mlines = mstr.split("\n")
+            stripped_lines = list(filter(lambda x: self._not_action(x), mlines))
+            # remove spaces, actions don't allow them
+            self.parsed_actions = [
+                x.replace(" ", "")
+                for x in filter(lambda x: not self._not_action(x), mlines)
+            ]
+            # let's remove begin/end actions, rarely used but should be removed
+            remove_from = -1
+            remove_to = -1
+            for iline, line in enumerate(stripped_lines):
+                if re.match(r"\s*(begin)\s+(actions)\s*", line):
+                    remove_from = iline
+                elif re.match(r"\s*(end)\s+(actions)\s*", line):
+                    remove_to = iline
+            if remove_from > 0:
+                # we have a begin/end actions block
+                if remove_to < 0:
+                    raise RuntimeError(
+                        f'There is a "begin actions" statement at line {remove_from} without a matching "end actions" statement'
+                    )
+                stripped_lines = (
+                    stripped_lines[:remove_from] + stripped_lines[remove_to + 1 :]
+                )
+            if remove_to > 0:
+                if remove_from < 0:
+                    raise RuntimeError(
+                        f'There is an "end actions" statement at line {remove_to} without a matching "begin actions" statement'
+                    )
         # TODO: read stripped lines and store the actions
         # open new file and write just the model
         stripped_model = os.path.join(folder, model_file)
+        stripped_lines = [x + "\n" for x in stripped_lines]
         with open(stripped_model, "w") as sf:
             sf.writelines(stripped_lines)
         return stripped_model

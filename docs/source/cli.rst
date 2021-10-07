@@ -67,6 +67,15 @@ and the resulting notebook will be ready to load in your model using PyBioNetGen
    
    bionetgen notebook -i mymodel.bngl -o mynotebook.ipynb
 
+Info
+====
+
+This subcommand simply prints out information about software versions and installation paths.
+
+.. code-block: shell
+
+   bionetgen info
+
 Tutorial
 ========
 

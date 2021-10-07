@@ -3,6 +3,12 @@ from bionetgen.modelapi.utils import run_command
 import bionetgen.modelapi.model as mdl
 import os, subprocess
 from tempfile import NamedTemporaryFile
+from bionetgen.tools import BNGPlotter
+from bionetgen.tools import BNGInfo
+from bionetgen.tools import BNGVisualize
+from bionetgen.tools import BNGCLI
+
+import os, sys
 
 
 # TODO Consolidate how config is being accessed. It's
@@ -24,6 +30,7 @@ def runCLI(config, args):
         arguments parsed from the command line with argparser.
     """
     # this pulls out the arguments
+    sys.tracebacklimit = args.traceback_depth
     inp_file = args.input
     output = args.output
     log_file = args.log_file
@@ -76,140 +83,32 @@ def runAtomizeTool(config, args):
     a.run()
 
 
-class BNGCLI:
+def printInfo(config, args):
     """
-    Command Line Interface class to run BNG2.pl on a given
-    model.
-
-    Usage: BNGCLI(inp_file, output, bngpath)
-
-    Arguments
-    ---------
-    inp_file : str
-        path to the the BNGL file to run
-    output : str
-        path to the output folder to run the model in
-    bngpath : str
-        path to BioNetGen folder where BNG2.pl lives
-
-    Methods
-    -------
-    run()
-        runs the model in the given output folder
+    Uses BNGInfo class to print BioNetGen information using
+    arguments and config from Cement framework.
     """
+    # this pulls out the arguments
+    # inp_file = args.input
+    # output = args.output
+    # if you set args.bngpath it should take precedence
+    # config_bngpath = config.get("bionetgen", "bngpath")
+    # and instantiates the CLI object
+    info = BNGInfo(config=config)
+    info.gatherInfo()
+    info.messageGeneration()
+    info.run()
 
-    def __init__(
-        self, inp_file, output, bngpath, suppress=False, log_file=None, timeout=None
-    ):
-        self.inp_file = inp_file
-        if isinstance(inp_file, mdl.bngmodel):
-            self.is_bngmodel = True
-        else:
-            self.is_bngmodel = False
-            # ensure correct path to the input file
-            self.inp_path = os.path.abspath(self.inp_file)
-        # pull other arugments out
-        self._set_output(output)
-        # sedml_file = sedml
-        self.bngpath = bngpath
-        # setting up bng2.pl
-        self.bng_exec = os.path.join(self.bngpath, "BNG2.pl")
-        assert os.path.exists(self.bng_exec), "BNG2.pl is not found!"
-        if "BNGPATH" in os.environ:
-            self.old_bngpath = os.environ["BNGPATH"]
-        else:
-            self.old_bngpath = None
-        os.environ["BNGPATH"] = self.bngpath
-        self.result = None
-        self.stdout = "PIPE"
-        self.stderr = "STDOUT"
-        self.suppress = suppress
-        self.log_file = log_file
-        self.timeout = timeout
 
-    def _set_output(self, output):
-        # setting up output area
-        self.output = output
-        if os.path.isdir(output):
-            # path exists, let's go there
-            os.chdir(output)
-        else:
-            os.mkdir(output)
-            os.chdir(output)
-
-    def run(self):
-        try:
-            stdout_loc = getattr(subprocess, self.stdout)
-        except:
-            stdout_loc = subprocess.PIPE
-        try:
-            stderr_loc = getattr(subprocess, self.stderr)
-        except:
-            stderr_loc = subprocess.STDOUT
-        # run BNG2.pl
-
-        if self.is_bngmodel:
-            with NamedTemporaryFile(
-                mode="w+", encoding="utf-8", delete=False, suffix=".bngl"
-            ) as tfile:
-                tfile.write(str(self.inp_file))
-            command = ["perl", self.bng_exec, tfile.name]
-        else:
-            fname = os.path.basename(self.inp_path)
-            fname = fname.replace(".bngl", "")
-            command = ["perl", self.bng_exec, self.inp_path]
-        rc, process = run_command(command, suppress=self.suppress, timeout=self.timeout)
-        if isinstance(process, str):
-            out = process
-        else:
-            out = process.stdout
-        if self.log_file is not None:
-            # test if we were given a path
-            # TODO: This is a simple hack, might need to adjust it
-            # trying to check if given file is an absolute/relative
-            # path and if so, use that one. Otherwise, divine the
-            # current path.
-            if os.path.exists(self.log_file):
-                # file or folder exists, check if folder
-                if os.path.isdir(self.log_file):
-                    fname = os.path.basename(self.inp_path)
-                    fname = fname.replace(".bngl", "")
-                    full_log_path = os.path.join(self.log_file, fname + ".log")
-                else:
-                    # it's intended to be file, so we keep it as is
-                    full_log_path = self.log_file
-            else:
-                # doesn't exist, so we assume it's a file
-                # and we keep it as is
-                full_log_path = self.log_file
-
-            with open(full_log_path, "w") as f:
-                f.write("\n".join(out))
-
-        if self.is_bngmodel:
-            os.remove(tfile.name)
-        # write out stdout/err if they exist
-        # TODO Maybe indicate that we are printing out stdout/stderr before printing
-        # if rc.stdout is not None:
-        #     print(rc.stdout.decode('utf-8'))
-        # if rc.stderr is not None:
-        #     print(rc.stderr.decode('utf-8'))
-        if rc == 0:
-            # load in the result
-            from bionetgen.core import BNGResult
-
-            self.result = BNGResult(os.getcwd())
-            BNGResult.process_return = rc
-            BNGResult.process_obj = process
-            BNGResult.process_out = out
-            # set BNGPATH back
-            if self.old_bngpath is not None:
-                os.environ["BNGPATH"] = self.old_bngpath
-        else:
-            self.result = None
-            # set BNGPATH back
-            if self.old_bngpath is not None:
-                os.environ["BNGPATH"] = self.old_bngpath
-            raise ValueError(
-                "Failed to run your BNGL file, there might be an issue with your model!"
-            )
+def visualizeModel(config, args):
+    """
+    Uses BNGVisualize class to visualize BNGL models using
+    arguments and configuration from Cement framework.
+    """
+    inp = args.input
+    out = args.output
+    vtype = args.type
+    # if you set args.bngpath it should take precedence
+    config_bngpath = config.get("bionetgen", "bngpath")
+    viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath)
+    viz.run()
