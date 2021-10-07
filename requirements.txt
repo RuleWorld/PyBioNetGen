@@ -9,6 +9,7 @@ nbopen
 libroadrunner
 sympy
 lxml
+networkx
 python-libsbml
 pylru
 pexpect; sys_platform != 'win32'
