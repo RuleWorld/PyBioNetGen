@@ -150,3 +150,6 @@ Internal BNG version updated to 2.7.0, added visualization type `all` to get all
 
 ## 0.5.0
 Minor behavior change to visualize where, if output is specified the files won't copy back to the original folder. 
+
+## 0.5.1
+Subcommand atomize is added allowing for translation and atomization of SBML models. A simple test case for flat and atomized translations is added. See `bionetgen atomize -h` for more information. 
