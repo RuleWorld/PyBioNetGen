@@ -808,9 +808,15 @@ class Rule:
                 if len(self.model.param_repl) > 0:
                     for prep in self.model.param_repl:
                         if self.rate_cts[0] == prep:
-                            self.rate_cts = (self.model.param_repl[prep], self.rate_cts[1])
+                            self.rate_cts = (
+                                self.model.param_repl[prep],
+                                self.rate_cts[1],
+                            )
                         if self.rate_cts[1] == prep:
-                            self.rate_cts = (self.rate_cts[0], self.model.param_repl[prep])
+                            self.rate_cts = (
+                                self.rate_cts[0],
+                                self.model.param_repl[prep],
+                            )
         else:
             if self.model is not None:
                 if len(self.model.param_repl) > 0:

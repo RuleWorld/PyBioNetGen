@@ -719,7 +719,7 @@ def analyzeFile(
     # call the atomizer (or not). structured molecules are contained in translator
     # onlysyndec is a boolean saying if a model is just synthesis of decay reactions
     # ASS2019 - With this try/except the translator was not being initialized and led to an undefined error in certain models
-    
+
     translator = {}
     try:
         if atomize:
