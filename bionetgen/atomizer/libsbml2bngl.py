@@ -122,12 +122,6 @@ def evaluation(numMolecules, translator):
         ruleElements = 0
     return ruleElements
 
-    # print(rules)
-
-
-# 14,18,56,19,49.87.88.107,109,111,120,139,140,145,151,153,171,175,182,202,205
-# 230,253,255,256,268,269,288,313,332,333,334,335,336,362,396,397,399,406
-
 
 def selectReactionDefinitions(bioNumber):
     """
@@ -725,7 +719,7 @@ def analyzeFile(
     # call the atomizer (or not). structured molecules are contained in translator
     # onlysyndec is a boolean saying if a model is just synthesis of decay reactions
     # ASS2019 - With this try/except the translator was not being initialized and led to an undefined error in certain models
-
+    
     translator = {}
     try:
         if atomize:
@@ -1430,7 +1424,6 @@ def analyzeHelper(
         len(set(rules)),
     )
     meta = parser.getMetaInformation(commentDictionary)
-
     finalString = writer.finalText(
         meta,
         param + reactionParameters,

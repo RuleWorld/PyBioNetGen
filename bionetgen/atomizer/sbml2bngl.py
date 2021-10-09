@@ -5,6 +5,8 @@ Created on Tue Dec  6 17:42:31 2011
 @author: proto
 """
 from copy import deepcopy, copy
+
+import ipdb
 from bionetgen.atomizer.writer import bnglWriter as writer
 
 log = {"species": [], "reactions": []}
@@ -16,9 +18,8 @@ from bionetgen.atomizer.utils.util import logMess, TranslationException
 import libsbml
 from bionetgen.atomizer.bngModel import bngModel
 
-import sympy, IPython
-from sympy import Function, Symbol
-from sympy.logic.boolalg import And, Or, Not
+import sympy
+from sympy import Function
 from sympy.abc import _clash
 from sympy.printing.str import StrPrinter
 from sympy.core.sympify import SympifyError

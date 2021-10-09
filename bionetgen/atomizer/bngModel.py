@@ -105,7 +105,6 @@ class Species:
             self.val = self.initConc
 
     def __str__(self):
-        # import IPython;IPython.embed()
         trans_id = (
             str(self.translator[self.Id])
             if self.Id in self.translator
@@ -242,8 +241,6 @@ class Function:
 
     def __str__(self):
         fdef = self.definition
-        # if self.Id == "fRate1()":
-        #     import IPython;IPython.embed()
         if self.replaceLocParams:
             # check possible places, local dict first
             if self.local_dict is not None:
@@ -543,8 +540,6 @@ class Function:
             fdef = prnter.doprint(sdef.nsimplify().evalf().simplify())
             fdef = fdef.replace("**", "^")
         except:
-            # print("can't parse function")
-            # import IPython;IPython.embed()
             pass
         return fdef
 
@@ -736,27 +731,32 @@ class Rule:
                             tag = self.tags[react[0]]
                         else:
                             tag = ""
-                        conv_str = str(self.translator[react[0]])
-                        if not conv_str.endswith(tag):
+                        react_str = str(self.translator[react[0]])
+                        if not react_str.endswith(tag):
                             if "@" in tag:
-                                splt = conv_str.split("@")
+                                splt = react_str.split("@")
                                 tspl = tag.split("@")
                                 if splt[-1] != tspl[-1]:
                                     splt[-1] = tspl[-1]
-                                    conv_str = "@".join(splt)
-                        txt += conv_str
+                                    react_str = "@".join(splt)
                     else:
-                        txt += str(self.translator[react[0]])
+                        react_str = str(self.translator[react[0]])
                 else:
                     if self.tags is not None and not self.noCompartment:
                         if react[2] in self.tags:
-                            txt += str(react[0]) + "()" + self.tags[react[2]]
+                            react_str = str(react[0]) + "()" + self.tags[react[2]]
                         elif react[0] in self.tags:
-                            txt += str(react[0]) + "()" + self.tags[react[0]]
+                            react_str = str(react[0]) + "()" + self.tags[react[0]]
                         else:
-                            txt += str(react[0]) + "()"
+                            react_str = str(react[0]) + "()"
                     else:
-                        txt += str(react[0]) + "()"
+                        react_str = str(react[0]) + "()"
+                # Apply stoichiometry
+                # FIXME: What to do if stoichiometry is not an integer
+                for i in range(int(react[1])):
+                    if i > 0:
+                        txt += " + "
+                    txt += react_str
         # correct rxn arrow
         if self.reversible and len(self.rate_cts) == 2:
             txt += " <-> "
@@ -777,66 +777,74 @@ class Rule:
                             tag = self.tags[prod[0]]
                         else:
                             tag = ""
-                        conv_str = str(self.translator[prod[0]])
-                        if not conv_str.endswith(tag):
+                        prod_str = str(self.translator[prod[0]])
+                        if not prod_str.endswith(tag):
                             if "@" in tag:
-                                splt = conv_str.split("@")
+                                splt = prod_str.split("@")
                                 tspl = tag.split("@")
                                 if splt[-1] != tspl[-1]:
                                     splt[-1] = tspl[-1]
-                                    conv_str = "@".join(splt)
-                        txt += conv_str
+                                    prod_str = "@".join(splt)
                     else:
-                        txt += str(self.translator[prod[0]])
+                        prod_str = str(self.translator[prod[0]])
                 else:
                     if self.tags is not None and not self.noCompartment:
                         if prod[2] in self.tags:
-                            txt += str(prod[0]) + "()" + self.tags[prod[2]]
+                            prod_str = str(prod[0]) + "()" + self.tags[prod[2]]
                         elif prod[0] in self.tags:
-                            txt += str(prod[0]) + "()" + self.tags[prod[0]]
+                            prod_str = str(prod[0]) + "()" + self.tags[prod[0]]
                         else:
-                            txt += str(prod[0]) + "()"
+                            prod_str = str(prod[0]) + "()"
                     else:
-                        txt += str(prod[0]) + "()"
+                        prod_str = str(prod[0]) + "()"
+                # Apply stoichiometry
+                # FIXME: What to do if stoichiometry is not an integer
+                for i in range(int(prod[1])):
+                    if i > 0:
+                        txt += " + "
+                    txt += prod_str
         if self.reversible and len(self.rate_cts) == 2:
-            if len(self.model.param_repl) > 0:
-                for prep in self.model.param_repl:
-                    if self.rate_cts[0] == prep:
-                        self.rate_cts = (self.model.param_repl[prep], self.rate_cts[1])
-                    if self.rate_cts[1] == prep:
-                        self.rate_cts = (self.rate_cts[0], self.model.param_repl[prep])
+            if self.model is not None:
+                if len(self.model.param_repl) > 0:
+                    for prep in self.model.param_repl:
+                        if self.rate_cts[0] == prep:
+                            self.rate_cts = (self.model.param_repl[prep], self.rate_cts[1])
+                        if self.rate_cts[1] == prep:
+                            self.rate_cts = (self.rate_cts[0], self.model.param_repl[prep])
         else:
-            if len(self.model.param_repl) > 0:
-                for prep in self.model.param_repl:
-                    if self.rate_cts[0] == prep:
-                        self.rate_cts = (self.model.param_repl[prep],)
-        # rate cts
-        if self.reversible and len(self.rate_cts) == 2:
-            # we need to check if the rate constant refers to an
-            # observable and is alone
-            if (
-                self.rate_cts[0] in self.model.obs_map
-                or self.rate_cts[0] in self.model.observables
-            ):
-                r0 = "1*{0}".format(self.rate_cts[0])
+            if self.model is not None:
+                if len(self.model.param_repl) > 0:
+                    for prep in self.model.param_repl:
+                        if self.rate_cts[0] == prep:
+                            self.rate_cts = (self.model.param_repl[prep],)
+        if self.model is not None:
+            # rate cts
+            if self.reversible and len(self.rate_cts) == 2:
+                # we need to check if the rate constant refers to an
+                # observable and is alone
+                if (
+                    self.rate_cts[0] in self.model.obs_map
+                    or self.rate_cts[0] in self.model.observables
+                ):
+                    r0 = "1*{0}".format(self.rate_cts[0])
+                else:
+                    r0 = "{}".format(self.rate_cts[0])
+                if (
+                    self.rate_cts[1] in self.model.obs_map
+                    or self.rate_cts[1] in self.model.observables
+                ):
+                    r1 = "1*{0}".format(self.rate_cts[1])
+                else:
+                    r1 = "{}".format(self.rate_cts[1])
+                txt += " {},{}".format(r0, r1)
             else:
-                r0 = "{}".format(self.rate_cts[0])
-            if (
-                self.rate_cts[1] in self.model.obs_map
-                or self.rate_cts[1] in self.model.observables
-            ):
-                r1 = "1*{0}".format(self.rate_cts[1])
-            else:
-                r1 = "{}".format(self.rate_cts[1])
-            txt += " {},{}".format(r0, r1)
-        else:
-            if (
-                self.rate_cts[0] in self.model.obs_map
-                or self.rate_cts[0] in self.model.observables
-            ):
-                txt += " 1*{}".format(self.rate_cts[0])
-            else:
-                txt += " {}".format(self.rate_cts[0])
+                if (
+                    self.rate_cts[0] in self.model.obs_map
+                    or self.rate_cts[0] in self.model.observables
+                ):
+                    txt += " 1*{}".format(self.rate_cts[0])
+                else:
+                    txt += " {}".format(self.rate_cts[0])
 
         comment = ""
         if self.raw is not None:
@@ -906,6 +914,7 @@ class bngModel:
         self.function_order = None
         self.sbmlFunctions = None
         self.tags = None
+        self.param_repl = []
 
     def __str__(self):
         txt = self.metaString
@@ -1095,7 +1104,6 @@ class bngModel:
                     fobj.definition = arule.rates[0]
                     self.add_function(fobj)
                 elif arule.Id in self.molecule_ids:
-                    # import ipdb;ipdb.set_trace()
                     # we are an assignment rule that modifies
                     # a molecule, this will be converted to
                     # a function if true
@@ -1105,8 +1113,6 @@ class bngModel:
                     # at which point it's supposed to be encoded
                     # with "$" in BNGL
                     if not molec.isConstant:
-                        # import ipdb;ipdb.set_trace()
-                        # import IPython;IPython.embed()
                         # we can have it be boundary or not, doesn't
                         # matter since we know an assignment rule is
                         # modifying it and it will take over reactions
@@ -1144,9 +1150,6 @@ class bngModel:
                                 cname, cval = comp
                                 fobj.local_dict[cname] = cval
                         self.add_function(fobj)
-
-                        # import IPython;IPython.embed()
-                        # import ipdb;ipdb.set_trace()
                         # we want to make sure arules are the only
                         # things that change species concentrations
                         if (
@@ -1313,13 +1316,11 @@ class bngModel:
                 self.noCompartment = True
 
     def consolidate(self):
-        # import IPython;IPython.embed()
         self.consolidate_compartments()
         self.consolidate_arules()
         self.consolidate_molecules()
         self.consolidate_observables()
         self.reorder_functions()
-        # import IPython;IPython.embed()
 
     def remove_sympy_symbols(self, fdef):
         to_replace = {
@@ -1425,8 +1426,6 @@ class bngModel:
     def add_molecule(self, molec):
         # we might have to add molecules that
         # didn't have rawSpecies associated with
-        # if len(self.translator) > 0:
-        #     import IPython;IPython.embed()
         if hasattr(molec, "raw"):
             self.molecule_ids[molec.raw["identifier"]] = molec.name
         if not molec.name in self.molecules:

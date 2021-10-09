@@ -290,7 +290,7 @@ time	 second	 second
                 parameters[parameter]["name"] in rate
                 and parameters[parameter]["unit"] == ""
             ):
-                print parameters[parameter]
+                print(parameters[parameter])
                 if stoichoimetry == 2:
                     parameters[parameter]["value"] *= float(6.022e8)
                     parameters[parameter]["unit"] = "Bimolecular * NaV"
@@ -299,7 +299,7 @@ time	 second	 second
                     parameters[parameter]["unit"] = "0-order / NaV"
                 elif stoichoimetry == 1:
                     parameters[parameter]["unit"] = "Unimolecular"
-                print parameters[parameter]
+                print(parameters[parameter])
 
     def getReactions(self, sparameters):
         """
@@ -419,7 +419,7 @@ def main():
     # libsbml initialization stuff
     document = reader.readSBMLFromFile(nameStr)
     if document.getModel() == None:
-        print "No such input file"
+        print("No such input file")
         return
     # get data
     parser = SBML2JSON(document.getModel())
@@ -431,7 +431,7 @@ def main():
     definition["mol_list"] = molecules
     definition["rxn_list"] = reactions
     definition["rel_list"] = release
-    print "Writing output to {0}".format(outputFile)
+    print("Writing output to {0}".format(outputFile))
     # output
     with open(outputFile, "w") as f:
         json.dump(definition, f, sort_keys=True, indent=1, separators=(",", ": "))
