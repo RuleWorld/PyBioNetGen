@@ -5,8 +5,6 @@ Created on Tue Dec  6 17:42:31 2011
 @author: proto
 """
 from copy import deepcopy, copy
-
-import ipdb
 from bionetgen.atomizer.writer import bnglWriter as writer
 
 log = {"species": [], "reactions": []}
@@ -2319,7 +2317,6 @@ class SBML2BNGL:
             rawArule = self.__getRawAssignmentRules(arule)
 
             # print("looping over assignment rules")
-            # import ipdb;ipdb.set_trace()
             arule_obj = self.bngModel.make_arule()
             arule_obj.parse_raw(rawArule)
             arule_obj.compartmentList = compartmentList
@@ -2800,7 +2797,6 @@ class SBML2BNGL:
             compartmentDict[compartment.getId()] = compartment.getSize()
         unitFlag = True
         for species in self.model.getListOfSpecies():
-            # import ipdb;ipdb.set_trace()
             # making molecule and seed species objs for
             # the obj based model
             molec_obj = self.bngModel.make_molecule()
@@ -2879,7 +2875,6 @@ class SBML2BNGL:
                     del speciesAnnotationInfo[rawSpecies["returnID"]]
 
             # if rawSpecies['identifier'] == 'glx' and len(translator) > 0:
-            #     import ipdb;ipdb.set_trace()
             temp = "$" if rawSpecies["isConstant"] != 0 else ""
             tmp = (
                 translator[str(rawSpecies["returnID"])]
@@ -3175,8 +3170,6 @@ class SBML2BNGL:
         from copy import copy
 
         for initialAssignment in self.model.getListOfInitialAssignments():
-            print("in getInitialAssignments")
-            # import ipdb;ipdb.set_trace()
             symbol = initialAssignment.getSymbol()
             math = libsbml.formulaToString(initialAssignment.getMath())
             for element in pparam:

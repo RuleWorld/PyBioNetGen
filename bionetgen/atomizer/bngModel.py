@@ -1220,7 +1220,6 @@ class bngModel:
                     if arule.Id in self.observables:
                         obs = self.observables.pop(arule.Id)
                         self.obs_map[obs.get_obs_name()] = fobj.Id
-                    # import ipdb;ipdb.set_trace()
                     # we also have to remove this from rules
                     if arule.Id in self.molecule_mod_dict:
                         mkey = arule.Id

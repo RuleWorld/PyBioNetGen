@@ -961,7 +961,6 @@ Please choose among the possible binding candidates that had the most observed f
                 bindingTroubleLog[trouble], trouble
             ),
         )
-    # import ipdb;ipdb.set_trace()
     # renaming of components as needed for readability.
     for spname in translator:
         species = translator[spname]

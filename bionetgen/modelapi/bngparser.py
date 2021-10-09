@@ -85,7 +85,6 @@ class BNGParser:
     # to make a grammar for it.
     def parse_actions(self, model_obj):
         if len(self.bngfile.parsed_actions) > 0:
-            # import ipdb;ipdb.set_trace();
             ablock = ActionBlock()
             # we have actions in file, let's get them
             for action in self.bngfile.parsed_actions:
@@ -98,7 +97,6 @@ class BNGParser:
                 if len(action) == 0:
                     continue
                 # gotta find if actions argument is given
-                # import ipdb;ipdb.set_trace()
                 actions_arg = None
                 amatch = re.match(r".*(actions=>\[(.*)\]).*", action)
                 if amatch is not None:
