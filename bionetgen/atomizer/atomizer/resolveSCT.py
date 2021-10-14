@@ -514,7 +514,6 @@ class SCTSolver:
                 ]
 
         # Now let's go for annotation analysis and last resort stuff on the remaining orphaned molecules
-
         orphanedSpecies = [
             x
             for x in strippedMolecules
@@ -673,7 +672,6 @@ class SCTSolver:
             self.database.eequivalenceTranslator,
             self.database.sbmlAnalyzer,
         )
-
         return self.database
 
     def bindingReactionsAnalysis(self, dependencyGraph, reaction, classification):
