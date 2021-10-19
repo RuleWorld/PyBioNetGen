@@ -153,3 +153,6 @@ Minor behavior change to visualize where, if output is specified the files won't
 
 ## 0.5.1
 Subcommand atomize is added allowing for translation and atomization of SBML models. A simple test case for flat and atomized translations is added. See `bionetgen atomize -h` for more information. 
+
+## 0.5.2
+Various updates and bugfixes for atomize subcommand
