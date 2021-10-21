@@ -9,7 +9,7 @@ class Pattern:
     _bonds : Bonds
         setting a pattern requires you to keep track of all bonds to
         correctly label them, this object tracks everything
-    _compartment : str
+    compartment : str
         compartment of the overall pattern (not the same thing as
         molecule compartment, those have their own)
     _label : str
@@ -27,8 +27,8 @@ class Pattern:
     def __init__(self, molecules=[], bonds=None, compartment=None, label=None):
         self.molecules = molecules
         self._bonds = bonds
-        self._compartment = compartment
-        self._label = label
+        self.compartment = compartment
+        self.label = label
         self.fixed = False
         self.MatchOnce = False
         self.relation = None
@@ -47,8 +47,18 @@ class Pattern:
         # by default, once the outer compartment is set
         # we will set the compartment of each molecule
         # to that new compartment.
-        for molec in self.molecules:
-            molec.compartment = value
+        self.consolidate_molecule_compartments()
+
+    def consolidate_molecule_compartments(self):
+        # if the molecule compartment matches overall pattern
+        # compartment, don't print the molecule compartments
+        overall_comp = self.compartment
+        if overall_comp is not None:
+            for molec in self.molecules:
+                if molec.compartment != overall_comp:
+                    molec.compartment = overall_comp
+                else:
+                    molec.compartment = None
 
     @property
     def label(self):
@@ -62,14 +72,20 @@ class Pattern:
         self._label = value
 
     def __str__(self):
+        # need to make sure we don't print useless compartments
+        self.consolidate_molecule_compartments()
         sstr = ""
-        if self.fixed:
-            sstr += "$"
-        if self.MatchOnce:
-            sstr += "{MatchOnce}"
+        # we first deal with the pattern compartment
+        if self.compartment is not None:
+            sstr += "@{}:".format(self.compartment)
+        # now loop over all molecules
         for imol, mol in enumerate(self.molecules):
-            if imol == 0 and self.compartment is not None:
-                sstr += "@{}:".format(self.compartment)
+            if imol == 0:
+                if self.fixed:
+                    sstr += "$"
+                if self.MatchOnce:
+                    sstr += "{MatchOnce}"
+            # FIXME: This label also probably behaves like compartments
             if imol == 0 and self.label is not None:
                 sstr += "%{}:".format(self.label)
             if imol > 0:
