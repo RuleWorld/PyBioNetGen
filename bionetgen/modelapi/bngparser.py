@@ -180,6 +180,9 @@ class BNGParser:
 
     def parse_xml(self, xml_str, model_obj) -> None:
         xml_dict = xmltodict.parse(xml_str)
+        # catch non-BNG XML files
+        if "sbml" not in xml_dict.keys():
+            raise RuntimeError("Input model is invalid. Please ensure model is in proper BNGL or XML format")
         model_obj.xml_dict = xml_dict
         xml_model = xml_dict["sbml"]["model"]
         model_obj.model_name = xml_model["@id"]
