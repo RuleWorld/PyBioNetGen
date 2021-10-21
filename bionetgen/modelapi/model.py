@@ -83,7 +83,9 @@ class bngmodel:
         # Check to see if there are no active blocks
         # If not, model is most likely not in BNGL format
         if not self.active_blocks:
-            print("WARNING: No active blocks. Please ensure model is in proper BNGL or XML format")
+            print(
+                "WARNING: No active blocks. Please ensure model is in proper BNGL or XML format"
+            )
 
     @property
     def recompile(self):
