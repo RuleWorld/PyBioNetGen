@@ -156,3 +156,6 @@ Subcommand atomize is added allowing for translation and atomization of SBML mod
 
 ## 0.5.2
 Various updates and bugfixes for atomize subcommand
+
+## 0.5.3
+Bugfix to fixed species output where the `$` appeared before overall pattern compartments, added `__getitem__` and `__setitem__` for the species block to allow for array indexing of seed species. 
