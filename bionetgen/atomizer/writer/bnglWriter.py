@@ -9,7 +9,12 @@ import re
 from copy import deepcopy
 from bionetgen.atomizer.utils.util import logMess
 import string
-from pyparsing import commaSeparatedList as csl
+try:
+    # 3.0.0 and above
+    from pyparsing.pyparsing_common import comma_separated_list as csl
+except ImportError:
+    # below 3.0.0
+    from pyparsing import commaSeparatedList as csl
 import pyparsing
 from itertools import dropwhile
 
