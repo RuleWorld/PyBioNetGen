@@ -9,6 +9,7 @@ import re
 from copy import deepcopy
 from bionetgen.atomizer.utils.util import logMess
 import string
+
 try:
     # 3.0.0 and above
     from pyparsing.pyparsing_common import comma_separated_list as csl
