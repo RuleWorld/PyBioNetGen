@@ -75,6 +75,7 @@ User input format
 The user input JSON file has 4 potential fields. Empty fields can be omitted. 
 
 .. code-block:: json
+    
     {
         "reactionDefinition" : [
         ],
@@ -107,8 +108,8 @@ Examples of atomization
 `Biomodels database model 48 <https://www.ebi.ac.uk/biomodels/BIOMD0000000048>`_
 ---------------------------------------------------------------------------------
 
-`Biomodels database model 48 <https://www.ebi.ac.uk/biomodels/BIOMD0000000151>`_
+`Biomodels database model 151 <https://www.ebi.ac.uk/biomodels/BIOMD0000000151>`_
 ---------------------------------------------------------------------------------
 
-`Biomodels database model 48 <https://www.ebi.ac.uk/biomodels/BIOMD0000000543>`_
+`Biomodels database model 543 <https://www.ebi.ac.uk/biomodels/BIOMD0000000543>`_
 ---------------------------------------------------------------------------------
