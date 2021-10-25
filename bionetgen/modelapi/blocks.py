@@ -354,9 +354,16 @@ class SpeciesBlock(ModelBlock):
         else:
             self.__dict__[name] = value
 
+    def __getitem__(self, key):
+        return self.items[key]
+
+    def __setitem__(self, key, value) -> None:
+        self.items[key] = value
+
     def add_species(self, *args, **kwargs) -> None:
         s = Species(*args, **kwargs)
-        self.add_item((None, s))
+        ctr = len(self.items)
+        self.add_item((ctr, s))
 
 
 class MoleculeTypeBlock(ModelBlock):
