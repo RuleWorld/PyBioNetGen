@@ -1,10 +1,18 @@
 .. _atomizer:
 
-#################
-Atomizer Tutorial
-#################
+########
+Atomizer
+########
 
-Atomizer is... 
+Atomizer is a translator tool that can convert SBML models to BNGL models. Moreover, atomizer is 
+capable of extracting implicit information found in SBML models using lexical analysis, reaction
+stoichiometry and annotation information. Using this information, atomizer converts SBML species
+to structured BNGL complexes. 
+
+This in turn allows for easier identification of modification sites,
+binding interactions while making the model easier to understand and analyze. Combined with BNGL 
+visualization capabilities, atomizer also allows for easier model comparison of the same biological 
+process. 
 
 Getting Started
 ===============
