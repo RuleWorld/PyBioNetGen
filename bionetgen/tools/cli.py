@@ -125,7 +125,8 @@ class BNGCLI:
 
             # load in the result
             self.result = BNGResult(os.getcwd())
-            BNGResult.process_return = rc
+            self.result.process_return = rc
+            self.result.output = out
             # set BNGPATH back
             if self.old_bngpath is not None:
                 os.environ["BNGPATH"] = self.old_bngpath
