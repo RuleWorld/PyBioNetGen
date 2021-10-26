@@ -189,7 +189,7 @@ JSON file (here we call it `user-input_1.json`)
 	}
   }
 
-and we rerun atomization with the `-u` option
+and we rerun atomization with the `-u` option using this JSON file we created
 
 .. code-block:: shell
 
