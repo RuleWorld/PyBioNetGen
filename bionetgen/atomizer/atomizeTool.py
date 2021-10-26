@@ -19,7 +19,7 @@ class AtomizeTool:
             "molecule_id": False,
             "convert_units": False,  # currently not supported
             "atomize": False,  # default is flat translation
-            "pathwaycommons": False,  # requires connection so default is false
+            "pathwaycommons": True,  # requires connection so default is false
             "bionetgen_analysis": os.path.join(
                 d.bng_path, "BNG2.pl"
             ),  # TODO: get it from app config

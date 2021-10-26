@@ -56,8 +56,8 @@ If you encounter atomization errors, you can fix it by using a user input JSON f
 
     bionetgen atomize -i mymodel.xml -o mymodel_flat.bngl -a -u user_input.json
 
-Atomizer can look up annotation information on various online resources (namely `Pathway Commons <https://www.pathwaycommons.org/>`_, `BioGRID <https://thebiogrid.org/>`_ and `UniProt <https://www.uniprot.org/>`_).
-This generally allows for easier atomization, reducing user input required, given that the annotation information in the SBML file is correct. You can enable this with the `-p` option
+Atomizer looks up annotation information on various online resources (namely `Pathway Commons <https://www.pathwaycommons.org/>`_, `BioGRID <https://thebiogrid.org/>`_ and `UniProt <https://www.uniprot.org/>`_).
+This generally allows for easier atomization, reducing user input required. If you don't have internet connection you can turn this off with the `-p` option
 
 .. code-block:: shell
 
@@ -67,13 +67,13 @@ Generally a complex model will require several options with a bit of user input 
 
 .. code-block:: shell
 
-    bionetgen atomize -i mymodel.xml -o mymodel_flat.bngl -a -p -u user_input.json
+    bionetgen atomize -i mymodel.xml -o mymodel_flat.bngl -a -u user_input.json
 
 If the atomizer output is too cluttered you can adjust the output levels with the `-ll` option
 
 .. code-block:: shell
 
-    bionetgen atomize -i mymodel.xml -o mymodel_flat.bngl -a -p -u user_input.json -ll "ERROR"
+    bionetgen atomize -i mymodel.xml -o mymodel_flat.bngl -a -u user_input.json -ll "ERROR"
 
 we suggest using "ERROR" or "WARNING" for `-ll` argument. 
 
@@ -113,8 +113,106 @@ is an array that reflects what the complex is comprised of.
 Examples of atomization
 =======================
 
+These tutorials shows how to use Atomization tool to make a BNGL Model from SBML format. We will Use
+various curated models from the `biomodels database <https://www.ebi.ac.uk/biomodels/search?domain=biomodels&query=*%3A*+AND+curationstatus%3A%22Manually+curated%22&numResults=10>`_. 
+You can download the specific SBML files by clicking on the titles.
+
 `Biomodels database model 48 <https://www.ebi.ac.uk/biomodels/BIOMD0000000048>`_
 ---------------------------------------------------------------------------------
+​
+**Atomizing the Model:** Once you download the SBML file of BMD48, you will have an :code:`.xml` 
+file in your directory. Use it as the input to the `atomize` subcommand as shown below. To show the 
+effect of using the web services we'll also add the `-p` option to not use the web serices at first
+​
+.. code-block:: shell
+​
+     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -p
+​
+you can name the `bngl` output file whatever you want. This will print out information on the atomization
+process. If the output is too cluttered you can look at only the major errors using the following command
+
+.. code-block:: shell
+​
+     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -p -ll "ERROR"
+     
+which prints out 
+
+.. code-block:: shell
+
+    ERROR:SCT212:['EGF_EGFR2']:EGF_EGFR2_P:Atomizer needs user information to determine which element is being modified among component species:['EGF', 'EGF', 'EGFR', 'EGFR']:_p
+    ERROR:ATO202:['EGF_EGFR2', 'EGF_EGFR2_PLCg_P']:(('EGF', 'EGF'), ('EGF', 'EGFR'), ('EGFR', 'EGFR')):We need information to resolve the bond structure of these complexes . Please choose among the possible binding candidates that had the most observed frequency in the reaction network or provide a new one
+    ERROR:ATO202:['EGF_EGFR2_Shc_Grb2_SOS']:(('EGF', 'Grb2'), ('EGF', 'SOS'), ('EGF', 'Shc'), ('EGFR', 'Grb2'), ('EGFR', 'SOS'), ('EGFR', 'Shc')):We need information to resolve the bond structure of these complexes . Please choose among the possible binding candidates that had the most observed frequency in the reaction network or provide a new one
+    Structured molecule type ratio: 0.7
+
+the first three "ERROR"s tells us that atomizer needs user input to resolve certain ambiguities 
+in the model. Structured molecule type ratio is the ratio of structured species in the `molecule types`
+block of the resulting BNGL to the total number of molecule types, to give an idea of how successful
+atomizer was at inferring structure of the species in the model. 
+
+Before we give atomizer more user input, let's try removing the `-p` option to see if atomizer can 
+resolve these automatically
+
+.. code-block:: shell
+​
+     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -ll "ERROR"
+
+which prints out
+
+.. code-block:: shell
+
+    ERROR:SCT212:['EGF_EGFR2']:EGF_EGFR2_P:Atomizer needs user information to determine which element is being modified among component species:['EGF', 'EGF', 'EGFR', 'EGFR']:_p
+    ERROR:ATO202:['EGF_EGFR2_PLCg_P']:(('EGF', 'PLCg'), ('EGFR', 'PLCg')):We need information to resolve the bond structure of these complexes . Please choose among the possible binding candidates that had the most observed frequency in the reaction network or provide a new one
+    Structured molecule type ratio: 0.875
+ 
+there were multiple instances of "ERROR:MSC02" that warn the user about issues with connections
+to the `BioGRID <https://thebiogrid.org/>`_ service which were removed for clarity. Now we only
+have two errors left. 
+
+Resolving errors
+================
+
+Now let's take a look at the remaining issues one by one
+
+.. code-block:: shell
+
+    ERROR:SCT212:['EGF_EGFR2']:EGF_EGFR2_P:Atomizer needs user information to determine which element is being modified among component species:['EGF', 'EGF', 'EGFR', 'EGFR']:_p
+
+atomizer is having trouble figuring out where the modification `_p` is supposed to go, which is a 
+phosphorylation site. We know that EGFR is the molecule that's being phosphorylated so we make a 
+JSON file (here we call it `user-input_1.json`)
+
+.. code-block:: json
+
+  {
+	"modificationDefinition": {
+		"EGF_EGFR2_P": ["EGFR_P", "EGFR", "Epidermal_Growth_Factor", "Epidermal_Growth_Factor"]
+	}
+  }
+
+and we rerun atomization with the `-u` option
+.. code-block:: shell
+​
+     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -ll "ERROR" -u user-input_1.json
+
+which returns (disregarding connection errors)
+
+.. code-block:: shell
+    ERROR:ATO202:['EGF_EGFR2_PLCg', 'EGF_EGFR2_PLCg_P']:(('EGFR', 'PLCg'), ('Epidermal_Growth_Factor', 'PLCg')):We need information to resolve the bond structure of these complexes . Please choose among the possible binding candidates that had the most observed frequency in the reaction network or provide a new one
+
+which tells us that atomizer can't resolve where `PLCg` is binding, let's add that to the JSON file
+
+.. code-block:: json
+
+  {
+    "binding_interactions": [
+        ["EGFR", "PLCg"]
+    ],
+	"modificationDefinition": {
+		"EGF_EGFR2_P": ["EGFR_P", "EGFR", "Epidermal_Growth_Factor", "Epidermal_Growth_Factor"]
+	}
+  }
+
+rerunning atomizer should return no errors and you should now have a fully atomized BNGL model.
 
 `Biomodels database model 151 <https://www.ebi.ac.uk/biomodels/BIOMD0000000151>`_
 ---------------------------------------------------------------------------------
