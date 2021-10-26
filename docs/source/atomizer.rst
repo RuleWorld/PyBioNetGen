@@ -123,7 +123,7 @@ You can download the specific SBML files by clicking on the titles.
 **Atomizing the Model:** Once you download the SBML file of BMD48, you will have an :code:`.xml` 
 file in your directory. Use it as the input to the `atomize` subcommand as shown below. To show the 
 effect of using the web services we'll also add the `-p` option to not use the web serices at first
-​
+
 .. code-block:: shell
 
     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -p
