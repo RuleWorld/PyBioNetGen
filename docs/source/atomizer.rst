@@ -127,7 +127,7 @@ effect of using the web services we'll also add the `-p` option to not use the w
 .. code-block:: shell
 
     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -p
-​
+
 you can name the `bngl` output file whatever you want. This will print out information on the atomization
 process. If the output is too cluttered you can look at only the major errors using the following command
 
