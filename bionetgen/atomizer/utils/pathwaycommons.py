@@ -49,26 +49,29 @@ def queryBioGridByName(name1, name2, organism, truename1, truename2):
             "geneList": "|".join([name1, name2]),
             "taxId": "|".join(organism),
             "format": "json",
-            "accesskey": "59764eb62ca572de5949062a1ba75e5d",
+            "accesskey": "f74b8d6f4c394fcc9d97b11c8c83d7f3",
             "includeInteractors": "false",
         }
+        # FIXME: check if all "organism"s are the wrong thing,
+        # for model 48 this returns a process identifier https://www.ebi.ac.uk/QuickGO/term/GO:0007173
+        # and not an organism taxonomy identifier
         data = urllib.parse.urlencode(d).encode("utf-8")
         try:
             response = urllib.request.urlopen(url, data=data).read()
         except urllib.error.HTTPError:
             logMess(
                 "ERROR:MSC02",
-                "A connection could not be established to biogrid while testing with taxon {1} and genes {0}".format(
+                "A connection could not be established to biogrid while testing with taxon {1} and genes {0}, trying without organism taxonomy limitation".format(
                     "|".join([name1, name2]), "|".join(organism)
                 ),
             )
-            return False
+            # return False
 
-    if not response:
+    if response is None:
         d = {
             "geneList": "|".join([name1, name2]),
             "format": "json",
-            "accesskey": "59764eb62ca572de5949062a1ba75e5d",
+            "accesskey": "f74b8d6f4c394fcc9d97b11c8c83d7f3",
             "includeInteractors": "false",
         }
         data = urllib.parse.urlencode(d).encode("utf-8")
@@ -78,7 +81,6 @@ def queryBioGridByName(name1, name2, organism, truename1, truename2):
             logMess("ERROR:MSC02", "A connection could not be established to biogrid")
             return False
     results = json.loads(response)
-
     referenceName1 = truename1.lower() if truename1 else name1.lower()
     referenceName2 = truename2.lower() if truename2 else name2.lower()
     for result in results:

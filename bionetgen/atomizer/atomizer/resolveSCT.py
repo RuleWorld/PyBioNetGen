@@ -320,8 +320,7 @@ class SCTSolver:
                                 else:
                                     logMess(
                                         "WARNING:ANN201",
-                                        "{0} and {1} have a direct correspondence according to reaction \
-    information however their annotations are completely different.".format(
+                                        "{0} and {1} have a direct correspondence according to reaction information however their annotations are completely different.".format(
                                             baseElement, modElement
                                         ),
                                     )
@@ -435,8 +434,7 @@ class SCTSolver:
                                 if len(baseDB.intersection(modDB)) > 0:
                                     logMess(
                                         "WARNING:ANN201",
-                                        "{0} and {1} have a direct correspondence according to reaction \
-    information however their annotations are completely different.".format(
+                                        "{0} and {1} have a direct correspondence according to reaction information however their annotations are completely different.".format(
                                             base, mod
                                         ),
                                     )

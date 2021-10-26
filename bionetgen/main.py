@@ -449,9 +449,9 @@ class BNGBase(cement.Controller):
             (
                 ["-p", "--pathwaycommons"],
                 {
-                    "help": "Use pathway commons to infer molecule binding. This setting requires an internet connection and will query the pathway commons web service.",
-                    "default": False,
-                    "action": "store_true",
+                    "help": "Don't use web services to infer information on the SBML species. Use this setting when you don't have an internet connection.",
+                    "default": True,
+                    "action": "store_false",
                 },
             ),
             (
