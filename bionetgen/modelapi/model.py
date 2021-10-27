@@ -80,6 +80,12 @@ class bngmodel:
         for block in self.block_order:
             if block not in self.active_blocks:
                 self.add_empty_block(block)
+        # Check to see if there are no active blocks
+        # If not, model is most likely not in BNGL format
+        if not self.active_blocks:
+            print(
+                "WARNING: No active blocks. Please ensure model is in proper BNGL or BNG-XML format"
+            )
 
     @property
     def recompile(self):
