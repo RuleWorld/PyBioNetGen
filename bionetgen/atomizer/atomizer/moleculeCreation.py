@@ -864,6 +864,9 @@ def atomize(
         bindingFailureDict = {}
 
         for idx, element in enumerate(weights):
+            # unnamed molecule?
+            if len(element[0]) == 0:
+                continue
             # 0 molecule
             if element[0] == "0":
                 continue

@@ -681,7 +681,7 @@ def analyzeFile(
     memoizedResolver=True,
     replaceLocParams=True,
     quietMode=False,
-    logLevel="DEBUG",
+    logLevel="WARNING",
 ):
     """
     one of the library's main entry methods. Process data from a file

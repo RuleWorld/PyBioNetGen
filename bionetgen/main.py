@@ -495,8 +495,8 @@ class BNGBase(cement.Controller):
             (
                 ["-ll", "--log-level"],
                 {
-                    "help": 'This option allows you to select a logging level, from quietest to loudest options are: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG". Default is set to DEBUG',
-                    "default": "DEBUG",
+                    "help": 'This option allows you to select a logging level, from quietest to loudest options are: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG". Default is set to WARNING',
+                    "default": "WARNING",
                     "type": str,
                 },
             ),

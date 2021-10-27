@@ -159,3 +159,7 @@ Various updates and bugfixes for atomize subcommand
 
 ## 0.5.3
 Bugfix to fixed species output where the `$` appeared before overall pattern compartments, added `__getitem__` and `__setitem__` for the species block to allow for array indexing of seed species. 
+
+## 0.5.4
+Default log level for atomizer is now `WARNING`, by default atomizer probes web services now, 
+minor atomizer bugfixes

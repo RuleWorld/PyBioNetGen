@@ -123,17 +123,17 @@ You can download the specific SBML files by clicking on the titles.
 **Atomizing the Model:** Once you download the SBML file of BMD48, you will have an :code:`.xml` 
 file in your directory. Use it as the input to the `atomize` subcommand as shown below. To show the 
 effect of using the web services we'll also add the `-p` option to not use the web serices at first
-​
+
 .. code-block:: shell
-​
-     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -p
-​
+
+    bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -p
+
 you can name the `bngl` output file whatever you want. This will print out information on the atomization
 process. If the output is too cluttered you can look at only the major errors using the following command
 
 .. code-block:: shell
-​
-     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -p -ll "ERROR"
+
+    bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -p -ll "ERROR"
      
 which prints out 
 
@@ -153,8 +153,8 @@ Before we give atomizer more user input, let's try removing the `-p` option to s
 resolve these automatically
 
 .. code-block:: shell
-​
-     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -ll "ERROR"
+
+    bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -ll "ERROR"
 
 which prints out
 
@@ -189,14 +189,16 @@ JSON file (here we call it `user-input_1.json`)
 	}
   }
 
-and we rerun atomization with the `-u` option
+and we rerun atomization with the `-u` option using this JSON file we created
+
 .. code-block:: shell
-​
-     bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -ll "ERROR" -u user-input_1.json
+
+    bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -ll "ERROR" -u user-input_1.json
 
 which returns (disregarding connection errors)
 
 .. code-block:: shell
+    
     ERROR:ATO202:['EGF_EGFR2_PLCg', 'EGF_EGFR2_PLCg_P']:(('EGFR', 'PLCg'), ('Epidermal_Growth_Factor', 'PLCg')):We need information to resolve the bond structure of these complexes . Please choose among the possible binding candidates that had the most observed frequency in the reaction network or provide a new one
 
 which tells us that atomizer can't resolve where `PLCg` is binding, let's add that to the JSON file

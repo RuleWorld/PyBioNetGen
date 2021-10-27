@@ -357,7 +357,6 @@ class Molecule:
         self.components.sort(key=lambda x: (x.name, self.evaluateBonds(x.bonds)))
 
     def __str__(self):
-
         self.sort()
         tmp = self.name.replace("-", "_")
         if tmp == "0":
