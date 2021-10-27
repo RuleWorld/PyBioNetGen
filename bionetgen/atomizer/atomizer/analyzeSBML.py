@@ -800,9 +800,13 @@ class SBMLAnalyzer:
                             # now deal with second partner
                             # first initalize the item or pull if it already exists
                             item = None
-                            for ix, x in enumerate(reactionDefinition["complexDefinition"]):
+                            for ix, x in enumerate(
+                                reactionDefinition["complexDefinition"]
+                            ):
                                 if x[0] == second:
-                                    item = reactionDefinition["complexDefinition"].pop(ix)
+                                    item = reactionDefinition["complexDefinition"].pop(
+                                        ix
+                                    )
                                     break
                             if item is None:
                                 item = [second, [[second]]]
