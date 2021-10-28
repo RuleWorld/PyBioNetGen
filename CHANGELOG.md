@@ -163,3 +163,6 @@ Bugfix to fixed species output where the `$` appeared before overall pattern com
 ## 0.5.4
 Default log level for atomizer is now `WARNING`, by default atomizer probes web services now, 
 minor atomizer bugfixes
+
+## 0.5.5
+Component states in atomizer outputs are now lexically ordered. Minor bugfix for atomizer where a user inputted self-binding site would add two separate binding sites on the same molecule.
