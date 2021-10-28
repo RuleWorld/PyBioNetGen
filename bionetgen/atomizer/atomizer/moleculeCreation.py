@@ -1048,6 +1048,11 @@ Please choose among the possible binding candidates that had the most observed f
                 else:
                     comp_counter_2[component.name] += 1
                     component.name += f"{comp_counter_2[component.name]}"
+        for spname in translator:
+            species = translator[spname]
+            for molec in species.molecules:
+                for comp in molec.components:
+                    comp.states = sorted(comp.states)
         # report
         new_species_str2 = species.str2()
         if new_species_str2 != orig_species_st2:
