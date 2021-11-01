@@ -166,3 +166,6 @@ minor atomizer bugfixes
 
 ## 0.5.5
 Component states in atomizer outputs are now lexically ordered. Minor bugfix for atomizer where a user inputted self-binding site would add two separate binding sites on the same molecule.
+
+## 0.5.6
+Fixed an atomizer bug where the export wasn't in UTF-8 encoding. 

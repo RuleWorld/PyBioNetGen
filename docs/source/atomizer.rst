@@ -193,7 +193,7 @@ and we rerun atomization with the `-u` option using this JSON file we created
 
 .. code-block:: shell
 
-    bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -ll "ERROR" -u user-input_1.json
+    bionetgen atomize -i BIOMD0000000048.xml -o BMD48.bngl -a -ll "ERROR" -u user-input-1.json
 
 which returns (disregarding connection errors)
 
@@ -216,8 +216,63 @@ which tells us that atomizer can't resolve where `PLCg` is binding, let's add th
 
 rerunning atomizer should return no errors and you should now have a fully atomized BNGL model.
 
-`Biomodels database model 151 <https://www.ebi.ac.uk/biomodels/BIOMD0000000151>`_
+`Biomodels database model 19 <https://www.ebi.ac.uk/biomodels/BIOMD0000000019>`_
 ---------------------------------------------------------------------------------
 
-`Biomodels database model 543 <https://www.ebi.ac.uk/biomodels/BIOMD0000000543>`_
----------------------------------------------------------------------------------
+This model is an expanded version of BioModel 48. Let's follow the same strategy and atomize
+it without any input first and see what atomizer says. 
+
+.. code-block:: shell
+
+    bionetgen atomize -i BIOMD0000000019.xml -o BMD19.bngl -a -ll "ERROR"
+
+this returns
+
+.. code-block:: shell
+
+    ERROR:ATO202:['EGF_EGFRm2_GAP_Grb2_Prot', 'EGF_EGFRm2_GAP_Grb2_Sos_Prot', 
+                  'EGF_EGFRm2_GAP_Shcm_Grb2_Prot', 'EGF_EGFRm2_GAP_Grb2_Sos_Ras_GTP_Prot', 
+                  'EGF_EGFRm2_GAP_Shcm_Grb2_Sos_Prot', 'EGF_EGFRm2_GAP_Grb2_Sos_Ras_GDP_Prot', 
+                  'EGF_EGFRm2_GAP_Shcm_Grb2_Sos_Ras_GTP_Prot', 
+                  'EGF_EGFRm2_GAP_Shcm_Grb2_Sos_Ras_GDP_Prot']:
+                  (('EGF', 'Prot'), ('EGFR', 'Prot'), ('GAP', 'Prot'), 
+                  ('Grb2', 'Prot')):We need information to resolve the bond structure of these 
+                  complexes . Please choose among the possible binding candidates that had the 
+                  most observed frequency in the reaction network or provide a new one
+    Structured molecule type ratio: 0.6363636363636364
+
+which tells us that atomizer is having trouble figuring out which binding interaction to include
+for `Prot`. We know that protein binds to EGFR so let's include that in a user input JSON file
+
+.. code-block:: json
+
+    {
+    "binding_interactions": [
+        ["EGFR", "Prot"]
+    ]
+    }
+
+and now rerunning the atomization using this user input file
+
+.. code-block:: shell
+
+    bionetgen atomize -i BIOMD0000000019.xml -o BMD19.bngl -a -ll "ERROR" -u user-input-1.json
+
+now returns no errors. However, looking at the resuling BNGL shows `Ras_GTP(Ras_GDP~0~1,egfr,i~0~I,m~0~M,raf)`
+and we know that Ras should be the base species. We can include that using the `modificationDefinition`
+section in the user input file
+
+.. code-block:: json
+
+    {
+    "binding_interactions": [
+        ["EGFR", "Prot"]
+    ],
+    "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"]
+      }
+    }
+
+rerunning atomization using this user input gives a fully atomized BNGL file. 
