@@ -621,7 +621,7 @@ def postAnalyzeFile(outputFile, bngLocation, database, replaceLocParams=True):
         database,
         replaceLocParams=replaceLocParams,
     )
-    with open(outputFile, "w") as f:
+    with open(outputFile, "w", encoding="UTF-8") as f:
         f.write(returnArray.finalString)
     # recompute bng-xml file
     consoleCommands.bngl2xml(outputFile)
@@ -772,7 +772,7 @@ def analyzeFile(
         replaceLocParams=replaceLocParams,
     )
 
-    with open(outputFile, "w") as f:
+    with open(outputFile, "w", encoding="UTF-8") as f:
         f.write(returnArray.finalString)
     # with open('{0}.dict'.format(outputFile), 'wb') as f:
     #    pickle.dump(returnArray[-1], f)
