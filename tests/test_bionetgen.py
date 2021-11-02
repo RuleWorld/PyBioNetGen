@@ -31,6 +31,20 @@ def test_bionetgen_input():
         assert file_list.sort() == to_match.sort()
 
 
+def test_plot():
+    argv = [
+        "plot",
+        "-i",
+        os.path.join(tfold, "test.gdat"),
+        "-o",
+        os.path.join(tfold, "test.png"),
+    ]
+    with BioNetGenTest(argv=argv) as app:
+        app.run()
+        assert app.exit_code == 0
+        assert os.path.isfile(os.path.join(tfold, "test.png"))
+
+
 def test_bionetgen_model():
     fpath = os.path.join(tfold, "test.bngl")
     fpath = os.path.abspath(fpath)

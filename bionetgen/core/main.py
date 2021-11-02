@@ -69,7 +69,7 @@ def plotDAT(inp, out=".", kw=dict()):
         fnoext, ext = os.path.splitext(fname)
         out = os.path.join(path, "{}.png".format(fnoext))
     # use the plotter object to get the plot
-    from bionetgen.core import BNGPlotter
+    from bionetgen.tools import BNGPlotter
 
     plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()
