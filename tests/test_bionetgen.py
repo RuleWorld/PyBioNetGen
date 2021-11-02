@@ -35,9 +35,9 @@ def test_plot():
     argv = [
         "plot",
         "-i",
-        os.path.join(tfold, "test.gdat"),
+        os.path.join(*[tfold, "test", "test.gdat"]),
         "-o",
-        os.path.join(tfold, "test.png"),
+        os.path.join(*[tfold, "test", "test.png"]),
     ]
     with BioNetGenTest(argv=argv) as app:
         app.run()
