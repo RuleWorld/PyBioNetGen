@@ -42,7 +42,7 @@ def test_plot():
     with BioNetGenTest(argv=argv) as app:
         app.run()
         assert app.exit_code == 0
-        assert os.path.isfile(os.path.join(tfold, "test.png"))
+        assert os.path.isfile(os.path.join(*[tfold, "test", "test.png"]))
 
 
 def test_bionetgen_model():
