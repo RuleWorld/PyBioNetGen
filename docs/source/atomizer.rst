@@ -583,41 +583,43 @@ the following set of `binding_interactions`
 
 to get the final input file 
 
-{
-    "binding_interactions": [
-        ["gp80", "gp80"],
-        ["SOS", "Ras"],
-        ["R","SHP2"],
-        ["R","STAT3"],
-        ["R","STAT1"],
-        ["R","R"],
-        ["R","SOCS1"],
-        ["gp130", "SHP2"],
-        ["STAT1","gp130"],
-        ["STAT3","gp130"],
-        ["gp130", "SOCS3"]
-    ],
-	"modificationDefinition": {
-    "Ras": [],
-    "Ras_GTP": ["Ras"],
-    "Ras_GDP": ["Ras"],
-    "STAT3": [],
-    "STAT3m": ["STAT3"],
-    "STAT3C": ["STAT3"],
-    "STAT3Cm": ["STAT3"],
-    "STAT1": [],
-    "STAT1m": ["STAT1"],
-    "STAT1C": ["STAT1"],
-    "STAT1Cm": ["STAT1"],
-    "JAK": [],
-    "JAKIFN": ["JAK"],
-    "JAKIL_6":["JAK"],
-    "R_JAK": ["R","JAKIFN"],
-    "gp130_JAK": ["gp130", "JAKIL_6"],
-    "IFN_R_JAK2": ["IFN","R_JAK", "IFN","R_JAK"],
-    "IFN_R_JAK2m": ["IFN_R_JAK2"],
-    "IL6_gp80_gp130_JAK2m_STAT1C": ["IL6", "gp80", "gp130", "JAK","IL6", "gp80", "gp130", "JAK","STAT1"]
-	}
-}
+.. code-block:: json
+
+    {
+        "binding_interactions": [
+            ["gp80", "gp80"],
+            ["SOS", "Ras"],
+            ["R","SHP2"],
+            ["R","STAT3"],
+            ["R","STAT1"],
+            ["R","R"],
+            ["R","SOCS1"],
+            ["gp130", "SHP2"],
+            ["STAT1","gp130"],
+            ["STAT3","gp130"],
+            ["gp130", "SOCS3"]
+        ],
+        "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"],
+        "STAT3": [],
+        "STAT3m": ["STAT3"],
+        "STAT3C": ["STAT3"],
+        "STAT3Cm": ["STAT3"],
+        "STAT1": [],
+        "STAT1m": ["STAT1"],
+        "STAT1C": ["STAT1"],
+        "STAT1Cm": ["STAT1"],
+        "JAK": [],
+        "JAKIFN": ["JAK"],
+        "JAKIL_6":["JAK"],
+        "R_JAK": ["R","JAKIFN"],
+        "gp130_JAK": ["gp130", "JAKIL_6"],
+        "IFN_R_JAK2": ["IFN","R_JAK", "IFN","R_JAK"],
+        "IFN_R_JAK2m": ["IFN_R_JAK2"],
+        "IL6_gp80_gp130_JAK2m_STAT1C": ["IL6", "gp80", "gp130", "JAK","IL6", "gp80", "gp130", "JAK","STAT1"]
+        }
+    }
 
 and running with this user input file gives us the fully atomized model.
