@@ -352,5 +352,4 @@ if __name__ == "__main__":
     result = compareModelsContext(namespace.file1, namespace.file2, context1, context2)
     import pprint
 
-    print pprint.pprint(result)
-    # print len(result[0])
+    print(pprint.pprint(result))

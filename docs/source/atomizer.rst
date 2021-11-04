@@ -284,3 +284,340 @@ rerunning atomization using this user input gives a fully atomized BNGL file.
 and using yEd to look at the contact map gives us the following 
 
 .. image:: assets/bmd19.jpg
+
+`Biomodels database model 151 <https://www.ebi.ac.uk/biomodels/BIOMD0000000151>`_
+---------------------------------------------------------------------------------
+
+Running atomizer on this model with the following
+
+.. code-block:: shell
+
+    bionetgen atomize -i bmd0000000151.xml -o bmd151.bngl -a -ll "ERROR" 
+
+we get the following errors
+
+.. code-block:: shell
+
+    ERROR:ANN202:Ras_GTP:Rafast:can be mapped through naming conventions but the annotation information does not match        
+    ERROR:ANN202:Ras_GDP:Rafast:can be mapped through naming conventions but the annotation information does not match        
+    ERROR:SCT211:IL6_gp80_gp130_JAKast2_STAT3C_SOCS3_SHP2:[['IL6_gp80', 'IL6_gp80', 'gp130_JAK_ast', 'gp130_JAK', 'SHP2', 'SOC
+        S3', 'STAT3C'], ['IL6_gp80_gp130_JAKast2_STAT3C_SHP2', 'SOCS3']]:[['IL6_gp80', 'IL6_gp80', 'JAK', 'JAK', 'SHP2', 'SOCS3', 
+        'STAT3'], ['IL6_gp80', 'SOCS3']]:Cannot converge to solution, conflicting definitions                                     
+    ERROR:SCT211:IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GDP:[['Grb2', 'IL6_gp80', 'IL6_gp80', 'gp130_JAK_ast', 'gp130_JAK
+        ', 'Ras_GDP', 'SHP2ast', 'SOS'], ['Grb2', 'IL6_gp80', 'IL6_gp80', 'gp130_JAK_ast', 'gp130_JAK', 'Ras_GTP', 'SHP2ast', 'SOS
+        ']]:[['Grb2', 'IL6_gp80', 'IL6_gp80', 'JAK', 'JAK', 'Ras_GDP', 'SHP2', 'SOS'], ['Grb2', 'IL6_gp80', 'IL6_gp80', 'JAK', 'JA
+        K', 'Ras_GTP', 'SHP2', 'SOS']]:Cannot converge to solution, conflicting definitions
+    ERROR:SCT211:IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP:[['Grb2', 'IL6_gp80', 'IL6_gp80', 'gp130_JAK_ast', 'gp130_JAK
+        ', 'Ras_GDP', 'SHP2ast', 'SOS'], ['Grb2', 'IL6_gp80', 'IL6_gp80', 'gp130_JAK_ast', 'gp130_JAK', 'Ras_GTPast', 'SHP2ast', '
+        SOS']]:[['Grb2', 'IL6_gp80', 'IL6_gp80', 'JAK', 'JAK', 'Ras_GDP', 'SHP2', 'SOS'], ['Grb2', 'IL6_gp80', 'IL6_gp80', 'JAK',
+        'JAK', 'Ras_GTP', 'SHP2', 'SOS']]:Cannot converge to solution, conflicting definitions
+    ERROR:ATO202:['IL6_gp80_gp130_JAK2', 'IL6_gp80_gp130_JAK_ast2', 'IL6_gp80_gp130_JAKast2_JAK', 'IL6_gp80_gp130_JAKast2_SOCS
+        3', 'IL6_gp80_gp130_JAKast2_STAT3C', 'IL6_gp80_gp130_JAKast2_SHP2ast', 'IL6_gp80_gp130_JAKast2_STAT3Cast', 'IL6_gp80_gp130
+        _JAKast2_SHP2ast_Grb2', 'IL6_gp80_gp130_JAKast2_STAT3C_SOCS3', 'IL6_gp80_gp130_JAKast2_SHP2_Grb2']:(('IL6_gp80', 'IL6_gp80
+        '), ('IL6_gp80', 'JAK'), ('JAK', 'JAK')):We need information to resolve the bond structure of these complexes . Please cho
+        ose among the possible binding candidates that had the most observed frequency in the reaction network or provide a new one
+
+first two errors show that atomizer is having problems identifying `Ras_GTP`, `Ras_GDP` as `Ras`. We can tell atomizer
+the basic building blocks for the atomization in the `modificationDefinition` block
+
+.. code-block:: json
+
+    "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"]
+    }
+
+looking at the other errors we can tall atomizer also is having trouble identifing the binding between `IL6` and `gp80`
+since it's asking about binding interactions between `IL6_gp80` and other items, let's fix that too
+
+.. code-block:: json
+
+    {
+        "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"],
+        "IL6_gp80": ["IL6", "gp80"]
+        }
+    }
+
+Rerunning atomizer with this user input using the following 
+
+.. code-block:: shell
+
+    bionetgen atomize -i bmd0000000151.xml -o bmd151.bngl -a -ll "ERROR" -u user_input_151.json
+
+gives the following new set of errors
+
+.. code-block:: shell
+
+    ERROR:ATO202:['IL6_gp80_gp130_JAK', 'IL6_gp80_gp130_JAK2', 'IL6_gp80_gp130_JAK_ast2']:
+        (('IL6', 'JAK'), ('JAK', 'gp80')):We need information to resolve the bond structure 
+        of these complexes . Please choose among the possible binding candidates that had the 
+        most observed frequency in the reaction network or provide a new one
+    ERROR:ATO202:['IL6_gp80_gp130_JAKast2_JAK', 'IL6_gp80_gp130_JAKast2_SHP2ast', 
+        'IL6_gp80_gp130_JAKast2_STAT3C_SHP2', 'IL6_gp80_gp130_JAKast2_SHP2ast_Grb2', 
+        'IL6_gp80_gp130_JAKast2_SHP2_Grb2', 'IL6_gp80_gp130_JAKast2_STAT3C_SOCS3_SHP2', 
+        'IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GDP', 
+        'IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP']:
+        (('IL6', 'SHP2'), ('SHP2', 'gp80')):We need information to resolve the bond structure 
+        of these complexes . Please choose among the possible binding candidates that had the 
+        most observed frequency in the reaction network or provide a new one
+    ERROR:ATO202:['IL6_gp80_gp130_JAKast2_SOCS3', 'IL6_gp80_gp130_JAKast2_STAT3C_SOCS3']:
+        (('IL6', 'SOCS3'), ('SOCS3', 'gp80')):We need information to resolve the bond structure of 
+        these complexes . Please choose among the possible binding candidates that had the most 
+        observed frequency in the reaction network or provide a new one
+    ERROR:ATO202:['IL6_gp80_gp130_JAKast2_STAT3C']:(('IL6', 'STAT3C'), ('STAT3C', 'gp80')):
+        We need information to resolve the bond structure of these complexes . Please choose among 
+        the possible binding candidates that had the most observed frequency in the reaction network 
+        or provide a new one
+    ERROR:ATO202:['IL6_gp80_gp130_JAKast2_STAT3Cast']:(('IL6', 'STAT3Cast'), ('STAT3Cast', 'gp80')):
+        We need information to resolve the bond structure of these complexes . Please choose among 
+        the possible binding candidates that had the most observed frequency in the reaction network 
+        or provide a new one
+
+unfortunately, we know from the model that these are not the correct binding interactions. `JAK` binds 
+to `gp130` and so does `SHP2`. Let's add those in
+
+.. code-block:: json
+
+    {
+        "binding_interactions": [
+            ["gp130", "SHP2"],
+            ["gp130", "JAK"]
+        ],
+        "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"],
+        "IL6_gp80": ["IL6", "gp80"]
+        }
+    }
+
+which gives
+
+.. code-block:: shell
+
+    ERROR:SCT241:IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GDP:
+        IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP:produce the same translation:
+        ['Grb2', 'IL6', 'IL6', 'JAK', 'JAK_ast', 'Ras_GDP', 'SHP2ast', 'SOS', 'gp130', 'gp130', 
+        'gp80', 'gp80']:IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP:was empied 
+
+We can tell atomizer the composition of `IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP` with 
+
+.. code-block:: json
+    {
+        "binding_interactions": [
+            ["gp130", "SHP2"],
+            ["gp130", "JAK"]
+        ],
+        "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"],
+        "IL6_gp80": ["IL6", "gp80"],
+        "IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP": ["IL6","gp80","gp130","JAK","IL6","gp80","gp130","JAK","SHP2","Grb2","SOS","Ras"]
+        }
+    }
+
+which atomizer without errors. Looking at BNGL, we can see that atomizer misses the interaction
+between SOS and Ras and instead binds SOS to Grb2, we can fix that with this final JSON addition
+
+.. code-block:: json
+
+    {
+        "binding_interactions": [
+            ["gp80", "gp80"],
+            ["gp130", "SHP2"],
+            ["SOS", "Ras"]
+        ],
+        "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"],
+        "IL6_gp80": ["IL6", "gp80"],
+        "IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP": ["IL6","gp80","gp130","JAK","IL6","gp80","gp130","JAK","SHP2","Grb2","SOS","Ras"]
+        }
+    }
+
+which gives us a fully atomized model. 
+
+
+`Biomodels database model 543 <https://www.ebi.ac.uk/biomodels/BIOMD0000000543>`_
+---------------------------------------------------------------------------------
+
+Model 543 is an expanded version of model 151, please look at BMD151 tutorial before starting here.
+We will start from a subset of the the final user input JSON file we constructed for BMD151.
+
+.. code-block:: json
+    {
+        "binding_interactions": [
+            ["gp80", "gp80"],
+            ["gp130", "SHP2"],
+            ["SOS", "Ras"]
+        ],
+        "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"]
+        }
+    }
+
+We can then use the following command to start atomizing with this user input file (which we named `user_input_543`)
+
+.. code-block:: shell
+
+    bionetgen atomize -i bmd0000000543.xml -o bmd543.bngl -a -ll "ERROR" -u user_input_543.json
+
+which gives us the following set of errors and a reasonably well atomized model
+
+.. code-block:: shell
+
+    ERROR:ATO202:['IFN_R_JAK2m_SHP2']:(('IFN', 'SHP2'), ('JAK', 'SHP2'), ('R', 'SHP2')):
+        We need information to resolve the bond structure of these complexes . 
+        Please choose among the possible binding candidates that had the most observed 
+        frequency in the reaction network or provide a new one
+    ERROR:ATO202:['IFN_R_JAK2m_STAT3C']:(('IFN', 'STAT3C'), ('JAK', 'STAT3C'), ('R', 'STAT3C')):
+        We need information to resolve the bond structure of these complexes . Please choose among 
+        the possible binding candidates that had the most observed frequency in the reaction network 
+        or provide a new one
+    ERROR:ATO202:['IFN_R_JAK2m_STAT3Cm']:(('IFN', 'STAT3Cm'), ('JAK', 'STAT3Cm'), ('R', 'STAT3Cm')):
+        We need information to resolve the bond structure of these complexes . 
+        Please choose among the possible binding candidates that had the most observed frequency 
+        in the reaction network or provide a new one
+    ERROR:SCT241:IL6_gp80_gp130_JAK2m_STAT1:IL6_gp80_gp130_JAK2m_STAT1C:produce the same translation:
+        ['IL6', 'IL6', 'JAKIL_6', 'JAKIL_6', 'STAT1C', 'gp130', 'gp130m', 'gp80', 'gp80']:
+        IL6_gp80_gp130_JAK2m_STAT1C:was empied
+    ERROR:SCT241:IFN_R_JAK:IFN_R_JAK2:produce the same translation:['IFN', 'JAK', 'R']:
+        IFN_R_JAK2:was empied
+
+for the first two errors, we add binding interactions ["R", "SHP2"] and ["R", "STAT3"]. The third error
+we notice that atomizer thinks `STAT3C` and `STAT3` are different, we'll address that by adding `modificationDefinition`shell
+for STAT species and get the following input file
+
+.. code-block:: json
+
+    {
+        "binding_interactions": [
+            ["gp80", "gp80"],
+            ["gp130", "SHP2"],
+            ["SOS", "Ras"],
+            ["R","SHP2"],
+            ["R","STAT3"]
+        ],
+        "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"],
+        "STAT3": [],
+        "STAT3m": ["STAT3"],
+        "STAT3C": ["STAT3"],
+        "STAT3Cm": ["STAT3"],
+        "STAT1": [],
+        "STAT1m": ["STAT1"],
+        "STAT1C": ["STAT1"],
+        "STAT1Cm": ["STAT1"]
+        }
+    }
+
+atomizing again we get the following errors
+
+.. code-block:: shell
+
+    ERROR:ANN202:SOCS1:SOCS3:can be mapped through naming conventions but the annotation information 
+        does not match
+    ERROR:ANN202:Phosp1:Phosp3:can be mapped through naming conventions but the annotation information 
+        does not match
+    ERROR:SCT241:IFN_R_JAK:IFN_R_JAK2:produce the same translation:['IFN', 'JAK', 'R']:IFN_R_JAK2:
+        was empied
+    ERROR:SCT241:IL6_gp80_gp130_JAK2m_STAT1:IL6_gp80_gp130_JAK2m_STAT1C:produce the same translation:
+        ['IL6', 'IL6', 'JAKIL_6', 'JAKIL_6', 'STAT1C', 'gp130', 'gp130m', 'gp80', 'gp80']:
+        IL6_gp80_gp130_JAK2m_STAT1C:was empied
+
+looking at the 3rd and 4th errors, combined with the previous errors, we can see that atomizer is having
+trouble resolving types of JAK molecules. We can add `modificationDefinition`s to help with those and 
+some downstream products of JAK
+
+.. code-block:: json​
+
+    "JAK": [],
+    "JAKIFN": ["JAK"],
+    "JAKIL_6":["JAK"]
+    "R_JAK": ["R","JAKIFN"],
+    "IFN_R_JAK": ["IFN","R_JAK"],
+    "IFN_R_JAK2": ["IFN_R_JAK", "IFN_R_JAK"],
+    "IFN_R_JAK2m": ["IFN_R_JAK2"],
+    "gp130_JAK": ["gp130", "JAKIL_6"]
+​
+adding these to the user input file and rerunning atomization gives
+
+.. code-block:: shell
+
+    ERROR:ANN202:SOCS1:SOCS3:can be mapped through naming conventions but the annotation information 
+        does not match
+    ERROR:ANN202:Phosp1:Phosp3:can be mapped through naming conventions but the annotation information 
+        does not match
+    ERROR:SCT241:IL6_gp80_gp130_JAK2m_STAT1:IL6_gp80_gp130_JAK2m_STAT1C:produce the same translation:
+        ['IL6', 'IL6', 'JAKIL_6', 'JAKIL_6m', 'STAT1C', 'gp130', 'gp130', 'gp80', 'gp80']:
+        IL6_gp80_gp130_JAK2m_STAT1C:was empied
+
+looking at the last error, we should give a `modificationDefinition` for `IL6_gp80_gp130_JAK2m_STAT1C`
+
+.. code-block:: shell
+
+    "IL6_gp80_gp130_JAK2m_STAT1C": ["IL6", "gp80", "gp130", "JAK","IL6", "gp80", "gp130", "JAK","STAT1"]
+
+Adding this will result in atomization without any errors. However, looking at BMD543, we find some 
+`binding_interactions` that should be added to BMD543 user input that are missing in BMD151. We add
+the following set of `binding_interactions`
+
+.. code-block:: json
+
+    ["gp130", "SOCS3"], 
+    ["gp130","STAT3"]
+    ["R","STAT1"], 
+    ["R","R"],
+    ["R","SOCS1"],
+    ["STAT1","gp130"]
+
+to get the final input file 
+
+{
+    "binding_interactions": [
+        ["gp80", "gp80"],
+        ["SOS", "Ras"],
+        ["R","SHP2"],
+        ["R","STAT3"],
+        ["R","STAT1"],
+        ["R","R"],
+        ["R","SOCS1"],
+        ["gp130", "SHP2"],
+        ["STAT1","gp130"],
+        ["STAT3","gp130"],
+        ["gp130", "SOCS3"]
+    ],
+	"modificationDefinition": {
+    "Ras": [],
+    "Ras_GTP": ["Ras"],
+    "Ras_GDP": ["Ras"],
+    "STAT3": [],
+    "STAT3m": ["STAT3"],
+    "STAT3C": ["STAT3"],
+    "STAT3Cm": ["STAT3"],
+    "STAT1": [],
+    "STAT1m": ["STAT1"],
+    "STAT1C": ["STAT1"],
+    "STAT1Cm": ["STAT1"],
+    "JAK": [],
+    "JAKIFN": ["JAK"],
+    "JAKIL_6":["JAK"],
+    "R_JAK": ["R","JAKIFN"],
+    "gp130_JAK": ["gp130", "JAKIL_6"],
+    "IFN_R_JAK2": ["IFN","R_JAK", "IFN","R_JAK"],
+    "IFN_R_JAK2m": ["IFN_R_JAK2"],
+    "IL6_gp80_gp130_JAK2m_STAT1C": ["IL6", "gp80", "gp130", "JAK","IL6", "gp80", "gp130", "JAK","STAT1"]
+	}
+}
+
+and running with this user input file gives us the fully atomized model.
