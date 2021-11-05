@@ -1,4 +1,5 @@
 from bionetgen.modelapi.pattern import Molecule, Pattern
+from bionetgen.modelapi.rulemod import RuleMod
 from bionetgen.modelapi.utils import ActionList
 
 
@@ -413,9 +414,9 @@ class Rule(ModelObj):
         list of patterns for reactants
     products : list[Pattern]
         list of patterns for products
-    rule_mod : str
+    rule_mod : RuleMod
         modifier (moveConnected, TotalRate, etc.) used by a given rule
-    operations : list[str]
+    operations : list[Operation]
         list of operations
 
     Methods
@@ -435,7 +436,7 @@ class Rule(ModelObj):
         reactants=[],
         products=[],
         rate_constants=(),
-        rule_mod="",
+        rule_mod=RuleMod(),
         operations=[],
     ) -> None:
         super().__init__()
@@ -464,7 +465,7 @@ class Rule(ModelObj):
                 self.side_string(self.products),
                 self.rate_constants[0],
                 self.rate_constants[1],
-                self.rule_mod,
+                str(self.rule_mod),
             )
         else:
             return "{}: {} -> {} {} {}".format(
@@ -472,7 +473,7 @@ class Rule(ModelObj):
                 self.side_string(self.reactants),
                 self.side_string(self.products),
                 self.rate_constants[0],
-                self.rule_mod,
+                str(self.rule_mod),
             )
 
     def side_string(self, patterns):

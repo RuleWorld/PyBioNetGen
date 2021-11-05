@@ -4,6 +4,8 @@ from .blocks import FunctionBlock, RuleBlock
 
 from .pattern import Pattern, Molecule, Component
 
+from .rulemod import RuleMod
+
 ###### Base object  ######
 class XMLObj:
     """
@@ -683,7 +685,7 @@ class RuleBlockXML(XMLObj):
 
     def get_rule_mod(self, xml):
         # TODO: create working rule mods class
-        rule_mod = ""
+        rule_mod = RuleMod()
         list_ops = xml["ListOfOperations"]
         ratelaw = xml["RateLaw"]
         # determine which rule mod is being used, if any
@@ -691,52 +693,41 @@ class RuleBlockXML(XMLObj):
             del_op = list_ops["Delete"]
             # check if modifier was called or automatic
             # import IPython; IPython.embed()
-            if isinstance(del_op, list):
-                rule_mod = ""
-            else:
+            if not isinstance(del_op, list):
                 mod_call = del_op["@DeleteMolecules"]
                 if mod_call == "1":
                     # get mod information & add to string
-                    rule_mod += "DeleteMolecules"
-                    mod_id = del_op["@id"]
-                else:
-                    rule_mod = ""
+                    rule_mod.type = "DeleteMolecules"
+                    rule_mod.id = del_op["@id"]
         elif "ChangeCompartment" in list_ops:
             move_op = list_ops["ChangeCompartment"]
             # get mod information & add to string
-            rule_mod += "MoveConnected"
-            mod_id = move_op["@id"]
-            mod_source = move_op["@source"]
-            mod_dest = move_op["@destination"]
-            mod_flip = move_op["@flipOrientation"]
             mod_call = move_op["@moveConnected"]
             # check if modifier was called or automatic
             if mod_call == "1":
-                rule_mod = rule_mod
-            else:
-                rule_mod = ""
+                rule_mod.type = "MoveConnected"
+                rule_mod.id = move_op["@id"]
+                rule_mod.source = move_op["@source"]
+                rule_mod.destination = move_op["@destination"]
+                rule_mod.flip = move_op["@flipOrientation"]
+                rule_mod.call = mod_call
         elif "RateLaw" in xml:
             # check if modifier is called
             rate_type = ratelaw["@type"]
-            if rate_type == "Ele":
-                rule_mod = ""
-            # if called, save information
-            elif rate_type == "Function":
-                rule_mod += "TotalRate "
-                mod_id = ratelaw["@id"]
-                rate_type = ratelaw["@type"]
-                mod_name = ratelaw["@name"]
-                mod_call = ratelaw["@totalrate"]
-            else:
-                rule_mod = ""
+            if rate_type == "Function":
+                rule_mod.type = "TotalRate"
+                rule_mod.id = ratelaw["@id"]
+                rule_mod.rate_type = ratelaw["@type"]
+                rule_mod.name = ratelaw["@name"]
+                rule_mod.call = ratelaw["@totalrate"]
 
         # TODO: add support for include/exclude reactants/products
         if (
-            "ListOfIncludeReactants"
-            or "ListOfIncludeProducts"
-            or "ListOfExcludeReactants"
+            "ListOfIncludeReactants" in xml
+            or "ListOfIncludeProducts" in xml
+            or "ListOfExcludeReactants" in xml
             or "ListOfExcludeProducts" in xml
-        ):
+        ): 
             print(
                 "WARNING: Include/Exclude Reactants/Products not currently supported as rule modifiers"
             )
@@ -757,12 +748,3 @@ class Operation:
         "Add",
         "Delete",
     ]
-
-
-class Rule_Mod:
-    """
-    To be used for parsing & storing rule modifiers.
-    """
-
-    # valid mod types
-    valid_mods = ["DeleteMolecules", "MoveConnected", "TotalRate"]
