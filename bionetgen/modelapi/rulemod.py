@@ -20,11 +20,10 @@ class RuleMod:
     @property
     def type(self):
         return self._type
-    
+
     @type.setter
     def type(self, val):
         if val in self.valid_mod_names or val is None:
             self._type = val
         else:
             print(f"Rule modifier type {val} is not a valid type")
-    

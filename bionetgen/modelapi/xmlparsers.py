@@ -727,7 +727,7 @@ class RuleBlockXML(XMLObj):
             or "ListOfIncludeProducts" in xml
             or "ListOfExcludeReactants" in xml
             or "ListOfExcludeProducts" in xml
-        ): 
+        ):
             print(
                 "WARNING: Include/Exclude Reactants/Products not currently supported as rule modifiers"
             )
