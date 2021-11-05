@@ -530,6 +530,10 @@ class RuleBlockXML(XMLObj):
     resolve_rxn_side(xml)
         parses either reactants or products XML and returns
         a list of Pattern objects
+    get_operations(xml)
+        creates and populates a list of operations and their arguments
+    get_rule_mod(xml)
+        stores rule modifier used by a given rule as a string
     """
 
     def __init__(self, xml):
@@ -539,7 +543,7 @@ class RuleBlockXML(XMLObj):
     def parse_xml(self, xml):
         block = RuleBlock()
 
-        #
+        # check for multiple rules and parse each one
         if isinstance(xml, list):
             for irule, rule in enumerate(xml):
                 name = rule["@name"]
@@ -550,12 +554,16 @@ class RuleBlockXML(XMLObj):
                         "Rule seems to be missing a rate law, please make sure that XML exporter of BNGL supports whatever you are doing!"
                     )
                 rate_constants = [self.resolve_ratelaw(rule["RateLaw"])]
+                rule_modifier = self.get_rule_mod(rule)
+                operations = self.get_operations(rule["ListOfOperations"])
 
                 block.add_rule(
                     name,
                     reactants=reactants,
                     products=products,
                     rate_constants=rate_constants,
+                    rule_mod=rule_modifier,
+                    operations=operations,
                 )
         else:
             name = xml["@name"]
@@ -566,12 +574,16 @@ class RuleBlockXML(XMLObj):
                     "Rule seems to be missing a rate law, please make sure that XML exporter of BNGL supports whatever you are doing!"
                 )
             rate_constants = [self.resolve_ratelaw(xml["RateLaw"])]
+            rule_modifier = self.get_rule_mod(xml)
+            operations = self.get_operations(xml["ListOfOperations"])
 
             block.add_rule(
                 name,
                 reactants=reactants,
                 products=products,
                 rate_constants=rate_constants,
+                rule_mod=rule_modifier,
+                operations=operations,
             )
         block.consolidate_rules()
         return block
@@ -635,3 +647,122 @@ class RuleBlockXML(XMLObj):
             return sl
         else:
             print("Can't parse rule XML {}".format(xml))
+
+    def get_operations(self, xml):
+        # TODO: create working operations class
+        ops = []
+        # List all possible operations & arguments
+        ops_types = [
+            "AddBond",
+            "DeleteBond",
+            "ChangeCompartment",
+            "StateChange",
+            "Add",
+            "Delete",
+        ]
+        op_args = [
+            "@site1",
+            "@site2",
+            "@id",
+            "@source",
+            "@destination",
+            "@flipOrientation",
+            "@moveConnected",
+            "@site",
+            "@finalState",
+            "@DeleteMolecules",
+        ]
+        # Loop through valid arguments and record
+        for op_type in ops_types:
+            if op_type in xml:
+                for op_arg in op_args:
+                    if op_arg in xml:
+                        n_op = xml[op_arg]
+                        ops.append(n_op)
+        return ops
+
+    def get_rule_mod(self, xml):
+        # TODO: create working rule mods class
+        rule_mod = ""
+        list_ops = xml["ListOfOperations"]
+        ratelaw = xml["RateLaw"]
+        # determine which rule mod is being used, if any
+        if "Delete" in list_ops:
+            del_op = list_ops["Delete"]
+            # check if modifier was called or automatic
+            # import IPython; IPython.embed()
+            if isinstance(del_op, list):
+                rule_mod = ""
+            else:
+                mod_call = del_op["@DeleteMolecules"]
+                if mod_call == "1":
+                    # get mod information & add to string
+                    rule_mod += "DeleteMolecules"
+                    mod_id = del_op["@id"]
+                else:
+                    rule_mod = ""
+        elif "ChangeCompartment" in list_ops:
+            move_op = list_ops["ChangeCompartment"]
+            # get mod information & add to string
+            rule_mod += "MoveConnected"
+            mod_id = move_op["@id"]
+            mod_source = move_op["@source"]
+            mod_dest = move_op["@destination"]
+            mod_flip = move_op["@flipOrientation"]
+            mod_call = move_op["@moveConnected"]
+            # check if modifier was called or automatic
+            if mod_call == "1":
+                rule_mod = rule_mod
+            else:
+                rule_mod = ""
+        elif "RateLaw" in xml:
+            # check if modifier is called
+            rate_type = ratelaw["@type"]
+            if rate_type == "Ele":
+                rule_mod = ""
+            # if called, save information
+            elif rate_type == "Function":
+                rule_mod += "TotalRate "
+                mod_id = ratelaw["@id"]
+                rate_type = ratelaw["@type"]
+                mod_name = ratelaw["@name"]
+                mod_call = ratelaw["@totalrate"]
+            else:
+                rule_mod = ""
+
+        # TODO: add support for include/exclude reactants/products
+        if (
+            "ListOfIncludeReactants"
+            or "ListOfIncludeProducts"
+            or "ListOfExcludeReactants"
+            or "ListOfExcludeProducts" in xml
+        ):
+            print(
+                "WARNING: Include/Exclude Reactants/Products not currently supported as rule modifiers"
+            )
+        return rule_mod
+
+
+class Operation:
+    """
+    To be used for parsing & storing ListOfOperations information.
+    """
+
+    # valid operation types
+    valid_ops = [
+        "AddBond",
+        "DeleteBond",
+        "ChangeCompartment",
+        "StateChange",
+        "Add",
+        "Delete",
+    ]
+
+
+class Rule_Mod:
+    """
+    To be used for parsing & storing rule modifiers.
+    """
+
+    # valid mod types
+    valid_mods = ["DeleteMolecules", "MoveConnected", "TotalRate"]

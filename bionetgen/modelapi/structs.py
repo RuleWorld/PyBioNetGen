@@ -169,7 +169,7 @@ class Compartment(ModelObj):
 
 class Observable(ModelObj):
     """
-    Class for all observable in the model, subclass of ModelObj.
+    Class for all observables in the model, subclass of ModelObj.
 
     In BNGL the observables are of the form
         observable_type observable_name observable_patterns
@@ -218,7 +218,7 @@ class Observable(ModelObj):
 
 class MoleculeType(ModelObj):
     """
-    Class for all parameters in the model, subclass of ModelObj.
+    Class for all molecule types in the model, subclass of ModelObj.
 
     In BNGL the molecule types are of the form
         molecule_type
@@ -244,7 +244,7 @@ class MoleculeType(ModelObj):
 
 class Species(ModelObj):
     """
-    Class for all parameters in the model, subclass of ModelObj.
+    Class for all species in the model, subclass of ModelObj.
 
     In BNGL the species/seed species are of the form
         species count
@@ -272,7 +272,7 @@ class Species(ModelObj):
 
 class Function(ModelObj):
     """
-    Class for all parameters in the model, subclass of ModelObj.
+    Class for all functions in the model, subclass of ModelObj.
 
     In BNGL functions are of the form
         function_name function_expression
@@ -308,7 +308,7 @@ class Function(ModelObj):
 
 class Action(ModelObj):
     """
-    Class for all parameters in the model, subclass of ModelObj.
+    Class for all actions in the model, subclass of ModelObj.
 
     In BNGL actions are of the form
         action_type({arg1=>value1, arg2=>value2, ...})
@@ -403,7 +403,7 @@ class Action(ModelObj):
 
 class Rule(ModelObj):
     """
-    Class for all parameters in the model, subclass of ModelObj.
+    Class for all rules in the model, subclass of ModelObj.
 
     Attributes
     ----------
@@ -413,6 +413,10 @@ class Rule(ModelObj):
         list of patterns for reactants
     products : list[Pattern]
         list of patterns for products
+    rule_mod : str
+        modifier (moveConnected, TotalRate, etc.) used by a given rule
+    operations : list[str]
+        list of operations
 
     Methods
     -------
@@ -425,11 +429,21 @@ class Rule(ModelObj):
         on one side of a rule definition
     """
 
-    def __init__(self, name, reactants=[], products=[], rate_constants=()) -> None:
+    def __init__(
+        self,
+        name,
+        reactants=[],
+        products=[],
+        rate_constants=(),
+        rule_mod="",
+        operations=[],
+    ) -> None:
         super().__init__()
         self.name = name
         self.reactants = reactants
         self.products = products
+        self.rule_mod = rule_mod
+        self.operations = operations
         self.set_rate_constants(rate_constants)
 
     def set_rate_constants(self, rate_cts):
@@ -444,19 +458,21 @@ class Rule(ModelObj):
 
     def gen_string(self):
         if self.bidirectional:
-            return "{}: {} <-> {} {},{}".format(
+            return "{}: {} <-> {} {},{} {}".format(
                 self.name,
                 self.side_string(self.reactants),
                 self.side_string(self.products),
                 self.rate_constants[0],
                 self.rate_constants[1],
+                self.rule_mod,
             )
         else:
-            return "{}: {} -> {} {}".format(
+            return "{}: {} -> {} {} {}".format(
                 self.name,
                 self.side_string(self.reactants),
                 self.side_string(self.products),
                 self.rate_constants[0],
+                self.rule_mod,
             )
 
     def side_string(self, patterns):
