@@ -402,11 +402,12 @@ which gives
     ERROR:SCT241:IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GDP:
         IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP:produce the same translation:
         ['Grb2', 'IL6', 'IL6', 'JAK', 'JAK_ast', 'Ras_GDP', 'SHP2ast', 'SOS', 'gp130', 'gp130', 
-        'gp80', 'gp80']:IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP:was empied 
+        'gp80', 'gp80']:IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP:was emptied 
 
 We can tell atomizer the composition of `IL6_gp80_gp130_JAKast2_SHP2ast_Grb2_SOS_Ras_GTP` with 
 
 .. code-block:: json
+
     {
         "binding_interactions": [
             ["gp130", "SHP2"],
@@ -488,9 +489,9 @@ which gives us the following set of errors and a reasonably well atomized model
         in the reaction network or provide a new one
     ERROR:SCT241:IL6_gp80_gp130_JAK2m_STAT1:IL6_gp80_gp130_JAK2m_STAT1C:produce the same translation:
         ['IL6', 'IL6', 'JAKIL_6', 'JAKIL_6', 'STAT1C', 'gp130', 'gp130m', 'gp80', 'gp80']:
-        IL6_gp80_gp130_JAK2m_STAT1C:was empied
+        IL6_gp80_gp130_JAK2m_STAT1C:was emptied
     ERROR:SCT241:IFN_R_JAK:IFN_R_JAK2:produce the same translation:['IFN', 'JAK', 'R']:
-        IFN_R_JAK2:was empied
+        IFN_R_JAK2:was emptied
 
 for the first two errors, we add binding interactions ["R", "SHP2"] and ["R", "STAT3"]. The third error
 we notice that atomizer thinks `STAT3C` and `STAT3` are different, we'll address that by adding `modificationDefinition`shell
@@ -530,10 +531,10 @@ atomizing again we get the following errors
     ERROR:ANN202:Phosp1:Phosp3:can be mapped through naming conventions but the annotation information 
         does not match
     ERROR:SCT241:IFN_R_JAK:IFN_R_JAK2:produce the same translation:['IFN', 'JAK', 'R']:IFN_R_JAK2:
-        was empied
+        was emptied
     ERROR:SCT241:IL6_gp80_gp130_JAK2m_STAT1:IL6_gp80_gp130_JAK2m_STAT1C:produce the same translation:
         ['IL6', 'IL6', 'JAKIL_6', 'JAKIL_6', 'STAT1C', 'gp130', 'gp130m', 'gp80', 'gp80']:
-        IL6_gp80_gp130_JAK2m_STAT1C:was empied
+        IL6_gp80_gp130_JAK2m_STAT1C:was emptied
 
 looking at the 3rd and 4th errors, combined with the previous errors, we can see that atomizer is having
 trouble resolving types of JAK molecules. We can add `modificationDefinition`s to help with those and 
@@ -560,7 +561,7 @@ adding these to the user input file and rerunning atomization gives
         does not match
     ERROR:SCT241:IL6_gp80_gp130_JAK2m_STAT1:IL6_gp80_gp130_JAK2m_STAT1C:produce the same translation:
         ['IL6', 'IL6', 'JAKIL_6', 'JAKIL_6m', 'STAT1C', 'gp130', 'gp130', 'gp80', 'gp80']:
-        IL6_gp80_gp130_JAK2m_STAT1C:was empied
+        IL6_gp80_gp130_JAK2m_STAT1C:was emptied
 
 looking at the last error, we should give a `modificationDefinition` for `IL6_gp80_gp130_JAK2m_STAT1C`
 
