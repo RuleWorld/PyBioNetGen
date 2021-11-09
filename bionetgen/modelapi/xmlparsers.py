@@ -687,7 +687,6 @@ class RuleBlockXML(XMLObj):
         # TODO: create working rule mods class
         rule_mod = RuleMod()
         list_ops = xml["ListOfOperations"]
-        ratelaw = xml["RateLaw"]
         # determine which rule mod is being used, if any
         if "Delete" in list_ops:
             del_op = list_ops["Delete"]
@@ -701,20 +700,36 @@ class RuleBlockXML(XMLObj):
                     rule_mod.id = del_op["@id"]
         elif "ChangeCompartment" in list_ops:
             move_op = list_ops["ChangeCompartment"]
-            # get mod information & add to string
-            mod_call = move_op["@moveConnected"]
-            # check if modifier was called or automatic
-            if mod_call == "1":
-                rule_mod.type = "MoveConnected"
-                rule_mod.id = move_op["@id"]
-                rule_mod.source = move_op["@source"]
-                rule_mod.destination = move_op["@destination"]
-                rule_mod.flip = move_op["@flipOrientation"]
-                rule_mod.call = mod_call
+            if not isinstance(move_op, list):
+                # get mod information & add to string
+                mod_call = move_op["@moveConnected"]
+                # check if modifier was called or automatic
+                if mod_call == "1":
+                    rule_mod.type = "MoveConnected"
+                    rule_mod.id = move_op["@id"]
+                    rule_mod.source = move_op["@source"]
+                    rule_mod.destination = move_op["@destination"]
+                    rule_mod.flip = move_op["@flipOrientation"]
+                    rule_mod.call = mod_call
+            else:
+                rule_mod.id = []
+                rule_mod.source = []
+                rule_mod.destination = []
+                rule_mod.flip = []
+                rule_mod.call = []
+                for mo in move_op:
+                    if mo["@moveConnected"] == "1":
+                        rule_mod.type = "MoveConnected"
+                        rule_mod.id.append(move_op["@id"])
+                        rule_mod.source.append(move_op["@source"])
+                        rule_mod.destination.append(move_op["@destination"])
+                        rule_mod.flip.append(move_op["@flipOrientation"])
+                        rule_mod.call.append(mo["@moveConnected"])
         elif "RateLaw" in xml:
             # check if modifier is called
+            ratelaw = xml["RateLaw"]
             rate_type = ratelaw["@type"]
-            if rate_type == "Function":
+            if rate_type == "Function" and ratelaw["@totalrate"] == 1:
                 rule_mod.type = "TotalRate"
                 rule_mod.id = ratelaw["@id"]
                 rule_mod.rate_type = ratelaw["@type"]

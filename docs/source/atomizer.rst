@@ -251,9 +251,9 @@ for `Prot`. We know that protein binds to EGFR so let's include that in a user i
 .. code-block:: json
 
     {
-    "binding_interactions": [
-        ["EGFR", "Prot"]
-    ]
+        "binding_interactions": [
+            ["EGFR", "Prot"]
+        ]
     }
 
 and now rerunning the atomization using this user input file
@@ -269,14 +269,14 @@ section in the user input file
 .. code-block:: json
 
     {
-    "binding_interactions": [
-        ["EGFR", "Prot"]
-    ],
-    "modificationDefinition": {
-        "Ras": [],
-        "Ras_GTP": ["Ras"],
-        "Ras_GDP": ["Ras"]
-      }
+        "binding_interactions": [
+            ["EGFR", "Prot"]
+        ],
+        "modificationDefinition": {
+            "Ras": [],
+            "Ras_GTP": ["Ras"],
+            "Ras_GDP": ["Ras"]
+        }
     }
 
 rerunning atomization using this user input gives a fully atomized BNGL file. 

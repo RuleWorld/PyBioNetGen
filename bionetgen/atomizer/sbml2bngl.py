@@ -1081,6 +1081,7 @@ class SBML2BNGL:
                 "reactionID": reaction.getId(),
                 "numbers": [0, 0],
                 "modifiers": None,
+                "split_rxn": split_rxn
             }
 
         rReactant = []

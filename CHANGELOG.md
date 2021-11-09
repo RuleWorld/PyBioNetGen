@@ -169,3 +169,6 @@ Component states in atomizer outputs are now lexically ordered. Minor bugfix for
 
 ## 0.5.6
 Fixed an atomizer bug where the export wasn't in UTF-8 encoding. Minor bugfix to CLI plotting where the BNGPlotter import was incorrect and added a CLI plotting test case. 
+
+## 0.5.7
+Added parsing support for rule modifiers. Minor bugfix for atomizer. 
