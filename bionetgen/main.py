@@ -381,7 +381,7 @@ class BNGBase(cement.Controller):
         """
         args = self.app.pargs
         visualizeModel(self.app.config, args)
-    
+
     @cement.ex(
         help="",
         arguments=[
@@ -415,7 +415,7 @@ class BNGBase(cement.Controller):
             (
                 ["-m", "--mode"],
                 {
-                    "help": "Diff mode. There are currently two available modes \"subtract\" and \"union\".",
+                    "help": 'Diff mode. There are currently two available modes "subtract" and "union".',
                     "default": "subtract",
                     "type": str,
                 },
@@ -423,8 +423,7 @@ class BNGBase(cement.Controller):
         ],
     )
     def graphdiff(self):
-        """
-        """
+        """ """
         args = self.app.pargs
         graphDiff(self.app.config, args)
 

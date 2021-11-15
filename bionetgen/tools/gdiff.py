@@ -2,21 +2,24 @@ import xmltodict, copy
 
 
 class BNGGdiff:
-    '''
+    """
     Add documentation here
-    '''
+    """
+
     def __init__(self, inp1, inp2, out, mode="subtract") -> None:
         self.input = inp1
         self.input2 = inp2
         self.output = out
         self.colors = {
-            "g1": ["#003480","#6a71aa","#b4b5d4"], 
-            "g2": ["#800000","#b4604e","#dfaea3"], 
-            "intersect": ["#008000","#6eaa5e","#b7d5ac"]
+            "g1": ["#003480", "#6a71aa", "#b4b5d4"],
+            "g2": ["#800000", "#b4604e", "#dfaea3"],
+            "intersect": ["#008000", "#6eaa5e", "#b7d5ac"],
         }
         self.available_modes = ["subtract", "union"]
         if mode not in self.available_modes:
-            raise RuntimeError(f"Mode {mode} is not a valid mode, please choose from {self.available_modes}")
+            raise RuntimeError(
+                f"Mode {mode} is not a valid mode, please choose from {self.available_modes}"
+            )
         self.mode = mode
 
         with open(self.input, "r") as f:
@@ -25,11 +28,14 @@ class BNGGdiff:
             self.gdict_2 = xmltodict.parse(f.read())
 
     def diff_graphs(
-        self, g1, g2, colors={
-            "g1": ["#7b6ef0","#ad9cf6","#d8cdfb"], 
-            "g2": ["#6b0901   ","#b4604e","#dfaea3"], 
-            "intersect": ["#4da33f","#8cc27e","#c6e1bd"]
-        }
+        self,
+        g1,
+        g2,
+        colors={
+            "g1": ["#7b6ef0", "#ad9cf6", "#d8cdfb"],
+            "g2": ["#6b0901   ", "#b4604e", "#dfaea3"],
+            "intersect": ["#4da33f", "#8cc27e", "#c6e1bd"],
+        },
     ):
         """
         Given two XML dictionaries (using xmltodict) of two graphml
@@ -57,7 +63,9 @@ class BNGGdiff:
         elif self.mode == "union":
             self._find_diff_union(g1, g2, diff_gml, colors)
         else:
-            raise RuntimeError(f"Mode {self.mode} is not a valid mode, please choose from {self.available_modes}")
+            raise RuntimeError(
+                f"Mode {self.mode} is not a valid mode, please choose from {self.available_modes}"
+            )
         return diff_gml
 
     def _find_diff_union(self, g1, g2, dg, colors):
@@ -66,7 +74,7 @@ class BNGGdiff:
 
         # we first want to do the regular diff
         self._find_diff(g1, g2, dg, colors)
-        # now we loop over g2 nodes and add them to dg with the right 
+        # now we loop over g2 nodes and add them to dg with the right
         # colors to get the union version
         node_stack = [(["graphml"], [], g2["graphml"])]
         while len(node_stack) > 0:
@@ -78,7 +86,9 @@ class BNGGdiff:
                 # this means we don't have this node in diff graph
                 # we need to add it in
                 curr_dnode = self._add_node_to_graph(curr_node, dg, curr_names)
-                self._color_node(curr_dnode, colors["g2"][self._get_color_id(curr_dnode)])
+                self._color_node(
+                    curr_dnode, colors["g2"][self._get_color_id(curr_dnode)]
+                )
             # if we have graphs in there, add the nodes to the stack
             if "graph" in curr_node.keys():
                 # there is a graph in the node, add the nodes to stack
@@ -98,14 +108,14 @@ class BNGGdiff:
                             curr_node["graph"]["node"],
                         )
                     )
-    
+
     def _add_node_to_graph(self, node, dg, names):
         node_to_add_to = self._get_node_from_names(dg, names[:-1])
         copied_node = copy.deepcopy(node)
         if "graph" in node_to_add_to.keys():
             if isinstance(node_to_add_to["graph"]["node"], list):
                 node_to_add_to["graph"]["node"].append(copied_node)
-            else: 
+            else:
                 # it's a single node and we need to turn
                 # it into a list instead
                 copied_original_node = copy.deepcopy(node_to_add_to["graph"]["node"])
@@ -135,13 +145,21 @@ class BNGGdiff:
                         if g2name is not None or curr_name is not None:
                             if g2name == curr_name:
                                 # we have the node in g2, we color it appropriately
-                                self._color_node(curr_dnode, colors["intersect"][self._get_color_id(curr_dnode)])
+                                self._color_node(
+                                    curr_dnode,
+                                    colors["intersect"][self._get_color_id(curr_dnode)],
+                                )
                             else:
-                                self._color_node(curr_dnode, colors["g1"][self._get_color_id(curr_dnode)])
+                                self._color_node(
+                                    curr_dnode,
+                                    colors["g1"][self._get_color_id(curr_dnode)],
+                                )
                 else:
                     if "data" in curr_dnode.keys():
                         # we don't have the node in g2, we color it appropriately
-                        self._color_node(curr_dnode, colors["g1"][self._get_color_id(curr_dnode)])
+                        self._color_node(
+                            curr_dnode, colors["g1"][self._get_color_id(curr_dnode)]
+                        )
             # if we have graphs in there, add the nodes to the stack
             if "graph" in curr_node.keys():
                 # there is a graph in the node, add the nodes to stack
@@ -205,11 +223,11 @@ class BNGGdiff:
         return node
 
     def _get_node_name(self, node):
-        # node['data'] can be a list if there are 
+        # node['data'] can be a list if there are
         # multiple data types
-        if isinstance(node['data'], list):
+        if isinstance(node["data"], list):
             found = False
-            for datum in node['data']: 
+            for datum in node["data"]:
                 if "y:ProxyAutoBoundsNode" in datum.keys():
                     gnode = datum["y:ProxyAutoBoundsNode"]["y:Realizers"]["y:GroupNode"]
                     if isinstance(gnode, list):
@@ -226,9 +244,11 @@ class BNGGdiff:
                     found = True
             if not found:
                 raise RuntimeError("Can't find a name for nodes")
-        else: 
+        else:
             if "y:ProxyAutoBoundsNode" in node["data"].keys():
-                gnode = node["data"]["y:ProxyAutoBoundsNode"]["y:Realizers"]["y:GroupNode"]
+                gnode = node["data"]["y:ProxyAutoBoundsNode"]["y:Realizers"][
+                    "y:GroupNode"
+                ]
                 if isinstance(gnode, list):
                     name = gnode[0]["y:NodeLabel"]["#text"]
                 else:
@@ -242,32 +262,34 @@ class BNGGdiff:
             else:
                 raise RuntimeError("Can't find a name for nodes")
         return name
-    
+
     def _get_node_fill(self, node):
-        if isinstance(node['data'], list):
+        if isinstance(node["data"], list):
             found = False
-            for datum in node['data']: 
+            for datum in node["data"]:
                 if "y:ProxyAutoBoundsNode" in datum.keys():
                     gnode = datum["y:ProxyAutoBoundsNode"]["y:Realizers"]["y:GroupNode"]
                     if isinstance(gnode, list):
-                        fill = gnode[0]['y:Fill']
+                        fill = gnode[0]["y:Fill"]
                     else:
-                        fill = gnode['y:Fill']
+                        fill = gnode["y:Fill"]
                     found = True
                 elif "y:ShapeNode" in datum.keys():
                     snode = datum["y:ShapeNode"]
                     if isinstance(snode, list):
-                        fill = snode[0]['y:Fill']
+                        fill = snode[0]["y:Fill"]
                     else:
-                        fill = snode['y:Fill']
+                        fill = snode["y:Fill"]
                     found = True
             if not found:
                 raise RuntimeError("Can't find fill for nodes")
         else:
             if "y:ProxyAutoBoundsNode" in node["data"].keys():
-                fill = node["data"]["y:ProxyAutoBoundsNode"]["y:Realizers"]["y:GroupNode"]['y:Fill']
+                fill = node["data"]["y:ProxyAutoBoundsNode"]["y:Realizers"][
+                    "y:GroupNode"
+                ]["y:Fill"]
             elif "y:ShapeNode" in node["data"].keys():
-                fill = node["data"]["y:ShapeNode"]['y:Fill']
+                fill = node["data"]["y:ShapeNode"]["y:Fill"]
             else:
                 raise RuntimeError("Can't find fill for nodes")
         return fill
@@ -326,7 +348,7 @@ class BNGGdiff:
         return node
 
     def _color_node(self, node, color) -> bool:
-        '''
+        """
         This uses yEd attributes to change the color of a node
 
         arguments
@@ -334,7 +356,7 @@ class BNGGdiff:
             color
         returns
             boolean
-        '''
+        """
         fill = self._get_node_fill(node)
         fill["@color"] = color
         return True

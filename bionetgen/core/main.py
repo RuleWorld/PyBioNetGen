@@ -114,6 +114,7 @@ def visualizeModel(config, args):
     viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath)
     viz.run()
 
+
 def graphDiff(config, args):
     # if you set args.bngpath it should take precedence
     config_bngpath = config.get("bionetgen", "bngpath")

@@ -1,6 +1,7 @@
 import os, bionetgen, glob
 from tempfile import TemporaryDirectory
 
+
 class VisResult:
     def __init__(self, input_folder, name=None, vtype=None) -> None:
         self.input_folder = input_folder
