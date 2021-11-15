@@ -192,6 +192,8 @@ class SBML2BNGL:
             self.arule_map = {}
         # Only write epsilon if we must
         self.write_epsilon = False
+        # multi compartment warning flag
+        self.multi_comp_warn = False
 
     def setConversion(self, conversion):
         self.isConversion = conversion
@@ -2746,10 +2748,12 @@ class SBML2BNGL:
             #     self.noCompartment = True
             #     self.bngModel.noCompartment = True
         elif len(allUsedCompartments) > 1:
-            logMess(
-                "WARNING:COMP001",
-                "Multiple compartments are used, please note that Atomizer does not automatically try to infer your compartment topology which is important for how rules fire in cBNGL. Make sure your comparment topology is set correctly after translation",
-            )
+            if not self.multi_comp_warn:
+                logMess(
+                    "WARNING:COMP001",
+                    "Multiple compartments are used, please note that Atomizer does not automatically try to infer your compartment topology which is important for how rules fire in cBNGL. Make sure your comparment topology is set correctly after translation",
+                )
+                self.multi_comp_warn = True
         self.speciesMemory = []
 
     def getSpecies(self, translator={}, parameters=[]):

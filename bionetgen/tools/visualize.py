@@ -1,7 +1,6 @@
 import os, bionetgen, glob
 from tempfile import TemporaryDirectory
 
-
 class VisResult:
     def __init__(self, input_folder, name=None, vtype=None) -> None:
         self.input_folder = input_folder
@@ -77,6 +76,9 @@ class BNGVisualize:
         self.bngpath = bngpath
 
     def run(self) -> VisResult:
+        return self._normal_mode()
+
+    def _normal_mode(self):
         model = bionetgen.modelapi.bngmodel(self.input)
         model.actions.clear_actions()
         if self.vtype == "all":

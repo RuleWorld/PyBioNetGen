@@ -6,3 +6,4 @@ from .plot import BNGPlotter
 from .info import BNGInfo
 from .cli import BNGCLI
 from .visualize import BNGVisualize
+from .gdiff import BNGGdiff

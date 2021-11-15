@@ -9,6 +9,7 @@ from .core.main import plotDAT
 from .core.main import runAtomizeTool
 from .core.main import printInfo
 from .core.main import visualizeModel
+from .core.main import graphDiff
 from .core.notebook import BNGNotebook
 
 # pull defaults defined in core/defaults
@@ -380,6 +381,52 @@ class BNGBase(cement.Controller):
         """
         args = self.app.pargs
         visualizeModel(self.app.config, args)
+    
+    @cement.ex(
+        help="",
+        arguments=[
+            (
+                ["-i", "--input"],
+                {
+                    "help": "Path to the first graphml file to diff",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-i2", "--input2"],
+                {
+                    "help": "Path to the second graphml file to diff",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-o", "--output"],
+                {
+                    "help": "Output graphml file for the diff",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-m", "--mode"],
+                {
+                    "help": "Diff mode. There are currently two available modes \"subtract\" and \"union\".",
+                    "default": "subtract",
+                    "type": str,
+                },
+            ),
+        ],
+    )
+    def graphdiff(self):
+        """
+        """
+        args = self.app.pargs
+        graphDiff(self.app.config, args)
 
     @cement.ex(
         help="SBML to BNGL translator",
