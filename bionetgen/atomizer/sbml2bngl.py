@@ -160,6 +160,8 @@ class SBML2BNGL:
         # 1.0, remove that and write a normal model without compartments
         # The following will give access to all methods to this information
         self.noCompartment = None
+        # multi compartment warning flag
+        self.multi_comp_warn = False
         self.check_noCompartment()
 
         self.getSpecies()
@@ -192,8 +194,6 @@ class SBML2BNGL:
             self.arule_map = {}
         # Only write epsilon if we must
         self.write_epsilon = False
-        # multi compartment warning flag
-        self.multi_comp_warn = False
 
     def setConversion(self, conversion):
         self.isConversion = conversion

@@ -1,4 +1,4 @@
-import xmltodict, copy
+import xmltodict, copy, os
 
 
 class BNGGdiff:
@@ -11,9 +11,9 @@ class BNGGdiff:
         self.input2 = inp2
         self.output = out
         self.colors = {
-            "g1": ["#003480", "#6a71aa", "#b4b5d4"],
-            "g2": ["#800000", "#b4604e", "#dfaea3"],
-            "intersect": ["#008000", "#6eaa5e", "#b7d5ac"],
+            "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
+            "g2": ["#ff9e81", "#ffbfaa", "#ffdfd4"],
+            "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
         }
         self.available_modes = ["subtract", "union"]
         if mode not in self.available_modes:
@@ -32,9 +32,9 @@ class BNGGdiff:
         g1,
         g2,
         colors={
-            "g1": ["#7b6ef0", "#ad9cf6", "#d8cdfb"],
-            "g2": ["#6b0901   ", "#b4604e", "#dfaea3"],
-            "intersect": ["#4da33f", "#8cc27e", "#c6e1bd"],
+            "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
+            "g2": ["#c4ed9e", "#d9f4be", "#ecf9df"],
+            "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
         },
     ):
         """
@@ -160,6 +160,11 @@ class BNGGdiff:
                         self._color_node(
                             curr_dnode, colors["g1"][self._get_color_id(curr_dnode)]
                         )
+                # This is to color each graph separately
+                self._color_node(curr_node, colors["g1"][self._get_color_id(curr_node)])
+                # resizing fonts
+                self._resize_node_font(curr_dnode, self._get_font_size(curr_dnode)+20)
+                self._resize_node_font(curr_node, self._get_font_size(curr_node)+20)
             # if we have graphs in there, add the nodes to the stack
             if "graph" in curr_node.keys():
                 # there is a graph in the node, add the nodes to stack
@@ -222,80 +227,57 @@ class BNGGdiff:
             return None
         return node
 
+    def _get_node_properties(self, node):
+        if isinstance(node["data"], list):
+            found = False
+            for datum in node["data"]:
+                if "y:ProxyAutoBoundsNode" in datum.keys():
+                    gnode = datum["y:ProxyAutoBoundsNode"]["y:Realizers"]["y:GroupNode"]
+                    if isinstance(gnode, list):
+                        properties = gnode[0]
+                    else:
+                        properties = gnode
+                    found = True
+                elif "y:ShapeNode" in datum.keys():
+                    snode = datum["y:ShapeNode"]
+                    if isinstance(snode, list):
+                        properties = snode[0]
+                    else:
+                        properties = snode
+                    found = True
+            if not found:
+                raise RuntimeError("Can't find properties for nodes")
+        else:
+            if "y:ProxyAutoBoundsNode" in node["data"].keys():
+                properties = node["data"]["y:ProxyAutoBoundsNode"]["y:Realizers"][
+                    "y:GroupNode"
+                ]
+            elif "y:ShapeNode" in node["data"].keys():
+                properties = node["data"]["y:ShapeNode"]
+            else:
+                raise RuntimeError("Can't find properties for nodes")
+        return properties
+
     def _get_node_name(self, node):
         # node['data'] can be a list if there are
         # multiple data types
-        if isinstance(node["data"], list):
-            found = False
-            for datum in node["data"]:
-                if "y:ProxyAutoBoundsNode" in datum.keys():
-                    gnode = datum["y:ProxyAutoBoundsNode"]["y:Realizers"]["y:GroupNode"]
-                    if isinstance(gnode, list):
-                        name = gnode[0]["y:NodeLabel"]["#text"]
-                    else:
-                        name = gnode["y:NodeLabel"]["#text"]
-                    found = True
-                elif "y:ShapeNode" in datum.keys():
-                    snode = datum["y:ShapeNode"]
-                    if isinstance(snode, list):
-                        name = snode[0]["y:NodeLabel"]["#text"]
-                    else:
-                        name = snode["y:NodeLabel"]["#text"]
-                    found = True
-            if not found:
-                raise RuntimeError("Can't find a name for nodes")
-        else:
-            if "y:ProxyAutoBoundsNode" in node["data"].keys():
-                gnode = node["data"]["y:ProxyAutoBoundsNode"]["y:Realizers"][
-                    "y:GroupNode"
-                ]
-                if isinstance(gnode, list):
-                    name = gnode[0]["y:NodeLabel"]["#text"]
-                else:
-                    name = gnode["y:NodeLabel"]["#text"]
-            elif "y:ShapeNode" in node["data"].keys():
-                snode = node["data"]["y:ShapeNode"]
-                if isinstance(snode, list):
-                    name = snode[0]["y:NodeLabel"]["#text"]
-                else:
-                    name = snode["y:NodeLabel"]["#text"]
-            else:
-                raise RuntimeError("Can't find a name for nodes")
-        return name
+        properties = self._get_node_properties(node)
+        return properties["y:NodeLabel"]["#text"]
 
     def _get_node_fill(self, node):
-        if isinstance(node["data"], list):
-            found = False
-            for datum in node["data"]:
-                if "y:ProxyAutoBoundsNode" in datum.keys():
-                    gnode = datum["y:ProxyAutoBoundsNode"]["y:Realizers"]["y:GroupNode"]
-                    if isinstance(gnode, list):
-                        fill = gnode[0]["y:Fill"]
-                    else:
-                        fill = gnode["y:Fill"]
-                    found = True
-                elif "y:ShapeNode" in datum.keys():
-                    snode = datum["y:ShapeNode"]
-                    if isinstance(snode, list):
-                        fill = snode[0]["y:Fill"]
-                    else:
-                        fill = snode["y:Fill"]
-                    found = True
-            if not found:
-                raise RuntimeError("Can't find fill for nodes")
-        else:
-            if "y:ProxyAutoBoundsNode" in node["data"].keys():
-                fill = node["data"]["y:ProxyAutoBoundsNode"]["y:Realizers"][
-                    "y:GroupNode"
-                ]["y:Fill"]
-            elif "y:ShapeNode" in node["data"].keys():
-                fill = node["data"]["y:ShapeNode"]["y:Fill"]
-            else:
-                raise RuntimeError("Can't find fill for nodes")
-        return fill
+        properties = self._get_node_properties(node)
+        return properties["y:Fill"]
 
     def _get_node_color(self, node):
         return self._get_node_fill(node)["@color"]
+
+    def _resize_node_font(self, node, size):
+        properties = self._get_node_properties(node)
+        properties["y:NodeLabel"]["@fontSize"] = str(size)
+    
+    def _get_font_size(self, node):
+        properties = self._get_node_properties(node)
+        return int(properties["y:NodeLabel"]["@fontSize"])
 
     def _get_color_id(self, node):
         # FIXME: This should be fixed at bng level by attaching
@@ -370,7 +352,11 @@ class BNGGdiff:
 
     def run(self) -> None:
         # Now we have the graphml files, now we do diff
-        diff_dict = self.diff_graphs(self.gdict_1, self.gdict_2)
+        diff_dict = self.diff_graphs(self.gdict_1, self.gdict_2, self.colors)
         # now write gml as graphml
         with open(self.output, "w") as f:
             f.write(xmltodict.unparse(diff_dict))
+        # write recolored g1
+        g1_recolor_name = os.path.basename(self.input).replace(".graphml", "_recolored.graphml")
+        with open(g1_recolor_name, "w") as f:
+            f.write(xmltodict.unparse(self.gdict_1))
