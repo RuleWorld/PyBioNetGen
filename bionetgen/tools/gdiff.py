@@ -60,54 +60,65 @@ class BNGGdiff:
         diff_gml = copy.deepcopy(g1)
         if self.mode == "subtract":
             self._find_diff(g1, g2, diff_gml, colors)
-        elif self.mode == "union":
-            self._find_diff_union(g1, g2, diff_gml, colors)
+            # now write gml as graphml
+            with open(self.output, "w") as f:
+                f.write(xmltodict.unparse(diff_gml))
+            # write recolored g1
+            g1_recolor_name = os.path.basename(self.input).replace(".graphml", "_recolored.graphml")
+            with open(g1_recolor_name, "w") as f:
+                f.write(xmltodict.unparse(self.gdict_1))
+            # write recolored g2
+            g2_recolor_name = os.path.basename(self.input2).replace(".graphml", "_recolored.graphml")
+            with open(g2_recolor_name, "w") as f:
+                f.write(xmltodict.unparse(self.gdict_2))
+        # elif self.mode == "union":
+        #     self._find_diff_union(g1, g2, diff_gml, colors)
         else:
             raise RuntimeError(
                 f"Mode {self.mode} is not a valid mode, please choose from {self.available_modes}"
             )
         return diff_gml
 
-    def _find_diff_union(self, g1, g2, dg, colors):
-        # FIXME: Global IDs are not fixed, we need to adjust
-        # IDs and similarly fix edges accordingly
+    # def _find_diff_union(self, g1, g2, dg, colors):
+    #     # FIXME: Global IDs are not fixed, we need to adjust
+    #     # IDs and similarly fix edges accordingly
 
-        # we first want to do the regular diff
-        self._find_diff(g1, g2, dg, colors)
-        # now we loop over g2 nodes and add them to dg with the right
-        # colors to get the union version
-        node_stack = [(["graphml"], [], g2["graphml"])]
-        while len(node_stack) > 0:
-            curr_node = None
-            curr_keys, curr_names, curr_node = node_stack.pop(-1)
-            # let's take a look at the difference
-            dnode = self._get_node_from_names(dg, curr_names)
-            if dnode is None and len(curr_names) > 0:
-                # this means we don't have this node in diff graph
-                # we need to add it in
-                curr_dnode = self._add_node_to_graph(curr_node, dg, curr_names)
-                self._color_node(
-                    curr_dnode, colors["g2"][self._get_color_id(curr_dnode)]
-                )
-            # if we have graphs in there, add the nodes to the stack
-            if "graph" in curr_node.keys():
-                # there is a graph in the node, add the nodes to stack
-                if isinstance(curr_node["graph"]["node"], list):
-                    for inode, node in enumerate(curr_node["graph"]["node"]):
-                        ckey = curr_keys + [node["@id"]]
-                        node_stack.append(
-                            (ckey, curr_names + [self._get_node_name(node)], node)
-                        )
-                else:
-                    ckey = curr_keys + [curr_node["graph"]["node"]["@id"]]
-                    node_stack.append(
-                        (
-                            ckey,
-                            curr_names
-                            + [self._get_node_name(curr_node["graph"]["node"])],
-                            curr_node["graph"]["node"],
-                        )
-                    )
+    #     # we first want to do the regular diff
+    #     self._find_diff(g1, g2, dg, colors)
+    #     # now we loop over g2 nodes and add them to dg with the right
+    #     # colors to get the union version
+    #     node_stack = [(["graphml"], [], g2["graphml"])]
+    #     while len(node_stack) > 0:
+    #         curr_node = None
+    #         curr_keys, curr_names, curr_node = node_stack.pop(-1)
+    #         # let's take a look at the difference
+    #         dnode = self._get_node_from_names(dg, curr_names)
+    #         if dnode is None and len(curr_names) > 0:
+    #             # this means we don't have this node in diff graph
+    #             # we need to add it in
+    #             curr_dnode = self._add_node_to_graph(curr_node, dg, curr_names)
+    #             self._color_node(
+    #                 curr_dnode, colors["g2"][self._get_color_id(curr_dnode)]
+    #             )
+    #         # if we have graphs in there, add the nodes to the stack
+    #         if "graph" in curr_node.keys():
+    #             # there is a graph in the node, add the nodes to stack
+    #             if isinstance(curr_node["graph"]["node"], list):
+    #                 for inode, node in enumerate(curr_node["graph"]["node"]):
+    #                     ckey = curr_keys + [node["@id"]]
+    #                     node_stack.append(
+    #                         (ckey, curr_names + [self._get_node_name(node)], node)
+    #                     )
+    #             else:
+    #                 ckey = curr_keys + [curr_node["graph"]["node"]["@id"]]
+    #                 node_stack.append(
+    #                     (
+    #                         ckey,
+    #                         curr_names
+    #                         + [self._get_node_name(curr_node["graph"]["node"])],
+    #                         curr_node["graph"]["node"],
+    #                     )
+    #                 )
 
     def _add_node_to_graph(self, node, dg, names):
         node_to_add_to = self._get_node_from_names(dg, names[:-1])
@@ -160,11 +171,6 @@ class BNGGdiff:
                         self._color_node(
                             curr_dnode, colors["g1"][self._get_color_id(curr_dnode)]
                         )
-                # This is to color each graph separately
-                self._color_node(curr_node, colors["g1"][self._get_color_id(curr_node)])
-                # resizing fonts
-                self._resize_node_font(curr_dnode, self._get_font_size(curr_dnode)+20)
-                self._resize_node_font(curr_node, self._get_font_size(curr_node)+20)
             # if we have graphs in there, add the nodes to the stack
             if "graph" in curr_node.keys():
                 # there is a graph in the node, add the nodes to stack
@@ -198,6 +204,67 @@ class BNGGdiff:
                             curr_dnames
                             + [self._get_node_name(curr_dnode["graph"]["node"])],
                             curr_dnode["graph"]["node"],
+                        )
+                    )
+        # let's recolor both graphs
+        self._recolor_graph(self.gdict_1, self.colors["g1"])
+        self._recolor_graph(self.gdict_2, self.colors["g2"])
+        # resize all fonts, this adds +20
+        self._resize_fonts(self.gdict_1, 20)
+        self._resize_fonts(self.gdict_2, 20)
+        self._resize_fonts(dg, 20)
+    
+    def _recolor_graph(self, g, color_list):
+        node_stack = [(["graphml"], [], g["graphml"])]
+        while len(node_stack) > 0:
+            curr_node, curr_dnode = None, None
+            curr_keys, curr_names, curr_node = node_stack.pop(-1)
+            if len(curr_names) > 0:
+                self._color_node(curr_node, color_list[self._get_color_id(curr_node)])
+            # if we have graphs in there, add the nodes to the stack
+            if "graph" in curr_node.keys():
+                # there is a graph in the node, add the nodes to stack
+                if isinstance(curr_node["graph"]["node"], list):
+                    for inode, node in enumerate(curr_node["graph"]["node"]):
+                        ckey = curr_keys + [node["@id"]]
+                        node_stack.append(
+                            (ckey, curr_names + [self._get_node_name(node)], node)
+                        )
+                else:
+                    ckey = curr_keys + [curr_node["graph"]["node"]["@id"]]
+                    node_stack.append(
+                        (
+                            ckey,
+                            curr_names
+                            + [self._get_node_name(curr_node["graph"]["node"])],
+                            curr_node["graph"]["node"],
+                        )
+                    )
+    
+    def _resize_fonts(self, g, add_to_font):
+        node_stack = [(["graphml"], [], g["graphml"])]
+        while len(node_stack) > 0:
+            curr_node, curr_dnode = None, None
+            curr_keys, curr_names, curr_node = node_stack.pop(-1)
+            if len(curr_names) > 0:
+                self._resize_node_font(curr_node, add_to_font)
+            # if we have graphs in there, add the nodes to the stack
+            if "graph" in curr_node.keys():
+                # there is a graph in the node, add the nodes to stack
+                if isinstance(curr_node["graph"]["node"], list):
+                    for inode, node in enumerate(curr_node["graph"]["node"]):
+                        ckey = curr_keys + [node["@id"]]
+                        node_stack.append(
+                            (ckey, curr_names + [self._get_node_name(node)], node)
+                        )
+                else:
+                    ckey = curr_keys + [curr_node["graph"]["node"]["@id"]]
+                    node_stack.append(
+                        (
+                            ckey,
+                            curr_names
+                            + [self._get_node_name(curr_node["graph"]["node"])],
+                            curr_node["graph"]["node"],
                         )
                     )
 
@@ -352,11 +419,4 @@ class BNGGdiff:
 
     def run(self) -> None:
         # Now we have the graphml files, now we do diff
-        diff_dict = self.diff_graphs(self.gdict_1, self.gdict_2, self.colors)
-        # now write gml as graphml
-        with open(self.output, "w") as f:
-            f.write(xmltodict.unparse(diff_dict))
-        # write recolored g1
-        g1_recolor_name = os.path.basename(self.input).replace(".graphml", "_recolored.graphml")
-        with open(g1_recolor_name, "w") as f:
-            f.write(xmltodict.unparse(self.gdict_1))
+        self.diff_graphs(self.gdict_1, self.gdict_2, self.colors)
