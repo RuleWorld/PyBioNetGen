@@ -64,11 +64,15 @@ class BNGGdiff:
             with open(self.output, "w") as f:
                 f.write(xmltodict.unparse(diff_gml))
             # write recolored g1
-            g1_recolor_name = os.path.basename(self.input).replace(".graphml", "_recolored.graphml")
+            g1_recolor_name = os.path.basename(self.input).replace(
+                ".graphml", "_recolored.graphml"
+            )
             with open(g1_recolor_name, "w") as f:
                 f.write(xmltodict.unparse(self.gdict_1))
             # write recolored g2
-            g2_recolor_name = os.path.basename(self.input2).replace(".graphml", "_recolored.graphml")
+            g2_recolor_name = os.path.basename(self.input2).replace(
+                ".graphml", "_recolored.graphml"
+            )
             with open(g2_recolor_name, "w") as f:
                 f.write(xmltodict.unparse(self.gdict_2))
         # elif self.mode == "union":
@@ -213,7 +217,7 @@ class BNGGdiff:
         self._resize_fonts(self.gdict_1, 20)
         self._resize_fonts(self.gdict_2, 20)
         self._resize_fonts(dg, 20)
-    
+
     def _recolor_graph(self, g, color_list):
         node_stack = [(["graphml"], [], g["graphml"])]
         while len(node_stack) > 0:
@@ -240,7 +244,7 @@ class BNGGdiff:
                             curr_node["graph"]["node"],
                         )
                     )
-    
+
     def _resize_fonts(self, g, add_to_font):
         node_stack = [(["graphml"], [], g["graphml"])]
         while len(node_stack) > 0:
@@ -341,7 +345,7 @@ class BNGGdiff:
     def _resize_node_font(self, node, size):
         properties = self._get_node_properties(node)
         properties["y:NodeLabel"]["@fontSize"] = str(size)
-    
+
     def _get_font_size(self, node):
         properties = self._get_node_properties(node)
         return int(properties["y:NodeLabel"]["@fontSize"])
