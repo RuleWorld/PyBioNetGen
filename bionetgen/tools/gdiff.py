@@ -6,7 +6,7 @@ class BNGGdiff:
     Add documentation here
     """
 
-    def __init__(self, inp1, inp2, out, mode="subtract") -> None:
+    def __init__(self, inp1, inp2, out, mode="matrix") -> None:
         self.input = inp1
         self.input2 = inp2
         self.output = out
@@ -15,7 +15,7 @@ class BNGGdiff:
             "g2": ["#ff9e81", "#ffbfaa", "#ffdfd4"],
             "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
         }
-        self.available_modes = ["subtract", "union"]
+        self.available_modes = ["matrix", "union"]
         if mode not in self.available_modes:
             raise RuntimeError(
                 f"Mode {mode} is not a valid mode, please choose from {self.available_modes}"
@@ -57,8 +57,8 @@ class BNGGdiff:
         """
         # first do a deepcopy so we don't have to
         # manually do add boilerpate
-        diff_gml = copy.deepcopy(g1)
-        if self.mode == "subtract":
+        if self.mode == "matrix":
+            diff_gml = copy.deepcopy(g1)
             self._find_diff(g1, g2, diff_gml, colors)
             # now write gml as graphml
             with open(self.output, "w") as f:
@@ -68,13 +68,30 @@ class BNGGdiff:
                 ".graphml", "_recolored.graphml"
             )
             with open(g1_recolor_name, "w") as f:
-                f.write(xmltodict.unparse(self.gdict_1))
+                f.write(xmltodict.unparse(self.gdict_1_recolor))
             # write recolored g2
             g2_recolor_name = os.path.basename(self.input2).replace(
                 ".graphml", "_recolored.graphml"
             )
             with open(g2_recolor_name, "w") as f:
-                f.write(xmltodict.unparse(self.gdict_2))
+                f.write(xmltodict.unparse(self.gdict_2_recolor))
+            # let's do the reverse
+            diff_gml = copy.deepcopy(g2)
+            self._find_diff(
+                g2,
+                g1,
+                diff_gml,
+                colors={
+                    "g1": colors["g2"],
+                    "g2": colors["g1"],
+                    "intersect": colors["intersect"],
+                },
+            )
+            rev_diff_name = os.path.basename(self.output).replace(
+                ".graphml", "_rev.graphml"
+            )
+            with open(rev_diff_name, "w") as f:
+                f.write(xmltodict.unparse(diff_gml))
         # elif self.mode == "union":
         #     self._find_diff_union(g1, g2, diff_gml, colors)
         else:
@@ -211,15 +228,16 @@ class BNGGdiff:
                         )
                     )
         # let's recolor both graphs
-        self._recolor_graph(self.gdict_1, self.colors["g1"])
-        self._recolor_graph(self.gdict_2, self.colors["g2"])
+        self.gdict_1_recolor = self._recolor_graph(self.gdict_1, self.colors["g1"])
+        self.gdict_2_recolor = self._recolor_graph(self.gdict_2, self.colors["g2"])
         # resize all fonts, this adds +20
         self._resize_fonts(self.gdict_1, 20)
         self._resize_fonts(self.gdict_2, 20)
         self._resize_fonts(dg, 20)
 
     def _recolor_graph(self, g, color_list):
-        node_stack = [(["graphml"], [], g["graphml"])]
+        recol_g = copy.deepcopy(g)
+        node_stack = [(["graphml"], [], recol_g["graphml"])]
         while len(node_stack) > 0:
             curr_node, curr_dnode = None, None
             curr_keys, curr_names, curr_node = node_stack.pop(-1)
@@ -244,6 +262,7 @@ class BNGGdiff:
                             curr_node["graph"]["node"],
                         )
                     )
+        return recol_g
 
     def _resize_fonts(self, g, add_to_font):
         node_stack = [(["graphml"], [], g["graphml"])]

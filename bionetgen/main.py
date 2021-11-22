@@ -415,8 +415,8 @@ class BNGBase(cement.Controller):
             (
                 ["-m", "--mode"],
                 {
-                    "help": 'Diff mode. There are currently two available modes "subtract" and "union".',
-                    "default": "subtract",
+                    "help": 'Diff mode. There are currently two available modes "matrix" and "union".',
+                    "default": "matrix",
                     "type": str,
                 },
             ),
