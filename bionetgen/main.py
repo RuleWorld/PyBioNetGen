@@ -383,7 +383,10 @@ class BNGBase(cement.Controller):
         visualizeModel(self.app.config, args)
 
     @cement.ex(
-        help="",
+        help="A subcommand to compare two contact maps made by BioNetGen. " +
+        "The default mode is \"matrix\" mode and will generate 4 graphs, two for each individual input " +
+        "recolored, one for input 1 - input 2 and one for input 2 - input 1. This can be used to find " +
+        "differences and communalities between two BNGL models of the same process. ",
         arguments=[
             (
                 ["-i", "--input"],
@@ -406,10 +409,19 @@ class BNGBase(cement.Controller):
             (
                 ["-o", "--output"],
                 {
-                    "help": "Output graphml file for the diff",
+                    "help": "(optional) Output graphml file for the diff input 1 - input 2",
                     "default": None,
                     "type": str,
-                    "required": True,
+                    "required": False,
+                },
+            ),
+            (
+                ["-o2", "--output2"],
+                {
+                    "help": "(optional) Output graphml file for the diff input 2 - input 1",
+                    "default": None,
+                    "type": str,
+                    "required": False,
                 },
             ),
             (

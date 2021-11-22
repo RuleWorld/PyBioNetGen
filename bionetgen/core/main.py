@@ -118,5 +118,5 @@ def visualizeModel(config, args):
 def graphDiff(config, args):
     # if you set args.bngpath it should take precedence
     config_bngpath = config.get("bionetgen", "bngpath")
-    gdiff = BNGGdiff(args.input, args.input2, args.output, args.mode)
+    gdiff = BNGGdiff(args.input, args.input2, args.output, args.output2, args.mode)
     gdiff.run()
