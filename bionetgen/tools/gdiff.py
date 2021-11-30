@@ -331,8 +331,6 @@ class BNGGdiff:
         while len(node_stack) > 0:
             curr_keys, curr_names, curr_node = node_stack.pop(-1)
             curr_dkeys, curr_dnames, curr_dnode = dnode_stack.pop(-1)
-            #
-            print(f"curr names: {curr_names}")
             # write down ID map
             rename_map[self._get_node_id(curr_node)] = self._get_node_id(curr_node)
             # let's take a look at the difference
