@@ -112,7 +112,7 @@ class BNGGdiff:
                 ".graphml", "_recolored.graphml"
             )
             with open(g2_recolor_name, "w") as f:
-                xmltodict.unparse(self.gdict_2_recolo, output=f)
+                xmltodict.unparse(self.gdict_2_recolor, output=f)
             # let's do the reverse
             diff_gml = copy.deepcopy(g2)
             self._find_diff(
@@ -135,7 +135,6 @@ class BNGGdiff:
             g2_name = os.path.basename(self.input2).replace(".graphml", "")
             union_name = f"{g1_name}_{g2_name}_union.graphml"
             self._find_diff_union(g1, g2, union_gml, colors)
-            # import IPython;IPython.embed()
             with open(union_name, "w") as f:
                 xmltodict.unparse(union_gml, output=f)
             return union_gml
@@ -167,8 +166,6 @@ class BNGGdiff:
                     curr_dnode = self._add_node_to_graph(
                         curr_node, dg, curr_names, colors=colors, rmap=rename_map
                     )
-                    # if self._get_node_name(curr_dnode) == "GAP":
-                    #     import IPython;IPython.embed()
                 else:
                     rename_map[self._get_node_id(curr_node)] = self._get_node_id(dgnode)
             elif dnode is not None and len(curr_names) > 0:
@@ -280,8 +277,6 @@ class BNGGdiff:
                 if "@id" in copied_node["graph"]:
                     copied_node["graph"]["@id"] = self._get_node_id(copied_node) + ":"
                 node_stack = [([], [], copied_node)]
-                # if self._get_node_name(copied_node) == "GAP":
-                #     import ipdb;ipdb.set_trace()
                 while len(node_stack) > 0:
                     curr_keys, curr_names, curr_node = node_stack.pop(-1)
                     # Do stuff here
@@ -336,6 +331,8 @@ class BNGGdiff:
         while len(node_stack) > 0:
             curr_keys, curr_names, curr_node = node_stack.pop(-1)
             curr_dkeys, curr_dnames, curr_dnode = dnode_stack.pop(-1)
+            #
+            print(f"curr names: {curr_names}")
             # write down ID map
             rename_map[self._get_node_id(curr_node)] = self._get_node_id(curr_node)
             # let's take a look at the difference
@@ -348,7 +345,6 @@ class BNGGdiff:
                     # also check for name
                     if "data" in g2node.keys():
                         g2name = self._get_node_name(g2node)
-
                         if g2name is not None or curr_name is not None:
                             if g2name == curr_name:
                                 # we have the node in g2, we color it appropriately

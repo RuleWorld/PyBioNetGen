@@ -178,3 +178,6 @@ Added a new subcommand called graphdiff that can calculate differences between t
 
 ## 0.5.9
 First working version of the `union` mode for the `graphdiff` subcommand
+
+## 0.6.0
+Bugfix for `graphdiff` subcommand, `matrix` mode
