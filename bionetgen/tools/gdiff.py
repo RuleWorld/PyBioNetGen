@@ -87,66 +87,91 @@ class BNGGdiff:
             values are color hex strings for the colors you want for graph 1,
             graph 2 and the color for common elements between the two graphs.
 
-         Returns
+        Returns
         -------
         diff : dict
-            A dictionary for the XML file of the difference graph. Can be
-            converted back to an XML file using `xmltodict` function `unparse`.
+            A dictionary of graphs each of which is a dictionary for the XML file
+            of the difference graph. Can be converted back to an XML file using 
+            `xmltodict` function `unparse`. Each key in the dictionary returned by
+            this function is the intended file name for that graph.
         """
         # first do a deepcopy so we don't have to
         # manually do add boilerpate
         if self.mode == "matrix":
-            diff_gml = copy.deepcopy(g1)
-            self._find_diff(g1, g2, diff_gml, colors)
-            # now write gml as graphml
-            with open(self.output, "w") as f:
-                xmltodict.unparse(diff_gml, output=f)
-            # write recolored g1
+            graphs = {}
+            diff_gml, _ = self._find_diff(g1, g2, colors=colors)
+            graphs[self.output] = diff_gml
+            # save recolored g1
             g1_recolor_name = os.path.basename(self.input).replace(
                 ".graphml", "_recolored.graphml"
             )
-            with open(g1_recolor_name, "w") as f:
-                xmltodict.unparse(self.gdict_1_recolor, output=f)
-            # write recolored g2
+            graphs[g1_recolor_name] = self.gdict_1_recolor
+            # save recolored g2
             g2_recolor_name = os.path.basename(self.input2).replace(
                 ".graphml", "_recolored.graphml"
             )
-            with open(g2_recolor_name, "w") as f:
-                xmltodict.unparse(self.gdict_2_recolor, output=f)
+            graphs[g2_recolor_name] = self.gdict_2_recolor
             # let's do the reverse
-            diff_gml = copy.deepcopy(g2)
-            self._find_diff(
+            diff_gml_2, _ = self._find_diff(
                 g2,
                 g1,
-                diff_gml,
                 colors={
                     "g1": colors["g2"],
                     "g2": colors["g1"],
                     "intersect": colors["intersect"],
                 },
             )
-            with open(self.output2, "w") as f:
-                xmltodict.unparse(diff_gml, output=f)
-            return diff_gml
+            graphs[self.output2] = diff_gml_2
+            return graphs
         elif self.mode == "union":
-            union_gml = copy.deepcopy(g1)
+            graphs = {}
             g1_name = os.path.basename(self.input).replace(".graphml", "")
             # write recolored g2
             g2_name = os.path.basename(self.input2).replace(".graphml", "")
             union_name = f"{g1_name}_{g2_name}_union.graphml"
-            self._find_diff_union(g1, g2, union_gml, colors)
-            with open(union_name, "w") as f:
-                xmltodict.unparse(union_gml, output=f)
-            return union_gml
+            union_gml = self._find_diff_union(g1, g2, colors=colors)
+            graphs[union_name] = union_gml
+            return graphs
         else:
             raise RuntimeError(
                 f"Mode {self.mode} is not a valid mode, please choose from {self.available_modes}"
             )
 
-    def _find_diff_union(self, g1, g2, dg, colors):
+    def _find_diff_union(self, g1, g2, dg=None, colors={
+            "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
+            "g2": ["#c4ed9e", "#d9f4be", "#ecf9df"],
+            "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
+        }):
+        '''
+        Usage: diff_graphs(g1_dict, g2_dict)
+               diff_graphs(g1_dict, g2_dict,
+                    colors={"g1": "#hexstr1",
+                            "g2": "#hexstr2",
+                            "intersect": "#hexstr3"})
+
+        Arguments
+        ---------
+        g1 : dict
+            input dictionary of the input XML file for the first contact map
+        g2 : dict
+            second input dictionary of the second input XML file.
+        dg : dict
+            (optional) dictionary to be modified with the difference. If not given it'll 
+            be a copy of g1 by default. 
+        colors : dict
+            (optional) A dictionary with keys "g1", "g2" and "intersect". The
+            values are color hex strings for the colors you want for graph 1,
+            graph 2 and the color for common elements between the two graphs.
+
+        Returns
+        -------
+        diff : dict
+            A dictionary for the XML file of the difference graph. Can be converted 
+            back to an XML file using `xmltodict` function `unparse`.
+        '''
         # we first want to do the regular diff
         # we'll need to remap g2 names
-        rename_map = self._find_diff(g1, g2, dg, colors)
+        dg, rename_map = self._find_diff(g1, g2, dg=dg, colors=colors)
 
         # now we loop over g2 nodes and add them to dg with the right
         # colors to get the union version
@@ -216,112 +241,16 @@ class BNGGdiff:
                 copied_edge["@id"] = f"e{edge_ctr}"
                 dg["graphml"]["graph"]["edge"].append(copied_edge)
                 edge_ctr += 1
+        
+        return dg
 
-    def _get_node_id(self, node):
-        if "@id" in node:
-            return node["@id"]
-        else:
-            return None
-
-    def _set_node_id(self, node, idstr):
-        if "@id" in node:
-            node["@id"] = idstr
-            return True
-        else:
-            return False
-
-    def _get_id_list(self, idstr):
-        id_str_list = idstr.split("::")
-        id_int_list = [int(x[1:]) for x in id_str_list]
-        return id_int_list
-
-    def _get_id_str(self, id_list):
-        return "::".join([f"n{i}" for i in id_list])
-
-    def _add_node_to_graph(self, node, dg, names, colors=None, rmap={}):
-        node_to_add_to = self._get_node_from_names(dg, names[:-1])
-        copied_node = copy.deepcopy(node)
-        if colors is not None:
-            self._color_node(copied_node, colors["g2"][self._get_color_id(copied_node)])
-        if "graph" in node_to_add_to.keys():
-            if isinstance(node_to_add_to["graph"]["node"], list):
-                # first do renaming
-                node_ids = [
-                    self._get_node_id(node) for node in node_to_add_to["graph"]["node"]
-                ]
-                node_lists = [self._get_id_list(idstr) for idstr in node_ids]
-                new_id = node_lists[-1]
-                new_id[-1] += 1
-                new_id = self._get_id_str(new_id)
-                self._set_node_id(copied_node, new_id)
-                # now we can add
-                node_to_add_to["graph"]["node"].append(copied_node)
-            else:
-                # TODO: check if this is done correctly
-                # it's a single node and we need to turn
-                # it into a list instead
-                copied_original_node = copy.deepcopy(node_to_add_to["graph"]["node"])
-                og_node_id = self._get_node_id(copied_original_node)
-                new_id = self._get_id_list(og_node_id)
-                new_id[-1] += 1
-                new_id = self._get_id_str(new_id)
-                self._set_node_id(copied_node, new_id)
-                nodes_to_add = [copied_original_node, copied_node]
-                node_to_add_to["graph"]["node"] = nodes_to_add
-            # add to rename map
-            rmap[self._get_node_id(node)] = self._get_node_id(copied_node)
-            # TODO: Need to get in there and rename and recolor each
-            # node under the one we just copied
-            if "graph" in copied_node:
-                # let's rename the graph
-                if "@id" in copied_node["graph"]:
-                    copied_node["graph"]["@id"] = self._get_node_id(copied_node) + ":"
-                node_stack = [([], [], copied_node)]
-                while len(node_stack) > 0:
-                    curr_keys, curr_names, curr_node = node_stack.pop(-1)
-                    # Do stuff here
-                    # we need to recolor, re-ID each node and add to rename map
-                    if len(curr_names) > 0:
-                        parent_node = self._get_node_from_names(
-                            copied_node, curr_names[:-1]
-                        )
-                        if colors is not None:
-                            self._color_node(
-                                curr_node, colors["g2"][self._get_color_id(curr_node)]
-                            )
-                        parent_node_id = self._get_node_id(parent_node)
-                        new_id = self._get_id_list(parent_node_id)
-                        curr_id = self._get_id_list(self._get_node_id(curr_node))
-                        new_id += [curr_id[-1]]
-                        new_id = self._get_id_str(new_id)
-                        self._set_node_id(curr_node, new_id)
-                        rmap[self._get_id_str(curr_id)] = new_id
-                    # if we have graphs in there, add the nodes to the stack
-                    if "graph" in curr_node.keys():
-                        # there is a graph in the node, add the nodes to stack
-                        if isinstance(curr_node["graph"]["node"], list):
-                            for inode, node in enumerate(curr_node["graph"]["node"]):
-                                ckey = curr_keys + [node["@id"]]
-                                node_stack.append(
-                                    (
-                                        ckey,
-                                        curr_names + [self._get_node_name(node)],
-                                        node,
-                                    )
-                                )
-                        else:
-                            ckey = curr_keys + [curr_node["graph"]["node"]["@id"]]
-                            node_stack.append(
-                                (
-                                    ckey,
-                                    curr_names
-                                    + [self._get_node_name(curr_node["graph"]["node"])],
-                                    curr_node["graph"]["node"],
-                                )
-                            )
-        return copied_node
-
-    def _find_diff(self, g1, g2, dg, colors):
+    def _find_diff(self, g1, g2, dg=None, colors={
+            "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
+            "g2": ["#c4ed9e", "#d9f4be", "#ecf9df"],
+            "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
+        }):
+        if dg is None:
+            dg = copy.deepcopy(g1)
         # keep track of naming
         rename_map = {}
         # first find differences in nodes
@@ -403,7 +332,7 @@ class BNGGdiff:
         self._resize_fonts(self.gdict_1, 20)
         self._resize_fonts(self.gdict_2, 20)
         self._resize_fonts(dg, 20)
-        return rename_map
+        return dg, rename_map
 
     def _recolor_graph(self, g, color_list):
         recol_g = copy.deepcopy(g)
@@ -616,6 +545,115 @@ class BNGGdiff:
                 return noded[key]["y:NodeLabel"]["#text"]
         return None
 
-    def run(self) -> None:
+    def _get_node_id(self, node):
+        if "@id" in node:
+            return node["@id"]
+        else:
+            return None
+
+    def _set_node_id(self, node, idstr):
+        if "@id" in node:
+            node["@id"] = idstr
+            return True
+        else:
+            return False
+
+    def _get_id_list(self, idstr):
+        id_str_list = idstr.split("::")
+        id_int_list = [int(x[1:]) for x in id_str_list]
+        return id_int_list
+
+    def _get_id_str(self, id_list):
+        return "::".join([f"n{i}" for i in id_list])
+
+    def _add_node_to_graph(self, node, dg, names, colors=None, rmap={}):
+        node_to_add_to = self._get_node_from_names(dg, names[:-1])
+        copied_node = copy.deepcopy(node)
+        if colors is not None:
+            self._color_node(copied_node, colors["g2"][self._get_color_id(copied_node)])
+        if "graph" in node_to_add_to.keys():
+            if isinstance(node_to_add_to["graph"]["node"], list):
+                # first do renaming
+                node_ids = [
+                    self._get_node_id(node) for node in node_to_add_to["graph"]["node"]
+                ]
+                node_lists = [self._get_id_list(idstr) for idstr in node_ids]
+                new_id = node_lists[-1]
+                new_id[-1] += 1
+                new_id = self._get_id_str(new_id)
+                self._set_node_id(copied_node, new_id)
+                # now we can add
+                node_to_add_to["graph"]["node"].append(copied_node)
+            else:
+                # TODO: check if this is done correctly
+                # it's a single node and we need to turn
+                # it into a list instead
+                copied_original_node = copy.deepcopy(node_to_add_to["graph"]["node"])
+                og_node_id = self._get_node_id(copied_original_node)
+                new_id = self._get_id_list(og_node_id)
+                new_id[-1] += 1
+                new_id = self._get_id_str(new_id)
+                self._set_node_id(copied_node, new_id)
+                nodes_to_add = [copied_original_node, copied_node]
+                node_to_add_to["graph"]["node"] = nodes_to_add
+            # add to rename map
+            rmap[self._get_node_id(node)] = self._get_node_id(copied_node)
+            # TODO: Need to get in there and rename and recolor each
+            # node under the one we just copied
+            if "graph" in copied_node:
+                # let's rename the graph
+                if "@id" in copied_node["graph"]:
+                    copied_node["graph"]["@id"] = self._get_node_id(copied_node) + ":"
+                node_stack = [([], [], copied_node)]
+                while len(node_stack) > 0:
+                    curr_keys, curr_names, curr_node = node_stack.pop(-1)
+                    # Do stuff here
+                    # we need to recolor, re-ID each node and add to rename map
+                    if len(curr_names) > 0:
+                        parent_node = self._get_node_from_names(
+                            copied_node, curr_names[:-1]
+                        )
+                        if colors is not None:
+                            self._color_node(
+                                curr_node, colors["g2"][self._get_color_id(curr_node)]
+                            )
+                        parent_node_id = self._get_node_id(parent_node)
+                        new_id = self._get_id_list(parent_node_id)
+                        curr_id = self._get_id_list(self._get_node_id(curr_node))
+                        new_id += [curr_id[-1]]
+                        new_id = self._get_id_str(new_id)
+                        self._set_node_id(curr_node, new_id)
+                        rmap[self._get_id_str(curr_id)] = new_id
+                    # if we have graphs in there, add the nodes to the stack
+                    if "graph" in curr_node.keys():
+                        # there is a graph in the node, add the nodes to stack
+                        if isinstance(curr_node["graph"]["node"], list):
+                            for inode, node in enumerate(curr_node["graph"]["node"]):
+                                ckey = curr_keys + [node["@id"]]
+                                node_stack.append(
+                                    (
+                                        ckey,
+                                        curr_names + [self._get_node_name(node)],
+                                        node,
+                                    )
+                                )
+                        else:
+                            ckey = curr_keys + [curr_node["graph"]["node"]["@id"]]
+                            node_stack.append(
+                                (
+                                    ckey,
+                                    curr_names
+                                    + [self._get_node_name(curr_node["graph"]["node"])],
+                                    curr_node["graph"]["node"],
+                                )
+                            )
+        return copied_node
+
+    def run(self) -> dict:
         # Now we have the graphml files, now we do diff
-        self.diff_graphs(self.gdict_1, self.gdict_2, self.colors)
+        graphs = self.diff_graphs(self.gdict_1, self.gdict_2, self.colors)
+        for graph_name in graphs.keys():
+            # now write gml as graphml
+            with open(graph_name, "w") as f:
+                xmltodict.unparse(graphs[graph_name], output=f)
+        return graphs
