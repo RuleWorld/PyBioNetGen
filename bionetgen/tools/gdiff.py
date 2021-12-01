@@ -91,7 +91,7 @@ class BNGGdiff:
         -------
         diff : dict
             A dictionary of graphs each of which is a dictionary for the XML file
-            of the difference graph. Can be converted back to an XML file using 
+            of the difference graph. Can be converted back to an XML file using
             `xmltodict` function `unparse`. Each key in the dictionary returned by
             this function is the intended file name for that graph.
         """
@@ -137,12 +137,18 @@ class BNGGdiff:
                 f"Mode {self.mode} is not a valid mode, please choose from {self.available_modes}"
             )
 
-    def _find_diff_union(self, g1, g2, dg=None, colors={
+    def _find_diff_union(
+        self,
+        g1,
+        g2,
+        dg=None,
+        colors={
             "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
             "g2": ["#c4ed9e", "#d9f4be", "#ecf9df"],
             "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
-        }):
-        '''
+        },
+    ):
+        """
         Usage: diff_graphs(g1_dict, g2_dict)
                diff_graphs(g1_dict, g2_dict,
                     colors={"g1": "#hexstr1",
@@ -156,8 +162,8 @@ class BNGGdiff:
         g2 : dict
             second input dictionary of the second input XML file.
         dg : dict
-            (optional) dictionary to be modified with the difference. If not given it'll 
-            be a copy of g1 by default. 
+            (optional) dictionary to be modified with the difference. If not given it'll
+            be a copy of g1 by default.
         colors : dict
             (optional) A dictionary with keys "g1", "g2" and "intersect". The
             values are color hex strings for the colors you want for graph 1,
@@ -166,9 +172,9 @@ class BNGGdiff:
         Returns
         -------
         diff : dict
-            A dictionary for the XML file of the difference graph. Can be converted 
+            A dictionary for the XML file of the difference graph. Can be converted
             back to an XML file using `xmltodict` function `unparse`.
-        '''
+        """
         # we first want to do the regular diff
         # we'll need to remap g2 names
         dg, rename_map = self._find_diff(g1, g2, dg=dg, colors=colors)
@@ -241,14 +247,20 @@ class BNGGdiff:
                 copied_edge["@id"] = f"e{edge_ctr}"
                 dg["graphml"]["graph"]["edge"].append(copied_edge)
                 edge_ctr += 1
-        
+
         return dg
 
-    def _find_diff(self, g1, g2, dg=None, colors={
+    def _find_diff(
+        self,
+        g1,
+        g2,
+        dg=None,
+        colors={
             "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
             "g2": ["#c4ed9e", "#d9f4be", "#ecf9df"],
             "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
-        }):
+        },
+    ):
         if dg is None:
             dg = copy.deepcopy(g1)
         # keep track of naming
