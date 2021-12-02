@@ -181,3 +181,6 @@ First working version of the `union` mode for the `graphdiff` subcommand
 
 ## 0.6.0
 Bugfix for `graphdiff` subcommand, `matrix` mode
+
+## 0.6.1
+A new command line argument for `graphdiff`, `--colors` allows you to give a JSON file with keys `g1`, `g2` and `intersect`, each of which are arrays of color hexcodes that determine the colors of the resulting graph. s
