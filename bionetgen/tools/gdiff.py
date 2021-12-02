@@ -53,6 +53,12 @@ class BNGGdiff:
             # load json
             with open(colors, "r") as f:
                 self.colors = json.load(f)
+        elif colors is None:
+            self.colors = {
+                "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
+                "g2": ["#ff9e81", "#ffbfaa", "#ffdfd4"],
+                "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
+            }
         else:
             raise RuntimeError(f"Color type {type(colors)} not recognized")
         self.available_modes = ["matrix", "union"]
