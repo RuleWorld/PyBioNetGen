@@ -1,4 +1,4 @@
-import xmltodict, copy, os
+import xmltodict, copy, os, json
 
 
 class BNGGdiff:
@@ -24,7 +24,19 @@ class BNGGdiff:
         diff mode, currently available modes are "matrix" and "union"
     """
 
-    def __init__(self, inp1, inp2, out=None, out2=None, mode="matrix") -> None:
+    def __init__(
+        self,
+        inp1,
+        inp2,
+        out=None,
+        out2=None,
+        mode="matrix",
+        colors={
+            "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
+            "g2": ["#ff9e81", "#ffbfaa", "#ffdfd4"],
+            "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
+        },
+    ) -> None:
         self.input = inp1
         self.input2 = inp2
         iname1 = os.path.basename(inp1).replace(".graphml", "")
@@ -35,11 +47,14 @@ class BNGGdiff:
             out2 = f"{iname2}_{iname1}_diff.graphml"  # set def
         self.output = out
         self.output2 = out2
-        self.colors = {
-            "g1": ["#dadbfd", "#e6e7fe", "#f3f3ff"],
-            "g2": ["#ff9e81", "#ffbfaa", "#ffdfd4"],
-            "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
-        }
+        if isinstance(colors, dict):
+            self.colors = colors
+        elif isinstance(colors, str):
+            # load json
+            with open(colors, "r") as f:
+                self.colors = json.load(f)
+        else:
+            raise RuntimeError(f"Color type {type(colors)} not recognized")
         self.available_modes = ["matrix", "union"]
         if mode not in self.available_modes:
             raise RuntimeError(

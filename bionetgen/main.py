@@ -432,6 +432,14 @@ class BNGBase(cement.Controller):
                     "type": str,
                 },
             ),
+            (
+                ["-c", "--colors"],
+                {
+                    "help": "Path to the json file that contains color choices.",
+                    "default": None,
+                    "type": str,
+                },
+            ),
         ],
     )
     def graphdiff(self):
