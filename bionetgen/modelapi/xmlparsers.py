@@ -687,6 +687,8 @@ class RuleBlockXML(XMLObj):
         # TODO: create working rule mods class
         rule_mod = RuleMod()
         list_ops = xml["ListOfOperations"]
+        if list_ops is None:
+            return None
         # determine which rule mod is being used, if any
         if "Delete" in list_ops:
             del_op = list_ops["Delete"]

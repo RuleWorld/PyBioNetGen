@@ -443,7 +443,10 @@ class Rule(ModelObj):
         self.name = name
         self.reactants = reactants
         self.products = products
-        self.rule_mod = rule_mod
+        if rule_mod is None:
+            self.rule_mod = RuleMod()
+        else:
+            self.rule_mod = rule_mod
         self.operations = operations
         self.set_rate_constants(rate_constants)
 

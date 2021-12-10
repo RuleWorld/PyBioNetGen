@@ -315,6 +315,7 @@ class SBML2BNGL:
             initialValue /= float(compVol)
         isConstant = species.getConstant()
         isBoundary = species.getBoundaryCondition()
+        
         # FIXME: this condition means that a variable/species can be changed
         # by rules and/or events. this means that we effectively need a variable
         # changed by a function that tracks this value, and all references
@@ -1199,14 +1200,15 @@ class SBML2BNGL:
                 sbmlfunctions,
                 split_rxn,
             )
-            # import IPython;IPython.embed()
 
             if rateR == "0":
                 reversible = False
-            # if symmetryFactors[0] > 1:
-            #     rateL = '({0})/{1}'.format(rateL, symmetryFactors[0])
-            # if symmetryFactors[1] > 1:
-            #     rateR = '({0})/{1}'.format(rateR, symmetryFactors[1])
+            
+            # FIXME: make sure this actually works
+            if symmetryFactors[0] > 1:
+                rateL = '({0})*({1})'.format(rateL, symmetryFactors[0])
+            if symmetryFactors[1] > 1:
+                rateR = '({0})*({1})'.format(rateR, symmetryFactors[1])
 
             # we need to resolve observables BEFORE we do this
             for obs_key in self.obs_map:
@@ -1324,6 +1326,8 @@ class SBML2BNGL:
         create symmetry factors for reactions with components and species with
         identical names. This checks for symmetry in the components names then.
         """
+        # FIXME: This is entirely broken
+
         zerospecies = ["emptyset", "trash", "sink", "source"]
         if self.useID:
             reactant = [
@@ -1655,6 +1659,61 @@ class SBML2BNGL:
 
         return newRate
 
+    def getSymmetryFactors(self, reaction):        
+        zerospecies = ["emptyset", "trash", "sink", "source"]
+        if self.useID:
+            reactant = [
+                (rElement.getSpecies(), rElement.getStoichiometry())
+                for rElement in reaction.getListOfReactants()
+                if rElement.getSpecies() != "EmptySet"
+            ]
+            product = [
+                (product.getSpecies(), product.getStoichiometry())
+                for product in reaction.getListOfProducts()
+                if product.getSpecies() != "EmptySet"
+            ]
+        else:
+            reactant = [
+                (
+                    self.speciesDictionary[rElement.getSpecies()],
+                    rElement.getStoichiometry(),
+                )
+                for rElement in reaction.getListOfReactants()
+            ]
+            product = [
+                (
+                    self.speciesDictionary[rProduct.getSpecies()],
+                    rProduct.getStoichiometry(),
+                )
+                for rProduct in reaction.getListOfProducts()
+            ]
+        
+        react_counts = {}
+        for react in reactant:
+            if react[0] in react_counts:
+                react_counts[react[0]] += react[1]
+            else:
+                react_counts[react[0]] = react[1]
+
+        if len(react_counts) == 0:
+            lfact = 1
+        else:
+            lfact = max(react_counts.values())
+        
+        prod_counts = {}
+        for prod in product:
+            if prod[0] in prod_counts:
+                prod_counts[prod[0]] += prod[1]
+            else:
+                prod_counts[prod[0]] = prod[1]
+
+        if len(prod_counts) == 0:
+            rfact = 1
+        else:
+            rfact = max(prod_counts.values())
+        
+        return lfact, rfact
+
     def getReactions(
         self,
         translator={},
@@ -1696,9 +1755,12 @@ class SBML2BNGL:
             parameterDict = {}
             currParamConv = {}
             # symmetry factors for components with the same name
-            sl, sr = self.reduceComponentSymmetryFactors(
-                reaction, translator, functions
-            )
+            # FIXME: This reduceComponentSymmetryFactors is completely broken
+            # and will only give 1,1 right now
+            # sl, sr = self.reduceComponentSymmetryFactors(
+            #     reaction, translator, functions
+            # )
+            sl, sr = self.getSymmetryFactors(reaction)
             sbmlfunctions = self.getSBMLFunctions()
 
             try:
@@ -1716,7 +1778,7 @@ class SBML2BNGL:
                     continue
                 else:
                     raise TranslationException(e.value + " during reaction processing")
-
+            
             # making the rule object
             rule_obj = self.bngModel.make_rule()
             rule_obj.rule_ind = index + 1
@@ -2081,7 +2143,6 @@ class SBML2BNGL:
                 "ERROR:SYMP001",
                 "Sympy couldn't parse a function, sorry but we can't handle this function definition.",
             )
-            # import IPython;IPython.embed()
             raise TranslationException(arule.getId())
         # if it's an assignment, it's going to be
         # encoded as a unidirectional rxn
@@ -2918,7 +2979,6 @@ class SBML2BNGL:
                                 rawSpecies["identifier"],
                             )
                         )
-                    self.bngModel.add_species(spec_obj)
                 elif rawSpecies["initialConcentration"] > 0.0:
                     if self.isConversion:
                         # convert to molecule counts
@@ -2975,7 +3035,6 @@ class SBML2BNGL:
                                     )
                                 )
                             unitFlag = False
-                            self.bngModel.add_species(spec_obj)
                         else:
                             if self.noCompartment:
                                 speciesText.append(
@@ -3005,7 +3064,6 @@ class SBML2BNGL:
                                         concentrationUnits,
                                     )
                                 )
-                            self.bngModel.add_species(spec_obj)
                     else:
                         if self.noCompartment:
                             speciesText.append(
@@ -3029,7 +3087,6 @@ class SBML2BNGL:
                                     rawSpecies["identifier"],
                                 )
                             )
-                        self.bngModel.add_species(spec_obj)
                 elif rawSpecies["isConstant"]:
                     if self.noCompartment:
                         speciesText.append(
@@ -3053,7 +3110,7 @@ class SBML2BNGL:
                                 rawSpecies["identifier"],
                             )
                         )
-                    self.bngModel.add_species(spec_obj)
+            self.bngModel.add_species(spec_obj)
             if rawSpecies["returnID"] == "e":
                 modifiedName = "__e__"
             else:
@@ -3067,18 +3124,32 @@ class SBML2BNGL:
                 ):
 
                     self.obs_names.append(modifiedName)
-                    self.obs_map[rawSpecies["identifier"]] = "{0}_{1}".format(
+                    # self.obs_map[rawSpecies["identifier"]] = "{0}_{1}".format(
+                    #     modifiedName, rawSpecies["compartment"]
+                    # )
+                    # observablesText.append(
+                    #     "Species {0}_{3} @{3}:{1} #{2}".format(
+                    #         modifiedName,
+                    #         tmp,
+                    #         rawSpecies["name"],
+                    #         rawSpecies["compartment"],
+                    #     )
+                    # )
+                    # observablesDict[modifiedName] = "{0}_{1}".format(
+                    #     modifiedName, rawSpecies["compartment"]
+                    # )
+                    self.obs_map[rawSpecies["identifier"]] = "{0}".format(
                         modifiedName, rawSpecies["compartment"]
                     )
                     observablesText.append(
-                        "Species {0}_{3} @{3}:{1} #{2}".format(
+                        "Species {0} @{3}:{1} #{2}".format(
                             modifiedName,
                             tmp,
                             rawSpecies["name"],
                             rawSpecies["compartment"],
                         )
                     )
-                    observablesDict[modifiedName] = "{0}_{1}".format(
+                    observablesDict[modifiedName] = "{0}".format(
                         modifiedName, rawSpecies["compartment"]
                     )
                 else:
@@ -3149,7 +3220,7 @@ class SBML2BNGL:
         for species in self.model.getListOfSpecies():
             tmp = self.getRawSpecies(species)
             name = tmp["returnID"]
-            constant = "$" if species.getConstant() else ""
+            constant = "$" if (species.getConstant() or species.getBoundaryCondition()) else ""
             if name in translator:
                 if self.noCompartment:
                     extendedStr = "{1}{0}".format(translator[name], constant)
@@ -3200,7 +3271,6 @@ class SBML2BNGL:
                 # TODO: Replicate this in bngModel
                 print("In getInitialAssignments")
                 print("check pparam[symbol]/param2/initialConditions2")
-                # import IPython;IPython.embed()
                 # TODO: Replicate this in bngModel
                 if pparam[symbol][1] == None:
                     param2.append("{0} {1}".format(symbol, math))

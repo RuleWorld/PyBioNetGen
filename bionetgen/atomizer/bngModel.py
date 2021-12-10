@@ -1,4 +1,7 @@
 import re, pyparsing, sympy
+from bionetgen.atomizer.utils.util import logMess
+from bionetgen.atomizer.writer.bnglWriter import rindex
+
 from sympy.printing.str import StrPrinter
 
 prnter = StrPrinter({"full_prec": False})
@@ -103,6 +106,8 @@ class Species:
         elif self.initConc > 0:
             # TODO: Figure out what to do w/ conc
             self.val = self.initConc
+        else:
+            self.val = 0 
 
     def __str__(self):
         trans_id = (
@@ -110,7 +115,7 @@ class Species:
             if self.Id in self.translator
             else self.Id + "()"
         )
-        mod = "$" if self.isConstant else ""
+        mod = "$" if self.isConstant or self.isBoundary else ""
         if self.noCompartment or self.compartment == "" or self.compartment is None:
             if self.raw is not None:
                 txt = "{}{} {} #{} #{}".format(
@@ -165,6 +170,8 @@ class Observable:
         self.noCompartment = False
         self.translator = {}
         self.raw = None
+        self.pattern = None
+        self.skip_compartment = False
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -178,22 +185,28 @@ class Observable:
         self.identifier = raw["identifier"]
 
     def get_obs_name(self):
-        if self.noCompartment or self.compartment == "" or self.compartment is None:
-            return self.Id
-        else:
-            return "{0}_{1}".format(self.Id, self.compartment)
+        return self.Id
+        # if self.skip_compartment:
+        #     return self.Id
+        # if self.noCompartment or self.compartment == "" or self.compartment is None:
+        #     return self.Id
+        # else:
+        #     return "{0}_{1}".format(self.Id, self.compartment)
 
     def __str__(self):
         txt = self.type
         obs_name = self.get_obs_name()
-        if self.raw is not None:
-            pattern = (
-                self.translator[self.raw["returnID"]]
-                if self.Id in self.translator
-                else self.raw["returnID"] + "()"
-            )
+        if self.pattern is None:
+            if self.raw is not None:
+                pattern = (
+                    self.translator[self.raw["returnID"]]
+                    if self.Id in self.translator
+                    else self.raw["returnID"] + "()"
+                )
+            else:
+                pattern = self.Id + "()"
         else:
-            pattern = self.Id + "()"
+            pattern = self.pattern
         if self.noCompartment or self.compartment == "":
             txt += " {0} {1} #{2}".format(obs_name, pattern, self.name)
         else:
@@ -221,6 +234,7 @@ class Function:
         self.all_syms = None
         self.sbmlFunctions = None
         self.compartmentList = None
+        self.time_flag = False
 
     def replaceLoc(self, func_def, pdict):
         if self.compartmentList is not None:
@@ -646,10 +660,27 @@ class Function:
                         modificationFlag = True
                         recursionIndex += 1
                         break
-
-        defn = re.sub(r"(\W|^)(time)(\W|$)", r"\1time()\3", defn)
-        defn = re.sub(r"(\W|^)(Time)(\W|$)", r"\1time()\3", defn)
-        defn = re.sub(r"(\W|^)(t)(\W|$)", r"\1time()\3", defn)
+        
+        # AS-2021: temporary time fix until time function in 
+        # BioNetGen is fully fixed. 
+        # first check if we have time in the sbml function
+        # time
+        if re.search(r"(\W|^)(time)(\W|$)", defn):
+            self.time_flag = True
+            defn = re.sub(r"(\W|^)(time)(\W|$)", r"\1TIME_\3", defn)
+        # Time
+        if re.search(r"(\W|^)(Time)(\W|$)", defn):
+            self.time_flag = True
+            defn = re.sub(r"(\W|^)(Time)(\W|$)", r"\1TIME_\3", defn)
+        # t
+        if re.search(r"(\W|^)(t)(\W|$)", defn):
+            self.time_flag = True
+            defn = re.sub(r"(\W|^)(t)(\W|$)", r"\1TIME_\3", defn)
+        
+        # old code for the same purpose
+        # defn = re.sub(r"(\W|^)(time)(\W|$)", r"\1time()\3", defn)
+        # defn = re.sub(r"(\W|^)(Time)(\W|$)", r"\1time()\3", defn)
+        # defn = re.sub(r"(\W|^)(t)(\W|$)", r"\1time()\3", defn)
 
         # remove true and false
         defn = re.sub(r"(\W|^)(true)(\W|$)", r"\1 1\3", defn)
@@ -920,6 +951,7 @@ class bngModel:
         self.function_order = None
         self.sbmlFunctions = None
         self.tags = None
+        self.add_time = False
         self.param_repl = []
 
     def __str__(self):
@@ -950,7 +982,7 @@ class bngModel:
             txt += "begin seed species\n"
             for spec in self.species.values():
                 spec.translator = self.translator
-                if spec.val > 0:
+                if spec.val > 0 or spec.isConstant or spec.isBoundary:
                     spec.noCompartment = self.noCompartment
                     txt += "  " + str(spec) + "\n"
             txt += "end seed species\n"
@@ -982,7 +1014,7 @@ class bngModel:
                         else:
                             func.local_dict = self.param_repl
                     if func.Id in self.parsed_func:
-                        func.sympy_parsed = self.parsed_func[fkey]
+                        func.sympy_parsed = self.parsed_func[func.Id]
                     func.all_syms = self.all_syms
                     txt += "  " + str(func) + "\n"
             else:
@@ -1326,6 +1358,65 @@ class bngModel:
         self.consolidate_molecules()
         self.consolidate_observables()
         self.reorder_functions()
+        self.check_for_time_function()
+    
+    def check_for_time_function(self):
+        # see if SBML functions refer to time() in bngl 
+        # and if so add replace with an observable and
+        # make a time counter reaction 
+        for func in self.functions.values():
+            # time
+            if re.search(r"(\W|^)(time)(\W|$)", func.definition):
+                self.add_time = True
+            # Time
+            if re.search(r"(\W|^)(Time)(\W|$)", func.definition):
+                self.add_time = True
+            # t
+            if re.search(r"(\W|^)(t)(\W|$)", func.definition):
+                self.add_time = True
+            if self.add_time:
+                break
+        
+        if self.add_time:
+            self.add_time_rule()
+
+    def add_time_rule(self):
+        # import ipdb;ipdb.set_trace()
+        if len(self.compartments) > 0 and not self.noCompartment:
+            comp = list(self.compartments.values())[0].Id
+        else:
+            comp = None
+        # add molecule
+        amolec = self.make_molecule()
+        amolec.Id = "time_"
+        amolec.name = "time_"
+        if comp is not None:
+            amolec.compartment = self.compartments[comp]
+        self.add_molecule(amolec)
+
+        # add observable
+        nobs = self.make_observable()
+        nobs.skip_compartment = True
+        nobs.type = "Molecules"
+        nobs.Id = "TIME_"
+        nobs.name = "TIME_"
+        nobs.pattern = "time_()"
+        
+        if comp is not None:
+            nobs.compartment = comp
+        self.add_observable(nobs)
+
+        # self.make_rule
+        nrule = self.make_rule()
+        nrule.Id = "time_rule"
+        if comp is not None:
+            prod = f"@{comp}:{amolec.name}"
+        else:
+            prod = f"{amolec.name}"
+        nrule.products.append([prod, 1.0, prod])
+        nrule.rate_cts = ("1",)
+        self.add_rule(nrule)
+
 
     def remove_sympy_symbols(self, fdef):
         to_replace = {

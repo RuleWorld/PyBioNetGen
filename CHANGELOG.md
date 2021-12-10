@@ -183,4 +183,7 @@ First working version of the `union` mode for the `graphdiff` subcommand
 Bugfix for `graphdiff` subcommand, `matrix` mode
 
 ## 0.6.1
-A new command line argument for `graphdiff`, `--colors` allows you to give a JSON file with keys `g1`, `g2` and `intersect`, each of which are arrays of color hexcodes that determine the colors of the resulting graph. s
+A new command line argument for `graphdiff`, `--colors` allows you to give a JSON file with keys `g1`, `g2` and `intersect`, each of which are arrays of color hexcodes that determine the colors of the resulting graph.
+
+## 0.6.11
+Bugfix to `graphdiff` command where not using a color file would break the command. New temporary versioning scheme where very minor fixes like this is added to the last number in the version. E.g. 0.6.1 -> 0.6.11 -> 0.6.12 etc. This will be continued until 1.0 release. Other small bugfixes and some changes to atomizer. 
