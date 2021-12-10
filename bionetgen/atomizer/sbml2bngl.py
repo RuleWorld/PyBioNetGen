@@ -315,7 +315,7 @@ class SBML2BNGL:
             initialValue /= float(compVol)
         isConstant = species.getConstant()
         isBoundary = species.getBoundaryCondition()
-        
+
         # FIXME: this condition means that a variable/species can be changed
         # by rules and/or events. this means that we effectively need a variable
         # changed by a function that tracks this value, and all references
@@ -1203,12 +1203,12 @@ class SBML2BNGL:
 
             if rateR == "0":
                 reversible = False
-            
+
             # FIXME: make sure this actually works
             if symmetryFactors[0] > 1:
-                rateL = '({0})*({1})'.format(rateL, symmetryFactors[0])
+                rateL = "({0})*({1})".format(rateL, symmetryFactors[0])
             if symmetryFactors[1] > 1:
-                rateR = '({0})*({1})'.format(rateR, symmetryFactors[1])
+                rateR = "({0})*({1})".format(rateR, symmetryFactors[1])
 
             # we need to resolve observables BEFORE we do this
             for obs_key in self.obs_map:
@@ -1659,7 +1659,7 @@ class SBML2BNGL:
 
         return newRate
 
-    def getSymmetryFactors(self, reaction):        
+    def getSymmetryFactors(self, reaction):
         zerospecies = ["emptyset", "trash", "sink", "source"]
         if self.useID:
             reactant = [
@@ -1687,7 +1687,7 @@ class SBML2BNGL:
                 )
                 for rProduct in reaction.getListOfProducts()
             ]
-        
+
         react_counts = {}
         for react in reactant:
             if react[0] in react_counts:
@@ -1699,7 +1699,7 @@ class SBML2BNGL:
             lfact = 1
         else:
             lfact = max(react_counts.values())
-        
+
         prod_counts = {}
         for prod in product:
             if prod[0] in prod_counts:
@@ -1711,7 +1711,7 @@ class SBML2BNGL:
             rfact = 1
         else:
             rfact = max(prod_counts.values())
-        
+
         return lfact, rfact
 
     def getReactions(
@@ -1778,7 +1778,7 @@ class SBML2BNGL:
                     continue
                 else:
                     raise TranslationException(e.value + " during reaction processing")
-            
+
             # making the rule object
             rule_obj = self.bngModel.make_rule()
             rule_obj.rule_ind = index + 1
@@ -3220,7 +3220,9 @@ class SBML2BNGL:
         for species in self.model.getListOfSpecies():
             tmp = self.getRawSpecies(species)
             name = tmp["returnID"]
-            constant = "$" if (species.getConstant() or species.getBoundaryCondition()) else ""
+            constant = (
+                "$" if (species.getConstant() or species.getBoundaryCondition()) else ""
+            )
             if name in translator:
                 if self.noCompartment:
                     extendedStr = "{1}{0}".format(translator[name], constant)

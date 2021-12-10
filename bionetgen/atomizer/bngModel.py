@@ -107,7 +107,7 @@ class Species:
             # TODO: Figure out what to do w/ conc
             self.val = self.initConc
         else:
-            self.val = 0 
+            self.val = 0
 
     def __str__(self):
         trans_id = (
@@ -660,9 +660,9 @@ class Function:
                         modificationFlag = True
                         recursionIndex += 1
                         break
-        
-        # AS-2021: temporary time fix until time function in 
-        # BioNetGen is fully fixed. 
+
+        # AS-2021: temporary time fix until time function in
+        # BioNetGen is fully fixed.
         # first check if we have time in the sbml function
         # time
         if re.search(r"(\W|^)(time)(\W|$)", defn):
@@ -676,7 +676,7 @@ class Function:
         if re.search(r"(\W|^)(t)(\W|$)", defn):
             self.time_flag = True
             defn = re.sub(r"(\W|^)(t)(\W|$)", r"\1TIME_\3", defn)
-        
+
         # old code for the same purpose
         # defn = re.sub(r"(\W|^)(time)(\W|$)", r"\1time()\3", defn)
         # defn = re.sub(r"(\W|^)(Time)(\W|$)", r"\1time()\3", defn)
@@ -1359,11 +1359,11 @@ class bngModel:
         self.consolidate_observables()
         self.reorder_functions()
         self.check_for_time_function()
-    
+
     def check_for_time_function(self):
-        # see if SBML functions refer to time() in bngl 
+        # see if SBML functions refer to time() in bngl
         # and if so add replace with an observable and
-        # make a time counter reaction 
+        # make a time counter reaction
         for func in self.functions.values():
             # time
             if re.search(r"(\W|^)(time)(\W|$)", func.definition):
@@ -1376,7 +1376,7 @@ class bngModel:
                 self.add_time = True
             if self.add_time:
                 break
-        
+
         if self.add_time:
             self.add_time_rule()
 
@@ -1401,7 +1401,7 @@ class bngModel:
         nobs.Id = "TIME_"
         nobs.name = "TIME_"
         nobs.pattern = "time_()"
-        
+
         if comp is not None:
             nobs.compartment = comp
         self.add_observable(nobs)
@@ -1416,7 +1416,6 @@ class bngModel:
         nrule.products.append([prod, 1.0, prod])
         nrule.rate_cts = ("1",)
         self.add_rule(nrule)
-
 
     def remove_sympy_symbols(self, fdef):
         to_replace = {
