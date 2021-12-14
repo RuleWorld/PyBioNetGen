@@ -128,11 +128,12 @@ class SBML2BNGL:
     that are translatable into bngl
     """
 
-    def __init__(self, model, useID=True, replaceLocParams=True):
+    def __init__(self, model, useID=True, replaceLocParams=True, obs_map_file=None):
 
         self.bngModel = bngModel()
         self.bngModel.useID = useID
         self.bngModel.replaceLocParams = replaceLocParams
+        self.obs_map_file = obs_map_file
 
         self.useID = useID
         self.replaceLocParams = replaceLocParams

@@ -566,6 +566,14 @@ class BNGBase(cement.Controller):
                     "type": str,
                 },
             ),
+            (
+                ["-omf", "--obs-map-file"],
+                {
+                    "help": "With this option enabled atomizer will print the map between SBML and BNGL observables in JSON format",
+                    "default": None,
+                    "type": str,
+                },
+            ),
             # (
             #     ["-cu", "--convert-units"],
             #     {

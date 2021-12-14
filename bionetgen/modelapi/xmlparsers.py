@@ -693,7 +693,6 @@ class RuleBlockXML(XMLObj):
         if "Delete" in list_ops:
             del_op = list_ops["Delete"]
             # check if modifier was called or automatic
-            # import IPython; IPython.embed()
             if not isinstance(del_op, list):
                 mod_call = del_op["@DeleteMolecules"]
                 if mod_call == "1":

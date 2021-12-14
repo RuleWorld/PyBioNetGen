@@ -92,6 +92,12 @@ def defineConsole():
         default="DEBUG",
         help='This option allows you to select a logging level, from quietest to loudest options are: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG". Default is set to DEBUG',
     )
+    parser.add_argument(
+        "-omf",
+        "--obs-map-file",
+        default=None,
+        help="If this option is set, the observable map between SBML and BNGL will written to a file in JSON format",
+    )
 
     return parser
 
@@ -126,6 +132,7 @@ def checkInput(namespace):
     options["memoizedResolver"] = namespace.memoized_resolver
     options["replaceLocParams"] = not namespace.keep_local_parameters
     options["quietMode"] = namespace.quiet_mode
+    options["obs_map_file"] = namespace.obs_map_file
     assert namespace.log_level in [
         "CRITICAL",
         "ERROR",
@@ -158,6 +165,7 @@ def main():
         replaceLocParams=options["replaceLocParams"],
         quietMode=options["quietMode"],
         logLevel=options["logLevel"],
+        obs_map_file=options["obs_map_file"],
     )
 
     if namespace.bionetgen_analysis and returnArray:

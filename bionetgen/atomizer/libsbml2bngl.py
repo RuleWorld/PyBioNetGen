@@ -169,6 +169,7 @@ def readFromString(
     atomize=False,
     loggingStream=None,
     replaceLocParams=True,
+    obs_map_file=None,
 ):
     """
     one of the library's main entry methods. Process data from a string
@@ -183,7 +184,12 @@ def readFromString(
 
     reader = libsbml.SBMLReader()
     document = reader.readSBMLFromString(inputString)
-    parser = SBML2BNGL(document.getModel(), useID, replaceLocParams=replaceLocParams)
+    parser = SBML2BNGL(
+        document.getModel(),
+        useID,
+        replaceLocParams=replaceLocParams,
+        obs_map_file=obs_map_file,
+    )
 
     bioGrid = False
     pathwaycommons = True
@@ -682,6 +688,7 @@ def analyzeFile(
     replaceLocParams=True,
     quietMode=False,
     logLevel="WARNING",
+    obs_map_file=None,
 ):
     """
     one of the library's main entry methods. Process data from a file
@@ -703,7 +710,12 @@ def analyzeFile(
     if document.getModel() == None:
         print("File {0} could not be recognized as a valid SBML file".format(bioNumber))
         return
-    parser = SBML2BNGL(document.getModel(), useID, replaceLocParams=replaceLocParams)
+    parser = SBML2BNGL(
+        document.getModel(),
+        useID,
+        replaceLocParams=replaceLocParams,
+        obs_map_file=obs_map_file,
+    )
     parser.setConversion(not noConversion)
     database = structures.Databases()
     database.assumptions = defaultdict(set)
@@ -920,13 +932,19 @@ def analyzeHelper(
     database,
     bioGrid=False,
     replaceLocParams=True,
+    obs_map_file=None,
 ):
     """
     taking the atomized dictionary and a series of data structure, this method
     does the actual string output.
     """
     useArtificialRules = False
-    parser = SBML2BNGL(document.getModel(), useID, replaceLocParams=replaceLocParams)
+    parser = SBML2BNGL(
+        document.getModel(),
+        useID,
+        replaceLocParams=replaceLocParams,
+        obs_map_file=obs_map_file,
+    )
     # ASS: Port over other parsers? used_molecules list
     if hasattr(database, "parser"):
         parser.used_molecules.extend(database.parser.used_molecules)
@@ -1140,8 +1158,6 @@ def analyzeHelper(
                     sbmlfunctions[sbml2] = writer.extendFunction(
                         sbmlfunctions[sbml2], sbml, sbmlfunctions[sbml]
                     )
-
-    # import IPython;IPython.embed()
 
     # TODO: if an observable is defined via artificial obs
     # we should overwrite it in obs dict
@@ -1395,8 +1411,6 @@ def analyzeHelper(
             if len(srch.group(3)) > 0:
                 struc_count += 1
     struc_ratio = float(struc_count) / len(molecules) if len(molecules) > 0 else 0
-    # if struc_ratio == 0.5:
-    # import IPython;IPython.embed()
     print("Structured molecule type ratio: {}".format(struc_ratio))
 
     # If we must, add __epsilon__ to parameter list
@@ -1452,7 +1466,6 @@ def analyzeHelper(
     # print("in libsbml, done completely")
     # with open(outputFile, "w") as f:
     #     f.write(str(parser.bngModel))
-    # import IPython;IPython.embed()
     parser.bngModel.all_syms = parser.all_syms
     parser.bngModel.consolidate()
     finalString = str(parser.bngModel)
