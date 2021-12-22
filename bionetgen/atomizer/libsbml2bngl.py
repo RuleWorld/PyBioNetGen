@@ -235,6 +235,7 @@ def readFromString(
         translator,
         database,
         replaceLocParams=replaceLocParams,
+        obs_map_file=obs_map_file
     )
 
     if atomize and onlySynDec:
@@ -607,7 +608,7 @@ def postAnalysisHelper(outputFile, bngLocation, database):
                 )
 
 
-def postAnalyzeFile(outputFile, bngLocation, database, replaceLocParams=True):
+def postAnalyzeFile(outputFile, bngLocation, database, replaceLocParams=True, obs_map_file=None):
     """
     Performs a postcreation file analysis based on context information
     """
@@ -626,6 +627,7 @@ def postAnalyzeFile(outputFile, bngLocation, database, replaceLocParams=True):
         database.translator,
         database,
         replaceLocParams=replaceLocParams,
+        obs_map_file=obs_map_file,
     )
     with open(outputFile, "w", encoding="UTF-8") as f:
         f.write(returnArray.finalString)
@@ -708,7 +710,7 @@ def analyzeFile(
     document = reader.readSBMLFromFile(bioNumber)
 
     if document.getModel() == None:
-        print("File {0} could not be recognized as a valid SBML file".format(bioNumber))
+        print("l714 - File {0} could not be recognized as a valid SBML file".format(bioNumber))
         return
     parser = SBML2BNGL(
         document.getModel(),
@@ -782,6 +784,7 @@ def analyzeFile(
         translator,
         database,
         replaceLocParams=replaceLocParams,
+        obs_map_file=obs_map_file,
     )
 
     with open(outputFile, "w", encoding="UTF-8") as f:

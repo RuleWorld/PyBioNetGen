@@ -557,7 +557,9 @@ class RuleBlockXML(XMLObj):
                     )
                 rate_constants = [self.resolve_ratelaw(rule["RateLaw"])]
                 rule_modifier = self.get_rule_mod(rule)
-                operations = self.get_operations(rule["ListOfOperations"])
+                if rule["ListOfOperations"] is not None:
+                    if len(rule["ListOfOperations"]) > 0:
+                        operations = self.get_operations(rule["ListOfOperations"])
 
                 block.add_rule(
                     name,

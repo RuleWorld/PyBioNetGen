@@ -13,7 +13,7 @@ from .core.main import graphDiff
 from .core.notebook import BNGNotebook
 
 # pull defaults defined in core/defaults
-CONFIG = bng.defaults.config
+CONF = bng.defaults
 VERSION_BANNER = bng.defaults.banner
 
 # require version argparse action
@@ -73,7 +73,7 @@ class BNGBase(cement.Controller):
             # TODO: Auto-load in BioNetGen version here
             (["-v", "--version"], dict(action="version", version=VERSION_BANNER)),
             # (['-s','--sedml'],dict(type=str,
-            #                        default=CONFIG['bionetgen']['bngpath'],
+            #                        default=CONF.config['bionetgen']['bngpath'],
             #                        help="Optional path to SED-ML file, if available the simulation \
             #                              protocol described in SED-ML will be ran")),
             (["-req", "--require"], dict(action=requireAction, type=str, default=None)),
@@ -189,14 +189,14 @@ class BNGBase(cement.Controller):
             except:
                 raise RuntimeError(f"Couldn't import given model: {args.input}!")
             notebook = BNGNotebook(
-                CONFIG["bionetgen"]["notebook"]["template"], INPUT_ARG=args.input
+                self.app.config["bionetgen"]["notebook"]["template"], INPUT_ARG=args.input
             )
         else:
             # just use the basic notebook
-            notebook = BNGNotebook(CONFIG["bionetgen"]["notebook"]["path"])
+            notebook = BNGNotebook(self.app.config["bionetgen"]["notebook"]["path"])
         # find our file name
         if len(args.output) == 0:
-            fname = CONFIG["bionetgen"]["notebook"]["name"]
+            fname = self.app.config["bionetgen"]["notebook"]["name"]
         else:
             fname = args.output
         # write the notebook out
@@ -206,13 +206,13 @@ class BNGBase(cement.Controller):
                 mname = basename.replace(".bngl", "")
                 fname = mname + ".ipynb"
             else:
-                mname = CONFIG["bionetgen"]["notebook"]["name"]
+                mname = self.app.config["bionetgen"]["notebook"]["name"]
                 fname = os.path.join(args.output, mname)
 
         notebook.write(fname)
         # open the notebook with nbopen
-        stdout = getattr(subprocess, CONFIG["bionetgen"]["stdout"])
-        stderr = getattr(subprocess, CONFIG["bionetgen"]["stderr"])
+        stdout = getattr(subprocess, self.app.config["bionetgen"]["stdout"])
+        stderr = getattr(subprocess, self.app.config["bionetgen"]["stderr"])
         if args.open:
             command = ["nbopen", fname]
             rc, _ = run_command(command)
@@ -623,14 +623,13 @@ class BioNetGen(cement.App):
         label = "bionetgen"
 
         # configuration defaults
-        config_defaults = CONFIG
+        config_defaults = CONF.config
 
         # call sys.exit() on close
         exit_on_close = True
 
         # load additional framework extensions
         extensions = [
-            "yaml",
             "colorlog",
         ]
 

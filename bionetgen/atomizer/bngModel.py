@@ -1,4 +1,4 @@
-import re, pyparsing, sympy
+import re, pyparsing, sympy, json
 from bionetgen.atomizer.utils.util import logMess
 from bionetgen.atomizer.writer.bnglWriter import rindex
 
@@ -53,6 +53,9 @@ class Molecule:
         self.isConstant = False
         self.isBoundary = False
         self.compartment = None
+
+    def __contains__(self, val):
+        return val in str(self)
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -235,6 +238,7 @@ class Function:
         self.sbmlFunctions = None
         self.compartmentList = None
         self.time_flag = False
+        self.adjusted_def = None
 
     def replaceLoc(self, func_def, pdict):
         if self.compartmentList is not None:
@@ -279,6 +283,7 @@ class Function:
                     )
                     fdef = self.replaceLoc(self.definition, rule_dict)
         fdef = self.adjust_func_def(fdef)
+        self.adjusted_def = fdef
         return "{} = {}".format(self.Id, fdef)
 
     def __repr__(self):
@@ -953,6 +958,7 @@ class bngModel:
         self.tags = None
         self.add_time = False
         self.param_repl = []
+        self.obs_map_file = None
 
     def __str__(self):
         txt = self.metaString
@@ -1155,7 +1161,7 @@ class bngModel:
                         # matter since we know an assignment rule is
                         # modifying it and it will take over reactions
 
-                        # this should be guarantee
+                        # this should be guaranteed
                         molec = self.molecules.pop(mname)
 
                         # we should also remove this from species
@@ -1169,6 +1175,9 @@ class bngModel:
                         elif molec.Id in self.observables:
                             obs = self.observables.pop(molec.Id)
                             self.obs_map[obs.get_obs_name()] = molec.Id + "()"
+                        # for spec in self.species:
+                        #     sobj = self.species[spec]
+                        #     # if molec.name == sobj.Id or molec
                         if molec.name in self.species:
                             spec = self.species.pop(molec.name)
                         elif molec.Id in self.species:
@@ -1352,13 +1361,39 @@ class bngModel:
                 _ = self.compartments.pop(comp_key)
                 self.noCompartment = True
 
+    # def consolidate_species(self):
+    #     to_remove = []
+    #     for spe in self.species:
+    #         remove = True
+    #         for mol in self.molecules:
+    #             if spe.Id + "(" in mol:
+    #                 remove = False
+    #         if remove:
+    #             to_remove.append(spe)
+    #     for rem in to_remove:
+    #         self.species.pop(rem)
+
     def consolidate(self):
         self.consolidate_compartments()
         self.consolidate_arules()
         self.consolidate_molecules()
+        # self.consolidate_species()
         self.consolidate_observables()
         self.reorder_functions()
+        str(self)
         self.check_for_time_function()
+        # import IPython;IPython.embed()
+        self.print_obs_map()
+
+    def print_obs_map(self):
+        if self.obs_map_file is not None:
+            obs_map = {}
+            for obs in self.observables:
+                obs_obj = self.observables[obs]
+                if obs_obj.name not in obs_map:
+                    obs_map[obs_obj.name] = obs_obj.Id
+            with open(self.obs_map_file, "w") as f:
+                json.dump(obs_map, f)
 
     def check_for_time_function(self):
         # see if SBML functions refer to time() in bngl
@@ -1366,13 +1401,7 @@ class bngModel:
         # make a time counter reaction
         for func in self.functions.values():
             # time
-            if re.search(r"(\W|^)(time)(\W|$)", func.definition):
-                self.add_time = True
-            # Time
-            if re.search(r"(\W|^)(Time)(\W|$)", func.definition):
-                self.add_time = True
-            # t
-            if re.search(r"(\W|^)(t)(\W|$)", func.definition):
+            if re.search(r"(\W|^)(TIME_)(\W|$)", func.adjusted_def):
                 self.add_time = True
             if self.add_time:
                 break
@@ -1381,7 +1410,6 @@ class bngModel:
             self.add_time_rule()
 
     def add_time_rule(self):
-        # import ipdb;ipdb.set_trace()
         if len(self.compartments) > 0 and not self.noCompartment:
             comp = list(self.compartments.values())[0].Id
         else:
@@ -1542,8 +1570,8 @@ class bngModel:
         return Molecule()
 
     def add_species(self, sspec):
-        if not sspec.name in self.species:
-            self.species[sspec.name] = sspec
+        if not sspec.Id in self.species:
+            self.species[sspec.Id] = sspec
         elif hasattr(sspec, "identifier"):
             self.species[sspec.identifier] = sspec
         else:

@@ -133,7 +133,7 @@ class SBML2BNGL:
         self.bngModel = bngModel()
         self.bngModel.useID = useID
         self.bngModel.replaceLocParams = replaceLocParams
-        self.obs_map_file = obs_map_file
+        self.bngModel.obs_map_file = obs_map_file
 
         self.useID = useID
         self.replaceLocParams = replaceLocParams
