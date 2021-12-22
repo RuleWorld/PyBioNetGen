@@ -112,7 +112,7 @@ class AtomizeTool:
                     self.config["bionetgenAnalysis"],
                     self.returnArray.database,
                     replaceLocParams=self.config["replaceLocParams"],
-                    obs_map_file=self.config["obs_map_file"]
+                    obs_map_file=self.config["obs_map_file"],
                 )
         except Exception as e:
             print("Post analysis failed")
