@@ -138,5 +138,5 @@ class BNGCLI:
             raise RuntimeError(
                 "Failed to run your BNGL file, there might be an issue with your model!",
                 out.stdout.decode("UTF-8"),
-                out.stderr.decode("UTF-8")
+                out.stderr.decode("UTF-8"),
             )

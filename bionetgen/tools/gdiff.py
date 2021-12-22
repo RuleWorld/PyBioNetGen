@@ -39,12 +39,6 @@ class BNGGdiff:
     ) -> None:
         self.input = inp1
         self.input2 = inp2
-        iname1 = os.path.basename(inp1).replace(".graphml", "")
-        iname2 = os.path.basename(inp2).replace(".graphml", "")
-        if out is None:
-            out = f"{iname1}_{iname2}_diff.graphml"  # set def
-        if out2 is None:
-            out2 = f"{iname2}_{iname1}_diff.graphml"  # set def
         self.output = out
         self.output2 = out2
         if isinstance(colors, dict):
@@ -121,6 +115,12 @@ class BNGGdiff:
         # first do a deepcopy so we don't have to
         # manually do add boilerpate
         if self.mode == "matrix":
+            iname1 = os.path.basename(self.input).replace(".graphml", "")
+            iname2 = os.path.basename(self.input2).replace(".graphml", "")
+            if self.output is None:
+                self.output = f"{iname1}_{iname2}_diff.graphml"  # set def
+            if self.output2 is None:
+                self.output2 = f"{iname2}_{iname1}_diff.graphml"  # set def
             graphs = {}
             diff_gml, _ = self._find_diff(g1, g2, colors=colors)
             graphs[self.output] = diff_gml
@@ -151,7 +151,10 @@ class BNGGdiff:
             g1_name = os.path.basename(self.input).replace(".graphml", "")
             # write recolored g2
             g2_name = os.path.basename(self.input2).replace(".graphml", "")
-            union_name = f"{g1_name}_{g2_name}_union.graphml"
+            if self.output is None:
+                union_name = f"{g1_name}_{g2_name}_union.graphml"
+            else:
+                union_name = self.output
             union_gml = self._find_diff_union(g1, g2, colors=colors)
             graphs[union_name] = union_gml
             return graphs
@@ -697,5 +700,5 @@ class BNGGdiff:
         for graph_name in graphs.keys():
             # now write gml as graphml
             with open(graph_name, "w") as f:
-                xmltodict.unparse(graphs[graph_name], output=f)
+                xmltodict.unparse(graphs[graph_name], output=f, pretty=True)
         return graphs

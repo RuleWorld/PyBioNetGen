@@ -1,37 +1,36 @@
 ### BioNetGen CLI Configuration Settings
----
 
-bionetgen:
+[bionetgen]
 
 ### Toggle application level debug (does not toggle framework debugging)
-# debug: false
+# debug= false
 
 ### Where all plugin configurations are loaded from
-# plugin_config_dir: /etc/bionetgen/plugins.d/
+# plugin_config_dir= /etc/bionetgen/plugins.d/
 
 ### The log handler label
-# log_handler: colorlog
+# log_handler= colorlog
 
 ### sample bngpath option
-# bngpath: /path/to/my/bng/
+# bngpath= /path/to/my/bng/
 
 
-log.colorlog:
+[log.colorlog]
 
 ### Where the log file lives (no log file by default)
-# file: null
+# file= null
 
 ### The level for which to log.  One of: info, warning, error, fatal, debug
-# level: info
+# level= info
 
 ### Whether or not to log to console
-# to_console: true
+# to_console= true
 
 ### Whether or not to rotate the log file when it reaches `max_bytes`
-# rotate: false
+# rotate= false
 
 ### Max size in bytes that a log file can grow until it is rotated.
-# max_bytes: 512000
+# max_bytes= 512000
 
 ### The maximun number of log files to maintain when rotating
-# max_files: 4
+# max_files= 4

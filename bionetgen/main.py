@@ -189,7 +189,8 @@ class BNGBase(cement.Controller):
             except:
                 raise RuntimeError(f"Couldn't import given model: {args.input}!")
             notebook = BNGNotebook(
-                self.app.config["bionetgen"]["notebook"]["template"], INPUT_ARG=args.input
+                self.app.config["bionetgen"]["notebook"]["template"],
+                INPUT_ARG=args.input,
             )
         else:
             # just use the basic notebook
