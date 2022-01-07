@@ -3253,6 +3253,7 @@ class SBML2BNGL:
             )
             pparam[species.getId()] = (initConc, extendedStr)
         from copy import copy
+
         for initialAssignment in self.model.getListOfInitialAssignments():
             symbol = initialAssignment.getSymbol()
             math = libsbml.formulaToString(initialAssignment.getMath())
@@ -3287,7 +3288,9 @@ class SBML2BNGL:
                     initialConditions2.append(
                         "{0} {1} #{2}".format(pparam[symbol][1], math, symbol)
                     )
-                    initCondMap["{0} {1} #{2}".format(pparam[symbol][1], math, symbol)] = symbol
+                    initCondMap[
+                        "{0} {1} #{2}".format(pparam[symbol][1], math, symbol)
+                    ] = symbol
                     initialConditions = initialConditions2
             except:
                 continue
