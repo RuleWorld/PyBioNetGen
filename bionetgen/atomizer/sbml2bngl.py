@@ -307,13 +307,18 @@ class SBML2BNGL:
             # compVol = self.compartmentDict[species_comp]
             # # TODO: Handle unit conversions here if units are given
             # initialValue *= float(compVol)
+            # if not species.getHasOnlySubstanceUnits():
+            #     initialValue *= 6.022e23
         else:
             initialValue = species.getInitialAmount()
             # we need to ensure we have concentrations
             species_comp = species.compartment
             compVol = self.compartmentDict[species_comp]
             # TODO: Handle unit conversions here if units are given
-            initialValue /= float(compVol)
+            if compVol > 0:
+                initialValue /= float(compVol)
+            # TODO: If using moles of stuff
+            # initialValue *= 6.022e23
         isConstant = species.getConstant()
         isBoundary = species.getBoundaryCondition()
 
@@ -3214,6 +3219,7 @@ class SBML2BNGL:
         zparam2 = zparam
         initialConditions2 = initialConditions
         pparam = {}
+        initCondMap = {}
         for element in param:
             pparam[element.split(" ")[0]] = (element.split(" ")[1], None)
         for element in zparam:
@@ -3235,9 +3241,9 @@ class SBML2BNGL:
                 std_name = standardizeName(tmp["name"]) + "()"
                 # ASS - deal with no compartment case
                 if self.noCompartment:
-                    extendedStr = "{1}{0}()".format(std_name, constant)
+                    extendedStr = "{1}{0}".format(std_name, constant)
                 else:
-                    extendedStr = "@{0}:{2}{1}()".format(
+                    extendedStr = "@{0}:{2}{1}".format(
                         tmp["compartment"], std_name, constant
                     )
             initConc = (
@@ -3247,7 +3253,6 @@ class SBML2BNGL:
             )
             pparam[species.getId()] = (initConc, extendedStr)
         from copy import copy
-
         for initialAssignment in self.model.getListOfInitialAssignments():
             symbol = initialAssignment.getSymbol()
             math = libsbml.formulaToString(initialAssignment.getMath())
@@ -3271,10 +3276,6 @@ class SBML2BNGL:
                 zparam = zparam2
             """
             try:
-                # TODO: Replicate this in bngModel
-                print("In getInitialAssignments")
-                print("check pparam[symbol]/param2/initialConditions2")
-                # TODO: Replicate this in bngModel
                 if pparam[symbol][1] == None:
                     param2.append("{0} {1}".format(symbol, math))
                     param = param2
@@ -3286,11 +3287,11 @@ class SBML2BNGL:
                     initialConditions2.append(
                         "{0} {1} #{2}".format(pparam[symbol][1], math, symbol)
                     )
+                    initCondMap["{0} {1} #{2}".format(pparam[symbol][1], math, symbol)] = symbol
                     initialConditions = initialConditions2
             except:
                 continue
-
-        return param, zparam, initialConditions
+        return param, zparam, initialConditions, initCondMap
 
     def getSpeciesAnnotation(self):
         if self.speciesAnnotation:

@@ -988,7 +988,10 @@ class bngModel:
             txt += "begin seed species\n"
             for spec in self.species.values():
                 spec.translator = self.translator
-                if spec.val > 0 or spec.isConstant or spec.isBoundary:
+                if isinstance(spec.val, str):
+                    spec.noCompartment = self.noCompartment
+                    txt += "  " + str(spec) + "\n"
+                elif spec.val > 0 or spec.isConstant or spec.isBoundary:
                     spec.noCompartment = self.noCompartment
                     txt += "  " + str(spec) + "\n"
             txt += "end seed species\n"
@@ -1361,28 +1364,14 @@ class bngModel:
                 _ = self.compartments.pop(comp_key)
                 self.noCompartment = True
 
-    # def consolidate_species(self):
-    #     to_remove = []
-    #     for spe in self.species:
-    #         remove = True
-    #         for mol in self.molecules:
-    #             if spe.Id + "(" in mol:
-    #                 remove = False
-    #         if remove:
-    #             to_remove.append(spe)
-    #     for rem in to_remove:
-    #         self.species.pop(rem)
-
     def consolidate(self):
         self.consolidate_compartments()
         self.consolidate_arules()
         self.consolidate_molecules()
-        # self.consolidate_species()
         self.consolidate_observables()
         self.reorder_functions()
         str(self)
         self.check_for_time_function()
-        # import IPython;IPython.embed()
         self.print_obs_map()
 
     def print_obs_map(self):
