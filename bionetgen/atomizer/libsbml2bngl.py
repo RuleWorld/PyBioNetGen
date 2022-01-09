@@ -978,7 +978,7 @@ def analyzeHelper(
     ) = parser.getSpecies(translator, [x.split(" ")[0] for x in param])
 
     # finally, adjust parameters and initial concentrations according to whatever  initialassignments say
-    param, zparam, initialConditions = parser.getInitialAssignments(
+    param, zparam, initialConditions, initCondMap = parser.getInitialAssignments(
         translator, param, zparam, molecules, initialConditions
     )
 
@@ -1376,6 +1376,13 @@ def analyzeHelper(
             init_to_rem.append(sspec)
     for i in init_to_rem:
         initialConditions.remove(i)
+    # add any missing initial conditions to bngModel
+    for icon in initialConditions:
+        if icon in initCondMap:
+            sym = initCondMap[icon]
+            if sym in parser.bngModel.species:
+                sp = parser.bngModel.species[sym]
+                sp.val = " ".join(icon.split()[1:-1])
     # Turn any "fixed molecules" that are not used in rules
     # into parameters
     param.extend(turn_to_param)
@@ -1411,6 +1418,14 @@ def analyzeHelper(
     for i in obs_to_rem:
         observables.remove(i)
     # done removing useless species/seed species/obs
+
+    # update param values
+    for param_line in param:
+        param_splt = param_line.split()
+        param_name = param_splt[0]
+        param_val = " ".join(param_splt[1:])
+        if param_name in parser.bngModel.parameters:
+            parser.bngModel.parameters[param_name].val = param_val
 
     # TODO: temporary: check structured molecule ratio
     struc_count = 0
