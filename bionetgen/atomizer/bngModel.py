@@ -67,6 +67,7 @@ class Molecule:
         self.compartment = raw["compartment"]
         self.name = raw["name"].replace(" ", "").replace("*", "m")
         self.identifier = raw["identifier"]
+        self.conversionFactor = raw["conversionFactor"]
 
     def __str__(self):
         if self.Id in self.translator:
@@ -111,6 +112,7 @@ class Species:
             self.val = self.initConc
         else:
             self.val = 0
+        self.conversionFactor = raw["conversionFactor"]
 
     def __str__(self):
         trans_id = (
@@ -118,18 +120,26 @@ class Species:
             if self.Id in self.translator
             else self.Id + "()"
         )
+        # handle conversion factor
+        if self.conversionFactor is None:
+            conv = ""
+        else:
+            conv = ""
+            # conv = f"/{self.conversionFactor}"
+        # decide if we are using a constant species
         mod = "$" if self.isConstant or self.isBoundary else ""
         if self.noCompartment or self.compartment == "" or self.compartment is None:
             if self.raw is not None:
-                txt = "{}{} {} #{} #{}".format(
+                txt = "{}{} {}{} #{} #{}".format(
                     mod,
                     trans_id,
                     self.val,
+                    conv,
                     self.raw["returnID"],
                     self.raw["identifier"],
                 )
             else:
-                txt = "{}{} {}".format(mod, trans_id, self.val)
+                txt = "{}{} {}{}".format(mod, trans_id, self.val, conv)
         else:
             # we have a compartment in our ID
             # need to make sure it's correct
@@ -149,16 +159,19 @@ class Species:
             if comp_str in str(trans_id):
                 trans_id = str(trans_id).replace(comp_str, "")
             if self.raw is not None:
-                txt = "@{}:{}{} {} #{} #{}".format(
+                txt = "@{}:{}{} {}{} #{} #{}".format(
                     self.compartment,
                     mod,
                     trans_id,
                     self.val,
+                    conv,
                     self.raw["returnID"],
                     self.raw["identifier"],
                 )
             else:
-                txt = "@{}:{}{} {}".format(self.compartment, mod, trans_id, self.val)
+                txt = "@{}:{}{} {}{}".format(
+                    self.compartment, mod, trans_id, self.val, conv
+                )
         return txt
 
     def __repr__(self):
@@ -734,6 +747,7 @@ class Rule:
         self.raw = None
         self.tags = None
         self.model = None
+        self.raw_splt = False
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -880,13 +894,28 @@ class Rule:
                     r1 = "{}".format(self.rate_cts[1])
                 txt += " {},{}".format(r0, r1)
             else:
+                conv = ""
+                if self.raw_splt:
+                    # we can handle conversion factors here
+                    # ensure we got the right type of 0 -> X rule
+                    if len(self.reactants) == 0 and len(self.products) == 1:
+                        prod = self.products[0]
+                        if prod[0] in self.model.molecules:
+                            if (
+                                self.model.molecules[prod[0]].conversionFactor
+                                is not None
+                            ):
+                                conv = (
+                                    f"*{self.model.molecules[prod[0]].conversionFactor}"
+                                )
                 if (
                     self.rate_cts[0] in self.model.obs_map
                     or self.rate_cts[0] in self.model.observables
                 ):
-                    txt += " 1*{}".format(self.rate_cts[0])
+                    txt += " 1*{}{}".format(self.rate_cts[0], conv)
                 else:
-                    txt += " {}".format(self.rate_cts[0])
+
+                    txt += " {}{}".format(self.rate_cts[0], conv)
 
         comment = ""
         if self.raw is not None:
@@ -959,6 +988,7 @@ class bngModel:
         self.add_time = False
         self.param_repl = []
         self.obs_map_file = None
+        self.used_in_rrule = []
 
     def __str__(self):
         txt = self.metaString
@@ -988,12 +1018,14 @@ class bngModel:
             txt += "begin seed species\n"
             for spec in self.species.values():
                 spec.translator = self.translator
+                if spec.Id in self.used_in_rrule:
+                    spec.isBoundary = False
                 if isinstance(spec.val, str):
                     spec.noCompartment = self.noCompartment
-                    txt += "  " + str(spec) + "\n"
+                    txt += f"{str(spec)}\n"
                 elif spec.val > 0 or spec.isConstant or spec.isBoundary:
                     spec.noCompartment = self.noCompartment
-                    txt += "  " + str(spec) + "\n"
+                    txt += f"{str(spec)}\n"
             txt += "end seed species\n"
 
         if len(self.observables.values()) > 0:
@@ -1066,6 +1098,12 @@ class bngModel:
     def __repr__(self):
         return str((self.parameters, self.molecules))
 
+    def _reset(self):
+        self.molecules = {}
+        self.molecule_ids = {}
+        self.species = {}
+        self.observables = {}
+
     def consolidate_arules(self):
         """
         this figures out what to do with particular
@@ -1130,6 +1168,7 @@ class bngModel:
                 if comp is not None:
                     nspec.compartment = comp
                 self.add_species(nspec)
+                self.used_in_rrule.append(nspec.Id)
             elif arule.isAssignment:
                 # rule is an assignment rule
                 # let's first check parameters

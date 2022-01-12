@@ -315,8 +315,8 @@ class SBML2BNGL:
             species_comp = species.compartment
             compVol = self.compartmentDict[species_comp]
             # TODO: Handle unit conversions here if units are given
-            if compVol > 0:
-                initialValue /= float(compVol)
+            # if compVol > 0:
+            #     initialValue /= float(compVol)
             # TODO: If using moles of stuff
             # initialValue *= 6.022e23
         isConstant = species.getConstant()
@@ -391,6 +391,11 @@ class SBML2BNGL:
         values["compartment"] = compartment
         values["name"] = name
         values["identifier"] = identifier
+        if len(species.conversion_factor) > 0:
+            # we have a conversion factor to account for
+            values["conversionFactor"] = species.conversion_factor
+        else:
+            values["conversionFactor"] = None
         return values
 
     def getPrunnedTree(self, math, remainderPatterns, artificialObservables={}):
@@ -765,7 +770,7 @@ class SBML2BNGL:
             reversible -- a boolean indicated whether there's should be a backward rate
             rReactant -- a string list of the reactants.
             rProduct -- a string list of the products.
-            sbmlFunctions -- a list of possible nested functiosn taht we need to remove
+            sbmlFunctions -- a list of possible nested functiosn that we need to remove
         """
         # We turn the AST object to string first
         mathstring = libsbml.formulaToString(math)
@@ -1098,6 +1103,10 @@ class SBML2BNGL:
 
         # in case a given species was defined as the zero molecule don't include it in the rate correction method
         for x in reaction.getListOfReactants():
+            # check if we are splitting the reaction due to conversion factors
+            if x.getSpecies() in self.bngModel.molecules:
+                if self.bngModel.molecules[x.getSpecies()].conversionFactor is not None:
+                    split_rxn = True
             if (
                 x.getSpecies().lower() not in zerospecies
                 and x.getStoichiometry()
@@ -1127,6 +1136,10 @@ class SBML2BNGL:
                         continue
                     rReactant.append((x.getSpecies(), x.getStoichiometry()))
         for x in reaction.getListOfProducts():
+            # check if we are splitting the reaction due to conversion factors
+            if x.getSpecies() in self.bngModel.molecules:
+                if self.bngModel.molecules[x.getSpecies()].conversionFactor is not None:
+                    split_rxn = True
             if (
                 x.getSpecies().lower() not in zerospecies
                 and x.getStoichiometry()
@@ -2807,13 +2820,13 @@ class SBML2BNGL:
             # We are using only 1 compartment, check volume
             # FIXME: We will try removing the compartment
             # if only one is used
-            self.noCompartment = True
-            self.bngModel.noCompartment = True
-            # if self.compartmentDict[allUsedCompartments.pop()] == 1:
-            #     # we have 1 compartment and it's volume is 1
-            #     # just don't use compartments.
-            #     self.noCompartment = True
-            #     self.bngModel.noCompartment = True
+            # self.noCompartment = True
+            # self.bngModel.noCompartment = True
+            if self.compartmentDict[allUsedCompartments.pop()] == 1:
+                # we have 1 compartment and it's volume is 1
+                # just don't use compartments.
+                self.noCompartment = True
+                self.bngModel.noCompartment = True
         elif len(allUsedCompartments) > 1:
             if not self.multi_comp_warn:
                 logMess(
@@ -2835,11 +2848,8 @@ class SBML2BNGL:
             return d
 
         # gotta reset the bngModel everytime
-        # this is called
-        self.bngModel.molecules = {}
-        self.bngModel.molecule_ids = {}
-        self.bngModel.species = {}
-        self.bngModel.observables = {}
+        # this function is called
+        self.bngModel._reset()
 
         # find concentration units
         unitDefinitions = self.getUnitDefinitions()
