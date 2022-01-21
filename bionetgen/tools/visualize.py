@@ -77,6 +77,9 @@ class BNGVisualize:
         self.bngpath = bngpath
 
     def run(self) -> VisResult:
+        return self._normal_mode()
+
+    def _normal_mode(self):
         model = bionetgen.modelapi.bngmodel(self.input)
         model.actions.clear_actions()
         if self.vtype == "all":

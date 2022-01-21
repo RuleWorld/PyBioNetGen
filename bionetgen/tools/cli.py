@@ -135,6 +135,8 @@ class BNGCLI:
             # set BNGPATH back
             if self.old_bngpath is not None:
                 os.environ["BNGPATH"] = self.old_bngpath
-            raise ValueError(
-                "Failed to run your BNGL file, there might be an issue with your model!"
+            raise RuntimeError(
+                "Failed to run your BNGL file, there might be an issue with your model!",
+                out.stdout.decode("UTF-8"),
+                out.stderr.decode("UTF-8"),
             )

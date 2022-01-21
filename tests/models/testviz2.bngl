@@ -1,0 +1,39 @@
+begin model
+
+begin parameters
+  A0    100  # initial number of A molecules
+  B0    100  # initial number of B molecules
+  D0    100  # initial number of D molecules
+  ka    0.01 # association rate constant
+  kd    1    # dissociation rate constant
+end parameters
+
+begin molecule types
+  A(b,d)
+  B(a)
+  D(a)
+end molecule types
+
+begin species
+  A(b,d) A0
+  B(a)   B0
+  D(a)   D0
+end species
+
+begin observables
+  Molecules A A(b,d)
+  Molecules B B(a)
+  Molecules D D(a)
+  Molecules X A(b!1).B(a!1)
+  Molecules Z A(d!1).D(a!1)
+end observables
+
+begin reaction rules
+  A(b) + B(a) <-> A(b!1).B(a!1) ka, kd
+  A(d) + D(a) <-> A(d!1).D(a!1) ka, kd
+end reaction rules
+
+end model
+
+# actions
+simulate({method=>"ode",t_end=>10,n_steps=>200})

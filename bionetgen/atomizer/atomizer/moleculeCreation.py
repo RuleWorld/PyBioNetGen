@@ -1176,7 +1176,7 @@ def sanityCheck(database):
         temp = sorted(repeat)
         logMess(
             "ERROR:SCT241",
-            "{0}:{1}:produce the same translation:{2}:{1}:was empied".format(
+            "{0}:{1}:produce the same translation:{2}:{1}:was emptied".format(
                 temp[0], temp[1], database.prunnedDependencyGraph[temp[0]][0]
             ),
         )
