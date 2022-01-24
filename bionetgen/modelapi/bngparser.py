@@ -6,7 +6,7 @@ from tempfile import TemporaryFile
 from .bngfile import BNGFile
 from .xmlparsers import ParameterBlockXML, CompartmentBlockXML, ObservableBlockXML
 from .xmlparsers import SpeciesBlockXML, MoleculeTypeBlockXML, FunctionBlockXML
-from .xmlparsers import RuleBlockXML
+from .xmlparsers import RuleBlockXML, EnergyPatternBlockXML
 from .blocks import ActionBlock
 
 # This allows access to the CLIs config setup
@@ -235,6 +235,20 @@ class BNGParser:
                     funcs = func_list["Function"]
                     xml_parser = FunctionBlockXML(funcs)
                     model_obj.add_block(xml_parser.parsed_obj)
+            elif listkey == "ListOfEnergyPatterns":
+                # TODO: make this work
+                ep_list = xml_model[listkey]
+                if ep_list is not None:
+                    eps = ep_list["EnergyPattern"]
+                    xml_parser = EnergyPatternBlockXML(eps)
+                    model_obj.add_block(xml_parser.parsed_obj)
+            # TODO: add population map parsing
+            # elif listkey == "ListOfPopulationMaps":
+            #     pm_list = xml_model[listkey]
+            #     if pm_list is not None:
+            #         pms = pm_list["PopulationMap"]
+            #         xml_parser = PopulationMapBlockXML(pms)
+            #         model_obj.add_block(xml_parser.parsed_obj)
         # And that's the end of parsing
         # TODO: Add verbosity option to the library
         # print("Parsing complete")

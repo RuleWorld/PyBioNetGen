@@ -1,6 +1,7 @@
 from .blocks import ParameterBlock, CompartmentBlock, ObservableBlock
 from .blocks import SpeciesBlock, MoleculeTypeBlock
 from .blocks import FunctionBlock, RuleBlock
+from .blocks import EnergyPatternBlock
 
 from .pattern import Pattern, Molecule, Component
 
@@ -750,6 +751,39 @@ class RuleBlockXML(XMLObj):
                 "WARNING: Include/Exclude Reactants/Products not currently supported as rule modifiers"
             )
         return rule_mod
+
+
+class EnergyPatternBlockXML(XMLObj):
+    """
+    EnergyPatternBlock XML parser, derived from XMLObj. Creates
+    an EnergyPatternBlock that contains the energy patterns parsed.
+    """
+
+    def __init__(self, xml):
+        super().__init__(xml)
+
+    def parse_xml(self, xml):
+        block = EnergyPatternBlock()
+
+        if isinstance(xml, list):
+            for b in xml:
+                # get id & expression
+                epid = b["@id"]
+                expr = b["@expression"]
+                # get pattern
+                pattern_node = b["Pattern"]
+                pattern = PatternXML(pattern_node).parsed_obj
+                block.add_energy_pattern(epid, pattern, expr)
+        else:
+            # get id & expression
+            epid = xml["@id"]
+            expr = xml["@expression"]
+            # get pattern
+            pattern_node = xml["Pattern"]
+            pattern = PatternXML(pattern_node).parsed_obj
+            block.add_energy_pattern(epid, pattern, expr)
+
+        return block
 
 
 class Operation:

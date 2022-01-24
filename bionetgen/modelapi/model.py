@@ -12,6 +12,7 @@ from .blocks import (
     ParameterBlock,
     RuleBlock,
     SpeciesBlock,
+    EnergyPatternBlock,
 )
 
 
@@ -69,6 +70,7 @@ class bngmodel:
             "compartments",
             "molecule_types",
             "species",
+            "energy_patterns",
             "observables",
             "functions",
             "rules",
@@ -222,6 +224,15 @@ class bngmodel:
                 self.active_blocks.append("rules")
         else:
             self.rules = RuleBlock()
+
+    def add_energy_patterns_block(self, block=None):
+        if block is not None:
+            assert isinstance(block, EnergyPatternBlock)
+            self.energy_patterns = block
+            if "energy_patterns" not in self.active_blocks:
+                self.active_blocks.append("energy_patterns")
+        else:
+            self.energy_patterns = EnergyPatternBlock()
 
     def add_actions_block(self, block=None):
         if block is not None:
