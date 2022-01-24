@@ -1138,7 +1138,7 @@ class bngModel:
                 # we need to divide by volume if we have a compartment
                 if comp is not None:
                     vol = self.compartments[comp].size
-                    nfunc.definition = f"{arule.rates[0]}/{vol}"
+                    nfunc.definition = f"({arule.rates[0]})/{vol}"
                 else:
                     nfunc.definition = arule.rates[0]
                 self.add_function(nfunc)
