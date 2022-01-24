@@ -1,5 +1,5 @@
 {
     "name": "PyBioNetGen-dev",
-	"dockerFile": "..\\Dockerfile",
+	"dockerFile": "Dockerfile",
 	"context": "..",
 }

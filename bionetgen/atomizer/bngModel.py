@@ -94,6 +94,7 @@ class Species:
         self.isBoundary = None
         self.name = None
         self.identifier = None
+        self.conversionFactor = None
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -130,7 +131,7 @@ class Species:
         mod = "$" if self.isConstant or self.isBoundary else ""
         if self.noCompartment or self.compartment == "" or self.compartment is None:
             if self.raw is not None:
-                txt = "{}{} {}{} #{} #{}".format(
+                txt = "  {}{} {}{} #{} #{}".format(
                     mod,
                     trans_id,
                     self.val,
@@ -139,7 +140,7 @@ class Species:
                     self.raw["identifier"],
                 )
             else:
-                txt = "{}{} {}{}".format(mod, trans_id, self.val, conv)
+                txt = "  {}{} {}{}".format(mod, trans_id, self.val, conv)
         else:
             # we have a compartment in our ID
             # need to make sure it's correct
@@ -159,7 +160,7 @@ class Species:
             if comp_str in str(trans_id):
                 trans_id = str(trans_id).replace(comp_str, "")
             if self.raw is not None:
-                txt = "@{}:{}{} {}{} #{} #{}".format(
+                txt = "  @{}:{}{} {}{} #{} #{}".format(
                     self.compartment,
                     mod,
                     trans_id,
@@ -169,7 +170,7 @@ class Species:
                     self.raw["identifier"],
                 )
             else:
-                txt = "@{}:{}{} {}{}".format(
+                txt = "  @{}:{}{} {}{}".format(
                     self.compartment, mod, trans_id, self.val, conv
                 )
         return txt
@@ -1134,7 +1135,12 @@ class bngModel:
                 # turn the rate cts into a function
                 nfunc = self.make_function()
                 nfunc.Id = "rrate_{}".format(amolec.Id)
-                nfunc.definition = arule.rates[0]
+                # we need to divide by volume if we have a compartment
+                if comp is not None:
+                    vol = self.compartments[comp].size
+                    nfunc.definition = f"{arule.rates[0]}/{vol}"
+                else:
+                    nfunc.definition = arule.rates[0]
                 self.add_function(nfunc)
                 # now make the rule
                 if comp is not None:

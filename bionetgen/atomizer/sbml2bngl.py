@@ -2800,7 +2800,12 @@ class SBML2BNGL:
     # non compartmental models
     def check_noCompartment(self, parameters=[]):
         self.compartmentDict = {}
-        self.compartmentDict[""] = 1
+        # self.compartmentDict[""] = 1
+        comps = [i for i in self.model.getListOfCompartments()]
+        if len(comps) == 0:
+            self.noCompartment = True
+            self.bngModel.noCompartment = True
+            return
         for compartment in self.model.getListOfCompartments():
             self.compartmentDict[compartment.getId()] = compartment.getSize()
         self.noCompartment = False
