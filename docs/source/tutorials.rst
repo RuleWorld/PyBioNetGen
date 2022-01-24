@@ -17,3 +17,4 @@ Tutorials
 
 * :ref:`cli_tut`
 * :ref:`lib_tut`
+* :ref:`atomizer`

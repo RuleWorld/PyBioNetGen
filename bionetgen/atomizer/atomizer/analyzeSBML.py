@@ -5,6 +5,8 @@ Created on Thu Mar 22 13:11:38 2012
 @author: proto
 """
 
+import enum
+import imp
 from pyparsing import Word, Suppress, Optional, alphanums, Group, ZeroOrMore
 import numpy as np
 import json
@@ -392,7 +394,8 @@ class SBMLAnalyzer:
         independent of the reaction network.
         """
 
-        # ASS2019 - in Python3 species is a dictKey object and can't be marshaled, this should be both p2 and p3 compatible
+        # ASS2019 - in Python3 species is a dictKey object and can't be marshaled,
+        # this should be both p2 and p3 compatible
         species = list(species)
         equivalenceTranslator = {}
         dependencyGraph = {}
@@ -407,7 +410,6 @@ class SBMLAnalyzer:
             basicElements = []
             composingElements = []
             splitpindex = -1
-            # for splitpindex in range(0,len(splitparticle)):
             while (splitpindex + 1) < len(splitparticle):
                 splitpindex += 1
                 splitp = splitparticle[splitpindex]
@@ -762,7 +764,72 @@ class SBMLAnalyzer:
                 return []
             if os.path.isfile(fileName):
                 with open(fileName, "r") as fp:
-                    reactionDefinition = json.load(fp)
+                    reactionDefinition_new = json.load(fp)
+                # adjust for new file format and keep propagating the same
+                # object format downstream so we don't have to deal with
+                # downstream changes
+                # let's start with binding interaction/complexDefinition block
+                reactionDefinition = {}
+                if "binding_interactions" in reactionDefinition_new:
+                    reactionDefinition["complexDefinition"] = []
+                    # convert new JSON format to old data format
+                    # we'll need to make sure symmetrical ones are created
+                    # this is a list of pairs
+                    for binding_pair in reactionDefinition_new["binding_interactions"]:
+                        first, second = binding_pair[0], binding_pair[1]
+                        if isinstance(first, dict) or isinstance(second, dict):
+                            # TODO: Implement dictionaries for binding partners in the future
+                            raise NotImplementedError(
+                                "Dictionaries for binding pairs are not implemented yet"
+                            )
+
+                        # let's deal with first
+                        # first initalize the item or pull if it already exists
+                        item = None
+                        for ix, x in enumerate(reactionDefinition["complexDefinition"]):
+                            if x[0] == first:
+                                item = reactionDefinition["complexDefinition"].pop(ix)
+                                break
+                        if item is None:
+                            item = [first, [[first]]]
+                        item[1][0].append(second.lower())
+                        item[1][0].append([])
+                        reactionDefinition["complexDefinition"].append(item)
+
+                        if first != second:
+                            # now deal with second partner
+                            # first initalize the item or pull if it already exists
+                            item = None
+                            for ix, x in enumerate(
+                                reactionDefinition["complexDefinition"]
+                            ):
+                                if x[0] == second:
+                                    item = reactionDefinition["complexDefinition"].pop(
+                                        ix
+                                    )
+                                    break
+                            if item is None:
+                                item = [second, [[second]]]
+                            item[1][0].append(first.lower())
+                            item[1][0].append([])
+                            reactionDefinition["complexDefinition"].append(item)
+                else:
+                    reactionDefinition["complexDefinition"] = []
+                # now deal with reaction definition block
+                if "reactionDefinition" in reactionDefinition_new:
+                    reactionDefinition["reactionDefinition"] = []
+                    # convert new JSON format to old data format
+                else:
+                    reactionDefinition["reactionDefinition"] = []
+                # deal with modifications
+                if "modificationDefinition" in reactionDefinition_new:
+                    # TODO: Change file format to be nicer?
+                    reactionDefinition[
+                        "modificationDefinition"
+                    ] = reactionDefinition_new["modificationDefinition"]
+                    # convert new JSON format to old data format
+                else:
+                    reactionDefinition["modificationDefinition"] = {}
                 return reactionDefinition
         reactionDefinition = {
             "reactions": [
@@ -1068,7 +1135,8 @@ class SBMLAnalyzer:
                     #            localSpeciesDict[namePair[1]][componentName].append([namePair[0],tag,compartmentChangeFlag])
 
                     # namePairs,differenceList,_ = detectOntology.defineEditDistanceMatrix([commonRoot,product],
-                    #                                                similarityThreshold=similarityThreshold)
+                    #
+                    #                                               similarityThreshold=similarityThreshold)
                     return [
                         [
                             [[namePairs[y][0]], [namePairs[y][1]]],
@@ -2397,7 +2465,7 @@ class SBMLAnalyzer:
         label = []
         for molecule in userEquivalence[1]:
             if molecule[0] == 0:
-                labelDictionary[patterName] = 0
+                labelDictionary[patternName] = 0
                 return
             tmp2 = st.Molecule(molecule[0])
             for componentIdx in range(1, len(molecule), 2):

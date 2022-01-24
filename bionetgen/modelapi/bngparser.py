@@ -6,7 +6,7 @@ from tempfile import TemporaryFile
 from .bngfile import BNGFile
 from .xmlparsers import ParameterBlockXML, CompartmentBlockXML, ObservableBlockXML
 from .xmlparsers import SpeciesBlockXML, MoleculeTypeBlockXML, FunctionBlockXML
-from .xmlparsers import RuleBlockXML
+from .xmlparsers import RuleBlockXML, EnergyPatternBlockXML
 from .blocks import ActionBlock
 
 # This allows access to the CLIs config setup
@@ -85,7 +85,6 @@ class BNGParser:
     # to make a grammar for it.
     def parse_actions(self, model_obj):
         if len(self.bngfile.parsed_actions) > 0:
-            # import ipdb;ipdb.set_trace();
             ablock = ActionBlock()
             # we have actions in file, let's get them
             for action in self.bngfile.parsed_actions:
@@ -98,7 +97,6 @@ class BNGParser:
                 if len(action) == 0:
                     continue
                 # gotta find if actions argument is given
-                # import ipdb;ipdb.set_trace()
                 actions_arg = None
                 amatch = re.match(r".*(actions=>\[(.*)\]).*", action)
                 if amatch is not None:
@@ -182,8 +180,15 @@ class BNGParser:
 
     def parse_xml(self, xml_str, model_obj) -> None:
         xml_dict = xmltodict.parse(xml_str)
+        # catch non-BNG XML files
+        if "sbml" not in xml_dict:
+            if "model" not in xml_dict["sbml"]:
+                raise RuntimeError(
+                    "Input model is invalid. Please ensure model is in proper BNGL or BNG-XML format"
+                )
         model_obj.xml_dict = xml_dict
-        xml_model = xml_dict["sbml"]["model"]
+        first_key = list(xml_dict.keys())[0]
+        xml_model = xml_dict[first_key]["model"]
         model_obj.model_name = xml_model["@id"]
         for listkey in xml_model.keys():
             if listkey == "ListOfParameters":
@@ -230,6 +235,20 @@ class BNGParser:
                     funcs = func_list["Function"]
                     xml_parser = FunctionBlockXML(funcs)
                     model_obj.add_block(xml_parser.parsed_obj)
+            elif listkey == "ListOfEnergyPatterns":
+                # TODO: make this work
+                ep_list = xml_model[listkey]
+                if ep_list is not None:
+                    eps = ep_list["EnergyPattern"]
+                    xml_parser = EnergyPatternBlockXML(eps)
+                    model_obj.add_block(xml_parser.parsed_obj)
+            # TODO: add population map parsing
+            # elif listkey == "ListOfPopulationMaps":
+            #     pm_list = xml_model[listkey]
+            #     if pm_list is not None:
+            #         pms = pm_list["PopulationMap"]
+            #         xml_parser = PopulationMapBlockXML(pms)
+            #         model_obj.add_block(xml_parser.parsed_obj)
         # And that's the end of parsing
         # TODO: Add verbosity option to the library
         # print("Parsing complete")

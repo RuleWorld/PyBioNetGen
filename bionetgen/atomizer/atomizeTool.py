@@ -19,7 +19,7 @@ class AtomizeTool:
             "molecule_id": False,
             "convert_units": False,  # currently not supported
             "atomize": False,  # default is flat translation
-            "pathwaycommons": False,  # requires connection so default is false
+            "pathwaycommons": True,  # requires connection so default is false
             "bionetgen_analysis": os.path.join(
                 d.bng_path, "BNG2.pl"
             ),  # TODO: get it from app config
@@ -28,6 +28,7 @@ class AtomizeTool:
             "memoized_resolver": False,
             "keep_local_parameters": False,
             "quiet_mode": False,
+            "obs_map_file": None,
             "log_level": "DEBUG",  # options are "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"
         }
         # input file
@@ -74,6 +75,7 @@ class AtomizeTool:
         options["memoizedResolver"] = config["memoized_resolver"]
         options["replaceLocParams"] = not config["keep_local_parameters"]
         options["quietMode"] = config["quiet_mode"]
+        options["obs_map_file"] = config["obs_map_file"]
         assert config["log_level"] in [
             "CRITICAL",
             "ERROR",
@@ -101,8 +103,8 @@ class AtomizeTool:
             replaceLocParams=self.config["replaceLocParams"],
             quietMode=self.config["quietMode"],
             logLevel=self.config["logLevel"],
+            obs_map_file=self.config["obs_map_file"],
         )
-
         try:
             if self.config["bionetgenAnalysis"] and self.returnArray:
                 ls2b.postAnalyzeFile(
@@ -110,6 +112,7 @@ class AtomizeTool:
                     self.config["bionetgenAnalysis"],
                     self.returnArray.database,
                     replaceLocParams=self.config["replaceLocParams"],
+                    obs_map_file=self.config["obs_map_file"],
                 )
         except Exception as e:
             print("Post analysis failed")

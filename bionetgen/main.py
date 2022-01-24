@@ -9,10 +9,11 @@ from .core.main import plotDAT
 from .core.main import runAtomizeTool
 from .core.main import printInfo
 from .core.main import visualizeModel
+from .core.main import graphDiff
 from .core.notebook import BNGNotebook
 
 # pull defaults defined in core/defaults
-CONFIG = bng.defaults.config
+CONF = bng.defaults
 VERSION_BANNER = bng.defaults.banner
 
 # require version argparse action
@@ -72,7 +73,7 @@ class BNGBase(cement.Controller):
             # TODO: Auto-load in BioNetGen version here
             (["-v", "--version"], dict(action="version", version=VERSION_BANNER)),
             # (['-s','--sedml'],dict(type=str,
-            #                        default=CONFIG['bionetgen']['bngpath'],
+            #                        default=CONF.config['bionetgen']['bngpath'],
             #                        help="Optional path to SED-ML file, if available the simulation \
             #                              protocol described in SED-ML will be ran")),
             (["-req", "--require"], dict(action=requireAction, type=str, default=None)),
@@ -188,14 +189,15 @@ class BNGBase(cement.Controller):
             except:
                 raise RuntimeError(f"Couldn't import given model: {args.input}!")
             notebook = BNGNotebook(
-                CONFIG["bionetgen"]["notebook"]["template"], INPUT_ARG=args.input
+                self.app.config["bionetgen"]["notebook"]["template"],
+                INPUT_ARG=args.input,
             )
         else:
             # just use the basic notebook
-            notebook = BNGNotebook(CONFIG["bionetgen"]["notebook"]["path"])
+            notebook = BNGNotebook(self.app.config["bionetgen"]["notebook"]["path"])
         # find our file name
         if len(args.output) == 0:
-            fname = CONFIG["bionetgen"]["notebook"]["name"]
+            fname = self.app.config["bionetgen"]["notebook"]["name"]
         else:
             fname = args.output
         # write the notebook out
@@ -205,13 +207,13 @@ class BNGBase(cement.Controller):
                 mname = basename.replace(".bngl", "")
                 fname = mname + ".ipynb"
             else:
-                mname = CONFIG["bionetgen"]["notebook"]["name"]
+                mname = self.app.config["bionetgen"]["notebook"]["name"]
                 fname = os.path.join(args.output, mname)
 
         notebook.write(fname)
         # open the notebook with nbopen
-        stdout = getattr(subprocess, CONFIG["bionetgen"]["stdout"])
-        stderr = getattr(subprocess, CONFIG["bionetgen"]["stderr"])
+        stdout = getattr(subprocess, self.app.config["bionetgen"]["stdout"])
+        stderr = getattr(subprocess, self.app.config["bionetgen"]["stderr"])
         if args.open:
             command = ["nbopen", fname]
             rc, _ = run_command(command)
@@ -382,6 +384,71 @@ class BNGBase(cement.Controller):
         visualizeModel(self.app.config, args)
 
     @cement.ex(
+        help="A subcommand to compare two contact maps made by BioNetGen. "
+        + 'The default mode is "matrix" mode and will generate 4 graphs, two for each individual input '
+        + "recolored, one for input 1 - input 2 and one for input 2 - input 1. This can be used to find "
+        + "differences and communalities between two BNGL models of the same process. ",
+        arguments=[
+            (
+                ["-i", "--input"],
+                {
+                    "help": "Path to the first graphml file to diff",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-i2", "--input2"],
+                {
+                    "help": "Path to the second graphml file to diff",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-o", "--output"],
+                {
+                    "help": "(optional) Output graphml file for the diff input 1 - input 2",
+                    "default": None,
+                    "type": str,
+                    "required": False,
+                },
+            ),
+            (
+                ["-o2", "--output2"],
+                {
+                    "help": "(optional) Output graphml file for the diff input 2 - input 1",
+                    "default": None,
+                    "type": str,
+                    "required": False,
+                },
+            ),
+            (
+                ["-m", "--mode"],
+                {
+                    "help": 'Diff mode. There are currently two available modes "matrix" and "union".',
+                    "default": "matrix",
+                    "type": str,
+                },
+            ),
+            (
+                ["-c", "--colors"],
+                {
+                    "help": "Path to the json file that contains color choices.",
+                    "default": None,
+                    "type": str,
+                },
+            ),
+        ],
+    )
+    def graphdiff(self):
+        """ """
+        args = self.app.pargs
+        graphDiff(self.app.config, args)
+
+    @cement.ex(
         help="SBML to BNGL translator",
         arguments=[
             (
@@ -449,9 +516,9 @@ class BNGBase(cement.Controller):
             (
                 ["-p", "--pathwaycommons"],
                 {
-                    "help": "Use pathway commons to infer molecule binding. This setting requires an internet connection and will query the pathway commons web service.",
-                    "default": False,
-                    "action": "store_true",
+                    "help": "Don't use web services to infer information on the SBML species. Use this setting when you don't have an internet connection.",
+                    "default": True,
+                    "action": "store_false",
                 },
             ),
             (
@@ -495,8 +562,16 @@ class BNGBase(cement.Controller):
             (
                 ["-ll", "--log-level"],
                 {
-                    "help": 'This option allows you to select a logging level, from quietest to loudest options are: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG". Default is set to DEBUG',
-                    "default": "DEBUG",
+                    "help": 'This option allows you to select a logging level, from quietest to loudest options are: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG". Default is set to WARNING',
+                    "default": "WARNING",
+                    "type": str,
+                },
+            ),
+            (
+                ["-omf", "--obs-map-file"],
+                {
+                    "help": "With this option enabled atomizer will print the map between SBML and BNGL observables in JSON format",
+                    "default": None,
                     "type": str,
                 },
             ),
@@ -549,14 +624,13 @@ class BioNetGen(cement.App):
         label = "bionetgen"
 
         # configuration defaults
-        config_defaults = CONFIG
+        config_defaults = CONF.config
 
         # call sys.exit() on close
         exit_on_close = True
 
         # load additional framework extensions
         extensions = [
-            "yaml",
             "colorlog",
         ]
 

@@ -864,6 +864,9 @@ def atomize(
         bindingFailureDict = {}
 
         for idx, element in enumerate(weights):
+            # unnamed molecule?
+            if len(element[0]) == 0:
+                continue
             # 0 molecule
             if element[0] == "0":
                 continue
@@ -961,7 +964,6 @@ Please choose among the possible binding candidates that had the most observed f
                 bindingTroubleLog[trouble], trouble
             ),
         )
-    # import ipdb;ipdb.set_trace()
     # renaming of components as needed for readability.
     for spname in translator:
         species = translator[spname]
@@ -1046,6 +1048,11 @@ Please choose among the possible binding candidates that had the most observed f
                 else:
                     comp_counter_2[component.name] += 1
                     component.name += f"{comp_counter_2[component.name]}"
+        for spname in translator:
+            species = translator[spname]
+            for molec in species.molecules:
+                for comp in molec.components:
+                    comp.states = sorted(comp.states)
         # report
         new_species_str2 = species.str2()
         if new_species_str2 != orig_species_st2:
@@ -1169,7 +1176,7 @@ def sanityCheck(database):
         temp = sorted(repeat)
         logMess(
             "ERROR:SCT241",
-            "{0}:{1}:produce the same translation:{2}:{1}:was empied".format(
+            "{0}:{1}:produce the same translation:{2}:{1}:was emptied".format(
                 temp[0], temp[1], database.prunnedDependencyGraph[temp[0]][0]
             ),
         )

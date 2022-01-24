@@ -45,32 +45,42 @@ def queryBioGridByName(name1, name2, organism, truename1, truename2):
     response = None
     if organism:
         organismExtract = list(organism)[0].split("/")[-1]
-        xparams = "geneList={0}&includeInteractors=false&accesskey=59764eb62ca572de5949062a1ba75e5d&format=json&taxId={1}".format(
-            "|".join([name1, name2]), "|".join(organism)
-        )
-
+        d = {
+            "geneList": "|".join([name1, name2]),
+            "taxId": "|".join(organism),
+            "format": "json",
+            "accesskey": "f74b8d6f4c394fcc9d97b11c8c83d7f3",
+            "includeInteractors": "false",
+        }
+        # FIXME: check if all "organism"s are the wrong thing,
+        # for model 48 this returns a process identifier https://www.ebi.ac.uk/QuickGO/term/GO:0007173
+        # and not an organism taxonomy identifier
+        data = urllib.parse.urlencode(d).encode("utf-8")
         try:
-            response = urllib.request.urlopen(url, xparams).read()
+            response = urllib.request.urlopen(url, data=data).read()
         except urllib.error.HTTPError:
             logMess(
                 "ERROR:MSC02",
-                "A connection could not be established to biogrid while testing with taxon {1} and genes {0}".format(
+                "A connection could not be established to biogrid while testing with taxon {1} and genes {0}, trying without organism taxonomy limitation".format(
                     "|".join([name1, name2]), "|".join(organism)
                 ),
             )
-            return False
+            # return False
 
-    if not response:
-        xparams = "geneList={0}&includeInteractors=false&accesskey=59764eb62ca572de5949062a1ba75e5d&format=json".format(
-            "|".join([name1, name2])
-        )
+    if response is None:
+        d = {
+            "geneList": "|".join([name1, name2]),
+            "format": "json",
+            "accesskey": "f74b8d6f4c394fcc9d97b11c8c83d7f3",
+            "includeInteractors": "false",
+        }
+        data = urllib.parse.urlencode(d).encode("utf-8")
         try:
-            response = urllib.request.urlopen(url, xparams).read()
+            response = urllib.request.urlopen(url, data=data).read()
         except urllib.error.HTTPError:
             logMess("ERROR:MSC02", "A connection could not be established to biogrid")
             return False
     results = json.loads(response)
-
     referenceName1 = truename1.lower() if truename1 else name1.lower()
     referenceName2 = truename2.lower() if truename2 else name2.lower()
     for result in results:
@@ -80,7 +90,16 @@ def queryBioGridByName(name1, name2, organism, truename1, truename2):
         synonymName1 = [x.lower() for x in synonymName1]
         synonymName2 = results[result]["SYNONYMS_B"].split("|")
         synonymName2 = [x.lower() for x in synonymName2]
+        # FIXME: This should correctly warn the user where the interaction is coming
+        # from exactly
+        # FIXME: Let the user select individual interactions to include. Maybe an
+        # interactive mode
         if truename1 != None and truename2 != None and resultName1 != resultName2:
+            logMess(
+                "WARNING:ATO005",
+                "BioGrid result only matched a synonym. "
+                + f"{resultName1} to {resultName2}",
+            )
             return True
         elif (
             truename1 != None
@@ -88,14 +107,36 @@ def queryBioGridByName(name1, name2, organism, truename1, truename2):
             and truename1 == truename2
             and resultName1 == resultName2
         ):
+            logMess(
+                "WARNING:ATO005",
+                "BioGrid result only matched a synonym. "
+                + f"{truename1} to {truename2} or "
+                + f"{resultName1} to {resultName2}",
+            )
             return True
         if (referenceName1 == resultName1 or referenceName1 in synonymName1) and (
             referenceName2 == resultName2 or referenceName2 in synonymName2
         ):
+            logMess(
+                "WARNING:ATO005",
+                "BioGrid result only matched a synonym. "
+                + f"{referenceName1} to {resultName1} or "
+                + f"{referenceName1} to {synonymName1} or "
+                + f"{referenceName2} to {resultName2} or "
+                + f"{referenceName2} to {synonymName2}",
+            )
             return True
         if (referenceName2 == resultName1 or referenceName2 in synonymName1) and (
             referenceName1 == resultName2 or referenceName1 in synonymName2
         ):
+            logMess(
+                "WARNING:ATO005",
+                "BioGrid result only matched a synonym. "
+                + f"{referenceName2} to {resultName1} or "
+                + f"{referenceName2} to {synonymName1} or "
+                + f"{referenceName1} to {resultName2} or "
+                + f"{referenceName1} to {synonymName2}",
+            )
             return True
 
     return False
@@ -129,7 +170,7 @@ def queryActiveSite(nameStr, organism):
                 logMess(
                     "ERROR:MSC03", "A connection could not be established to uniprot"
                 )
-
+        response = str(response)
         if response in ["", None]:
             url = "http://www.uniprot.org/uniprot/?"
             # ASS - Updating the query to conform with a regular RESTful API request and work in Python3
@@ -149,6 +190,7 @@ def queryActiveSite(nameStr, organism):
                 logMess(
                     "ERROR:MSC03", "A connection could not be established to uniprot"
                 )
+    response = str(response)
     if not response:
         return response
     parsedData = [x.split("\t") for x in response.split("\n")][1:]
@@ -169,27 +211,33 @@ def name2uniprot(nameStr, organism):
     response = None
     if organism:
         organismExtract = list(organism)[0].split("/")[-1]
-        xparams = "query={0}+AND+organism:{1}&columns=entry name,id&format=tab&limit=5&sort=score".format(
-            nameStr, organismExtract
-        )
+        d = {
+            "query": f"{nameStr}+AND+organism:{organismExtract}",
+            "format": "tab&limit=5",
+            "columns": "entry name,id",
+            "sort": "score",
+        }
+        data = urllib.parse.urlencode(d).encode("utf-8")
         try:
-            response = urllib.request.urlopen(url, xparams).read()
+            response = urllib.request.urlopen(url, data=data).read()
         except urllib.error.HTTPError:
             logMess("ERROR:MSC03", "A connection could not be established to uniprot")
             return None
 
     if response in ["", None]:
         url = "http://www.uniprot.org/uniprot/?"
-        xparams = (
-            "query={0}&columns=entry name,id&format=tab&limit=5&sort=score".format(
-                nameStr
-            )
-        )
+        d = {
+            "query": f"{nameStr}",
+            "format": "tab&limit=5",
+            "columns": "entry name,id",
+            "sort": "score",
+        }
+        data = urllib.parse.urlencode(d).encode("utf-8")
         try:
-            response = urllib.request.urlopen(url, xparams).read()
+            response = urllib.request.urlopen(url, data=data).read()
         except urllib.error.HTTPError:
             return None
-    parsedData = [x.split("\t") for x in response.split("\n")][1:]
+    parsedData = [x.split("\t") for x in str(response).split("\n")][1:]
     return [
         x[1]
         for x in parsedData
@@ -205,19 +253,21 @@ def getReactomeBondByUniprot(uniprot1, uniprot2):
     are bound in the same complex
     """
     url = "http://www.pathwaycommons.org/pc2/graph"
-    source = "&".join(["source={0}".format(x) for x in uniprot1])
-    target = "&".join(["target={0}".format(x) for x in uniprot2])
-    xparams = "{0}&{1}&kind=PATHSFROMTO&format=EXTENDED_BINARY_SIF".format(
-        source, target
-    )
+    d = {
+        "kind": "PATHSFROMTO",
+        "format": "EXTENDED_BINARY_SIF",
+        "source": "|".join(uniprot1),
+        "target": "|".join(uniprot2),
+    }
+    data = urllib.parse.urlencode(d).encode("utf-8")
     # query reactome
     try:
-        response = urllib.request.urlopen(url, xparams).read()
+        response = urllib.request.urlopen(url, data=data).read()
     except urllib.error.HTTPError:
         # logMess('ERROR:pathwaycommons','A connection could not be established to pathwaycommons')
         return None
     # divide by line
-    parsedResponse = [x.split("\t") for x in response.split("\n")]
+    parsedResponse = [x.split("\t") for x in str(response).split("\n")]
 
     # response is divided in two  sections. actual protein-protein relationships and protein descriptors
     separation = [i for i, x in enumerate(parsedResponse) if len(x) < 2]

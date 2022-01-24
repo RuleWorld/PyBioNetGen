@@ -22,6 +22,7 @@ For the best user experience, please use PyBioNetGen and the
    tutorials
    cli
    library
+   atomizer
 
 Indices and Tables:
 ===================

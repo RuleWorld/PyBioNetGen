@@ -25,6 +25,9 @@ class BNGResult:
     """
 
     def __init__(self, path=None, direct_path=None):
+        # defaults
+        self.process_return = None
+        self.output = None
         # TODO Make it so that with path you can supply an
         # extension or a list of extensions to load in
         self.gdats = {}

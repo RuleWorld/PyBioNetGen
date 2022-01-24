@@ -1,4 +1,7 @@
-import re, pyparsing, sympy
+import re, pyparsing, sympy, json
+from bionetgen.atomizer.utils.util import logMess
+from bionetgen.atomizer.writer.bnglWriter import rindex
+
 from sympy.printing.str import StrPrinter
 
 prnter = StrPrinter({"full_prec": False})
@@ -51,6 +54,9 @@ class Molecule:
         self.isBoundary = False
         self.compartment = None
 
+    def __contains__(self, val):
+        return val in str(self)
+
     def parse_raw(self, raw):
         self.raw = raw
         self.Id = raw["returnID"]
@@ -61,6 +67,7 @@ class Molecule:
         self.compartment = raw["compartment"]
         self.name = raw["name"].replace(" ", "").replace("*", "m")
         self.identifier = raw["identifier"]
+        self.conversionFactor = raw["conversionFactor"]
 
     def __str__(self):
         if self.Id in self.translator:
@@ -87,6 +94,7 @@ class Species:
         self.isBoundary = None
         self.name = None
         self.identifier = None
+        self.conversionFactor = None
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -103,26 +111,36 @@ class Species:
         elif self.initConc > 0:
             # TODO: Figure out what to do w/ conc
             self.val = self.initConc
+        else:
+            self.val = 0
+        self.conversionFactor = raw["conversionFactor"]
 
     def __str__(self):
-        # import IPython;IPython.embed()
         trans_id = (
             str(self.translator[self.Id])
             if self.Id in self.translator
             else self.Id + "()"
         )
-        mod = "$" if self.isConstant else ""
+        # handle conversion factor
+        if self.conversionFactor is None:
+            conv = ""
+        else:
+            conv = ""
+            # conv = f"/{self.conversionFactor}"
+        # decide if we are using a constant species
+        mod = "$" if self.isConstant or self.isBoundary else ""
         if self.noCompartment or self.compartment == "" or self.compartment is None:
             if self.raw is not None:
-                txt = "{}{} {} #{} #{}".format(
+                txt = "  {}{} {}{} #{} #{}".format(
                     mod,
                     trans_id,
                     self.val,
+                    conv,
                     self.raw["returnID"],
                     self.raw["identifier"],
                 )
             else:
-                txt = "{}{} {}".format(mod, trans_id, self.val)
+                txt = "  {}{} {}{}".format(mod, trans_id, self.val, conv)
         else:
             # we have a compartment in our ID
             # need to make sure it's correct
@@ -142,16 +160,19 @@ class Species:
             if comp_str in str(trans_id):
                 trans_id = str(trans_id).replace(comp_str, "")
             if self.raw is not None:
-                txt = "@{}:{}{} {} #{} #{}".format(
+                txt = "  @{}:{}{} {}{} #{} #{}".format(
                     self.compartment,
                     mod,
                     trans_id,
                     self.val,
+                    conv,
                     self.raw["returnID"],
                     self.raw["identifier"],
                 )
             else:
-                txt = "@{}:{}{} {}".format(self.compartment, mod, trans_id, self.val)
+                txt = "  @{}:{}{} {}{}".format(
+                    self.compartment, mod, trans_id, self.val, conv
+                )
         return txt
 
     def __repr__(self):
@@ -166,6 +187,8 @@ class Observable:
         self.noCompartment = False
         self.translator = {}
         self.raw = None
+        self.pattern = None
+        self.skip_compartment = False
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -179,22 +202,28 @@ class Observable:
         self.identifier = raw["identifier"]
 
     def get_obs_name(self):
-        if self.noCompartment or self.compartment == "" or self.compartment is None:
-            return self.Id
-        else:
-            return "{0}_{1}".format(self.Id, self.compartment)
+        return self.Id
+        # if self.skip_compartment:
+        #     return self.Id
+        # if self.noCompartment or self.compartment == "" or self.compartment is None:
+        #     return self.Id
+        # else:
+        #     return "{0}_{1}".format(self.Id, self.compartment)
 
     def __str__(self):
         txt = self.type
         obs_name = self.get_obs_name()
-        if self.raw is not None:
-            pattern = (
-                self.translator[self.raw["returnID"]]
-                if self.Id in self.translator
-                else self.raw["returnID"] + "()"
-            )
+        if self.pattern is None:
+            if self.raw is not None:
+                pattern = (
+                    self.translator[self.raw["returnID"]]
+                    if self.Id in self.translator
+                    else self.raw["returnID"] + "()"
+                )
+            else:
+                pattern = self.Id + "()"
         else:
-            pattern = self.Id + "()"
+            pattern = self.pattern
         if self.noCompartment or self.compartment == "":
             txt += " {0} {1} #{2}".format(obs_name, pattern, self.name)
         else:
@@ -222,6 +251,8 @@ class Function:
         self.all_syms = None
         self.sbmlFunctions = None
         self.compartmentList = None
+        self.time_flag = False
+        self.adjusted_def = None
 
     def replaceLoc(self, func_def, pdict):
         if self.compartmentList is not None:
@@ -242,8 +273,6 @@ class Function:
 
     def __str__(self):
         fdef = self.definition
-        # if self.Id == "fRate1()":
-        #     import IPython;IPython.embed()
         if self.replaceLocParams:
             # check possible places, local dict first
             if self.local_dict is not None:
@@ -268,6 +297,7 @@ class Function:
                     )
                     fdef = self.replaceLoc(self.definition, rule_dict)
         fdef = self.adjust_func_def(fdef)
+        self.adjusted_def = fdef
         return "{} = {}".format(self.Id, fdef)
 
     def __repr__(self):
@@ -543,8 +573,6 @@ class Function:
             fdef = prnter.doprint(sdef.nsimplify().evalf().simplify())
             fdef = fdef.replace("**", "^")
         except:
-            # print("can't parse function")
-            # import IPython;IPython.embed()
             pass
         return fdef
 
@@ -652,9 +680,26 @@ class Function:
                         recursionIndex += 1
                         break
 
-        defn = re.sub(r"(\W|^)(time)(\W|$)", r"\1time()\3", defn)
-        defn = re.sub(r"(\W|^)(Time)(\W|$)", r"\1time()\3", defn)
-        defn = re.sub(r"(\W|^)(t)(\W|$)", r"\1time()\3", defn)
+        # AS-2021: temporary time fix until time function in
+        # BioNetGen is fully fixed.
+        # first check if we have time in the sbml function
+        # time
+        if re.search(r"(\W|^)(time)(\W|$)", defn):
+            self.time_flag = True
+            defn = re.sub(r"(\W|^)(time)(\W|$)", r"\1TIME_\3", defn)
+        # Time
+        if re.search(r"(\W|^)(Time)(\W|$)", defn):
+            self.time_flag = True
+            defn = re.sub(r"(\W|^)(Time)(\W|$)", r"\1TIME_\3", defn)
+        # t
+        if re.search(r"(\W|^)(t)(\W|$)", defn):
+            self.time_flag = True
+            defn = re.sub(r"(\W|^)(t)(\W|$)", r"\1TIME_\3", defn)
+
+        # old code for the same purpose
+        # defn = re.sub(r"(\W|^)(time)(\W|$)", r"\1time()\3", defn)
+        # defn = re.sub(r"(\W|^)(Time)(\W|$)", r"\1time()\3", defn)
+        # defn = re.sub(r"(\W|^)(t)(\W|$)", r"\1time()\3", defn)
 
         # remove true and false
         defn = re.sub(r"(\W|^)(true)(\W|$)", r"\1 1\3", defn)
@@ -703,6 +748,7 @@ class Rule:
         self.raw = None
         self.tags = None
         self.model = None
+        self.raw_splt = False
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -736,27 +782,32 @@ class Rule:
                             tag = self.tags[react[0]]
                         else:
                             tag = ""
-                        conv_str = str(self.translator[react[0]])
-                        if not conv_str.endswith(tag):
+                        react_str = str(self.translator[react[0]])
+                        if not react_str.endswith(tag):
                             if "@" in tag:
-                                splt = conv_str.split("@")
+                                splt = react_str.split("@")
                                 tspl = tag.split("@")
                                 if splt[-1] != tspl[-1]:
                                     splt[-1] = tspl[-1]
-                                    conv_str = "@".join(splt)
-                        txt += conv_str
+                                    react_str = "@".join(splt)
                     else:
-                        txt += str(self.translator[react[0]])
+                        react_str = str(self.translator[react[0]])
                 else:
                     if self.tags is not None and not self.noCompartment:
                         if react[2] in self.tags:
-                            txt += str(react[0]) + "()" + self.tags[react[2]]
+                            react_str = str(react[0]) + "()" + self.tags[react[2]]
                         elif react[0] in self.tags:
-                            txt += str(react[0]) + "()" + self.tags[react[0]]
+                            react_str = str(react[0]) + "()" + self.tags[react[0]]
                         else:
-                            txt += str(react[0]) + "()"
+                            react_str = str(react[0]) + "()"
                     else:
-                        txt += str(react[0]) + "()"
+                        react_str = str(react[0]) + "()"
+                # Apply stoichiometry
+                # FIXME: What to do if stoichiometry is not an integer
+                for i in range(int(react[1])):
+                    if i > 0:
+                        txt += " + "
+                    txt += react_str
         # correct rxn arrow
         if self.reversible and len(self.rate_cts) == 2:
             txt += " <-> "
@@ -777,66 +828,95 @@ class Rule:
                             tag = self.tags[prod[0]]
                         else:
                             tag = ""
-                        conv_str = str(self.translator[prod[0]])
-                        if not conv_str.endswith(tag):
+                        prod_str = str(self.translator[prod[0]])
+                        if not prod_str.endswith(tag):
                             if "@" in tag:
-                                splt = conv_str.split("@")
+                                splt = prod_str.split("@")
                                 tspl = tag.split("@")
                                 if splt[-1] != tspl[-1]:
                                     splt[-1] = tspl[-1]
-                                    conv_str = "@".join(splt)
-                        txt += conv_str
+                                    prod_str = "@".join(splt)
                     else:
-                        txt += str(self.translator[prod[0]])
+                        prod_str = str(self.translator[prod[0]])
                 else:
                     if self.tags is not None and not self.noCompartment:
                         if prod[2] in self.tags:
-                            txt += str(prod[0]) + "()" + self.tags[prod[2]]
+                            prod_str = str(prod[0]) + "()" + self.tags[prod[2]]
                         elif prod[0] in self.tags:
-                            txt += str(prod[0]) + "()" + self.tags[prod[0]]
+                            prod_str = str(prod[0]) + "()" + self.tags[prod[0]]
                         else:
-                            txt += str(prod[0]) + "()"
+                            prod_str = str(prod[0]) + "()"
                     else:
-                        txt += str(prod[0]) + "()"
+                        prod_str = str(prod[0]) + "()"
+                # Apply stoichiometry
+                # FIXME: What to do if stoichiometry is not an integer
+                for i in range(int(prod[1])):
+                    if i > 0:
+                        txt += " + "
+                    txt += prod_str
         if self.reversible and len(self.rate_cts) == 2:
-            if len(self.model.param_repl) > 0:
-                for prep in self.model.param_repl:
-                    if self.rate_cts[0] == prep:
-                        self.rate_cts = (self.model.param_repl[prep], self.rate_cts[1])
-                    if self.rate_cts[1] == prep:
-                        self.rate_cts = (self.rate_cts[0], self.model.param_repl[prep])
+            if self.model is not None:
+                if len(self.model.param_repl) > 0:
+                    for prep in self.model.param_repl:
+                        if self.rate_cts[0] == prep:
+                            self.rate_cts = (
+                                self.model.param_repl[prep],
+                                self.rate_cts[1],
+                            )
+                        if self.rate_cts[1] == prep:
+                            self.rate_cts = (
+                                self.rate_cts[0],
+                                self.model.param_repl[prep],
+                            )
         else:
-            if len(self.model.param_repl) > 0:
-                for prep in self.model.param_repl:
-                    if self.rate_cts[0] == prep:
-                        self.rate_cts = (self.model.param_repl[prep],)
-        # rate cts
-        if self.reversible and len(self.rate_cts) == 2:
-            # we need to check if the rate constant refers to an
-            # observable and is alone
-            if (
-                self.rate_cts[0] in self.model.obs_map
-                or self.rate_cts[0] in self.model.observables
-            ):
-                r0 = "1*{0}".format(self.rate_cts[0])
+            if self.model is not None:
+                if len(self.model.param_repl) > 0:
+                    for prep in self.model.param_repl:
+                        if self.rate_cts[0] == prep:
+                            self.rate_cts = (self.model.param_repl[prep],)
+        if self.model is not None:
+            # rate cts
+            if self.reversible and len(self.rate_cts) == 2:
+                # we need to check if the rate constant refers to an
+                # observable and is alone
+                if (
+                    self.rate_cts[0] in self.model.obs_map
+                    or self.rate_cts[0] in self.model.observables
+                ):
+                    r0 = "1*{0}".format(self.rate_cts[0])
+                else:
+                    r0 = "{}".format(self.rate_cts[0])
+                if (
+                    self.rate_cts[1] in self.model.obs_map
+                    or self.rate_cts[1] in self.model.observables
+                ):
+                    r1 = "1*{0}".format(self.rate_cts[1])
+                else:
+                    r1 = "{}".format(self.rate_cts[1])
+                txt += " {},{}".format(r0, r1)
             else:
-                r0 = "{}".format(self.rate_cts[0])
-            if (
-                self.rate_cts[1] in self.model.obs_map
-                or self.rate_cts[1] in self.model.observables
-            ):
-                r1 = "1*{0}".format(self.rate_cts[1])
-            else:
-                r1 = "{}".format(self.rate_cts[1])
-            txt += " {},{}".format(r0, r1)
-        else:
-            if (
-                self.rate_cts[0] in self.model.obs_map
-                or self.rate_cts[0] in self.model.observables
-            ):
-                txt += " 1*{}".format(self.rate_cts[0])
-            else:
-                txt += " {}".format(self.rate_cts[0])
+                conv = ""
+                if self.raw_splt:
+                    # we can handle conversion factors here
+                    # ensure we got the right type of 0 -> X rule
+                    if len(self.reactants) == 0 and len(self.products) == 1:
+                        prod = self.products[0]
+                        if prod[0] in self.model.molecules:
+                            if (
+                                self.model.molecules[prod[0]].conversionFactor
+                                is not None
+                            ):
+                                conv = (
+                                    f"*{self.model.molecules[prod[0]].conversionFactor}"
+                                )
+                if (
+                    self.rate_cts[0] in self.model.obs_map
+                    or self.rate_cts[0] in self.model.observables
+                ):
+                    txt += " 1*{}{}".format(self.rate_cts[0], conv)
+                else:
+
+                    txt += " {}{}".format(self.rate_cts[0], conv)
 
         comment = ""
         if self.raw is not None:
@@ -906,6 +986,10 @@ class bngModel:
         self.function_order = None
         self.sbmlFunctions = None
         self.tags = None
+        self.add_time = False
+        self.param_repl = []
+        self.obs_map_file = None
+        self.used_in_rrule = []
 
     def __str__(self):
         txt = self.metaString
@@ -935,9 +1019,14 @@ class bngModel:
             txt += "begin seed species\n"
             for spec in self.species.values():
                 spec.translator = self.translator
-                if spec.val > 0:
+                if spec.Id in self.used_in_rrule:
+                    spec.isBoundary = False
+                if isinstance(spec.val, str):
                     spec.noCompartment = self.noCompartment
-                    txt += "  " + str(spec) + "\n"
+                    txt += f"{str(spec)}\n"
+                elif spec.val > 0 or spec.isConstant or spec.isBoundary:
+                    spec.noCompartment = self.noCompartment
+                    txt += f"{str(spec)}\n"
             txt += "end seed species\n"
 
         if len(self.observables.values()) > 0:
@@ -967,7 +1056,7 @@ class bngModel:
                         else:
                             func.local_dict = self.param_repl
                     if func.Id in self.parsed_func:
-                        func.sympy_parsed = self.parsed_func[fkey]
+                        func.sympy_parsed = self.parsed_func[func.Id]
                     func.all_syms = self.all_syms
                     txt += "  " + str(func) + "\n"
             else:
@@ -1010,6 +1099,12 @@ class bngModel:
     def __repr__(self):
         return str((self.parameters, self.molecules))
 
+    def _reset(self):
+        self.molecules = {}
+        self.molecule_ids = {}
+        self.species = {}
+        self.observables = {}
+
     def consolidate_arules(self):
         """
         this figures out what to do with particular
@@ -1040,7 +1135,12 @@ class bngModel:
                 # turn the rate cts into a function
                 nfunc = self.make_function()
                 nfunc.Id = "rrate_{}".format(amolec.Id)
-                nfunc.definition = arule.rates[0]
+                # we need to divide by volume if we have a compartment
+                if comp is not None:
+                    vol = self.compartments[comp].size
+                    nfunc.definition = f"({arule.rates[0]})/{vol}"
+                else:
+                    nfunc.definition = arule.rates[0]
                 self.add_function(nfunc)
                 # now make the rule
                 if comp is not None:
@@ -1074,6 +1174,7 @@ class bngModel:
                 if comp is not None:
                     nspec.compartment = comp
                 self.add_species(nspec)
+                self.used_in_rrule.append(nspec.Id)
             elif arule.isAssignment:
                 # rule is an assignment rule
                 # let's first check parameters
@@ -1095,7 +1196,6 @@ class bngModel:
                     fobj.definition = arule.rates[0]
                     self.add_function(fobj)
                 elif arule.Id in self.molecule_ids:
-                    # import ipdb;ipdb.set_trace()
                     # we are an assignment rule that modifies
                     # a molecule, this will be converted to
                     # a function if true
@@ -1105,13 +1205,11 @@ class bngModel:
                     # at which point it's supposed to be encoded
                     # with "$" in BNGL
                     if not molec.isConstant:
-                        # import ipdb;ipdb.set_trace()
-                        # import IPython;IPython.embed()
                         # we can have it be boundary or not, doesn't
                         # matter since we know an assignment rule is
                         # modifying it and it will take over reactions
 
-                        # this should be guarantee
+                        # this should be guaranteed
                         molec = self.molecules.pop(mname)
 
                         # we should also remove this from species
@@ -1125,6 +1223,9 @@ class bngModel:
                         elif molec.Id in self.observables:
                             obs = self.observables.pop(molec.Id)
                             self.obs_map[obs.get_obs_name()] = molec.Id + "()"
+                        # for spec in self.species:
+                        #     sobj = self.species[spec]
+                        #     # if molec.name == sobj.Id or molec
                         if molec.name in self.species:
                             spec = self.species.pop(molec.name)
                         elif molec.Id in self.species:
@@ -1144,9 +1245,6 @@ class bngModel:
                                 cname, cval = comp
                                 fobj.local_dict[cname] = cval
                         self.add_function(fobj)
-
-                        # import IPython;IPython.embed()
-                        # import ipdb;ipdb.set_trace()
                         # we want to make sure arules are the only
                         # things that change species concentrations
                         if (
@@ -1211,7 +1309,6 @@ class bngModel:
                     if arule.Id in self.observables:
                         obs = self.observables.pop(arule.Id)
                         self.obs_map[obs.get_obs_name()] = fobj.Id
-                    # import ipdb;ipdb.set_trace()
                     # we also have to remove this from rules
                     if arule.Id in self.molecule_mod_dict:
                         mkey = arule.Id
@@ -1313,13 +1410,74 @@ class bngModel:
                 self.noCompartment = True
 
     def consolidate(self):
-        # import IPython;IPython.embed()
         self.consolidate_compartments()
         self.consolidate_arules()
         self.consolidate_molecules()
         self.consolidate_observables()
         self.reorder_functions()
-        # import IPython;IPython.embed()
+        str(self)
+        self.check_for_time_function()
+        self.print_obs_map()
+
+    def print_obs_map(self):
+        if self.obs_map_file is not None:
+            obs_map = {}
+            for obs in self.observables:
+                obs_obj = self.observables[obs]
+                if obs_obj.name not in obs_map:
+                    obs_map[obs_obj.name] = obs_obj.Id
+            with open(self.obs_map_file, "w") as f:
+                json.dump(obs_map, f)
+
+    def check_for_time_function(self):
+        # see if SBML functions refer to time() in bngl
+        # and if so add replace with an observable and
+        # make a time counter reaction
+        for func in self.functions.values():
+            # time
+            if re.search(r"(\W|^)(TIME_)(\W|$)", func.adjusted_def):
+                self.add_time = True
+            if self.add_time:
+                break
+
+        if self.add_time:
+            self.add_time_rule()
+
+    def add_time_rule(self):
+        if len(self.compartments) > 0 and not self.noCompartment:
+            comp = list(self.compartments.values())[0].Id
+        else:
+            comp = None
+        # add molecule
+        amolec = self.make_molecule()
+        amolec.Id = "time_"
+        amolec.name = "time_"
+        if comp is not None:
+            amolec.compartment = self.compartments[comp]
+        self.add_molecule(amolec)
+
+        # add observable
+        nobs = self.make_observable()
+        nobs.skip_compartment = True
+        nobs.type = "Molecules"
+        nobs.Id = "TIME_"
+        nobs.name = "TIME_"
+        nobs.pattern = "time_()"
+
+        if comp is not None:
+            nobs.compartment = comp
+        self.add_observable(nobs)
+
+        # self.make_rule
+        nrule = self.make_rule()
+        nrule.Id = "time_rule"
+        if comp is not None:
+            prod = f"@{comp}:{amolec.name}"
+        else:
+            prod = f"{amolec.name}"
+        nrule.products.append([prod, 1.0, prod])
+        nrule.rate_cts = ("1",)
+        self.add_rule(nrule)
 
     def remove_sympy_symbols(self, fdef):
         to_replace = {
@@ -1425,8 +1583,6 @@ class bngModel:
     def add_molecule(self, molec):
         # we might have to add molecules that
         # didn't have rawSpecies associated with
-        # if len(self.translator) > 0:
-        #     import IPython;IPython.embed()
         if hasattr(molec, "raw"):
             self.molecule_ids[molec.raw["identifier"]] = molec.name
         if not molec.name in self.molecules:
@@ -1448,8 +1604,8 @@ class bngModel:
         return Molecule()
 
     def add_species(self, sspec):
-        if not sspec.name in self.species:
-            self.species[sspec.name] = sspec
+        if not sspec.Id in self.species:
+            self.species[sspec.Id] = sspec
         elif hasattr(sspec, "identifier"):
             self.species[sspec.identifier] = sspec
         else:
