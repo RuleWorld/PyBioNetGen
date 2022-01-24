@@ -486,3 +486,32 @@ class Rule(ModelObj):
                 side_str += " + "
             side_str += str(pat)
         return side_str
+
+
+class EnergyPattern(ModelObj):
+    # TODO: fill this out
+    """
+    Class for all energy patterns in the model, subclass of ModelObj.
+
+    In BNGL the energy patterns are of the form
+        EP_pattern EP_expression
+
+    Attributes
+    ----------
+    name : str
+        id(?) of the energy pattern
+    pattern : Pattern
+        Pattern object representing the energy pattern
+    expression : str
+        expression used for energy pattern (?)
+    """
+
+    def __init__(self, name, pattern, expression):
+        super().__init__()
+        self.name = name
+        self.pattern = pattern
+        self.expression = expression
+
+    def gen_string(self) -> str:
+        s = "{} {}".format(self.pattern, self.expression)
+        return s
