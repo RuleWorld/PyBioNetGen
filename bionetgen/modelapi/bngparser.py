@@ -108,6 +108,9 @@ class BNGParser:
                     action_list = self.alist.action_parser.parseString(action)
                 except Exception as e:
                     raise ValueError(f"failed to parse action {action}")
+                # we could have ";" in the action, so we need to remove it
+                if action_list[-1] == ";":
+                    _ = action_list.pop(-1)
                 # we we move onto actually making the action object
                 # first value is always the action type, remove
                 atype = action_list.pop(0)

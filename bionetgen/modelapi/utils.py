@@ -445,15 +445,13 @@ class ActionList:
         # 
         reg_arg_full = "{" + pp.Optional(pp.delimitedList(single_arg)) + "}"
         # 
-        reg_action_tk = action_name + "(" + reg_arg_full + ")"
-        two_arg_action_tk = action_name + "(" + two_arg + ")"
-        one_arg_action_tk = action_name + "(" + pp.Optional(one_arg) + ")"
-        list_arg_action_tk = action_name + "(" + list_arg + ")"
+        reg_action_tk = action_name + "(" + reg_arg_full + ")" + pp.Optional(";") + pp.stringEnd
+        two_arg_action_tk = action_name + "(" + quote_word + ',' + pp.SkipTo(")"+ pp.Optional(";") + pp.stringEnd) + ")" + pp.Optional(";") + pp.stringEnd
+        one_arg_action_tk = action_name + "(" + pp.Optional(one_arg) + ")"  + pp.Optional(";") + pp.stringEnd
+        list_arg_action_tk = action_name + "(" + list_arg + ")" + pp.Optional(";") + pp.stringEnd 
         full_action_tk = (reg_action_tk^list_arg_action_tk^two_arg_action_tk^one_arg_action_tk)
         ## Action grammar done
         self.action_parser = full_action_tk
-        import IPython;IPython.embed()
-
 
 def find_BNG_path(BNGPATH=None):
     """
