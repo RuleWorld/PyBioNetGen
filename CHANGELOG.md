@@ -187,3 +187,9 @@ A new command line argument for `graphdiff`, `--colors` allows you to give a JSO
 
 ## 0.6.11
 Bugfix to `graphdiff` command where not using a color file would break the command. New temporary versioning scheme where very minor fixes like this is added to the last number in the version. E.g. 0.6.1 -> 0.6.11 -> 0.6.12 etc. This will be continued until 1.0 release. Other small bugfixes and some changes to atomizer. 
+
+## 0.6.2
+Updated underlying BioNetGen to version 2.7.1
+
+## 0.6.3
+Updated action parsing with a pyparsing grammar. Updated action block testing with new cases.

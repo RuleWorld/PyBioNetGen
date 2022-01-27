@@ -84,8 +84,6 @@ class BNGParser:
                 "The extension of {} is not supported".format(model_file)
             )
 
-    # TODO: This requires a massive clean up. Might need
-    # to make a grammar for it.
     def parse_actions(self, model_obj):
         if len(self.bngfile.parsed_actions) > 0:
             ablock = ActionBlock()
