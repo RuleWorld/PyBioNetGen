@@ -1,0 +1,58 @@
+{
+    "reactionDefinition" : [
+
+    ],
+    "complexDefinition" : [
+        ["Sos",[["Sos","ras",[]]]],
+        ["Ras",[["Ras","sos",[]]]],
+        ["Pi",[["PI"]]],
+        ["RasGAP",[["GAP"]]],
+        ["Gi_a",[["Gi_a","ht2ar",[],"ht1ar",[]]]],
+        ["Gq_a",[["Gq_a","ht2ar",[],"ht1ar",[]]]],
+        ["HT1AR",[["HT1AR","gi_a",[],"gq_a",[]]]],
+        ["ht2AR",[["ht2AR","gi_a",[],"gq_a",[]]]]
+
+
+    ],
+    "modificationDefinition": {
+        "PI":[],
+        "ht2AR":[],
+        "Src_star":["Src"],
+        "ERK_P":["ERK"],
+        "ERK_PP":["ERK_P"],
+        "Ras":[],
+        "PP2A":[],
+        "ht2AR":[],
+        "Pi":["PI"],
+        "AA":[],
+        "APC":[],
+        "PA":["DAG"],
+        "PI":["DAG"],
+        "Gq_a_GTP":["Gq_a_GDP"],
+        "RasGDP":["Ras"],
+        "RasGTP":["Ras"],
+        "RasGEF":[],
+        "Gi_a":[],
+        "Gi_a_GDP":["Gi_a"],
+        "Gi_a_GTP":["Gi_a"],
+        "Gitrimer":["Gi_a_GDP", "Gi_betagamma"],
+        "MKP_PPstar":["MKP_PP"],
+        "cpxKetanserin_2ARGq":["ht2AR", "Gq_a", "Gq_betagamma", "Ketanserin"],
+        "DAGactive":["DAG"],
+        "PKC_Ca_DAGactive":["PKC","Ca","DAGactive"],
+        "AAactive":["AA"],
+        "PKC_DAG_AAactive":["PKC","DAG","AAactive"],
+        "MKP_PPstar":["MKP_PP"],
+        "cpxERKP_MKP_PPstar":["ERKP","MKP_PPstar"],
+        "cpxERKP_MKP_PP":["ERKP","MKP_PP"],
+        "cpxKetanserin_2AR":["Ketanserin","ht2AR"],
+        "ht2AR_internal":["ht2AR"],
+        "ht1AR_internal":["HT1AR"],
+        "cpxA_2AR_internal":["TCB","ht2AR_internal"],
+        "cpxA_HT1AR_internal":["serotonin","ht1AR_internal"],
+        "Sos_P":["Sos"],
+        "Grb2_sos_P":["Grb2","Sos_P"],
+        "cpxKetanserin_2AR":["ht2AR","Ketanserin"]
+
+    }
+}

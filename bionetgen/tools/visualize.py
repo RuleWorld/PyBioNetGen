@@ -77,6 +77,9 @@ class BNGVisualize:
         self.bngpath = bngpath
 
     def run(self) -> VisResult:
+        return self._normal_mode()
+
+    def _normal_mode(self):
         model = bionetgen.modelapi.bngmodel(self.input)
         model.actions.clear_actions()
         if self.vtype == "all":
@@ -124,8 +127,6 @@ class BNGVisualize:
                 )
                 # go back
                 os.chdir(cur_dir)
-                # dump files
-                vis_res._dump_files(cur_dir)
                 return vis_res
             except Exception as e:
                 os.chdir(cur_dir)

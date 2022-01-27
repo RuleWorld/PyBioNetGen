@@ -7,3 +7,4 @@ tests/models/cli_test_runs/*
 bionetgen/bng-*
 temp_testing/*
 .vscode/*
+test/models/cli_test_runs/*

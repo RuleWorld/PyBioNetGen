@@ -1,0 +1,29 @@
+{
+    "reactionDefinition" : [
+
+    ],
+    "complexDefinition" : [
+            ["MEK",[["MEK","c_raf",[],"b_raf",[]]]],
+            ["c_Raf",[["c_Raf","mek",[]]]],
+            ["B_Raf",[["B_Raf","mek",[]]]]
+
+    ],
+    "modificationDefinition": {
+        "Ras":[],
+        "EGFRp":["EGFR"],
+        "NGFR":[],
+        "pro_TrkA":[],
+        "L_dpEGFR":["EGFRp","EGFR","EGF","EGF"],
+        "c_Cbl_ubiq":["c_Cbl"],
+        "Ras_GDP":["Ras"],
+        "Ras_GTP":["Ras"],
+        "dpEGFR_c_Cbl_ubiq":["c_Cbl_ubiq","L_dpEGFR"],
+        "FRS2_dpEGFR_c_Cbl_ubiq":["FRS2", "L_dpEGFR", "c_Cbl_ubiq"],
+        "Grb2_SOS_pShc_dpEGFR_c_Cbl_ubiq":["Grb2", "L_dpEGFR", "SOS", "pShc", "c_Cbl_ubiq"],
+        "Shc_dpEGFR_c_Cbl_ubiq":["Shc", "L_dpEGFR","c_Cbl_ubiq"],
+        "Crk_C3G_pFRS2_dpEGFR_c_Cbl_ubiq":["C3G","Crk", "L_dpEGFR", "pFRS2","c_Cbl_ubiq"]
+        
+    }
+    
+    
+}

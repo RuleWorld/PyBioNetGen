@@ -7,3 +7,11 @@ pyyaml
 colorlog
 nbopen
 libroadrunner
+sympy
+lxml
+networkx
+python-libsbml
+pylru
+pyparsing
+pexpect; sys_platform != 'win32'
+winpexpect; sys_platform == 'win32'

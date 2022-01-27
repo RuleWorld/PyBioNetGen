@@ -1,6 +1,10 @@
+try:
+    from typing import OrderedDict
+except ImportError:
+    from collections import OrderedDict
 from .structs import Parameter, Compartment, Observable
 from .structs import MoleculeType, Species, Function
-from .structs import Rule, Action
+from .structs import Rule, Action, EnergyPattern
 from .utils import ActionList
 
 # this import fails on some python versions
@@ -350,9 +354,16 @@ class SpeciesBlock(ModelBlock):
         else:
             self.__dict__[name] = value
 
+    def __getitem__(self, key):
+        return self.items[key]
+
+    def __setitem__(self, key, value) -> None:
+        self.items[key] = value
+
     def add_species(self, *args, **kwargs) -> None:
         s = Species(*args, **kwargs)
-        self.add_item((None, s))
+        ctr = len(self.items)
+        self.add_item((ctr, s))
 
 
 class MoleculeTypeBlock(ModelBlock):
@@ -609,3 +620,48 @@ class ActionBlock(ModelBlock):
             block_lines.append(item.print_line())
         # join everything with new lines
         return "\n".join(block_lines)
+
+
+class EnergyPatternBlock(ModelBlock):
+    """
+    Energy pattern block object, subclass of ModelBlock.
+
+    Methods
+    -------
+    add_energy_pattern(id, pattern, expression)
+        adds an energy pattern by making a new EnergyPattern object
+        and passing the args/kwargs to its initialization.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.name = "energy patterns"
+
+    def __setattr__(self, name, value) -> None:
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, EnergyPattern):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]["name"] != value:
+                        changed = True
+                        self.items[name]["name"] = value
+                else:
+                    print(
+                        "can't set energy pattern {} to {}".format(
+                            self.items[name]["name"], value
+                        )
+                    )
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+
+    def add_energy_pattern(self, *args, **kwargs) -> None:
+        ep = EnergyPattern(*args, **kwargs)
+        self.add_item((ep.name, ep))

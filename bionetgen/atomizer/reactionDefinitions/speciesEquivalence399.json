@@ -1,0 +1,14 @@
+{
+    "reactionDefinition" : [
+
+    ],
+    "complexDefinition" : [
+    ],
+    "modificationDefinition": {
+        "Ras": [],
+        "Ras_GTP": ["Ras"],
+        "Ras_GDP": ["Ras"]
+    }
+    
+    
+}

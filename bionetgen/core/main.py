@@ -1,7 +1,13 @@
+import bionetgen as bng
+from bionetgen.modelapi.utils import run_command
+import bionetgen.modelapi.model as mdl
+import os, subprocess
+from tempfile import NamedTemporaryFile
 from bionetgen.tools import BNGPlotter
 from bionetgen.tools import BNGInfo
 from bionetgen.tools import BNGVisualize
 from bionetgen.tools import BNGCLI
+from bionetgen.tools import BNGGdiff
 
 import os, sys
 
@@ -64,8 +70,18 @@ def plotDAT(inp, out=".", kw=dict()):
         fnoext, ext = os.path.splitext(fname)
         out = os.path.join(path, "{}.png".format(fnoext))
     # use the plotter object to get the plot
+    from bionetgen.tools import BNGPlotter
+
     plotter = BNGPlotter(inp, out, **kw)
     plotter.plot()
+
+
+def runAtomizeTool(config, args):
+    from bionetgen.atomizer import AtomizeTool
+
+    a = AtomizeTool(parser_namespace=args)
+    # do config specific stuff here if need be, or remove the config requirement
+    a.run()
 
 
 def printInfo(config, args):
@@ -97,3 +113,17 @@ def visualizeModel(config, args):
     config_bngpath = config.get("bionetgen", "bngpath")
     viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath)
     viz.run()
+
+
+def graphDiff(config, args):
+    # if you set args.bngpath it should take precedence
+    config_bngpath = config.get("bionetgen", "bngpath")
+    gdiff = BNGGdiff(
+        args.input,
+        args.input2,
+        out=args.output,
+        out2=args.output2,
+        mode=args.mode,
+        colors=args.colors,
+    )
+    gdiff.run()

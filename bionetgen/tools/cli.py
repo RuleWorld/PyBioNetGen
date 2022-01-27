@@ -23,7 +23,9 @@ class BNGCLI:
         runs the model in the given output folder
     """
 
-    def __init__(self, inp_file, output, bngpath, suppress=False, log_file=None):
+    def __init__(
+        self, inp_file, output, bngpath, suppress=False, log_file=None, timeout=None
+    ):
         self.inp_file = inp_file
         import bionetgen.modelapi.model as mdl
 
@@ -50,6 +52,7 @@ class BNGCLI:
         self.stderr = "STDOUT"
         self.suppress = suppress
         self.log_file = log_file
+        self.timeout = timeout
 
     def _set_output(self, output):
         # setting up output area
@@ -85,7 +88,7 @@ class BNGCLI:
             fname = os.path.basename(self.inp_path)
             fname = fname.replace(".bngl", "")
             command = ["perl", self.bng_exec, self.inp_path]
-        rc, out = run_command(command, suppress=self.suppress)
+        rc, out = run_command(command, suppress=self.suppress, timeout=self.timeout)
         if self.log_file is not None:
             # test if we were given a path
             # TODO: This is a simple hack, might need to adjust it
@@ -122,7 +125,8 @@ class BNGCLI:
 
             # load in the result
             self.result = BNGResult(os.getcwd())
-            BNGResult.process_return = rc
+            self.result.process_return = rc
+            self.result.output = out
             # set BNGPATH back
             if self.old_bngpath is not None:
                 os.environ["BNGPATH"] = self.old_bngpath
@@ -131,6 +135,8 @@ class BNGCLI:
             # set BNGPATH back
             if self.old_bngpath is not None:
                 os.environ["BNGPATH"] = self.old_bngpath
-            raise ValueError(
-                "Failed to run your BNGL file, there might be an issue with your model!"
+            raise RuntimeError(
+                "Failed to run your BNGL file, there might be an issue with your model!",
+                out.stdout.decode("UTF-8"),
+                out.stderr.decode("UTF-8"),
             )

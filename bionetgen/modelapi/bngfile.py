@@ -81,7 +81,7 @@ class BNGFile:
                 path, model_name = os.path.split(stripped_bngl)
                 model_name = model_name.replace(".bngl", "")
                 written_xml_file = model_name + ".xml"
-                with open(written_xml_file, "r") as f:
+                with open(written_xml_file, "r", encoding="UTF-8") as f:
                     content = f.read()
                     xml_file.write(content)
                 # since this is an open file, to read it later
@@ -139,7 +139,7 @@ class BNGFile:
         # open new file and write just the model
         stripped_model = os.path.join(folder, model_file)
         stripped_lines = [x + "\n" for x in stripped_lines]
-        with open(stripped_model, "w") as sf:
+        with open(stripped_model, "w", encoding="UTF-8") as sf:
             sf.writelines(stripped_lines)
         return stripped_model
 
@@ -165,7 +165,7 @@ class BNGFile:
         with TemporaryDirectory() as temp_folder:
             # write the current model to temp folder
             os.chdir(temp_folder)
-            with open("temp.bngl", "w") as f:
+            with open("temp.bngl", "w", encoding="UTF-8") as f:
                 f.write(bngl_str)
             # run with --xml
             # TODO: Make output supression an option somewhere
@@ -178,7 +178,7 @@ class BNGFile:
                     return False
                 else:
                     # we should now have the XML file
-                    with open("temp.xml", "r") as f:
+                    with open("temp.xml", "r", encoding="UTF-8") as f:
                         content = f.read()
                         open_file.write(content)
                     # go back to beginning
@@ -195,7 +195,7 @@ class BNGFile:
                     return False
                 else:
                     # we should now have the SBML file
-                    with open("temp_sbml.xml", "r") as f:
+                    with open("temp_sbml.xml", "r", encoding="UTF-8") as f:
                         content = f.read()
                         open_file.write(content)
                     open_file.seek(0)
