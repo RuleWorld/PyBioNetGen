@@ -397,7 +397,7 @@ class ActionList:
         self.arg_dict["saveConcentrations"] = []
         self.arg_dict["resetConcentrations"] = []
         self.arg_dict["resetParameters"] = []
-        
+
         # irregular arg types
         self.irregular_args = {}
         self.irregular_args["max_stoich"] = "dict"
@@ -411,47 +411,82 @@ class ActionList:
         if action_name in self.before_model:
             return True
         return False
-    
+
     def define_parser(self):
         ## Define action grammar
         import pyparsing as pp
-        # 
+
+        #
         base_name = pp.Word(pp.alphas, pp.alphanums + "_")
         action_name = base_name
-        # 
+        #
         dquote_word = pp.dblQuotedString
         squote_word = pp.sglQuotedString
-        quote_word = dquote_word^squote_word
+        quote_word = dquote_word ^ squote_word
         # all action argument types
         # TODO: deal w/ zero argument list
-        list_arg =  "[" + pp.delimitedList( quote_word ) + "]"
-        # 
-        arg_type_bool = (pp.Word("0")^pp.Word("1"))
+        list_arg = "[" + pp.delimitedList(quote_word) + "]"
+        #
+        arg_type_bool = pp.Word("0") ^ pp.Word("1")
         arg_type_int = pp.Word(pp.nums)
-        arg_type_float = pp.Word(pp.nums+'.')
-        arg_type_expr = pp.Word(pp.nums+'.'+'+'+'-'+'e'+'E'+'('+')'+'/'+'*'+'^')
-        arg_type_list = "[" + pp.delimitedList((quote_word^arg_type_float)) + "]"
+        arg_type_float = pp.Word(pp.nums + ".")
+        arg_type_expr = pp.Word(
+            pp.nums + "." + "+" + "-" + "e" + "E" + "(" + ")" + "/" + "*" + "^"
+        )
+        arg_type_list = "[" + pp.delimitedList((quote_word ^ arg_type_float)) + "]"
         arg_type_string = quote_word
-        # 
+        #
         curly_arg_token = quote_word + "=>" + arg_type_int
         # TODO: handle 0 case
-        arg_type_curly = '{' + pp.delimitedList(curly_arg_token) + '}'
-        arg_types = (arg_type_bool^arg_type_int^arg_type_float^arg_type_list^arg_type_list^arg_type_string^arg_type_curly^arg_type_expr)
-        # 
+        arg_type_curly = "{" + pp.delimitedList(curly_arg_token) + "}"
+        arg_types = (
+            arg_type_bool
+            ^ arg_type_int
+            ^ arg_type_float
+            ^ arg_type_list
+            ^ arg_type_list
+            ^ arg_type_string
+            ^ arg_type_curly
+            ^ arg_type_expr
+        )
+        #
         one_arg = quote_word
-        two_arg = quote_word + ',' + (arg_type_expr^quote_word)
-        # 
+        two_arg = quote_word + "," + (arg_type_expr ^ quote_word)
+        #
         single_arg = base_name + "=>" + arg_types
-        # 
+        #
         reg_arg_full = "{" + pp.Optional(pp.delimitedList(single_arg)) + "}"
-        # 
-        reg_action_tk = action_name + "(" + reg_arg_full + ")" + pp.Optional(";") + pp.stringEnd
-        two_arg_action_tk = action_name + "(" + quote_word + ',' + pp.SkipTo(")"+ pp.Optional(";") + pp.stringEnd) + ")" + pp.Optional(";") + pp.stringEnd
-        one_arg_action_tk = action_name + "(" + pp.Optional(one_arg) + ")"  + pp.Optional(";") + pp.stringEnd
-        list_arg_action_tk = action_name + "(" + list_arg + ")" + pp.Optional(";") + pp.stringEnd 
-        full_action_tk = (reg_action_tk^list_arg_action_tk^two_arg_action_tk^one_arg_action_tk)
+        #
+        reg_action_tk = (
+            action_name + "(" + reg_arg_full + ")" + pp.Optional(";") + pp.stringEnd
+        )
+        two_arg_action_tk = (
+            action_name
+            + "("
+            + quote_word
+            + ","
+            + pp.SkipTo(")" + pp.Optional(";") + pp.stringEnd)
+            + ")"
+            + pp.Optional(";")
+            + pp.stringEnd
+        )
+        one_arg_action_tk = (
+            action_name
+            + "("
+            + pp.Optional(one_arg)
+            + ")"
+            + pp.Optional(";")
+            + pp.stringEnd
+        )
+        list_arg_action_tk = (
+            action_name + "(" + list_arg + ")" + pp.Optional(";") + pp.stringEnd
+        )
+        full_action_tk = (
+            reg_action_tk ^ list_arg_action_tk ^ two_arg_action_tk ^ one_arg_action_tk
+        )
         ## Action grammar done
         self.action_parser = full_action_tk
+
 
 def find_BNG_path(BNGPATH=None):
     """

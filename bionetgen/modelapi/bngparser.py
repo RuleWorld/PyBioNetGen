@@ -93,13 +93,9 @@ class BNGParser:
             left = []
             for action in self.bngfile.parsed_actions:
                 # some cleanup, first we remove comments
-                action = re.sub(
-                    r"\#.*", "", action
-                )
+                action = re.sub(r"\#.*", "", action)
                 # now we remove whitespaces
-                action = re.sub(
-                    r"\s", "", action
-                )
+                action = re.sub(r"\s", "", action)
                 # if we don't have anything left, move on
                 if len(action) == 0:
                     continue
@@ -133,7 +129,9 @@ class BNGParser:
                         # TODO: Error checking here!
                         if action_list[1] == ",":
                             # this is of the form action(argument, value)
-                            ablock.add_action(atype, {action_list[0]: None, action_list[2]: None})
+                            ablock.add_action(
+                                atype, {action_list[0]: None, action_list[2]: None}
+                            )
                             continue
                 elif atype in self.alist.square_braces:
                     # these are actions like saveParameters(["a","b"])
@@ -171,11 +169,11 @@ class BNGParser:
                                 value_str = "{"
                                 end_curly = None
                                 while end_curly is None:
-                                    # we are looping over A, =>, B and want to 
-                                    # generate { A=>B, C=>D, etc } 
+                                    # we are looping over A, =>, B and want to
+                                    # generate { A=>B, C=>D, etc }
                                     dict_key = action_list.pop(0)
                                     if dict_key == "}":
-                                        # we are done 
+                                        # we are done
                                         end_curly = dict_key
                                     else:
                                         if len(value_str) > 1:
@@ -183,7 +181,9 @@ class BNGParser:
                                         dict_conn = action_list.pop(0)
                                         dict_val = action_list.pop(0)
                                         if dict_conn != "=>":
-                                            raise ValueError(f"Action {action} is malformed")
+                                            raise ValueError(
+                                                f"Action {action} is malformed"
+                                            )
                                         value_str += dict_key + dict_conn + dict_val
                                 value_str += "}"
                                 arg_value = value_str
