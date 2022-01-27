@@ -1,6 +1,9 @@
 *.pyo
 *.pyc 
 *.egg-info
+tests/test/*
+tests/viz/*
+tests/models/cli_test_runs/*
 bionetgen/bng-*
 temp_testing/*
 .vscode/*

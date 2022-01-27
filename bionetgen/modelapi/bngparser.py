@@ -8,6 +8,7 @@ from .xmlparsers import ParameterBlockXML, CompartmentBlockXML, ObservableBlockX
 from .xmlparsers import SpeciesBlockXML, MoleculeTypeBlockXML, FunctionBlockXML
 from .xmlparsers import RuleBlockXML, EnergyPatternBlockXML
 from .blocks import ActionBlock
+from .utils import ActionList
 
 # This allows access to the CLIs config setup
 app = BioNetGen()
@@ -40,6 +41,8 @@ class BNGParser:
     def __init__(self, path, BNGPATH=def_bng_path, parse_actions=True) -> None:
         self.to_parse_actions = parse_actions
         self.bngfile = BNGFile(path)
+        self.alist = ActionList()
+        self.alist.define_parser()
 
     def parse_model(self, model_obj) -> None:
         """
@@ -87,95 +90,128 @@ class BNGParser:
         if len(self.bngfile.parsed_actions) > 0:
             ablock = ActionBlock()
             # we have actions in file, let's get them
+            left = []
             for action in self.bngfile.parsed_actions:
-                action = re.sub(
-                    r"\#.*", "", action
-                )  # should this be (r"\#.*) or just ("\#.*")
-                action = re.sub(
-                    r"\s", "", action
-                )  # should this be (r"\s) or just ("\s")
+                # some cleanup, first we remove comments
+                action = re.sub(r"\#.*", "", action)
+                # now we remove whitespaces
+                action = re.sub(r"\s", "", action)
+                # if we don't have anything left, move on
                 if len(action) == 0:
                     continue
-                # gotta find if actions argument is given
-                actions_arg = None
-                amatch = re.match(r".*(actions=>\[(.*)\]).*", action)
-                if amatch is not None:
-                    # we have an actions argument, let's put that aside for now
-                    actions_arg_match = re.match(r".*\[(.*)\].*", amatch.group(1))
-                    if actions_arg_match is not None:
-                        actions_arg = actions_arg_match.group(1)
-                    # let's remove the action argument to allow regular parsing
-                    action = action.replace(amatch.group(1), "")
-                    # let's make sure we don't have two commas back to back now
-                    commatch = re.match(r".*(\,\s*\,).*", action)
-                    if commatch is not None:
-                        action = action.replace(commatch.group(1), ",")
-                m = re.match(r"^\s*(\S+)\(\s*(\S*)\s*\)(\;)?\s*(\#\s*\S*)?\s*", action)
-                if m is not None:
-                    # here we have an action
-                    atype = m.group(1)
-                    in_parens = m.group(2)
-                    if len(in_parens) > 0:
-                        # in parenthesis group can have curly or square braces
-                        m = re.match(r"\{(\S*)\}$", in_parens)
-                        arg_dict = {}
-                        if actions_arg is not None:
-                            arg_dict["actions"] = f"[{actions_arg}]"
-                        if m is not None:
-                            arg_list_str = m.group(1)
-                            # First let's check for lists
-                            # Please note that this will only replace a single list that doesn't reoccur
-                            L = re.match(r"\S+\[(\S*)\]\S*", m.group(1))
-                            if L is not None:
-                                arg_list_str = arg_list_str.replace(
-                                    f"[{L.group(1)}]",
-                                    f"[{L.group(1).replace(',','_')}]",
-                                )
-                            # Now check for curly braces
-                            # Please note that this will only replace a single dictionary that doesn't reoccur
-                            L = re.match(r"\S+\{(\S*)\}\S*", m.group(1))
-                            if L is not None:
-                                arg_list_str = arg_list_str.replace(
-                                    "{%s}" % L.group(1),
-                                    "{%s}" % L.group(1).replace(",", "_"),
-                                )
-                            arg_list = arg_list_str.split(",")
-                            for arg_str in arg_list:
-                                splt = arg_str.split("=>")
-                                if len(splt) > 1:
-                                    arg = splt[0]
-                                    val = "=>".join(splt[1:])
-                                    # now we need to check if we have a list/dictionary
-                                    if "_" in val:
-                                        val = val.replace("_", ",")
-                                    # add the tuple to the list
-                                    if arg in arg_dict:
-                                        # TODO: make this a warning
-                                        print(
-                                            f"WARNING: argument {arg} for action {atype} is given twice, using the last value {val}"
-                                        )
-                                    arg_dict[arg] = val
-                        else:
-                            m = re.match(r"\[(\S*)\]", in_parens)
-                            if m is not None:
-                                # this is a list of items
-                                arg_list_str = m.group(1)
-                            else:
-                                # what we have in parentheses has to
-                                # be a simple list of arguments
-                                arg_list_str = in_parens
-                            arg_list = arg_list_str.split(",")
-                            for arg_str in arg_list:
-                                # add to arg_tuples
-                                if arg_str in arg_dict:
-                                    # TODO: make this a warning
-                                    print(
-                                        f"WARNING: argument {arg_str} for action {atype} is given twice"
-                                    )
-                                arg_dict[arg_str] = None
+                # use pyparsing for parsing the action into a list
+                try:
+                    action_list = self.alist.action_parser.parseString(action)
+                except Exception as e:
+                    raise ValueError(f"failed to parse action {action}")
+                # we could have ";" in the action, so we need to remove it
+                if action_list[-1] == ";":
+                    _ = action_list.pop(-1)
+                # we we move onto actually making the action object
+                # first value is always the action type, remove
+                atype = action_list.pop(0)
+                # all actions have "()", remove
+                action_list = action_list[1:-1]
+                # be done if we don't have anything left
+                if len(action_list) == 0:
+                    # we don't have any arguments
+                    ablock.add_action(atype, {})
+                    continue
+                # we have arguments now onto argument parsing
+                # we check the action type and process accordingly
+                if atype in self.alist.no_setter_syntax:
+                    # these are actions like setParameter("test", 10), setModelName("name")
+                    if len(action_list) == 1:
+                        # this is of the form action("argument")
+                        ablock.add_action(atype, {action_list[0]: None})
+                        continue
+                    elif len(action_list) == 3:
+                        # TODO: Error checking here!
+                        if action_list[1] == ",":
+                            # this is of the form action(argument, value)
+                            ablock.add_action(
+                                atype, {action_list[0]: None, action_list[2]: None}
+                            )
+                            continue
+                elif atype in self.alist.square_braces:
+                    # these are actions like saveParameters(["a","b"])
+                    # TODO: Error checking here!
+                    if action_list[0] == "[":
+                        # remove square braces
+                        action_list = action_list[1:-1]
+                    arg_dict = {}
+                    for arg in action_list:
+                        arg_dict[arg] = None
+                    ablock.add_action(atype, arg_dict)
+                    continue
+                elif atype in self.alist.normal_types:
+                    # finally a normal action, we have {} and => syntax
+                    # TODO: Error checking here!
+                    if action_list[0] == "{":
+                        # remove curly braces
+                        action_list = action_list[1:-1]
+                    arg_dict = {}
+                    if len(action_list) == 0:
                         ablock.add_action(atype, arg_dict)
-                    else:
-                        ablock.add_action(atype, {})
+                    while len(action_list) > 0:
+                        arg_name = action_list.pop(0)
+                        connector = action_list.pop(0)
+                        if connector != "=>":
+                            raise ValueError(f"Action {action} is malformed")
+                        if arg_name in self.alist.irregular_args:
+                            arg_type = self.alist.irregular_args[arg_name]
+                            if arg_type == "dict":
+                                # process dict
+                                start_curly = action_list.pop(0)
+                                # make sure we are actually reading a dict
+                                if start_curly != "{":
+                                    raise ValueError(f"Action {action} is malformed")
+                                value_str = "{"
+                                end_curly = None
+                                while end_curly is None:
+                                    # we are looping over A, =>, B and want to
+                                    # generate { A=>B, C=>D, etc }
+                                    dict_key = action_list.pop(0)
+                                    if dict_key == "}":
+                                        # we are done
+                                        end_curly = dict_key
+                                    else:
+                                        if len(value_str) > 1:
+                                            value_str += ","
+                                        dict_conn = action_list.pop(0)
+                                        dict_val = action_list.pop(0)
+                                        if dict_conn != "=>":
+                                            raise ValueError(
+                                                f"Action {action} is malformed"
+                                            )
+                                        value_str += dict_key + dict_conn + dict_val
+                                value_str += "}"
+                                arg_value = value_str
+                            elif arg_type == "list":
+                                # process list
+                                start_curly = action_list.pop(0)
+                                # make sure we are actually reading a dict
+                                if start_curly != "[":
+                                    raise ValueError(f"Action {action} is malformed")
+                                value_str = "["
+                                end_curly = None
+                                while end_curly is None:
+                                    argument_element = action_list.pop(0)
+                                    if argument_element == "]":
+                                        end_curly = argument_element
+                                    else:
+                                        if len(value_str) > 1:
+                                            value_str += ","
+                                        value_str += argument_element
+                                value_str += "]"
+                                arg_value = value_str
+                        else:
+                            arg_value = action_list.pop(0)
+                        arg_dict[arg_name] = arg_value
+                    ablock.add_action(atype, arg_dict)
+                    continue
+                else:
+                    raise ValueError(f"We don't know the action type {atype}.")
             model_obj.add_block(ablock)
 
     def parse_xml(self, xml_str, model_obj) -> None:

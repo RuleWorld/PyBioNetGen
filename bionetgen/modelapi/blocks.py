@@ -606,7 +606,9 @@ class ActionBlock(ModelBlock):
             a = Action(action_type=action_type, action_args=action_args)
             self.add_item((action_type, a))
         else:
-            print("Action type {} not valid".format(action_type))
+            print(
+                "Action type {} is not recognized as a BNGL action".format(action_type)
+            )
 
     def clear_actions(self) -> None:
         self.items.clear()

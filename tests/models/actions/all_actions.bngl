@@ -15,10 +15,10 @@ end reaction rules
 generate_network({overwrite=>1})
 generate_network({overwrite=>1,max_stoich=>{'R'=>5,'L'=>5}}) # for testing {}
 generate_hybrid_model({overwrite=>0})
-simulate({method=>"ode",t_end=>1,n_steps=>10})
+simulate({method=>"ode",t_end=>1,n_steps=>10}); # for testing ; at the end of the line
 simulate({method=>"ssa",t_start=>0,sample_times=>[0,1000],output_step_interval=>1,max_sim_steps=>1}) # for testing []
-simulate({method=>"ssa",t_start=>0,sample_times=>[],output_step_interval=>1,max_sim_steps=>1}) # for testing []
 simulate({method=>"ssa",t_start=>0,sample_times=>[0,1,10,100,1000],output_step_interval=>1,max_sim_steps=>1}) # for testing []
+simulate_ode({suffix=>"hi",t_start=>0,t_end=>4*60*60,n_steps=>1000,atol=>1e-8,rtol=>1e-8}) # for testing expressions in argument
 parameter_scan({method=>"ode",t_start=>0,t_end=>10,n_steps=>10,parameter=>"k",par_min=>0.1,par_max=>1,n_scan_pts=>10,log_scale=>0})
 bifurcate({t_start=>0,t_end=>10,n_steps=>10,parameter=>"k",par_min=>0.1,par_max=>1,n_scan_pts=>10,log_scale=>0})
 readFile({file=>"test.bngl",atomize=>0})
@@ -35,13 +35,14 @@ writeMDL() # test
 # without {}
 setConcentration("test",10)
 addConcentration("test", 10) # action loader will remove whitespace so this will work
-saveConcentrations("test")
-resetConcentrations()
 setParameter("test",10)
-saveParameters("test")
-resetParameters("test")
 quit()
 setModelName("test")
 substanceUnits("test")
 version()
 setOption("test",10)
+# square braces
+saveConcentrations(["test"])
+resetConcentrations()
+saveParameters(["test","a","b"])
+resetParameters()
