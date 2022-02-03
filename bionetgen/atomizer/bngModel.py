@@ -753,7 +753,7 @@ class Rule:
         self.tags = None
         self.model = None
         self.raw_splt = False
-        self.symm_factors = [1.0,1.0]
+        self.symm_factors = [1.0, 1.0]
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -1142,7 +1142,7 @@ class bngModel:
                 nfunc.Id = "rrate_{}".format(amolec.Id)
                 # we need to divide by volume if we have a compartment
                 if comp is not None:
-                    # we also need to check that the definition actually has 
+                    # we also need to check that the definition actually has
                     # species that reside in a volume
                     nfunc.definition = arule.rates[0]
                     corrected = False
@@ -1150,7 +1150,9 @@ class bngModel:
                         for mid in self.molecule_ids:
                             if mid in arule.rates[0]:
                                 vol = self.compartments[comp].size
-                                nfunc.definition = nfunc.definition.replace(mid, f"({mid})/{vol}")
+                                nfunc.definition = nfunc.definition.replace(
+                                    mid, f"({mid})/{vol}"
+                                )
                                 corrected = True
                     nfunc.volume_adjusted = corrected
                 else:
@@ -1451,7 +1453,7 @@ class bngModel:
             return
         for rname in self.rules:
             rule = self.rules[rname]
-            if (not rule.reversible) and (len(rule.reactants)>1):
+            if (not rule.reversible) and (len(rule.reactants) > 1):
                 react_set = set([react[0] for react in rule.reactants])
                 if len(react_set) > 1:
                     # we have more than one type of reactant
@@ -1476,10 +1478,10 @@ class bngModel:
                                         rule.rate_cts = (f"({rule.rate_cts[0]})*{vol}",)
                                         correction = True
                                         break
-            elif rule.reversible and (len(rule.reactants)>1):
+            elif rule.reversible and (len(rule.reactants) > 1):
                 # we don't know what's going on with reversible reactions right now
                 pass
-    
+
     def adjust_frate_functions(self):
         if not hasattr(self, "compartments"):
             return
@@ -1487,14 +1489,14 @@ class bngModel:
             return
         for rule_name in self.rules:
             rule = self.rules[rule_name]
-            #if rule.raw_splt:
+            # if rule.raw_splt:
             # we are a split reaction and likely have fRate as our rate constant
             if "fRate" in rule.rate_cts[0]:
                 # we got the fRate in the definition, let's get the value
                 frate_search = re.search("fRate.+\(\)", rule.rate_cts[0])
                 if frate_search:
                     frate_name = frate_search.group(0)
-                    # we got the name 
+                    # we got the name
                     frate = self.functions[frate_name]
                     if not frate.volume_adjusted:
                         corrected = False
@@ -1502,12 +1504,14 @@ class bngModel:
                             # if frate.volume_adjusted:
                             #     break
                             if spec_name in frate.definition:
-                                # means we got a volume to divide by 
+                                # means we got a volume to divide by
                                 # TODO: Wtf happens if this has multiple species?
                                 sp = self.species[spec_name]
                                 comp = self.compartments[sp.compartment]
                                 vol = comp.size
-                                frate.definition = frate.definition.replace(spec_name, f"({spec_name}/{vol})")
+                                frate.definition = frate.definition.replace(
+                                    spec_name, f"({spec_name}/{vol})"
+                                )
                                 # frate.volume_adjusted = True
                                 # break
                                 corrected = True

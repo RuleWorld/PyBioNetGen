@@ -599,7 +599,9 @@ def extendFunction(function, subfunctionName, subfunction):
                 subfunction
             ),
         )
-        raise TranslationException(f"ERROR:TRS002: This function doesn't have a definition, note that atomizer doesn't allow for function linking: {subfunction}")
+        raise TranslationException(
+            f"ERROR:TRS002: This function doesn't have a definition, note that atomizer doesn't allow for function linking: {subfunction}"
+        )
     while (
         re.search(r"(\W|^){0}\([^)]*\)(\W|$)".format(subfunctionName), function) != None
     ):

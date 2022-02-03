@@ -657,9 +657,12 @@ class SBML2BNGL:
         curr_keys = list(self.all_syms.keys())
         if math is None:
             logMess(
-                "ERROR:SIM211", f"Math for reaction with ID '{reactionID}' is not defined",
+                "ERROR:SIM211",
+                f"Math for reaction with ID '{reactionID}' is not defined",
             )
-            raise TranslationException(f"ERROR:SIM211: Math for reaction with ID '{reactionID}' is not defined")
+            raise TranslationException(
+                f"ERROR:SIM211: Math for reaction with ID '{reactionID}' is not defined"
+            )
         l = math.getListOfNodes()
         replace_dict = {}
         for inode in range(l.getSize()):
@@ -1126,7 +1129,11 @@ class SBML2BNGL:
                             reaction.getId()
                         ),
                     )
-                    raise TranslationException("ERROR:SIM241: BioNetGen does not support non constant stoichiometries. Reaction {0} is not correctly translated".format(reaction.getId()))
+                    raise TranslationException(
+                        "ERROR:SIM241: BioNetGen does not support non constant stoichiometries. Reaction {0} is not correctly translated".format(
+                            reaction.getId()
+                        )
+                    )
                 else:
                     speciesName = (
                         self.speciesDictionary[x.getSpecies()]
@@ -1159,7 +1166,11 @@ class SBML2BNGL:
                             reaction.getId()
                         ),
                     )
-                    raise TranslationException("ERROR:SIM207: BioNetGen does not support non constant stoichiometries. Reaction {0} is not correctly translated".format(reaction.getId()))
+                    raise TranslationException(
+                        "ERROR:SIM207: BioNetGen does not support non constant stoichiometries. Reaction {0} is not correctly translated".format(
+                            reaction.getId()
+                        )
+                    )
                 else:
                     speciesName = (
                         self.speciesDictionary[x.getSpecies()]
@@ -1203,7 +1214,9 @@ class SBML2BNGL:
                     "ERROR:SIM208",
                     f"Stoichiometry for reaction {reaction.getId()} is NaN, can't translate.",
                 )
-                raise TranslationException(f"ERROR:SIM241 Stoichiometry for reaction {reaction.getId()} is NaN, can't translate.")
+                raise TranslationException(
+                    f"ERROR:SIM241 Stoichiometry for reaction {reaction.getId()} is NaN, can't translate."
+                )
             try:
                 if stoi != int(stoi):
                     non_integer_stoi = True
@@ -1214,7 +1227,9 @@ class SBML2BNGL:
                     "ERROR:SIM209",
                     f"Stoichiometry for reaction {reaction.getId()} is {stoi}, can't translate.",
                 )
-                raise TranslationException(f"ERROR:SIM208 Stoichiometry for reaction {reaction.getId()} is {stoi}, can't translate.")
+                raise TranslationException(
+                    f"ERROR:SIM208 Stoichiometry for reaction {reaction.getId()} is {stoi}, can't translate."
+                )
             # remove compartments from expression. also separate left hand and right hand side
             # check reaction molecularity and determine if it's
             # possible to have a mass action to begin with
@@ -1624,8 +1639,8 @@ class SBML2BNGL:
         if not compartment.getConstant():
             # this compartment is not constant in size, not supported right now
             logMess(
-                    "ERROR:SIM203",
-                    f"Compartments with variable size is not supported, compartment: {idid}",
+                "ERROR:SIM203",
+                f"Compartments with variable size is not supported, compartment: {idid}",
             )
         return idid, dimensions, size, name
 
@@ -1641,9 +1656,12 @@ class SBML2BNGL:
             functionInfo = self.__getRawFunctions(function)
             if functionInfo[1] is None:
                 logMess(
-                    "ERROR:SIM212", f"Math for function with ID '{functionInfo[0]}' is not defined",
+                    "ERROR:SIM212",
+                    f"Math for function with ID '{functionInfo[0]}' is not defined",
                 )
-                raise TranslationException(f"ERROR:SIM212: Math for function with ID '{functionInfo[0]}' is not defined")
+                raise TranslationException(
+                    f"ERROR:SIM212: Math for function with ID '{functionInfo[0]}' is not defined"
+                )
             functions[functionInfo[0]] = writer.bnglFunction(
                 functionInfo[1],
                 functionInfo[0],
@@ -1830,7 +1848,7 @@ class SBML2BNGL:
             rule_obj = self.bngModel.make_rule()
             rule_obj.rule_ind = index + 1
             rule_obj.parse_raw(rawRules)
-            rule_obj.symm_factors = [sl,sr]
+            rule_obj.symm_factors = [sl, sr]
             # Let's add our molecules
             for r in rawRules["reactants"]:
                 if r[0] not in self.used_molecules:
@@ -2026,7 +2044,7 @@ class SBML2BNGL:
             #### ADD RXN SEP HERE ####
             if rule_obj.raw_splt:
                 # if we are splitting, we want to remove symmetry factor
-                # from a fRate because it will spread over all reactants 
+                # from a fRate because it will spread over all reactants
                 # and products
                 if "fRate" in rule_obj.rate_cts[0]:
                     # we have functional rate constant
@@ -2035,14 +2053,18 @@ class SBML2BNGL:
                         if rule_obj.rate_cts[0] not in self.bngModel.functions:
                             logMess(
                                 "ERROR:SIM206",
-                                "Rate constant function needs adjusting but can't find function: {}" % functionName,
+                                "Rate constant function needs adjusting but can't find function: {}"
+                                % functionName,
                             )
                         defn = self.bngModel.functions[rule_obj.rate_cts[0]].definition
-                        self.bngModel.functions[rule_obj.rate_cts[0]].definition = f"({defn})/({rule_obj.symm_factors[0]})"
+                        self.bngModel.functions[
+                            rule_obj.rate_cts[0]
+                        ].definition = f"({defn})/({rule_obj.symm_factors[0]})"
                 if rule_obj.reversible:
                     logMess(
                         "ERROR:SIM205",
-                        "Splitting a reversible reaction, please check if correct, function: {}" % functionName,
+                        "Splitting a reversible reaction, please check if correct, function: {}"
+                        % functionName,
                     )
                 ctr = 0
                 # Now we write a single reaction for each
@@ -3316,15 +3338,19 @@ class SBML2BNGL:
             )
             pparam[species.getId()] = (initConc, extendedStr)
         from copy import copy
+
         for initialAssignment in self.model.getListOfInitialAssignments():
             symbol = initialAssignment.getSymbol()
             math = libsbml.formulaToString(initialAssignment.getMath())
             for element in pparam:
                 if math is None:
                     logMess(
-                        "ERROR:SIM210", f"Initial assignment for '{element}' has no math defined",
+                        "ERROR:SIM210",
+                        f"Initial assignment for '{element}' has no math defined",
                     )
-                    raise TranslationException(f"ERROR:SIM210: Initial assignment for '{element}' has no math defined")
+                    raise TranslationException(
+                        f"ERROR:SIM210: Initial assignment for '{element}' has no math defined"
+                    )
                 if element in math:
                     math = re.sub(
                         r"(\W|^)({0})(\W|$)".format(element),
@@ -3360,7 +3386,10 @@ class SBML2BNGL:
                     ] = symbol
                     initialConditions = initialConditions2
             except:
-                logMess("WARNING:RATE006",f"Can't find what {symbol} is referring to, some initial conditions might be incorrect.",)
+                logMess(
+                    "WARNING:RATE006",
+                    f"Can't find what {symbol} is referring to, some initial conditions might be incorrect.",
+                )
                 continue
         return param, zparam, initialConditions, initCondMap
 
