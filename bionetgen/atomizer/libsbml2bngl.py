@@ -7,6 +7,7 @@ Created on Fri Mar  1 16:14:42 2013
 
 #!/usr/bin/env python
 from collections import OrderedDict
+from telnetlib import IP
 import time
 import libsbml
 import bionetgen.atomizer.writer.bnglWriter as writer
@@ -1342,7 +1343,7 @@ def analyzeHelper(
         splt = sspec.split()
         sname = splt[0]
         if splt[-1].startswith("#"):
-            val = " ".join(splt[1:-2])
+            val = " ".join(splt[1:-1])
         else:
             val = " ".join(splt[1:])
         # let's see if we have a compartment
@@ -1383,6 +1384,14 @@ def analyzeHelper(
             if sym in parser.bngModel.species:
                 sp = parser.bngModel.species[sym]
                 sp.val = " ".join(icon.split()[1:-1])
+    for par_for_model in turn_to_param:
+        splt = par_for_model.split()
+        sname = splt[0]
+        val = " ".join(splt[1:])
+        if parser.bngModel.species.get(sname, None) is not None:
+            sp = parser.bngModel.species[sname]
+            sp.val = val
+            sp.isParam = True
     # Turn any "fixed molecules" that are not used in rules
     # into parameters
     param.extend(turn_to_param)

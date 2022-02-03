@@ -1,4 +1,6 @@
 import re, pyparsing, sympy, json
+from typing import Reversible
+from telnetlib import IP
 from bionetgen.atomizer.utils.util import logMess
 from bionetgen.atomizer.writer.bnglWriter import rindex
 
@@ -92,6 +94,7 @@ class Species:
         self.initAmount = None
         self.isConstant = None
         self.isBoundary = None
+        self.isParam = False
         self.name = None
         self.identifier = None
         self.conversionFactor = None
@@ -253,6 +256,7 @@ class Function:
         self.compartmentList = None
         self.time_flag = False
         self.adjusted_def = None
+        self.volume_adjusted = False
 
     def replaceLoc(self, func_def, pdict):
         if self.compartmentList is not None:
@@ -749,6 +753,7 @@ class Rule:
         self.tags = None
         self.model = None
         self.raw_splt = False
+        self.symm_factors = [1.0,1.0]
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -1137,8 +1142,17 @@ class bngModel:
                 nfunc.Id = "rrate_{}".format(amolec.Id)
                 # we need to divide by volume if we have a compartment
                 if comp is not None:
-                    vol = self.compartments[comp].size
-                    nfunc.definition = f"({arule.rates[0]})/{vol}"
+                    # we also need to check that the definition actually has 
+                    # species that reside in a volume
+                    nfunc.definition = arule.rates[0]
+                    corrected = False
+                    if not nfunc.volume_adjusted:
+                        for mid in self.molecule_ids:
+                            if mid in arule.rates[0]:
+                                vol = self.compartments[comp].size
+                                nfunc.definition = nfunc.definition.replace(mid, f"({mid})/{vol}")
+                                corrected = True
+                    nfunc.volume_adjusted = corrected
                 else:
                     nfunc.definition = arule.rates[0]
                 self.add_function(nfunc)
@@ -1379,7 +1393,18 @@ class bngModel:
             m = self.molecules.pop(molec)
             param = self.make_parameter()
             param.Id = m.Id
-            param.val = m.initConc if m.initConc > 0 else m.initAmount
+            # potentially we have some molecules set to parameters
+            # already from atomizer, check for that first
+            if m.name in self.species:
+                # check if we already got the param decision from atomizer
+                sp = self.species[m.name]
+                if sp.isParam:
+                    # this means we already have a decision
+                    param.val = sp.val
+                else:
+                    param.val = m.initConc if m.initConc > 0 else m.initAmount
+            else:
+                param.val = m.initConc if m.initConc > 0 else m.initAmount
             self.add_parameter(param)
             if m.name in self.observables:
                 self.observables.pop(m.name)
@@ -1412,12 +1437,83 @@ class bngModel:
     def consolidate(self):
         self.consolidate_compartments()
         self.consolidate_arules()
+        self.adjust_frate_functions()
         self.consolidate_molecules()
         self.consolidate_observables()
         self.reorder_functions()
         str(self)
         self.check_for_time_function()
+        self.adjust_volume_corrections()
         self.print_obs_map()
+
+    def adjust_volume_corrections(self):
+        if self.noCompartment:
+            return
+        for rname in self.rules:
+            rule = self.rules[rname]
+            if (not rule.reversible) and (len(rule.reactants)>1):
+                react_set = set([react[0] for react in rule.reactants])
+                if len(react_set) > 1:
+                    # we have more than one type of reactant
+                    # we need to see if the rate law is a constant
+                    # and if so, we can adjust the volume correction
+                    # done by bionetgen by multiplying by the volume
+                    if rule.rate_cts[0] in self.parameters:
+                        # first pass test to see if this is a single constant
+                        # now we need the compartment volume
+                        # FIXME: what do we do if we have more than one compartment?
+                        react_names = [react[0] for react in rule.reactants]
+                        correction = False
+                        for react_name in react_names:
+                            if correction:
+                                break
+                            if react_name in rule.tags:
+                                if "@" in rule.tags[react_name]:
+                                    comp_name = rule.tags[react_name].replace("@", "")
+                                    if comp_name in self.compartments:
+                                        comp = self.compartments[comp_name]
+                                        vol = comp.size
+                                        rule.rate_cts = (f"({rule.rate_cts[0]})*{vol}",)
+                                        correction = True
+                                        break
+            elif rule.reversible and (len(rule.reactants)>1):
+                # we don't know what's going on with reversible reactions right now
+                pass
+    
+    def adjust_frate_functions(self):
+        if not hasattr(self, "compartments"):
+            return
+        if len(self.compartments) == 0:
+            return
+        for rule_name in self.rules:
+            rule = self.rules[rule_name]
+            #if rule.raw_splt:
+            # we are a split reaction and likely have fRate as our rate constant
+            if "fRate" in rule.rate_cts[0]:
+                # we got the fRate in the definition, let's get the value
+                frate_search = re.search("fRate.+\(\)", rule.rate_cts[0])
+                if frate_search:
+                    frate_name = frate_search.group(0)
+                    # we got the name 
+                    frate = self.functions[frate_name]
+                    if not frate.volume_adjusted:
+                        corrected = False
+                        for spec_name in self.species:
+                            # if frate.volume_adjusted:
+                            #     break
+                            if spec_name in frate.definition:
+                                # means we got a volume to divide by 
+                                # TODO: Wtf happens if this has multiple species?
+                                sp = self.species[spec_name]
+                                comp = self.compartments[sp.compartment]
+                                vol = comp.size
+                                frate.definition = frate.definition.replace(spec_name, f"({spec_name}/{vol})")
+                                # frate.volume_adjusted = True
+                                # break
+                                corrected = True
+                        frate.volume_adjusted = corrected
+                else:
+                    print(f"we couldn't find frate in {rule.rate_cts[0]}")
 
     def print_obs_map(self):
         if self.obs_map_file is not None:

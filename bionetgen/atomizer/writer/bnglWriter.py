@@ -7,7 +7,7 @@
 
 import re
 from copy import deepcopy
-from bionetgen.atomizer.utils.util import logMess
+from bionetgen.atomizer.utils.util import TranslationException, logMess
 import string
 
 try:
@@ -599,7 +599,7 @@ def extendFunction(function, subfunctionName, subfunction):
                 subfunction
             ),
         )
-        raise e
+        raise TranslationException(f"ERROR:TRS002: This function doesn't have a definition, note that atomizer doesn't allow for function linking: {subfunction}")
     while (
         re.search(r"(\W|^){0}\([^)]*\)(\W|$)".format(subfunctionName), function) != None
     ):
