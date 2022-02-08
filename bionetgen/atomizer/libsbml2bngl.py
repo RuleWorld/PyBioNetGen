@@ -58,6 +58,7 @@ AnalysisResults = namedtuple(
         "speciesDict",
         "database",
         "annotation",
+        "model",
     ],
 )
 
@@ -242,7 +243,7 @@ def readFromString(
     if atomize and onlySynDec:
         returnArray = list(returnArray)
     returnArray = AnalysisResults(
-        *(list(returnArray[0:-2]) + [database] + [returnArray[-1]])
+        *(list(returnArray[0:-3]) + [database] + [returnArray[-1]] + [returnArray.model])
     )
 
     return returnArray
@@ -802,7 +803,7 @@ def analyzeFile(
         returnArray = list(returnArray)
         # returnArray.translator = -1
     returnArray = AnalysisResults(
-        *(list(returnArray[0:-2]) + [database] + [returnArray[-1]])
+        *(list(returnArray[0:-3]) + [database] + [returnArray[-1]]  + [returnArray.model])
     )
     return returnArray
 
@@ -1515,6 +1516,7 @@ def analyzeHelper(
         speciesDict,
         None,
         annotationInfo,
+        parser.bngModel,
     )
 
     """

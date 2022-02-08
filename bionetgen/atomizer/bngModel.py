@@ -98,6 +98,8 @@ class Species:
         self.name = None
         self.identifier = None
         self.conversionFactor = None
+        self.isConc = False
+        self.concCorrected = False
 
     def parse_raw(self, raw):
         self.raw = raw
@@ -109,10 +111,11 @@ class Species:
         self.compartment = raw["compartment"]
         self.name = raw["name"].replace(" ", "")
         self.identifier = raw["identifier"]
-        if self.initAmount > 0:
+        if self.initAmount >= 0:
             self.val = self.initAmount
-        elif self.initConc > 0:
+        elif self.initConc >= 0:
             # TODO: Figure out what to do w/ conc
+            self.isConc = True
             self.val = self.initConc
         else:
             self.val = 0
@@ -158,7 +161,7 @@ class Species:
                     # X@Y syntax
                     trans_id = "@".join(trans_id.split("@")[:-1])
             # removing identical compartments because
-            # we'll be usgin @comp: notation
+            # we'll be using @comp: notation
             comp_str = "@{}".format(self.compartment)
             if comp_str in str(trans_id):
                 trans_id = str(trans_id).replace(comp_str, "")
@@ -1445,8 +1448,22 @@ class bngModel:
         self.reorder_functions()
         str(self)
         self.check_for_time_function()
-        self.adjust_volume_corrections()
+        # self.adjust_volume_corrections()
+        self.adjust_concentrations()
         self.print_obs_map()
+
+    def adjust_concentrations(self):
+        # some species are given as concentrations 
+        # we need to convert them to amounts
+        for spec in self.species:
+            s = self.species[spec]
+            if s.isConc:
+                if s.compartment in self.compartments:
+                    comp = self.compartments[s.compartment]
+                    s.val = s.initConc * comp.size
+                    s.concCorrected = True
+                    s.isConc = False
+
 
     def adjust_volume_corrections(self):
         if self.noCompartment:
