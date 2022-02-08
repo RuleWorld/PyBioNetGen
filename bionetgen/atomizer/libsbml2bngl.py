@@ -243,7 +243,12 @@ def readFromString(
     if atomize and onlySynDec:
         returnArray = list(returnArray)
     returnArray = AnalysisResults(
-        *(list(returnArray[0:-3]) + [database] + [returnArray[-1]] + [returnArray.model])
+        *(
+            list(returnArray[0:-3])
+            + [database]
+            + [returnArray[-1]]
+            + [returnArray.model]
+        )
     )
 
     return returnArray
@@ -803,7 +808,12 @@ def analyzeFile(
         returnArray = list(returnArray)
         # returnArray.translator = -1
     returnArray = AnalysisResults(
-        *(list(returnArray[0:-3]) + [database] + [returnArray[-1]]  + [returnArray.model])
+        *(
+            list(returnArray[0:-3])
+            + [database]
+            + [returnArray[-1]]
+            + [returnArray.model]
+        )
     )
     return returnArray
 

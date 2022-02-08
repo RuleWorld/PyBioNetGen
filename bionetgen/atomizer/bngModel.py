@@ -1453,7 +1453,7 @@ class bngModel:
         self.print_obs_map()
 
     def adjust_concentrations(self):
-        # some species are given as concentrations 
+        # some species are given as concentrations
         # we need to convert them to amounts
         for spec in self.species:
             s = self.species[spec]
@@ -1463,7 +1463,6 @@ class bngModel:
                     s.val = s.initConc * comp.size
                     s.concCorrected = True
                     s.isConc = False
-
 
     def adjust_volume_corrections(self):
         if self.noCompartment:
