@@ -175,5 +175,12 @@ setup(
         "colorlog",
         "xmltodict",
         "seaborn",
+        "libroadrunner",
+        "sympy",
+        "lxml",
+        "networkx",
+        "python-libsbml",
+        "pylru",
+        "pyparsing",
     ],
 )
