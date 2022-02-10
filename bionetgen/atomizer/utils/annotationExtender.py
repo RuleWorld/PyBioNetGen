@@ -236,7 +236,7 @@ def updateFromComplex(complexMolecule, sct, annotationDict, annotationToSpeciesD
 
     elif len(unmatchedReactants) > 0 or len(unmatchedAnnotations) > 0:
         # annotate from database names
-        print "**//", complexMolecule, unmatchedReactants, unmatchedAnnotations
+        print("**//", complexMolecule, unmatchedReactants, unmatchedAnnotations)
 
     for element in localSpeciesDict:
         if element not in annotationToSpeciesDict:
@@ -249,11 +249,11 @@ def updateFromComponents(complexMolecule, sct, annotationDict, annotationToSpeci
     for constituentElement in sct[complexMolecule][0]:
         flag = False
         if complexMolecule == "G_sub_q_endsub__alpha__beta__gamma_":
-            print constituentElement
+            print(constituentElement)
 
         if len(annotationDict[constituentElement]) > 0:
             if complexMolecule == "G_sub_q_endsub__alpha__beta__gamma_":
-                print constituentElement, annotationDict[constituentElement]
+                print(constituentElement, annotationDict[constituentElement])
 
             for annotation in annotationDict[constituentElement]:
                 if annotation in [
@@ -341,7 +341,7 @@ def speciesAnnotationsToSBML(sbmlDocument, annotationDict, speciesNameDict):
         if cvterms:
             rdfAnnotation.addChild(cvterms)
         else:
-            print species
+            print(species)
         annotation.addChild(rdfAnnotation)
         species.setAnnotation(annotation)
 
@@ -500,7 +500,7 @@ def batchExtensionProcess(directory, outputDir):
             in targetFiles
         ):
             continue
-        print file
+        print(file)
         sbmlInfo = expandAnnotation(file, "")
         outputFile = os.path.join(outputDir, file.split("/")[-1])
 

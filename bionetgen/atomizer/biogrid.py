@@ -64,13 +64,13 @@ def loadBioGridDict(fileName="BioGridPandas.h5"):
     if hasattr(loadBioGrid, "db"):
         return loadBioGrid.db
     if pd is None:
-        print "pandas library not found."
+        print("pandas library not found.")
         loadBioGrid.db = {}
     else:
         try:
             loadBioGrid.db = pd.read_hdf(fileName, "biogrid")
         except:
-            print "Biogrid database not found"
+            print("Biogrid database not found")
             loadBioGrid.db = {}
 
     return loadBioGrid.db

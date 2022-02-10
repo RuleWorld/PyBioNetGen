@@ -101,7 +101,7 @@ def main():
                         if annotationsDict[idx][x][1] == element
                     ]:
                         try:
-                            print (speciesEquivalence[idx])
+                            print(speciesEquivalence[idx])
                             if isinstance(speciesEquivalence[idx][species], str):
                                 tmpEdgeList.append(
                                     "{0}_{1}".format(
@@ -122,7 +122,7 @@ def main():
                                     speciesEquivalence[idx][species].molecules[0].name
                                 )
                         except:
-                            print ("----", "error", idx, species)
+                            print("----", "error", idx, species)
                             pass
                 names = [x.lower() for x in names]
                 name = Counter(names).most_common(5)
@@ -135,7 +135,7 @@ def main():
                     superNodeDict[name[0][0]] = len(tmpEdgeList)
                 # pairs = [(x, y, 1) for x in tmpEdgeList for y in tmpEdgeList if x!= y]
                 # graph.add_weighted_edges_from(pairs)
-        print superNodeDict
+        print(superNodeDict)
         for x in cluster:
             number = x - 1
             try:

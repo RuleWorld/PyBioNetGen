@@ -143,5 +143,5 @@ def resolveAnnotationHelper(annotation):
 
 
 if __name__ == "__main__":
-    print resolveAnnotation("http://identifiers.org/taxonomy/10116")
+    print(resolveAnnotation("http://identifiers.org/taxonomy/10116"))
     # print resolveAnnotation('http://identifiers.org/uniprot/P01133')

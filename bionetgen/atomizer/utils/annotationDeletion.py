@@ -212,7 +212,7 @@ def updateFromComplex(complexMolecule, sct, annotationDict, annotationToSpeciesD
 
     elif len(unmatchedReactants) > 0 or len(unmatchedAnnotations) > 0:
         # annotate from database names
-        print "**//", complexMolecule, unmatchedReactants, unmatchedAnnotations
+        print("**//", complexMolecule, unmatchedReactants, unmatchedAnnotations)
 
     for element in localSpeciesDict:
         if element not in annotationToSpeciesDict:
@@ -289,7 +289,7 @@ def speciesAnnotationsToSBML(sbmlDocument, annotationDict, speciesNameDict):
         if cvterms:
             rdfAnnotation.addChild(cvterms)
         else:
-            print species
+            print(species)
         annotation.addChild(rdfAnnotation)
         species.setAnnotation(annotation)
 
@@ -361,7 +361,7 @@ def batchDeletionProcess(directory, outputDir):
 
     for fileIdx in progress(range(len(testFiles))):
         file = testFiles[fileIdx]
-        print file
+        print(file)
         if file in [
             "/home/proto/workspace/RuleWorld/atomizer/XMLExamples/curated/BIOMD0000000255.xml"
         ]:

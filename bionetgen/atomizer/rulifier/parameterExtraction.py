@@ -156,7 +156,7 @@ def getDifferences(modelNameList, parameterSpace):
 
     import pprint
 
-    print "---"
+    print("---")
     pprint.pprint(parameterDict)
 
 

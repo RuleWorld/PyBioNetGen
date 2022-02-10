@@ -66,8 +66,10 @@ def evaluateProcessSimilarity(bnglNamespace, bnglNamespace2):
         scoreDict[element]["totalSpace"] = 2 ** len(
             next(iter(intersectionSpace[element]))
         )
-        print element, scoreDict[element]["totalSpace"], next(
-            iter(intersectionSpace[element])
+        print(
+            element,
+            scoreDict[element]["totalSpace"],
+            next(iter(intersectionSpace[element])),
         )
 
     for element in [x for x in stdDictionary2[0] if x in intersectingNamespace]:

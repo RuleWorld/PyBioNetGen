@@ -161,7 +161,7 @@ class NamingDatabase:
 
         changeFlag = True
         fileSpeciesCopy = copy(fileSpecies)
-        print "finished processing files, obtained {0} groups".format(len(fileSpecies))
+        print("finished processing files, obtained {0} groups".format(len(fileSpecies)))
         # progress = progressbar.ProgressBar(maxval=len((fileSpecies - 1) * (fileSpecies -1))).start()
         while changeFlag:
             try:
@@ -268,7 +268,7 @@ def populateDatabaseFromFile(fileName, databaseName, userDefinitions=None):
 
     fileName2 = fileName.split(os.sep)[-1]
     if isFileInDatabase(databaseName, fileName2):
-        print ("Database already contains annotation from file {0}".format(fileName2))
+        print("Database already contains annotation from file {0}".format(fileName2))
         return -1
 
     connection = sqlite3.connect(databaseName)
@@ -419,7 +419,9 @@ def query(database, queryType, queryOptions):
     try:
         if Query[queryType] == Query.species:
             if queryOptions is None:
-                print "Species query must indicate a species to search for using the '-s' flag"
+                print(
+                    "Species query must indicate a species to search for using the '-s' flag"
+                )
                 return
             selectedFiles = db.getFileNameFromSpecies(queryOptions)
             result = db.findOverlappingNamespace(selectedFiles)
@@ -435,7 +437,7 @@ def query(database, queryType, queryOptions):
                 organismNames = db.getOrganismNames()
                 for organism in organismNames:
                     selectedFiles = db.getFileNameFromOrganism(organism)
-                    print organism, len(selectedFiles)
+                    print(organism, len(selectedFiles))
                     result[organism] = db.findOverlappingNamespace(selectedFiles)
         elif Query[queryType] == Query.family:
             result = {}
@@ -453,7 +455,7 @@ def query(database, queryType, queryOptions):
         with open("results2.dump", "wb") as f:
             pickle.dump(result, f)
     except KeyError:
-        print "Query operation not supported"
+        print("Query operation not supported")
 
 
 if __name__ == "__main__":

@@ -57,9 +57,9 @@ def parseAnnotation(XMLString):
 def main():
     args = sys.argv[1:]
     if len(args) != 1:
-        print "usage: python test.py infile.xml"
+        print("usage: python test.py infile.xml")
         sys.exit(-1)
-    print parseAnnotation(args[0])
+    print(parseAnnotation(args[0]))
 
 
 if __name__ == "__main__":

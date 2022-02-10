@@ -169,8 +169,8 @@ def annotationFileComparison(model1, model2):
                 [x for x in annotationDict1[entry]["BQB_HAS_VERSION"] if "uniprot" in x]
             )
         ):
-            print "--------------+"
-            print entry
+            print("--------------+")
+            print(entry)
             difference = set(
                 [x for x in annotationDict2[entry]["BQB_HAS_PART"] if "uniprot" in x]
             ).difference(
@@ -182,9 +182,9 @@ def annotationFileComparison(model1, model2):
                     ]
                 )
             )
-            print difference
-            print annotationDict1[entry]
-            print annotationDict2[entry]
+            print(difference)
+            print(annotationDict1[entry])
+            print(annotationDict2[entry])
             totalSet = totalSet.union(difference)
             # print set([x for x in annotationDict1[entry]['BQB_HAS_PART'] if 'uniprot' in x])
 
@@ -199,8 +199,8 @@ def annotationFileComparison(model1, model2):
         ).issubset(
             set([x for x in annotationDict1[entry]["BQB_HAS_PART"] if "uniprot" in x])
         ):
-            print "--------------"
-            print entry
+            print("--------------")
+            print(entry)
             difference = set(
                 [x for x in annotationDict2[entry]["BQB_HAS_VERSION"] if "uniprot" in x]
             ).difference(
@@ -212,11 +212,11 @@ def annotationFileComparison(model1, model2):
                     ]
                 )
             )
-            print difference
+            print(difference)
             totalSet = totalSet.union(difference)
 
             # print set([x for x in annotationDict1[entry]['BQB_IS_VERSION_OF'] if 'uniprot' in x])
-    print totalSet
+    print(totalSet)
 
 
 def batchAnnotationComparison(removedAnnotationsDir, referenceDir):
@@ -235,9 +235,12 @@ def batchAnnotationComparison(removedAnnotationsDir, referenceDir):
         elif result == -1:
             errorFiles += 1
 
-    print 1 - counter * 1.0 / (
-        len(referenceFiles) - errorFiles
-    ), counter, errorFiles, len(referenceFiles)
+    print(
+        1 - counter * 1.0 / (len(referenceFiles) - errorFiles),
+        counter,
+        errorFiles,
+        len(referenceFiles),
+    )
     return errorList
 
 
@@ -250,8 +253,8 @@ if __name__ == "__main__":
             "annotationsExpanded2", "../XMLExamples/curated"
         )
 
-        print errorList
-        print len(errorList)
+        print(errorList)
+        print(len(errorList))
     else:
         annotationFileComparison(
             "annotationsExpanded2/BIOMD0000000022.xml",

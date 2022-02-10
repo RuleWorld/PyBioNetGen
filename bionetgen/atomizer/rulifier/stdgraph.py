@@ -123,7 +123,7 @@ def createBitNode(graph, molecule, nodeList, simplifiedText):
 
     for node in nodeList[molecule]:
         componentLegend = ""
-        nodeName = u""
+        nodeName = ""
         nodeId = []
         for idx, bit in enumerate(node):
             componentLegend += bit[0]
@@ -131,13 +131,13 @@ def createBitNode(graph, molecule, nodeList, simplifiedText):
                 if simplifiedText:
                     nodeName += "o"
                 else:
-                    nodeName += u"\u25CF "
+                    nodeName += "\u25CF "
                 nodeId.append(bit[0])
             else:
                 if simplifiedText:
                     nodeName += "x"
                 else:
-                    nodeName += u"\u25CB "
+                    nodeName += "\u25CB "
                 # nodeName += u"\u00B7 "
             if (idx + 1) % gridDict[len(node)] == 0 and idx + 1 != len(node):
                 nodeName.strip(" ")
