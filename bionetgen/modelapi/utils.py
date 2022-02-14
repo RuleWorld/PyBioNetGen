@@ -561,7 +561,8 @@ def run_command(command, suppress=False, timeout=None):
                 stderr=subprocess.DEVNULL,
                 bufsize=-1,
             )
-            return process.poll(), process
+            rc = process.wait()
+            return rc, process
         else:
             process = subprocess.Popen(command, stdout=subprocess.PIPE, encoding="utf8")
             out = []
@@ -573,5 +574,5 @@ def run_command(command, suppress=False, timeout=None):
                     o = output.strip()
                     out.append(o)
                     print(o)
-            rc = process.poll()
+            rc = process.wait()
             return rc, out
