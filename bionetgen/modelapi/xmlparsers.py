@@ -1,7 +1,7 @@
 from .blocks import ParameterBlock, CompartmentBlock, ObservableBlock
 from .blocks import SpeciesBlock, MoleculeTypeBlock
 from .blocks import FunctionBlock, RuleBlock
-from .blocks import EnergyPatternBlock
+from .blocks import EnergyPatternBlock, PopulationMapBlock
 
 from .pattern import Pattern, Molecule, Component
 
@@ -784,6 +784,79 @@ class EnergyPatternBlockXML(XMLObj):
             block.add_energy_pattern(epid, pattern, expr)
 
         return block
+
+
+class PopulationMapBlockXML(XMLObj):
+    """
+    PopulationMapBlock XML parser, derived from XMLObj. Creates
+    a PopulationMapBlock that contains the population maps parsed.
+
+    Methods
+    -------
+    resolve_ratelaw(xml)
+        parses a rate law XML and returns the rate constant
+    """
+
+    def __init__(self, xml):
+        super().__init__(xml)
+
+    def parse_xml(self, xml):
+        block = PopulationMapBlock()
+
+        if isinstance(xml, list):
+            for b in xml:
+                # get id
+                pmid = b["@id"]
+                # get structured species
+                struct_spec_node = b["StructuredSpecies"]
+                spec_node = struct_spec_node["Species"]
+                struct_spec = PatternXML(spec_node).parsed_obj
+                # get population species
+                pop_spec_node = b["PopulationSpecies"]
+                pop_node = pop_spec_node["Species"]
+                pop_spec = PatternXML(pop_node).parsed_obj
+                # get rate law
+                rate_constant = self.resolve_ratelaw(b["RateLaw"])
+                block.add_population_map(pmid, struct_spec, pop_spec, rate_constant)
+        else:
+            # get id
+            pmid = xml["@id"]
+            # get structured species
+            struct_spec_node = xml["StructuredSpecies"]
+            spec_node = struct_spec_node["Species"]
+            struct_spec = PatternXML(spec_node).parsed_obj
+            # get population species
+            pop_spec_node = xml["PopulationSpecies"]
+            pop_node = pop_spec_node["Species"]
+            pop_spec = PatternXML(pop_node).parsed_obj
+            # get rate law
+            rate_constant = self.resolve_ratelaw(xml["RateLaw"])
+            block.add_population_map(pmid, struct_spec, pop_spec, rate_constant)
+
+        return block
+
+    def resolve_ratelaw(self, xml):
+        rate_type = xml["@type"]
+        if rate_type == "Ele":
+            rate_cts_xml = xml["ListOfRateConstants"]
+            rate_cts = rate_cts_xml["RateConstant"]["@value"]
+        elif rate_type == "Function":
+            rate_cts = xml["@name"]
+        elif rate_type == "MM" or rate_type == "Sat" or rate_type == "Hill":
+            # A function type
+            rate_cts = rate_type + "("
+            args = xml["ListOfRateConstants"]["RateConstant"]
+            if isinstance(args, list):
+                for iarg, arg in enumerate(args):
+                    if iarg > 0:
+                        rate_cts += ","
+                    rate_cts += arg["@value"]
+            else:
+                rate_cts += args["@value"]
+            rate_cts += ")"
+        else:
+            print("don't recognize rate law type")
+        return rate_cts
 
 
 class Operation:

@@ -489,7 +489,6 @@ class Rule(ModelObj):
 
 
 class EnergyPattern(ModelObj):
-    # TODO: fill this out
     """
     Class for all energy patterns in the model, subclass of ModelObj.
 
@@ -499,11 +498,11 @@ class EnergyPattern(ModelObj):
     Attributes
     ----------
     name : str
-        id(?) of the energy pattern
+        id of the energy pattern
     pattern : Pattern
         Pattern object representing the energy pattern
     expression : str
-        expression used for energy pattern (?)
+        expression used for energy pattern
     """
 
     def __init__(self, name, pattern, expression):
@@ -514,4 +513,35 @@ class EnergyPattern(ModelObj):
 
     def gen_string(self) -> str:
         s = "{} {}".format(self.pattern, self.expression)
+        return s
+
+
+class PopulationMap(ModelObj):
+    """
+    Class for all population maps in the model, subclass of ModelObj.
+
+    In BNGL the population maps are of the form
+        structured_species -> population_species lumping_parameter
+
+    Attributes
+    ----------
+    name : str
+        id of the population map
+    struct_species : Pattern
+        Pattern object representing the species to be mapped
+    pop_species : Pattern
+        Pattern object representing the population count
+    rate : str
+        lumping parameter used in population mapping
+    """
+
+    def __init__(self, name, struct_species, pop_species, rate):
+        super().__init__()
+        self.name = name
+        self.species = struct_species
+        self.population = pop_species
+        self.rate = rate
+
+    def gen_string(self) -> str:
+        s = "{} -> {} {}".format(self.species, self.population, self.rate)
         return s
