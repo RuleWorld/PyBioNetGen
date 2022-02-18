@@ -600,7 +600,12 @@ class RuleBlockXML(XMLObj):
             rate_cts = rate_cts_xml["RateConstant"]["@value"]
         elif rate_type == "Function":
             rate_cts = xml["@name"]
-        elif rate_type == "MM" or rate_type == "Sat" or rate_type == "Hill":
+        elif (
+            rate_type == "MM"
+            or rate_type == "Sat"
+            or rate_type == "Hill"
+            or rate_type == "Arrhenius"
+        ):
             # A function type
             rate_cts = rate_type + "("
             args = xml["ListOfRateConstants"]["RateConstant"]
@@ -842,7 +847,12 @@ class PopulationMapBlockXML(XMLObj):
             rate_cts = rate_cts_xml["RateConstant"]["@value"]
         elif rate_type == "Function":
             rate_cts = xml["@name"]
-        elif rate_type == "MM" or rate_type == "Sat" or rate_type == "Hill":
+        elif (
+            rate_type == "MM"
+            or rate_type == "Sat"
+            or rate_type == "Hill"
+            or rate_type == "Arrhenius"
+        ):
             # A function type
             rate_cts = rate_type + "("
             args = xml["ListOfRateConstants"]["RateConstant"]

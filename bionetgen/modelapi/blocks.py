@@ -524,7 +524,10 @@ class RuleBlock(ModelBlock):
                     # make bidirectional and add rate law
                     r1 = self.items[reverse_of].rate_constants[0]
                     r2 = rxn_obj.rate_constants[0]
-                    self.items[reverse_of].set_rate_constants((r1, r2))
+                    if r1.startswith("Arrhenius"):
+                        self.items[reverse_of].set_rate_constants([r1])
+                    else:
+                        self.items[reverse_of].set_rate_constants((r1, r2))
                     # mark reverse for deletion
                     delete_list.append(item_key)
         # delete items marked for deletion
