@@ -7,7 +7,7 @@
 ##   "A network model of early events in epidermal growth factor
 ##     receptor signaling that accounts for combinatorial complexity."
 ##   BioSystems 83, 136-151 (2006).
-
+setModelName("receptor_activation")
 begin model
 begin parameters 
     # fraction of cell, no units
@@ -38,6 +38,10 @@ begin parameters
     k8     1.0
     kp9    10e6/(NA*V)
     km9    1.0
+    # fraction of cell to simulate
+    f  0.01
+    # population lumping rate, /s
+    k_lump    10000
 end parameters
 begin molecule types
     L(r)              # ligand molecule
@@ -66,6 +70,17 @@ begin observables
     Molecules    Btot    B()
     Molecules    Ctot    C()
 end observables
+# configure HPP
+begin population maps
+    L(r)                         -> P1()  k_lump
+    A(r,b~0)                     -> P2()  k_lump
+    A(r,b~P)                     -> P3()  k_lump
+    A(r,b~P!1).B(r!1,c)          -> P4()  k_lump
+    A(r,b~P!1).B(r!1,c!2).C(b!2) -> P5()  k_lump
+    B(r,c)                       -> P6()  k_lump
+    B(r,c!1).C(b!1)              -> P7()  k_lump
+    C(b)                         -> P8()  k_lump
+end population maps
 begin reaction rules
     # ligand receptor binding
     L(r) + R(l)  <->  L(r!1).R(l!1)    kp1, km1
@@ -89,3 +104,12 @@ begin reaction rules
     A(b~P) + B(r)  <->  A(b~P!1).B(r!1)  kp9, km9
 end reaction rules
 end model
+
+# actions:
+saveConcentrations()
+# simulate with NFsim
+simulate_nf({ suffix=>"nf", t_end=>40, n_steps=>120, gml=>1000000, verbose=>1 })
+# generate partial network and simulate with HPP
+resetConcentrations()
+generate_hybrid_model({ suffix=>"hpp", overwrite=>1, verbose=>1, execute=>1,\
+                        actions=>["simulate_nf({ suffix=>\"nf\", t_end=>40, n_steps=>120, gml=>1000000, verbose=>1 })", "writeXML()"] })
