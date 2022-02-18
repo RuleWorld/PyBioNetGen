@@ -4,7 +4,8 @@ except ImportError:
     from collections import OrderedDict
 from .structs import Parameter, Compartment, Observable
 from .structs import MoleculeType, Species, Function
-from .structs import Rule, Action, EnergyPattern
+from .structs import Rule, Action
+from .structs import EnergyPattern, PopulationMap
 from .utils import ActionList
 
 # this import fails on some python versions
@@ -665,3 +666,48 @@ class EnergyPatternBlock(ModelBlock):
     def add_energy_pattern(self, *args, **kwargs) -> None:
         ep = EnergyPattern(*args, **kwargs)
         self.add_item((ep.name, ep))
+
+
+class PopulationMapBlock(ModelBlock):
+    """
+    Population map block object, subclass of ModelBlock.
+
+    Methods
+    -------
+    add_population_map(id, struct_species, pop_species, rate)
+        adds a population map by making a new PopulationMap object
+        and passing the args/kwargs to its initialization
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.name = "population maps"
+
+    def __setattr__(self, name, value) -> None:
+        changed = False
+        if hasattr(self, "items"):
+            if name in self.items:
+                if isinstance(value, PopulationMap):
+                    changed = True
+                    self.items[name] = value
+                elif isinstance(value, str):
+                    if self.items[name]["name"] != value:
+                        changed = True
+                        self.items[name]["name"] = value
+                else:
+                    print(
+                        "can't set population map {} to {}".format(
+                            self.items[name]["name"], value
+                        )
+                    )
+                if changed:
+                    self._changes[name] = value
+                    self.__dict__[name] = value
+            else:
+                self.__dict__[name] = value
+        else:
+            self.__dict__[name] = value
+
+    def add_population_map(self, *args, **kwargs) -> None:
+        pm = PopulationMap(*args, **kwargs)
+        self.add_item((pm.name, pm))

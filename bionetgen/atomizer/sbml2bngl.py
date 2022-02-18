@@ -884,7 +884,7 @@ class SBML2BNGL:
                 for ibol, bol in enumerate(react_symbols):
                     stoi = int(react[ibol][1])
                     # Now we can remove it
-                    react_expr = react_expr / (bol**stoi)
+                    react_expr = react_expr / (bol ** stoi)
                     removedL += [str(bol) for i in range(stoi)]
 
                 # Check if we can get 0 in the denominator
@@ -908,7 +908,7 @@ class SBML2BNGL:
                 for ibol, bol in enumerate(prod_symbols):
                     stoi = int(prod[ibol][1])
                     # Now we can remove it
-                    prod_expr = prod_expr / (bol**stoi)
+                    prod_expr = prod_expr / (bol ** stoi)
                     removedR += [str(bol) for i in range(stoi)]
 
                 # Check if we can get 0 in the denominator
@@ -988,7 +988,7 @@ class SBML2BNGL:
             for ibol, bol in enumerate(react_symbols):
                 stoi = int(react[ibol][1])
                 # Now we can remove it
-                react_expr = react_expr / (bol**stoi)
+                react_expr = react_expr / (bol ** stoi)
                 removedL += [str(bol) for i in range(stoi)]
 
             # Check if we can get the denominator to be 0

@@ -1891,12 +1891,15 @@ class SBMLAnalyzer:
                         idx1 += 1
                         idx2 += 1
                     elif "-" in element[idx1] and "-" in element[idx2]:
-                        if tuple(
-                            [
-                                element[idx1].replace("-", "+"),
-                                element[idx2].replace("-", "+"),
-                            ]
-                        ) in list(conventionDict.keys()):
+                        if (
+                            tuple(
+                                [
+                                    element[idx1].replace("-", "+"),
+                                    element[idx2].replace("-", "+"),
+                                ]
+                            )
+                            in list(conventionDict.keys())
+                        ):
                             matches[index].reverse()
                             transformedPattern = conventionDict[
                                 tuple(

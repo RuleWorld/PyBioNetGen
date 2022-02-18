@@ -1,0 +1,32 @@
+# run_receptor_activation.bngl
+# load and run receptor_activation model using NF and HPP methods
+version("2.2.4+")
+setModelName("receptor_activation")
+readFile({file=>"receptor_activation.bngl",allow_actions=>0})
+
+# configure HPP
+begin parameters
+    # fraction of cell to simulate
+    f  0.01
+    # population lumping rate, /s
+    k_lump    10000
+end parameters
+begin population maps
+    L(r)                         -> P1()  k_lump
+    A(r,b~0)                     -> P2()  k_lump
+    A(r,b~P)                     -> P3()  k_lump
+    A(r,b~P!1).B(r!1,c)          -> P4()  k_lump
+    A(r,b~P!1).B(r!1,c!2).C(b!2) -> P5()  k_lump
+    B(r,c)                       -> P6()  k_lump
+    B(r,c!1).C(b!1)              -> P7()  k_lump
+    C(b)                         -> P8()  k_lump
+end population maps
+
+# actions:
+saveConcentrations()
+# simulate with NFsim
+simulate_nf({ suffix=>"nf", t_end=>40, n_steps=>120, gml=>1000000, verbose=>1 })
+# generate partial network and simulate with HPP
+resetConcentrations()
+generate_hybrid_model({ suffix=>"hpp", overwrite=>1, verbose=>1, execute=>1,\
+                        actions=>["simulate_nf({ suffix=>\"nf\", t_end=>40, n_steps=>120, gml=>1000000, verbose=>1 })", "writeXML()"] })
