@@ -196,3 +196,6 @@ Updated action parsing with a pyparsing grammar. Updated action block testing wi
 
 ## 0.7.0
 Updated a bug where the `suppress` kwarg to the `bionetgen.run` entrypoint wasn't waiting for the process to terminate before giving the returncode, resulting in runs that looks like they failed.
+
+## 0.7.1
+Added support for `energy pattern` and `population map` block after bionetgen 2.7.2 added XML export support for those blocks.
