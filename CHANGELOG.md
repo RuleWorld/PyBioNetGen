@@ -199,3 +199,7 @@ Updated a bug where the `suppress` kwarg to the `bionetgen.run` entrypoint wasn'
 
 ## 0.7.1
 Added support for `energy pattern` and `population map` block after bionetgen 2.7.2 added XML export support for those blocks.
+
+## 0.7.2
+Added support for the `Arrhenius` rate law after BioNetGen 2.8.0 added XML support for it. With this, all BioNetGen features
+shuold be supported by both BNG-XML exporter from BioNetGen as well as in PyBNG. 
