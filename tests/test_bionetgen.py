@@ -58,6 +58,7 @@ def test_bionetgen_visualize():
         "ruleviz_pattern",
         "ruleviz_operation",
         "regulatory",
+        "atom_rule",
         "all",
     ]
     for vis_name in vis_types:

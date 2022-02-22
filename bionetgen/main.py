@@ -361,8 +361,8 @@ class BNGBase(cement.Controller):
                 ["-t", "--type"],
                 {
                     "help": "(optional) Type of visualization requested. Valid options are: "
-                    + "'ruleviz_pattern','ruleviz_operation', 'contactmap' and 'regulatory'."
-                    + " Defaults to 'contactmap'.",
+                    + "'ruleviz_pattern','ruleviz_operation', 'contactmap', 'regulatory' and 'atom_rule'."
+                    + " Regulatory and atom rule graphs are the same thing, defaults to 'contactmap'.",
                     "default": "",
                     "type": str,
                 },
@@ -378,7 +378,7 @@ class BNGBase(cement.Controller):
         - Rule pattern visualization: Visualization of each rule as a bipartite graph
         - Rule operation visualization: Visualization of each rule showing explicit graph operations
         - Contact map: Visualize the contact map of the model
-        - Regulatory graph: Visualize the regulatory graph of the model
+        - Regulatory graph: Visualize the regulatory graph of the model, also called atom rule graph
         """
         args = self.app.pargs
         visualizeModel(self.app.config, args)
