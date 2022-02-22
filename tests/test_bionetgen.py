@@ -76,7 +76,9 @@ def test_bionetgen_visualize():
             assert app.exit_code == 0
             # gmls = glob.glob("*.gml")
             graphmls = glob.glob(os.path.join(tfold, "viz") + os.sep + "*.graphml")
-            if not vis_name == "all":
+            if vis_name == "atom_rule":
+                assert any(["regulatory" in i for i in graphmls])
+            elif not vis_name == "all":
                 assert any([vis_name in i for i in graphmls])
             else:
                 assert len(graphmls) == 4
