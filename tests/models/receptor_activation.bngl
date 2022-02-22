@@ -1,0 +1,115 @@
+## receptor_activation.bngl
+##
+## Simple example model for illustration of HPP method.
+##
+## This model is a simplified variant of the EGF receptor activation model in:
+##   ML Blinov, JR Faeder, B Goldstein, WS Hlavacek.
+##   "A network model of early events in epidermal growth factor
+##     receptor signaling that accounts for combinatorial complexity."
+##   BioSystems 83, 136-151 (2006).
+setModelName("receptor_activation")
+begin model
+begin parameters 
+    # fraction of cell, no units
+    f      0.10
+    # Avogadro's number, /mol
+    NA     6.0221e23
+    # Volume, liters
+    V      1e-12*f
+    # initial species counts
+    L0     500e-9*NA*V
+    R0     100e-9*NA*V
+    A0     100e-9*NA*V
+    B0     100e-9*NA*V
+    C0     100e-9*NA*V
+    BC0    100e-9*NA*V
+    # rate constants, units /s
+    kp1    10e6/(NA*V)
+    km1    1.0
+    k2     1.0
+    k3     1.0 
+    kp4    10e6/(NA*V)
+    km4    1.0
+    kp5    10e6/(NA*V)
+    km5    1.0
+    kp6    10e6/(NA*V)
+    km6    1.0
+    k7     1.0
+    k8     1.0
+    kp9    10e6/(NA*V)
+    km9    1.0
+    # fraction of cell to simulate
+    f  0.01
+    # population lumping rate, /s
+    k_lump    10000
+end parameters
+begin molecule types
+    L(r)              # ligand molecule
+    R(l,a~0~P,b~0~P)  # transmembrane receptor
+    A(r,b~0~P)        # cytosolic mediator A
+    B(r,c)            # cytosolic mediator B
+    C(b)              # cytosolic mediator C
+end molecule types
+begin seed species
+    L(r)               L0
+    R(l,a~0,b~0)       R0
+    A(r,b~0)           A0
+    B(r,c)             B0
+    C(b)               C0
+    B(r,c!1).C(b!1)    BC0
+end seed species
+begin observables
+    Molecules    LR      L(r!1).R(l!1)
+    Molecules    Rp      R(a~P!?)  R(b~P!?)
+    Molecules    Ap      A(b~P!?)
+    Molecules    RC      R(b~P!1).B(r!1,c!2).C(b!2)  R(a~P!1).A(r!1,b~P!2).B(r!2,c!3).C(b!3)
+    # total counts (conserved)
+    Molecules    Ltot    L()
+    Molecules    Rtot    R()
+    Molecules    Atot    A()
+    Molecules    Btot    B()
+    Molecules    Ctot    C()
+end observables
+# configure HPP
+begin population maps
+    L(r)                         -> P1()  k_lump
+    A(r,b~0)                     -> P2()  k_lump
+    A(r,b~P)                     -> P3()  k_lump
+    A(r,b~P!1).B(r!1,c)          -> P4()  k_lump
+    A(r,b~P!1).B(r!1,c!2).C(b!2) -> P5()  k_lump
+    B(r,c)                       -> P6()  k_lump
+    B(r,c!1).C(b!1)              -> P7()  k_lump
+    C(b)                         -> P8()  k_lump
+end population maps
+begin reaction rules
+    # ligand receptor binding
+    L(r) + R(l)  <->  L(r!1).R(l!1)    kp1, km1
+    # ligand induced receptor phosphorylation
+    L(r!1).R(l!1,a~0)  ->  L(r!1).R(l!1,a~P)    k2
+    L(r!1).R(l!1,b~0)  ->  L(r!1).R(l!1,b~P)    k2
+    # receptor dephosphorylation
+    R(a~P)  ->  R(a~0)    k3
+    R(b~P)  ->  R(b~0)    k3
+    # phosphorylated receptor binding A
+    R(a~P) + A(r)  <->  R(a~P!1).A(r!1)    kp4, km4
+    # phosphorylated receptor binding B
+    R(b~P) + B(r)  <->  R(b~P!1).B(r!1)    kp5, km5
+    # B binding C
+    B(c) + C(b)  <->  B(c!1).C(b!1)    kp6, km6
+    # bound A phosphorylation
+    R(a~P!1).A(r!1,b~0)  ->  R(a~P!1).A(r!1,b~P)    k7
+    # A dephosphorylation
+    A(b~P)  ->  A(b~0)    k8
+    # phosphorylated A binding B
+    A(b~P) + B(r)  <->  A(b~P!1).B(r!1)  kp9, km9
+end reaction rules
+end model
+
+# actions:
+saveConcentrations()
+# simulate with NFsim
+simulate_nf({ suffix=>"nf", t_end=>40, n_steps=>120, gml=>1000000, verbose=>1 })
+# generate partial network and simulate with HPP
+resetConcentrations()
+generate_hybrid_model({ suffix=>"hpp", overwrite=>1, verbose=>1, execute=>1,\
+                        actions=>["simulate_nf({ suffix=>\"nf\", t_end=>40, n_steps=>120, gml=>1000000, verbose=>1 })", "writeXML()"] })
