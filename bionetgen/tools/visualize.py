@@ -63,6 +63,7 @@ class BNGVisualize:
             "ruleviz_pattern",
             "ruleviz_operation",
             "regulatory",
+            "atom_rule",
             "all",
         ]
         # set visualization type, default yo contactmap
@@ -70,6 +71,7 @@ class BNGVisualize:
             vtype = "contactmap"
         if vtype not in self.accept_types:
             raise ValueError(f"{vtype} is not a valid visualization type")
+
         self.vtype = vtype
         # set output
         self.output = output
@@ -86,7 +88,10 @@ class BNGVisualize:
             for valid_type in self.valid_types:
                 model.add_action("visualize", action_args={"type": f"'{valid_type}'"})
         else:
-            model.add_action("visualize", action_args={"type": f"'{self.vtype}'"})
+            if self.vtype == "atom_rule":
+                model.add_action("visualize", action_args={"type": f"'regulatory'"})
+            else:
+                model.add_action("visualize", action_args={"type": f"'{self.vtype}'"})
         # TODO: Work in temp folder
         cur_dir = os.getcwd()
         from bionetgen.core.main import BNGCLI
