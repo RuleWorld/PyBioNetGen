@@ -71,7 +71,7 @@ class BNGVisualize:
             vtype = "contactmap"
         if vtype not in self.accept_types:
             raise ValueError(f"{vtype} is not a valid visualization type")
-        
+
         self.vtype = vtype
         # set output
         self.output = output
