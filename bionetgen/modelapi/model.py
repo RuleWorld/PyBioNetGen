@@ -54,8 +54,8 @@ class bngmodel:
         makes to the model via the API
     add_action(action_type, action_args)
         adds the action of action_type with arguments given by the optional keyword
-        argument action_args which is a list of lists where each element
-        is of the form [ArgumentName, ArgumentValue]
+        argument action_args, which is a dictionary where each element
+        is of the form "ArgumentName":ArgumentValue
     write_model(model_name)
         write the model in BNGL format to the path given
     setup_simulator(sim_type)
