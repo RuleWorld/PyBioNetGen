@@ -15,16 +15,17 @@ from os.path import expanduser, join
 
 home = expanduser("~")
 
+
 def setBngExecutable(executable):
     global bngExecutable
     bngExecutable = executable
 
+
 def getBngExecutable():
     return bngExecutable
 
+
 def bngl2xml(bnglFile, timeout=60):
     mdl = bionetgen.modelapi.bngmodel(bnglFile)
-    mdl.bngparser.bngfile.write_xml(
-                        bnglFile, xml_type="bngxml", bngl_str=str(mdl)
-    )
+    mdl.bngparser.bngfile.write_xml(bnglFile, xml_type="bngxml", bngl_str=str(mdl))
     # TODO: Deal with timeout here
