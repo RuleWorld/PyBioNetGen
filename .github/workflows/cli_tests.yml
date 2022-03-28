@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - ASinanSaglam/issue45
 
 jobs:
   deploy:
