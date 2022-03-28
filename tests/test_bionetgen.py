@@ -200,6 +200,8 @@ def test_model_running_lib():
 
 
 def test_atomize_flat():
+    if not os.path.exists(os.path.join(tfold, "test")):
+        os.mkdir(os.path.join(tfold, "test"))
     argv = [
         "atomize",
         "-i",
@@ -216,6 +218,8 @@ def test_atomize_flat():
 
 
 def test_atomize_atomized():
+    if not os.path.exists(os.path.join(tfold, "test")):
+        os.mkdir(os.path.join(tfold, "test"))
     argv = [
         "atomize",
         "-i",
