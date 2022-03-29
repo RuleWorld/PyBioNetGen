@@ -65,7 +65,7 @@ class BNGCLI:
             os.chdir(output)
 
     def run(self):
-        from bionetgen.modelapi.utils import run_command
+        from bionetgen.utils.utils import run_command
 
         try:
             stdout_loc = getattr(subprocess, self.stdout)
