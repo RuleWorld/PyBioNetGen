@@ -6,7 +6,7 @@ from .structs import Parameter, Compartment, Observable
 from .structs import MoleculeType, Species, Function
 from .structs import Rule, Action
 from .structs import EnergyPattern, PopulationMap
-from .utils import ActionList
+from bionetgen.utils.utils import ActionList
 
 # this import fails on some python versions
 try:

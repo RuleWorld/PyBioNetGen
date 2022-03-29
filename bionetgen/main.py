@@ -1,4 +1,4 @@
-from bionetgen.modelapi.utils import run_command
+from bionetgen.utils.utils import run_command
 import cement
 import subprocess, os
 import bionetgen as bng

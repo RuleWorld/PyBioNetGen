@@ -529,6 +529,29 @@ def find_BNG_path(BNGPATH=None):
     return BNGPATH, bngexec
 
 
+def test_perl(perl_path=None):
+    """
+    Test if perl is working
+
+    Arguments
+    ---------
+    perl_path : str
+        (optional) path to the folder that contains perl
+    """
+    # find path to perl binary
+    if perl_path is None:
+        perl_path = spawn.find_executable("perl")
+    if perl_path is None:
+        return False
+    # check if perl is actually working
+    command = [perl_path]
+    rc, _ = run_command(command, suppress=True)
+    if rc == 0:
+        return True
+    else:
+        return False
+
+
 def test_bngexec(bngexec):
     """
     A simple function that test if BNG2.pl given runs

@@ -1,5 +1,5 @@
 import bionetgen as bng
-from bionetgen.modelapi.utils import run_command
+from bionetgen.utils.utils import run_command
 import bionetgen.modelapi.model as mdl
 import os, subprocess
 from tempfile import NamedTemporaryFile
