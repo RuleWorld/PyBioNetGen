@@ -228,4 +228,5 @@ class Network:
         with open(file_name, "w") as f:
             f.write(model_str)
 
+
 ###### CORE OBJECT AND PARSING FRONT-END ######

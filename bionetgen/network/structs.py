@@ -1,4 +1,3 @@
-
 from platformdirs import site_data_dir
 
 
@@ -110,6 +109,7 @@ class NetworkParameter(NetworkObj):
         s = "    {} {} {}".format(self.id, self.name, self.value)
         return s
 
+
 # TODO:
 class NetworkCompartment(NetworkObj):
     """
@@ -143,6 +143,7 @@ class NetworkCompartment(NetworkObj):
             s += " {}".format(self.outside)
         return s
 
+
 # TODO:
 class NetworkGroup(NetworkObj):
     """
@@ -167,10 +168,11 @@ class NetworkGroup(NetworkObj):
         self.id = gid
         self.name = name
         self.species = species
-        
+
     def gen_string(self) -> str:
         s = "    {} {} {} ".format(self.id, self.name, ",".join(self.species))
         return s
+
 
 # TODO:
 class NetworkSpecies(NetworkObj):
@@ -200,6 +202,7 @@ class NetworkSpecies(NetworkObj):
     def gen_string(self) -> str:
         s = "    {} {} {}".format(self.id, self.name, self.count)
         return s
+
 
 # TODO:
 class NetworkFunction(NetworkObj):
@@ -231,6 +234,7 @@ class NetworkFunction(NetworkObj):
         else:
             s = "{}({}) = {}".format(self.name, ",".join(self.args), self.expr)
         return s
+
 
 # TODO:
 class NetworkReaction(NetworkObj):
@@ -269,6 +273,7 @@ class NetworkReaction(NetworkObj):
         s = f"    {self.id} {','.join(self.reactants)} {','.join(self.products)} {self.rate_constant}"
         return s
 
+
 # TODO:
 class NetworkEnergyPattern(NetworkObj):
     """
@@ -296,6 +301,7 @@ class NetworkEnergyPattern(NetworkObj):
     def gen_string(self) -> str:
         s = "{} {}".format(self.pattern, self.expression)
         return s
+
 
 # TODO:
 class NetworkPopulationMap(NetworkObj):
