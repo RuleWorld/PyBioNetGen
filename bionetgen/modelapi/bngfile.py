@@ -40,8 +40,9 @@ class BNGFile:
         given a bngl file or a string, writes an SBML or BNG-XML from it
     """
 
-    def __init__(self, path, BNGPATH=def_bng_path) -> None:
+    def __init__(self, path, BNGPATH=def_bng_path, generate_network=False) -> None:
         self.path = path
+        self.generate_network = generate_network
         AList = ActionList()
         self._action_list = [i + "(" for i in AList.possible_types]
         BNGPATH, bngexec = find_BNG_path(BNGPATH)
@@ -138,6 +139,8 @@ class BNGFile:
         # TODO: read stripped lines and store the actions
         # open new file and write just the model
         stripped_model = os.path.join(folder, model_file)
+        if self.generate_network:
+            stripped_lines += ["generate_network({overwrite=>1})"]
         stripped_lines = [x + "\n" for x in stripped_lines]
         with open(stripped_model, "w", encoding="UTF-8") as sf:
             sf.writelines(stripped_lines)
