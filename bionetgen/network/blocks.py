@@ -129,7 +129,7 @@ class NetworkBlock:
             try:
                 setattr(self, name, value)
             except:
-                print("can't set {} to {}".format(name, value))
+                # print("can't set {} to {}".format(name, value))
                 pass
         # we just added an item to a block, let's assume we need
         # to recompile if we have a compiled simulator
@@ -250,18 +250,18 @@ class NetworkCompartmentBlock(NetworkBlock):
 
 class NetworkGroupBlock(NetworkBlock):
     """
-    Observable block object, subclass of NetworkBlock.
+    Group block object, subclass of NetworkBlock.
 
     Methods
     -------
-    add_observable(name, otype, patterns=[])
-        adds an observable by making a new Observable object and passing
+    add_group(name, otype, patterns=[])
+        adds an group by making a new NetworkGroup object and passing
         the args/kwargs to its initialization.
     """
 
     def __init__(self) -> None:
         super().__init__()
-        self.name = "observables"
+        self.name = "groups"
 
     def __setattr__(self, name, value) -> None:
         changed = False
@@ -276,7 +276,7 @@ class NetworkGroupBlock(NetworkBlock):
                         self.items[name]["name"] = value
                 else:
                     print(
-                        "can't set observable {} to {}".format(
+                        "can't set group {} to {}".format(
                             self.items[name]["name"], value
                         )
                     )
@@ -288,7 +288,7 @@ class NetworkGroupBlock(NetworkBlock):
         else:
             self.__dict__[name] = value
 
-    def add_observable(self, *args, **kwargs) -> None:
+    def add_group(self, *args, **kwargs) -> None:
         g = NetworkGroup(*args, **kwargs)
         self.add_item((g.name, g))
 
@@ -408,7 +408,7 @@ class NetworkReactionBlock(NetworkBlock):
 
     def __init__(self) -> None:
         super().__init__()
-        self.name = "reaction rules"
+        self.name = "reactions"
 
     def __setattr__(self, name, value) -> None:
         changed = False
@@ -435,37 +435,9 @@ class NetworkReactionBlock(NetworkBlock):
         else:
             self.__dict__[name] = value
 
-    def add_rule(self, *args, **kwargs) -> None:
+    def add_reaction(self, *args, **kwargs) -> None:
         r = NetworkReaction(*args, **kwargs)
         self.add_item((r.name, r))
-
-    def consolidate_rules(self) -> None:
-        """
-        Generated XML only has unidirectional rules
-        and uses "_reverse_" tag to make bidirectional
-        rules for NFSim. Take all the "_reverse_" tagged
-        rules and convert them to bidirectional rules
-        """
-        delete_list = []
-        for item_key in self.items:
-            rxn_obj = self.items[item_key]
-            if item_key.startswith("_reverse_"):
-                # this is the reverse of another reaction
-                reverse_of = item_key.replace("_reverse_", "")
-                # ensure we have the original
-                if reverse_of in self.items:
-                    # make bidirectional and add rate law
-                    r1 = self.items[reverse_of].rate_constants[0]
-                    r2 = rxn_obj.rate_constants[0]
-                    if r1.startswith("Arrhenius"):
-                        self.items[reverse_of].set_rate_constants([r1])
-                    else:
-                        self.items[reverse_of].set_rate_constants((r1, r2))
-                    # mark reverse for deletion
-                    delete_list.append(item_key)
-        # delete items marked for deletion
-        for del_item in delete_list:
-            self.items.pop(del_item)
 
 
 class NetworkEnergyPatternBlock(NetworkBlock):

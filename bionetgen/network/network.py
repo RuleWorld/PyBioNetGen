@@ -1,16 +1,12 @@
-import copy
-
 from bionetgen.main import BioNetGen
-from tempfile import TemporaryFile
-from .bngnetworkparser import BNGNetworkParser
-from .blocks import (
-    ActionBlock,
-    NetworkCompartmentBlock,
-    NetworkFunctionBlock,
+from bionetgen.network.bngnetworkparser import BNGNetworkParser
+from bionetgen.network.blocks import (
     NetworkGroupBlock,
     NetworkParameterBlock,
     NetworkReactionBlock,
     NetworkSpeciesBlock,
+    NetworkCompartmentBlock,
+    NetworkFunctionBlock,
     NetworkEnergyPatternBlock,
     NetworkPopulationMapBlock,
 )
@@ -55,19 +51,20 @@ class Network:
         # We want blocks to be printed in the same order every time
         self.block_order = [
             "parameters",
-            "compartments",
-            "molecule_types",
             "species",
-            "observables",
-            "functions",
-            "energy_patterns",
-            "population_maps",
-            "rules",
-            "actions",
+            "reactions",
+            "groups"
+            # "compartments",
+            # "molecule_types",
+            # "species",
+            # "functions",
+            # "energy_patterns",
+            # "population_maps",
+            # "actions",
         ]
         self.model_name = ""
         self.bngnetworkparser = BNGNetworkParser(bngl_model)
-        self.bngnetworkparser.parse_model(self)
+        self.bngnetworkparser.parse_network(self)
         for block in self.block_order:
             if block not in self.active_blocks:
                 self.add_empty_block(block)
@@ -83,13 +80,6 @@ class Network:
         write the model to str
         """
         model_str = ""
-        # gotta check for "before model" type actions
-        if hasattr(self, "actions"):
-            ablock = getattr(self, "actions")
-            if len(ablock.before_model) > 0:
-                for baction in ablock.before_model:
-                    model_str += str(baction) + "\n"
-        model_str += "begin model\n"
         for block in self.block_order:
             # ensure we didn't get new items into a
             # previously inactive block, if we did
@@ -107,9 +97,6 @@ class Network:
             if block in self.active_blocks:
                 if block != "actions" and len(getattr(self, block)) > 0:
                     model_str += str(getattr(self, block))
-        model_str += "\nend model\n\n"
-        if "actions" in self.active_blocks:
-            model_str += str(self.actions)
         return model_str
 
     def __repr__(self):
@@ -124,16 +111,12 @@ class Network:
     def add_block(self, block):
         bname = block.name.replace(" ", "_")
         # TODO: fix this exception
-        if bname == "reaction_rules":
-            bname = "rules"
         block_adder = getattr(self, "add_{}_block".format(bname))
         block_adder(block)
 
     def add_empty_block(self, block_name):
         bname = block_name.replace(" ", "_")
         # TODO: fix this exception
-        if bname == "reaction_rules":
-            bname = "rules"
         block_adder = getattr(self, "add_{}_block".format(bname))
         block_adder()
 
@@ -146,14 +129,14 @@ class Network:
         else:
             self.parameters = NetworkParameterBlock()
 
-    def add_compartments_block(self, block=None):
-        if block is not None:
-            assert isinstance(block, NetworkCompartmentBlock)
-            self.compartments = block
-            if "compartments" not in self.active_blocks:
-                self.active_blocks.append("compartments")
-        else:
-            self.compartments = NetworkCompartmentBlock()
+    # def add_compartments_block(self, block=None):
+    #     if block is not None:
+    #         assert isinstance(block, NetworkCompartmentBlock)
+    #         self.compartments = block
+    #         if "compartments" not in self.active_blocks:
+    #             self.active_blocks.append("compartments")
+    #     else:
+    #         self.compartments = NetworkCompartmentBlock()
 
     def add_species_block(self, block=None):
         if block is not None:
@@ -164,59 +147,50 @@ class Network:
         else:
             self.species = NetworkSpeciesBlock()
 
-    def add_observables_block(self, block=None):
+    def add_groups_block(self, block=None):
         if block is not None:
             assert isinstance(block, NetworkGroupBlock)
-            self.observables = block
-            if "observables" not in self.active_blocks:
-                self.active_blocks.append("observables")
+            self.groups = block
+            if "groups" not in self.active_blocks:
+                self.active_blocks.append("groups")
         else:
-            self.observables = NetworkGroupBlock()
+            self.groups = NetworkGroupBlock()
 
-    def add_functions_block(self, block=None):
-        if block is not None:
-            assert isinstance(block, NetworkFunctionBlock)
-            self.functions = block
-            if "functions" not in self.active_blocks:
-                self.active_blocks.append("functions")
-        else:
-            self.functions = NetworkFunctionBlock()
-
-    def add_rules_block(self, block=None):
+    def add_reactions_block(self, block=None):
         if block is not None:
             assert isinstance(block, NetworkReactionBlock)
-            self.rules = block
-            if "rules" not in self.active_blocks:
-                self.active_blocks.append("rules")
+            self.reactions = block
+            if "reactions" not in self.active_blocks:
+                self.active_blocks.append("reactions")
         else:
-            self.rules = NetworkReactionBlock()
+            self.reactions = NetworkReactionBlock()
 
-    def add_energy_patterns_block(self, block=None):
-        if block is not None:
-            assert isinstance(block, NetworkEnergyPatternBlock)
-            self.energy_patterns = block
-            if "energy_patterns" not in self.active_blocks:
-                self.active_blocks.append("energy_patterns")
-        else:
-            self.energy_patterns = NetworkEnergyPatternBlock()
+    # def add_functions_block(self, block=None):
+    #     if block is not None:
+    #         assert isinstance(block, NetworkFunctionBlock)
+    #         self.functions = block
+    #         if "functions" not in self.active_blocks:
+    #             self.active_blocks.append("functions")
+    #     else:
+    #         self.functions = NetworkFunctionBlock()
 
-    def add_population_maps_block(self, block=None):
-        if block is not None:
-            assert isinstance(block, NetworkPopulationMapBlock)
-            self.population_maps = block
-            if "population_maps" not in self.active_blocks:
-                self.active_blocks.append("population_maps")
-        else:
-            self.population_maps = NetworkPopulationMapBlock()
+    # def add_energy_patterns_block(self, block=None):
+    #     if block is not None:
+    #         assert isinstance(block, NetworkEnergyPatternBlock)
+    #         self.energy_patterns = block
+    #         if "energy_patterns" not in self.active_blocks:
+    #             self.active_blocks.append("energy_patterns")
+    #     else:
+    #         self.energy_patterns = NetworkEnergyPatternBlock()
 
-    def add_actions_block(self, block=None):
-        if block is not None:
-            assert isinstance(block, ActionBlock)
-            self.actions = block
-            if "actions" not in self.active_blocks:
-                self.active_blocks.append("actions")
-        else:
-            self.actions = ActionBlock()
+    # def add_population_maps_block(self, block=None):
+    #     if block is not None:
+    #         assert isinstance(block, NetworkPopulationMapBlock)
+    #         self.population_maps = block
+    #         if "population_maps" not in self.active_blocks:
+    #             self.active_blocks.append("population_maps")
+    #     else:
+    #         self.population_maps = NetworkPopulationMapBlock()
 
     def write_model(self, file_name):
         """
@@ -230,3 +204,5 @@ class Network:
 
 
 ###### CORE OBJECT AND PARSING FRONT-END ######
+if __name__ == "__main__":
+    np = Network("C:\\Users\\Akhlore\\PyBioNetGen\\temp_testing\\simple_system.net")

@@ -1,11 +1,15 @@
-import xmltodict, re
-
 from bionetgen.main import BioNetGen
-from tempfile import TemporaryFile
+from bionetgen.network.blocks import (
+    NetworkGroupBlock,
+    NetworkParameterBlock,
+    NetworkReactionBlock,
+    NetworkSpeciesBlock,
+    NetworkCompartmentBlock,
+    NetworkFunctionBlock,
+    NetworkEnergyPatternBlock,
+    NetworkPopulationMapBlock,
+)
 
-from .bngfile import BNGFile
-from .blocks import ActionBlock
-from bionetgen.utils.utils import ActionList
 
 # This allows access to the CLIs config setup
 app = BioNetGen()
@@ -35,117 +39,84 @@ class BNGNetworkParser:
         parses given xml string and adds everything to a given model object
     """
 
-    def __init__(self, path, BNGPATH=def_bng_path, parse_actions=True) -> None:
-        self.to_parse_actions = parse_actions
-        self.bngfile = BNGFile(path)
+    def __init__(self, path) -> None:
+        self.path = path
+        with open(self.path, "r") as f:
+            self.network_lines = f.readlines()
 
-    def parse_model(self, model_obj) -> None:
+    def parse_network(self, network_obj) -> None:
         """
         Will determine the parser route eventually and call the right
         parser
         """
-        self._parse_model_bngpl(model_obj)
-
-    def _parse_model_bngpl(self, model_obj) -> None:
-        # get file path
-        model_file = self.bngfile.path
-
-        # this route runs BNG2.pl on the bngl and parses
-        # the XML instead
-        if model_file.endswith(".bngl"):
-            # TODO: Add verbosity option to the library
-            # print("Attempting to generate XML")
-            with TemporaryFile("w+") as xml_file:
-                if self.bngfile.generate_xml(xml_file):
-                    # TODO: Add verbosity option to the library
-                    xmlstr = xml_file.read()
-                    # < is not a valid XML character, we need to replace it
-                    xmlstr = xmlstr.replace('relation="<', 'relation="&lt;')
-                    self.parse_xml(xmlstr, model_obj)
-                    model_obj.reset_compilation_tags()
-                else:
-                    raise ValueError("XML file couldn't be generated")
-        elif model_file.endswith(".xml"):
-            with open(model_file, "r") as f:
-                xml_str = f.read()
-                # < is not a valid XML character, we need to replace it
-                xmlstr = xml_str.replace('relation="<', 'relation="&lt;')
-                self.parse_xml(xml_str, model_obj)
-            model_obj.reset_compilation_tags()
-        else:
-            raise NotImplementedError(
-                "The extension of {} is not supported".format(model_file)
-            )
-
-    def parse_xml(self, xml_str, model_obj) -> None:
-        xml_dict = xmltodict.parse(xml_str)
-        # catch non-BNG XML files
-        if "sbml" not in xml_dict:
-            if "model" not in xml_dict["sbml"]:
-                raise RuntimeError(
-                    "Input model is invalid. Please ensure model is in proper BNGL or BNG-XML format"
-                )
-        model_obj.xml_dict = xml_dict
-        first_key = list(xml_dict.keys())[0]
-        xml_model = xml_dict[first_key]["model"]
-        model_obj.model_name = xml_model["@id"]
-        for listkey in xml_model.keys():
-            if listkey == "ListOfParameters":
-                param_list = xml_model[listkey]
-                if param_list is not None:
-                    params = param_list["Parameter"]
-                    xml_parser = ParameterBlockXML(params)
-                    model_obj.add_block(xml_parser.parsed_obj)
-            elif listkey == "ListOfObservables":
-                obs_list = xml_model[listkey]
-                if obs_list is not None:
-                    obs = obs_list["Observable"]
-                    xml_parser = ObservableBlockXML(obs)
-                    model_obj.add_block(xml_parser.parsed_obj)
-            elif listkey == "ListOfCompartments":
-                comp_list = xml_model[listkey]
-                if comp_list is not None:
-                    comps = comp_list["compartment"]
-                    xml_parser = CompartmentBlockXML(comps)
-                    model_obj.add_block(xml_parser.parsed_obj)
-            elif listkey == "ListOfMoleculeTypes":
-                mtypes_list = xml_model[listkey]
-                if mtypes_list is not None:
-                    mtypes = mtypes_list["MoleculeType"]
-                    xml_parser = MoleculeTypeBlockXML(mtypes)
-                    model_obj.add_block(xml_parser.parsed_obj)
-            elif listkey == "ListOfSpecies":
-                species_list = xml_model[listkey]
-                if species_list is not None:
-                    species = species_list["Species"]
-                    xml_parser = SpeciesBlockXML(species)
-                    model_obj.add_block(xml_parser.parsed_obj)
-            elif listkey == "ListOfReactionRules":
-                rrules_list = xml_model[listkey]
-                if rrules_list is not None:
-                    rrules = rrules_list["ReactionRule"]
-                    xml_parser = RuleBlockXML(rrules)
-                    model_obj.add_block(xml_parser.parsed_obj)
-            elif listkey == "ListOfFunctions":
-                # TODO: Optional expression parsing?
-                # TODO: Add arguments correctly
-                func_list = xml_model[listkey]
-                if func_list is not None:
-                    funcs = func_list["Function"]
-                    xml_parser = FunctionBlockXML(funcs)
-                    model_obj.add_block(xml_parser.parsed_obj)
-            elif listkey == "ListOfEnergyPatterns":
-                ep_list = xml_model[listkey]
-                if ep_list is not None:
-                    eps = ep_list["EnergyPattern"]
-                    xml_parser = EnergyPatternBlockXML(eps)
-                    model_obj.add_block(xml_parser.parsed_obj)
-            elif listkey == "ListOfPopulationMaps":
-                pm_list = xml_model[listkey]
-                if pm_list is not None:
-                    pms = pm_list["PopulationMap"]
-                    xml_parser = PopulationMapBlockXML(pms)
-                    model_obj.add_block(xml_parser.parsed_obj)
-        # And that's the end of parsing
-        # TODO: Add verbosity option to the library
-        # print("Parsing complete")
+        # find blocks
+        pblock = [-1,-1]
+        sblock = [-1,-1]
+        rblock = [-1,-1]
+        gblock = [-1,-1]
+        for iline, line in enumerate(self.network_lines):
+            if line.strip() == "begin parameters":
+                pblock[0] = iline
+            if line.strip() == "end parameters":
+                pblock[1] = iline
+            if line.strip() == "begin species":
+                sblock[0] = iline
+            if line.strip() == "end species":
+                sblock[1] = iline
+            if line.strip() == "begin reactions":
+                rblock[0] = iline
+            if line.strip() == "end reactions":
+                rblock[1] = iline
+            if line.strip() == "begin groups":
+                gblock[0] = iline
+            if line.strip() == "end groups":
+                gblock[1] = iline
+        # add parameters
+        if pblock[0] > 0 and pblock[1] > 0:
+            param_block = NetworkParameterBlock()
+            for iline in range(pblock[0]+1, pblock[1]):
+                if self.network_lines[iline].strip() != "":
+                    splt = self.network_lines[iline].split()
+                    pid = splt[0]
+                    pname = splt[1]
+                    pvalue = splt[2]
+                    comment = " ".join(splt[3:])
+                    param_block.add_parameter(pid, pname, pvalue, comment=comment)
+            network_obj.add_block(param_block)
+        # add species
+        if sblock[0] > 0 and sblock[1] > 0:
+            spec_block = NetworkSpeciesBlock()
+            for iline in range(sblock[0]+1, sblock[1]):
+                if self.network_lines[iline].strip() != "":
+                    splt = self.network_lines[iline].split()
+                    sid = splt[0]
+                    name = splt[1]
+                    count = splt[2]
+                    spec_block.add_species(sid, name, count)
+            network_obj.add_block(spec_block)
+        # add reactions
+        if rblock[0] > 0 and rblock[1] > 0:
+            rxns_block = NetworkReactionBlock()
+            for iline in range(rblock[0]+1, rblock[1]):
+                if self.network_lines[iline].strip() != "":
+                    splt = self.network_lines[iline].split()
+                    rid = splt[0]
+                    reactants = splt[1].split(",")
+                    products = splt[2].split(",")
+                    rate_constant = splt[3]
+                    comment = " ".join(splt[4:])
+                    rxns_block.add_reaction(rid, reactants=reactants, products=products,rate_constant=rate_constant, comment=comment)
+            network_obj.add_block(rxns_block)
+        # # add groups
+        if gblock[0] > 0 and gblock[1] > 0:
+            grps_block = NetworkGroupBlock()
+            for iline in range(gblock[0]+1, gblock[1]):
+                if self.network_lines[iline].strip() != "":
+                    splt = self.network_lines[iline].split()
+                    rid = splt[0]
+                    name = splt[1]
+                    members = splt[2].split(",")
+                    comment = " ".join(splt[3:])
+                    grps_block.add_group(rid, name, members, comment=comment)
+            network_obj.add_block(grps_block)
+        import IPython,sys;IPython.embed();sys.exit()

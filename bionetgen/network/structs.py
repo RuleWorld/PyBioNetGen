@@ -1,9 +1,6 @@
-from platformdirs import site_data_dir
-
-
 class NetworkObj:
     """
-    The base class for all items in a network object (parameter, observable etc.).
+    The base class for all items in a network object (parameter, groups etc.).
 
     Attributes
     ----------
@@ -23,7 +20,7 @@ class NetworkObj:
     """
 
     def __init__(self):
-        self._comment = None
+        self._comment = ""
         self._line_label = None
 
     def __str__(self) -> str:
@@ -51,10 +48,13 @@ class NetworkObj:
     @comment.setter
     def comment(self, val) -> None:
         # TODO: regex handling of # instead
-        if val.startswith("#"):
-            self._comment = val[1:]
+        if len(val) > 0:
+            if val.startswith("#"):
+                self._comment = val[1:]
+            else:
+                self._comment = val
         else:
-            self._comment = val
+            self._comment = None
 
     @property
     def line_label(self) -> str:
@@ -98,15 +98,15 @@ class NetworkParameter(NetworkObj):
         value of the network parameter
     """
 
-    def __init__(self, pid, name, value):
+    def __init__(self, pid, name, value, comment=""):
         super().__init__()
-        self.id = pid
         self.line_label = pid
         self.name = name
         self.value = value
+        self.comment = comment
 
     def gen_string(self) -> str:
-        s = "    {} {} {}".format(self.id, self.name, self.value)
+        s = "{} {}".format(self.name, self.value)
         return s
 
 
@@ -144,7 +144,6 @@ class NetworkCompartment(NetworkObj):
         return s
 
 
-# TODO:
 class NetworkGroup(NetworkObj):
     """
     Class for all groups in the network, subclass of NetworkObj.
@@ -163,18 +162,18 @@ class NetworkGroup(NetworkObj):
         list of species expressions of the group
     """
 
-    def __init__(self, gid, name, species=[]):
+    def __init__(self, gid, name, members=[], comment=""):
         super().__init__()
-        self.id = gid
+        self.line_label = gid
         self.name = name
-        self.species = species
+        self.members = members
+        self.comment = comment
 
     def gen_string(self) -> str:
-        s = "    {} {} {} ".format(self.id, self.name, ",".join(self.species))
+        s = "{} {} ".format(self.name, ",".join(self.members))
         return s
 
 
-# TODO:
 class NetworkSpecies(NetworkObj):
     """
     Class for all species in the network, subclass of NetworkObj.
@@ -192,15 +191,15 @@ class NetworkSpecies(NetworkObj):
         starting value of the seed species
     """
 
-    def __init__(self, sid, name, count=0):
+    def __init__(self, sid, name, count=0, comment=""):
         super().__init__()
-        self.id = sid
         self.line_label = sid
         self.name = name
         self.count = count
+        self.comment = comment
 
     def gen_string(self) -> str:
-        s = "    {} {} {}".format(self.id, self.name, self.count)
+        s = "{} {}".format(self.name, self.count)
         return s
 
 
@@ -261,16 +260,18 @@ class NetworkReaction(NetworkObj):
         reactants=[],
         products=[],
         rate_constant=None,
+        comment=None,
     ) -> None:
         super().__init__()
-        self.id = rid
         self.line_label = rid
+        self.name = rid
         self.reactants = reactants
         self.products = products
         self.rate_constant = rate_constant
+        self.comment = comment
 
     def gen_string(self):
-        s = f"    {self.id} {','.join(self.reactants)} {','.join(self.products)} {self.rate_constant}"
+        s = f"{','.join(self.reactants)} {','.join(self.products)} {self.rate_constant}"
         return s
 
 
