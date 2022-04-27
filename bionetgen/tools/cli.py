@@ -135,8 +135,16 @@ class BNGCLI:
             # set BNGPATH back
             if self.old_bngpath is not None:
                 os.environ["BNGPATH"] = self.old_bngpath
+            if hasattr(out, "stdout"):
+                stdout_str = out.stdout.decode("utf-8")
+            else:
+                stdout_str = "No stdout in result"
+            if hasattr(out, "stdout"):
+                stderr_str = out.stderr.decode("utf-8")
+            else:
+                stderr_str = "No stderr in result"
             raise RuntimeError(
                 "Failed to run your BNGL file, there might be an issue with your model!",
-                out.stdout.decode("UTF-8"),
-                out.stderr.decode("UTF-8"),
+                stdout_str,
+                stderr_str,
             )
