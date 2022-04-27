@@ -25,6 +25,7 @@ class ActionList:
             "writeXML",
             "writeSBML",
             "writeMfile",
+            "writeCPYfile",
             "writeMexfile",
             "writeMDL",
             "visualize",
@@ -343,6 +344,19 @@ class ActionList:
         ]
         self.arg_dict["writeSBML"] = ["prefix", "suffix"]
         self.arg_dict["writeMfile"] = [
+            "prefix",
+            "suffix",
+            "t_start",
+            "t_end",
+            "n_steps",
+            "atol",
+            "rtol",
+            "max_step",
+            "bdf",
+            "maxOrder",
+            "stats",
+        ]
+        self.arg_dict["writeCPYfile"] = [
             "prefix",
             "suffix",
             "t_start",
