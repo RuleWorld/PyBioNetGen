@@ -1,4 +1,6 @@
-import ctypes, os, sys, subprocess
+from .bngsimulator import BNGSimulator
+
+import ctypes, os, subprocess
 import numpy as np
 import bionetgen
 
@@ -18,7 +20,7 @@ class RESULT(ctypes.Structure):
     ]
 
 
-class CSimulator:
+class CSimWrapper:
     def __init__(self, lib_path, num_params=None, num_spec_init=None):
         self.return_type = RESULT
         self.lib = ctypes.CDLL(lib_path)
@@ -85,7 +87,7 @@ class CSimulator:
         return (obs_all, spcs_all)
 
 
-class BNGSim:
+class CSimulator(BNGSimulator):
     def __init__(self, model, generate_network=False):
         # let's load the model first
         if isinstance(model, str):
@@ -96,6 +98,18 @@ class BNGSim:
             self.model = model
         else:
             print(f"model format not recognized: {model}")
+        # compile shared library
+        self.compile_shared_lib()
+        # setup simulator
+        self.simulator = self.lib_file
+
+    def __str__(self):
+        return f"C/Python Simulator, params: {self.model.parameters} \ninit species: {self.model.species}"
+
+    def __repr__(self):
+        return str(self)
+
+    def compile_shared_lib(self):
         # run and get CPY file
         # make sure we don't have actions
         self.model.actions.clear_actions()
@@ -107,6 +121,7 @@ class BNGSim:
         c_file = f"{self.model.model_name}_cvode_py.c"
         obj_file = f"{self.model.model_name}_cvode_py.o"
         lib_file = f"{self.model.model_name}_cvode_py.so"
+        # TODO: We need to figure out how to set this path
         subprocess.call(
             [
                 "gcc",
@@ -129,21 +144,36 @@ class BNGSim:
                 f"{lib_file}",
             ]
         )
-        # use CSimulator under the hood
-        n_param = len(
-            list(filter(lambda x: not x.startswith("_"), list(self.model.parameters)))
-        )
-        self.csim = CSimulator(
-            os.path.abspath(lib_file),
-            num_params=n_param,
-            num_spec_init=len(self.model.species),
-        )
+        self.cfile = os.path.abspath(c_file)
+        self.obj_file = os.path.abspath(obj_file)
+        self.lib_file = os.path.abspath(lib_file)
 
-    def __str__(self):
-        return f"C/Python Simulator, params: {self.model.parameters} \ninit species: {self.model.species}"
+    @property
+    def simulator(self):
+        """
+        simulator attribute that stores
+        the instantiated simulator object
+        and also saves the SBML text in the
+        sbml attribute
+        """
+        return self._simulator
 
-    def __repr__(self):
-        return str(self)
+    @simulator.setter
+    def simulator(self, lib_file):
+        # use CSimWrapper under the hood
+        try:
+            n_param = len(
+                list(
+                    filter(lambda x: not x.startswith("_"), list(self.model.parameters))
+                )
+            )
+            CSimWrapper(
+                os.path.abspath(lib_file),
+                num_params=n_param,
+                num_spec_init=len(self.model.species),
+            )
+        except:
+            raise RuntimeError("Couldn't setup CSimWrapper")
 
     def simulate(self, t_start=0, t_end=10, n_steps=10):
         # set parameters and initial species values
@@ -156,22 +186,11 @@ class BNGSim:
                 p_name = self.model.species[spc_name].count
                 count = float(self.model.parameters[p_name].value)
                 spcs.append(count)
-        self.csim.set_species_init(spcs)
+        self.simulator.set_species_init(spcs)
         params = list(filter(lambda x: not x.startswith("_"), self.model.parameters))
         params = [float(self.model.parameters[p].value) for p in params]
-        self.csim.set_parameters(params)
-        # now that we have CSimulator setup correctly, run the simulation
-        obs_all, spcs_all = self.csim.simulate(t_start, t_end, n_steps)
+        self.simulator.set_parameters(params)
+        # now that we have CSimWrapper setup correctly, run the simulation
+        obs_all, spcs_all = self.simulator.simulate(t_start, t_end, n_steps)
         # return our results
         return (obs_all, spcs_all)
-
-
-if __name__ == "__main__":
-    sim = BNGSim(os.path.abspath(sys.argv[1]), generate_network=True)
-    print("calling simulate")
-    observables, species = sim.simulate(0, 1, 10)
-    print(f"observables: ")
-    print(observables[:10])
-    print(f"species: ")
-    print(species[:10])
-    # import IPython;IPython.embed()
