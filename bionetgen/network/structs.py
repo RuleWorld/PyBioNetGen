@@ -48,12 +48,15 @@ class NetworkObj:
     @comment.setter
     def comment(self, val) -> None:
         # TODO: regex handling of # instead
-        if len(val) > 0:
-            if val.startswith("#"):
-                self._comment = val[1:]
+        if val is not None:
+            if len(val) > 0:
+                if val.startswith("#"):
+                    self._comment = val[1:]
+                else:
+                    self._comment = val
             else:
-                self._comment = val
-        else:
+                self._comment = None
+        else: 
             self._comment = None
 
     @property

@@ -1,3 +1,4 @@
+import re
 from bionetgen.main import BioNetGen
 from bionetgen.network.blocks import (
     NetworkGroupBlock,
@@ -75,48 +76,55 @@ class BNGNetworkParser:
         if pblock[0] > 0 and pblock[1] > 0:
             param_block = NetworkParameterBlock()
             for iline in range(pblock[0]+1, pblock[1]):
-                if self.network_lines[iline].strip() != "":
-                    splt = self.network_lines[iline].split()
+                m = re.match("([^#]*)(#.*)?", self.network_lines[iline])
+                if m.group(1).strip() != "":
+                    splt = m.group(1).split()
                     pid = splt[0]
                     pname = splt[1]
                     pvalue = splt[2]
-                    comment = " ".join(splt[3:])
+                    comment = m.group(2)
                     param_block.add_parameter(pid, pname, pvalue, comment=comment)
             network_obj.add_block(param_block)
         # add species
         if sblock[0] > 0 and sblock[1] > 0:
             spec_block = NetworkSpeciesBlock()
             for iline in range(sblock[0]+1, sblock[1]):
-                if self.network_lines[iline].strip() != "":
-                    splt = self.network_lines[iline].split()
+                m = re.match("([^#]*)(#.*)?", self.network_lines[iline])
+                if m.group(1).strip() != "":
+                    splt = m.group(1).split()
                     sid = splt[0]
                     name = splt[1]
-                    count = splt[2]
+                    try:
+                        count = splt[2]
+                    except:
+                        import IPython;IPython.embed()
                     spec_block.add_species(sid, name, count)
             network_obj.add_block(spec_block)
         # add reactions
         if rblock[0] > 0 and rblock[1] > 0:
             rxns_block = NetworkReactionBlock()
             for iline in range(rblock[0]+1, rblock[1]):
-                if self.network_lines[iline].strip() != "":
-                    splt = self.network_lines[iline].split()
+                m = re.match("([^#]*)(#.*)?", self.network_lines[iline])
+                if m.group(1).strip() != "":
+                    splt = m.group(1).split()
                     rid = splt[0]
                     reactants = splt[1].split(",")
                     products = splt[2].split(",")
                     rate_constant = splt[3]
-                    comment = " ".join(splt[4:])
+                    comment = m.group(2)
                     rxns_block.add_reaction(rid, reactants=reactants, products=products,rate_constant=rate_constant, comment=comment)
             network_obj.add_block(rxns_block)
         # # add groups
         if gblock[0] > 0 and gblock[1] > 0:
             grps_block = NetworkGroupBlock()
             for iline in range(gblock[0]+1, gblock[1]):
-                if self.network_lines[iline].strip() != "":
-                    splt = self.network_lines[iline].split()
+                m = re.match("([^#]*)(#.*)?", self.network_lines[iline])
+                if m.group(1).strip() != "":
+                    splt = m.group(1).split()
                     rid = splt[0]
                     name = splt[1]
                     members = splt[2].split(",")
-                    comment = " ".join(splt[3:])
+                    comment = m.group(2)
                     grps_block.add_group(rid, name, members, comment=comment)
             network_obj.add_block(grps_block)
-        import IPython,sys;IPython.embed();sys.exit()
+        # import IPython,sys;IPython.embed();sys.exit()
