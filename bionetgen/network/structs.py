@@ -56,7 +56,7 @@ class NetworkObj:
                     self._comment = val
             else:
                 self._comment = None
-        else: 
+        else:
             self._comment = None
 
     @property

@@ -206,4 +206,6 @@ class Network:
 ###### CORE OBJECT AND PARSING FRONT-END ######
 if __name__ == "__main__":
     np = Network("C:\\Users\\Akhlore\\PyBioNetGen\\temp_testing\\mockup.net")
-    import IPython;IPython.embed()
+    import IPython
+
+    IPython.embed()

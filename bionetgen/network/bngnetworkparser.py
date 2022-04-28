@@ -51,10 +51,10 @@ class BNGNetworkParser:
         parser
         """
         # find blocks
-        pblock = [-1,-1]
-        sblock = [-1,-1]
-        rblock = [-1,-1]
-        gblock = [-1,-1]
+        pblock = [-1, -1]
+        sblock = [-1, -1]
+        rblock = [-1, -1]
+        gblock = [-1, -1]
         for iline, line in enumerate(self.network_lines):
             if line.strip() == "begin parameters":
                 pblock[0] = iline
@@ -75,7 +75,7 @@ class BNGNetworkParser:
         # add parameters
         if pblock[0] > 0 and pblock[1] > 0:
             param_block = NetworkParameterBlock()
-            for iline in range(pblock[0]+1, pblock[1]):
+            for iline in range(pblock[0] + 1, pblock[1]):
                 m = re.match("([^#]*)(#.*)?", self.network_lines[iline])
                 if m.group(1).strip() != "":
                     splt = m.group(1).split()
@@ -88,7 +88,7 @@ class BNGNetworkParser:
         # add species
         if sblock[0] > 0 and sblock[1] > 0:
             spec_block = NetworkSpeciesBlock()
-            for iline in range(sblock[0]+1, sblock[1]):
+            for iline in range(sblock[0] + 1, sblock[1]):
                 m = re.match("([^#]*)(#.*)?", self.network_lines[iline])
                 if m.group(1).strip() != "":
                     splt = m.group(1).split()
@@ -97,13 +97,15 @@ class BNGNetworkParser:
                     try:
                         count = splt[2]
                     except:
-                        import IPython;IPython.embed()
+                        import IPython
+
+                        IPython.embed()
                     spec_block.add_species(sid, name, count)
             network_obj.add_block(spec_block)
         # add reactions
         if rblock[0] > 0 and rblock[1] > 0:
             rxns_block = NetworkReactionBlock()
-            for iline in range(rblock[0]+1, rblock[1]):
+            for iline in range(rblock[0] + 1, rblock[1]):
                 m = re.match("([^#]*)(#.*)?", self.network_lines[iline])
                 if m.group(1).strip() != "":
                     splt = m.group(1).split()
@@ -112,12 +114,18 @@ class BNGNetworkParser:
                     products = splt[2].split(",")
                     rate_constant = splt[3]
                     comment = m.group(2)
-                    rxns_block.add_reaction(rid, reactants=reactants, products=products,rate_constant=rate_constant, comment=comment)
+                    rxns_block.add_reaction(
+                        rid,
+                        reactants=reactants,
+                        products=products,
+                        rate_constant=rate_constant,
+                        comment=comment,
+                    )
             network_obj.add_block(rxns_block)
         # # add groups
         if gblock[0] > 0 and gblock[1] > 0:
             grps_block = NetworkGroupBlock()
-            for iline in range(gblock[0]+1, gblock[1]):
+            for iline in range(gblock[0] + 1, gblock[1]):
                 m = re.match("([^#]*)(#.*)?", self.network_lines[iline])
                 if m.group(1).strip() != "":
                     splt = m.group(1).split()
