@@ -158,7 +158,7 @@ class BNGBase(cement.Controller):
             (
                 ["-op", "--open"],
                 {
-                    "help": "(optional) If given, the notebook will by opened using nbopen",
+                    "help": "(optional) If given, the notebook will be opened using nbopen",
                     "action": "store_true",
                 },
             ),
