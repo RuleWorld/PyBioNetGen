@@ -270,11 +270,8 @@ class bngmodel:
         """
         write the model to file
         """
-        model_str = ""
-        for block in self.active_blocks:
-            model_str += str(getattr(self, block))
         with open(file_name, "w") as f:
-            f.write(model_str)
+            f.write(str(self))
 
     def setup_simulator(self, sim_type="libRR"):
         """
@@ -310,6 +307,11 @@ class bngmodel:
                 selections = ["time"] + [obs for obs in self.observables]
                 self.simulator.simulator.timeCourseSelections = selections
             self.actions = curr_actions
+        elif sim_type == "cpy":
+            # get the simulator
+            import bionetgen as bng
+            self.simulator = bng.sim_getter(model_file=self, sim_type=sim_type)
+            return self.simulator
         else:
             print(
                 'Sim type {} is not recognized, only libroadrunner \

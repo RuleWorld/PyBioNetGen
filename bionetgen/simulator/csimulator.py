@@ -1,9 +1,15 @@
 from .bngsimulator import BNGSimulator
 
-import ctypes, os, subprocess
+import ctypes, os, subprocess, tempfile
 import numpy as np
 import bionetgen
 
+from bionetgen.main import BioNetGen
+# This allows access to the CLIs config setup
+app = BioNetGen()
+app.setup()
+conf = app.config["bionetgen"]
+def_bng_path = conf["bngpath"]
 
 class RESULT(ctypes.Structure):
     _fields_ = [
@@ -55,13 +61,13 @@ class CSimWrapper:
             self.result.obs_names,
             ctypes.POINTER(ctypes.c_char * self.result.obs_name_len),
         )[0].value.decode()
-        obs_names = obs_names.split(":")[:-1]
+        obs_names = obs_names.split("/")[:-1]
 
         spcs_names = ctypes.cast(
             self.result.spcs_names,
             ctypes.POINTER(ctypes.c_char * self.result.spcs_name_len),
         )[0].value.decode()
-        spcs_names = spcs_names.split(":")[:-1]
+        spcs_names = spcs_names.split("/")[:-1]
 
         buffer_as_ctypes_arr_obs = ctypes.cast(
             self.result.observables,
@@ -88,16 +94,22 @@ class CSimWrapper:
 
 
 class CSimulator(BNGSimulator):
-    def __init__(self, model, generate_network=False):
+    def __init__(self, model_file, generate_network=False):
         # let's load the model first
-        if isinstance(model, str):
+        if isinstance(model_file, str):
             # load model file
-            self.model = bionetgen.bngmodel(model, generate_network=generate_network)
-        elif isinstance(model, bionetgen.bngmodel):
+            self.model = bionetgen.bngmodel(model_file, generate_network=generate_network)
+        elif isinstance(model_file, bionetgen.bngmodel):
             # loaded model
-            self.model = model
+            self.model = model_file
+            cd = os.getcwd()
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                os.chdir(tmpdirname)
+                self.model.write_model(f"{self.model.model_name}.bngl")
+                self.model = bionetgen.bngmodel(f"{self.model.model_name}.bngl", generate_network=generate_network)
+            os.chdir(cd)
         else:
-            print(f"model format not recognized: {model}")
+            print(f"model format not recognized: {model_file}")
         # compile shared library
         self.compile_shared_lib()
         # setup simulator
@@ -121,12 +133,12 @@ class CSimulator(BNGSimulator):
         c_file = f"{self.model.model_name}_cvode_py.c"
         obj_file = f"{self.model.model_name}_cvode_py.o"
         lib_file = f"{self.model.model_name}_cvode_py.so"
-        # TODO: We need to figure out how to set this path
+        # set cvode paths using config files
         subprocess.call(
             [
                 "gcc",
                 "-fPIC",
-                "-I/home/boltzmann/apps/cvode-2.6.0/cvode_lib/include/",
+                f'-I{conf.get("cvode_include")}',
                 "-c",
                 f"{c_file}",
             ]
@@ -137,7 +149,7 @@ class CSimulator(BNGSimulator):
                 f"{obj_file}",
                 "--shared",
                 "-fPIC",
-                "-L/home/boltzmann/apps/cvode-2.6.0/cvode_lib/lib/",
+                f'-L{conf.get("cvode_lib")}',
                 "-lsundials_cvode",
                 "-lsundials_nvecserial",
                 "-o",
@@ -167,7 +179,7 @@ class CSimulator(BNGSimulator):
                     filter(lambda x: not x.startswith("_"), list(self.model.parameters))
                 )
             )
-            CSimWrapper(
+            self._simulator = CSimWrapper(
                 os.path.abspath(lib_file),
                 num_params=n_param,
                 num_spec_init=len(self.model.species),
