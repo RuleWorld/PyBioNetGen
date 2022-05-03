@@ -310,6 +310,7 @@ class bngmodel:
         elif sim_type == "cpy":
             # get the simulator
             import bionetgen as bng
+
             self.simulator = bng.sim_getter(model_file=self, sim_type=sim_type)
             return self.simulator
         else:

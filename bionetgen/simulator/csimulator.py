@@ -5,11 +5,13 @@ import numpy as np
 import bionetgen
 
 from bionetgen.main import BioNetGen
+
 # This allows access to the CLIs config setup
 app = BioNetGen()
 app.setup()
 conf = app.config["bionetgen"]
 def_bng_path = conf["bngpath"]
+
 
 class RESULT(ctypes.Structure):
     _fields_ = [
@@ -98,7 +100,9 @@ class CSimulator(BNGSimulator):
         # let's load the model first
         if isinstance(model_file, str):
             # load model file
-            self.model = bionetgen.bngmodel(model_file, generate_network=generate_network)
+            self.model = bionetgen.bngmodel(
+                model_file, generate_network=generate_network
+            )
         elif isinstance(model_file, bionetgen.bngmodel):
             # loaded model
             self.model = model_file
@@ -106,7 +110,9 @@ class CSimulator(BNGSimulator):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 os.chdir(tmpdirname)
                 self.model.write_model(f"{self.model.model_name}.bngl")
-                self.model = bionetgen.bngmodel(f"{self.model.model_name}.bngl", generate_network=generate_network)
+                self.model = bionetgen.bngmodel(
+                    f"{self.model.model_name}.bngl", generate_network=generate_network
+                )
             os.chdir(cd)
         else:
             print(f"model format not recognized: {model_file}")
