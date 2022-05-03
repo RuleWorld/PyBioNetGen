@@ -67,12 +67,8 @@ class BNGDefaults:
         )
         CONFIG["bionetgen"]["notebook"]["name"] = "bng-notebook.ipynb"
         # cvode paths
-        CONFIG["bionetgen"][
-            "cvode_lib"
-        ] = "/home/boltzmann/apps/cvode-2.6.0/cvode_lib/lib/"
-        CONFIG["bionetgen"][
-            "cvode_include"
-        ] = "/home/boltzmann/apps/cvode-2.6.0/cvode_lib/include/"
+        CONFIG["bionetgen"]["cvode_lib"] = None
+        CONFIG["bionetgen"]["cvode_include"] = None
         # set attributes
         self.bng_path = os.path.join(lib_path, bng_name)
         self.lib_path = lib_path
