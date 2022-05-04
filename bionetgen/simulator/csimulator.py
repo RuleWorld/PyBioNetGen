@@ -29,26 +29,59 @@ class RESULT(ctypes.Structure):
 
 
 class CSimWrapper:
+    """
+    Wrapper class for the compiled C simulator shared library.
+
+    The class loads the compiled C shared library and passes
+    pointers to the initial species arrays and parameter arrays
+    to the shared library, runs the simulation and returns the
+    results as numpy named arrays.
+    """
+
     def __init__(self, lib_path, num_params=None, num_spec_init=None):
-        self.return_type = RESULT
+        # we need the result struct to reconstruct the object
+        self.return_struct = RESULT
+        # load the shared library
         self.lib = ctypes.CDLL(lib_path)
+        # set the return type of the simulate function to a pointer
+        # we'll use it to reconstruct the RESULT object from it later
         self.lib.simulate.restype = ctypes.c_void_p
+        # set number of parameters
         self.num_params = num_params
+        # set number of initial species values
         self.num_spec_init = num_spec_init
 
     def set_species_init(self, arr):
+        """
+        Set the initial species values array
+        """
         assert len(arr) == self.num_spec_init
         self.species_init = np.array(arr, dtype=np.float64)
 
     def set_parameters(self, arr):
+        """
+        Set the parameter values array
+        """
         assert len(arr) == self.num_params
         self.parameters = np.array(arr, dtype=np.float64)
 
     def simulate(self, t_start=0, t_end=100, n_steps=100):
+        """
+        Run the simulate command of the shared C library.
+
+        This function will construct a timepoint array from the given
+        arguments and then pass the timepoints, parameters and
+        initial species to the simulate command. Take the result pointer
+        and convert the pointer back to a result struct and then
+        construct named numpy arrays to return observable and species
+        values over time.
+        """
+        # generate the time point array
         del_t = (t_end - t_start) / float(n_steps)
         timepoints = np.arange(t_start, t_end + 1, del_t)
         ntpts = len(timepoints)
-        self.result = self.return_type.from_address(
+        # call the simulate command
+        self.result = self.return_struct.from_address(
             self.lib.simulate(
                 ntpts,
                 ctypes.c_void_p(timepoints.ctypes.data),
@@ -58,19 +91,19 @@ class CSimWrapper:
                 ctypes.c_void_p(self.parameters.ctypes.data),
             )
         )
-
+        # we need to pull the observable names and get a list of them
         obs_names = ctypes.cast(
             self.result.obs_names,
             ctypes.POINTER(ctypes.c_char * self.result.obs_name_len),
         )[0].value.decode()
         obs_names = obs_names.split("/")[:-1]
-
+        # same thing with species names
         spcs_names = ctypes.cast(
             self.result.spcs_names,
             ctypes.POINTER(ctypes.c_char * self.result.spcs_name_len),
         )[0].value.decode()
         spcs_names = spcs_names.split("/")[:-1]
-
+        # cast the observables into a named numpy array
         buffer_as_ctypes_arr_obs = ctypes.cast(
             self.result.observables,
             ctypes.POINTER(ctypes.c_double * ntpts * self.result.n_observables),
@@ -79,7 +112,7 @@ class CSimWrapper:
         fmt = ["f8"] * len(obs_names)
         obs_all = np.reshape(observables, (self.result.n_observables, ntpts))
         obs_all = np.core.records.fromarrays(obs_all, names=obs_names, formats=fmt)
-
+        # cast the species into a named numpy array
         buffer_as_ctypes_arr_spc = ctypes.cast(
             self.result.species,
             ctypes.POINTER(ctypes.c_double * ntpts * self.result.n_species),
@@ -88,14 +121,21 @@ class CSimWrapper:
         fmt = ["f8"] * len(spcs_names)
         spcs_all = np.reshape(species, (self.result.n_species, ntpts))
         spcs_all = np.core.records.fromarrays(spcs_all, names=spcs_names, formats=fmt)
-
+        # free the memory used for the results struct
         self.lib.free_result(ctypes.byref(self.result))
         del self.result
-
+        # return named numpy arrays
         return (obs_all, spcs_all)
 
 
 class CSimulator(BNGSimulator):
+    """
+    Object that bridges the BNG model object and the CSimWrapper object.
+
+    The point of this object is to deal with the compilation of the shared library
+    and pass the correct parameter and initial species values to the wrapper object.
+    """
+
     def __init__(self, model_file, generate_network=False):
         # check cvode library paths
         if (conf.get("cvode_include") is None) or (conf.get("cvode_lib") is None):
@@ -142,7 +182,7 @@ class CSimulator(BNGSimulator):
         c_file = f"{self.model.model_name}_cvode_py.c"
         obj_file = f"{self.model.model_name}_cvode_py.o"
         lib_file = f"{self.model.model_name}_cvode_py.so"
-        # set cvode paths using config files
+        # set cvode paths using config files for compilation
         subprocess.call(
             [
                 "gcc",
@@ -165,6 +205,7 @@ class CSimulator(BNGSimulator):
                 f"{lib_file}",
             ]
         )
+        # keep a record of what we got
         self.cfile = os.path.abspath(c_file)
         self.obj_file = os.path.abspath(obj_file)
         self.lib_file = os.path.abspath(lib_file)
