@@ -66,4 +66,4 @@ class BNGSimulator:
         self.simulator = mstr
 
     def simulate(self):
-        return
+        raise NotImplementedError
