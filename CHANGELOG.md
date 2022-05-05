@@ -203,3 +203,7 @@ Added support for `energy pattern` and `population map` block after bionetgen 2.
 ## 0.7.2
 Added support for the `Arrhenius` rate law after BioNetGen 2.8.0 added XML support for it. With this, all BioNetGen features
 shuold be supported by both BNG-XML exporter from BioNetGen as well as in PyBNG. 
+
+
+## 0.7.3
+Added an experimental parser for `.net` files. Added simulator object that can use the `writeCPYfile` action introduced in [BioNetGen 2.8.2](https://github.com/RuleWorld/bionetgen/releases/tag/BioNetGen-2.8.2), compile the resulting C file and use a wrapper to call C code directly. The C code requires [CVODE 2.6.0](https://computing.llnl.gov/projects/sundials/sundials-software), which will also be temporarily distributed with the PyBNG package. GCC is required to compile the C code and the user must set the `cvode_lib` and `cvode_include` configuration options using the [config file system](https://github.com/RuleWorld/PyBioNetGen/blob/main/config/bionetgen.conf.example) which should be named `.bionetgen.conf` and placed under the users home folder. The options should point to CVODE library folder and include folders respectively. 
