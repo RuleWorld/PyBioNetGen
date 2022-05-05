@@ -38,9 +38,11 @@ class BNGParser:
         parses given xml string and adds everything to a given model object
     """
 
-    def __init__(self, path, BNGPATH=def_bng_path, parse_actions=True) -> None:
+    def __init__(
+        self, path, BNGPATH=def_bng_path, parse_actions=True, generate_network=False
+    ) -> None:
         self.to_parse_actions = parse_actions
-        self.bngfile = BNGFile(path)
+        self.bngfile = BNGFile(path, generate_network=generate_network)
         self.alist = ActionList()
         self.alist.define_parser()
 

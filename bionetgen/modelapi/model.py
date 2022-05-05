@@ -63,7 +63,7 @@ class bngmodel:
         type of simulator is libRR for libRoadRunner simulator.
     """
 
-    def __init__(self, bngl_model, BNGPATH=def_bng_path):
+    def __init__(self, bngl_model, BNGPATH=def_bng_path, generate_network=False):
         self.active_blocks = []
         # We want blocks to be printed in the same order every time
         self.block_order = [
@@ -79,7 +79,7 @@ class bngmodel:
             "actions",
         ]
         self.model_name = ""
-        self.bngparser = BNGParser(bngl_model)
+        self.bngparser = BNGParser(bngl_model, generate_network=generate_network)
         self.bngparser.parse_model(self)
         for block in self.block_order:
             if block not in self.active_blocks:
@@ -270,11 +270,8 @@ class bngmodel:
         """
         write the model to file
         """
-        model_str = ""
-        for block in self.active_blocks:
-            model_str += str(getattr(self, block))
         with open(file_name, "w") as f:
-            f.write(model_str)
+            f.write(str(self))
 
     def setup_simulator(self, sim_type="libRR"):
         """
@@ -310,6 +307,12 @@ class bngmodel:
                 selections = ["time"] + [obs for obs in self.observables]
                 self.simulator.simulator.timeCourseSelections = selections
             self.actions = curr_actions
+        elif sim_type == "cpy":
+            # get the simulator
+            import bionetgen as bng
+
+            self.simulator = bng.sim_getter(model_file=self, sim_type=sim_type)
+            return self.simulator
         else:
             print(
                 'Sim type {} is not recognized, only libroadrunner \

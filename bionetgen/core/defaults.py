@@ -57,6 +57,7 @@ class BNGDefaults:
         lib_path = os.path.dirname(__file__)
         lib_path = os.path.split(lib_path)[0]
         CONFIG["bionetgen"]["bngpath"] = os.path.join(lib_path, bng_name)
+        # notebook
         CONFIG["bionetgen"]["notebook"] = {}
         CONFIG["bionetgen"]["notebook"]["path"] = os.path.join(
             lib_path, "assets", "bionetgen.ipynb"
@@ -65,6 +66,9 @@ class BNGDefaults:
             lib_path, "assets", "bionetgen-temp.ipynb"
         )
         CONFIG["bionetgen"]["notebook"]["name"] = "bng-notebook.ipynb"
+        # cvode paths
+        CONFIG["bionetgen"]["cvode_lib"] = None
+        CONFIG["bionetgen"]["cvode_include"] = None
         # set attributes
         self.bng_path = os.path.join(lib_path, bng_name)
         self.lib_path = lib_path
