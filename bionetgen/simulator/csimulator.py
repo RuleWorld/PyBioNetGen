@@ -169,7 +169,6 @@ class CSimulator(BNGSimulator):
         self.compile_shared_lib()
         # setup simulator
         self.simulator = self.lib_file
-        
 
     def __str__(self):
         return f"C/Python Simulator, params: {self.model.parameters} \ninit species: {self.model.species}"
@@ -192,9 +191,9 @@ class CSimulator(BNGSimulator):
         # import IPython;IPython.embed()
         self.compiler.compile([c_file], extra_preargs=["-fPIC"])
         # now link cvode
-        self.compiler.link_shared_lib([obj_file],
-                lib_file,
-                libraries=["sundials_cvode","sundials_nvecserial"])
+        self.compiler.link_shared_lib(
+            [obj_file], lib_file, libraries=["sundials_cvode", "sundials_nvecserial"]
+        )
         # # keep a record of what we got
         self.cfile = os.path.abspath(c_file)
         self.obj_file = os.path.abspath(obj_file)
