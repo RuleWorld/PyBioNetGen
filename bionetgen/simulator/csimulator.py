@@ -1,7 +1,8 @@
 from .bngsimulator import BNGSimulator
 
-import ctypes, os, subprocess, tempfile
+import ctypes, os, tempfile
 import numpy as np
+from distutils import ccompiler
 import bionetgen
 
 from bionetgen.main import BioNetGen
@@ -159,10 +160,16 @@ class CSimulator(BNGSimulator):
             os.chdir(cd)
         else:
             print(f"model format not recognized: {model_file}")
+        # set compiler
+        # os.environ["CC"] = "gcc"
+        self.compiler = ccompiler.new_compiler()
+        self.compiler.add_include_dir(conf.get("cvode_include"))
+        self.compiler.add_library_dir(conf.get("cvode_lib"))
         # compile shared library
         self.compile_shared_lib()
         # setup simulator
         self.simulator = self.lib_file
+        
 
     def __str__(self):
         return f"C/Python Simulator, params: {self.model.parameters} \ninit species: {self.model.species}"
@@ -181,33 +188,18 @@ class CSimulator(BNGSimulator):
         # compile CPY file
         c_file = f"{self.model.model_name}_cvode_py.c"
         obj_file = f"{self.model.model_name}_cvode_py.o"
-        lib_file = f"{self.model.model_name}_cvode_py.so"
-        # set cvode paths using config files for compilation
-        subprocess.call(
-            [
-                "gcc",
-                "-fPIC",
-                f'-I{conf.get("cvode_include")}',
-                "-c",
-                f"{c_file}",
-            ]
-        )
-        subprocess.call(
-            [
-                "gcc",
-                f"{obj_file}",
-                "--shared",
-                "-fPIC",
-                f'-L{conf.get("cvode_lib")}',
-                "-lsundials_cvode",
-                "-lsundials_nvecserial",
-                "-o",
-                f"{lib_file}",
-            ]
-        )
-        # keep a record of what we got
+        lib_file = f"{self.model.model_name}_cvode_py"
+        # import IPython;IPython.embed()
+        self.compiler.compile([c_file], extra_preargs=["-fPIC"])
+        # now link cvode
+        self.compiler.link_shared_lib([obj_file],
+                lib_file,
+                libraries=["sundials_cvode","sundials_nvecserial"])
+        # # keep a record of what we got
         self.cfile = os.path.abspath(c_file)
         self.obj_file = os.path.abspath(obj_file)
+        # compiler tacks on the lib at the beginning and .so at the end
+        lib_file = f"lib{self.model.model_name}_cvode_py.so"
         self.lib_file = os.path.abspath(lib_file)
 
     @property
