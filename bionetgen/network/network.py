@@ -1,5 +1,5 @@
 from bionetgen.main import BioNetGen
-from bionetgen.network.bngnetworkparser import BNGNetworkParser
+from bionetgen.network.networkparser import BNGNetworkParser
 from bionetgen.network.blocks import (
     NetworkGroupBlock,
     NetworkParameterBlock,
@@ -62,7 +62,7 @@ class Network:
             # "population_maps",
             # "actions",
         ]
-        self.model_name = ""
+        self.network_name = ""
         self.bngnetworkparser = BNGNetworkParser(bngl_model)
         self.bngnetworkparser.parse_network(self)
         for block in self.block_order:
@@ -100,7 +100,7 @@ class Network:
         return model_str
 
     def __repr__(self):
-        return self.model_name
+        return self.network_name
 
     def __iter__(self):
         active_ordered_blocks = [
@@ -201,11 +201,3 @@ class Network:
             model_str += str(getattr(self, block))
         with open(file_name, "w") as f:
             f.write(model_str)
-
-
-###### CORE OBJECT AND PARSING FRONT-END ######
-if __name__ == "__main__":
-    np = Network("C:\\Users\\Akhlore\\PyBioNetGen\\temp_testing\\mockup.net")
-    import IPython
-
-    IPython.embed()

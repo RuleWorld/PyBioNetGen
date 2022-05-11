@@ -1,4 +1,4 @@
-import re
+import re, os
 from bionetgen.main import BioNetGen
 from bionetgen.network.blocks import (
     NetworkGroupBlock,
@@ -42,6 +42,7 @@ class BNGNetworkParser:
 
     def __init__(self, path) -> None:
         self.path = path
+        self.network_name = os.path.splitext(os.path.basename(path))[0]
         with open(self.path, "r") as f:
             self.network_lines = f.readlines()
 
@@ -50,6 +51,8 @@ class BNGNetworkParser:
         Will determine the parser route eventually and call the right
         parser
         """
+        # network name
+        network_obj.network_name = self.network_name
         # find blocks
         pblock = [-1, -1]
         sblock = [-1, -1]
