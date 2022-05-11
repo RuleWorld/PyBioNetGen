@@ -161,7 +161,6 @@ class CSimulator(BNGSimulator):
         else:
             print(f"model format not recognized: {model_file}")
         # set compiler
-        # os.environ["CC"] = "gcc"
         self.compiler = ccompiler.new_compiler()
         self.compiler.add_include_dir(conf.get("cvode_include"))
         self.compiler.add_library_dir(conf.get("cvode_lib"))
@@ -188,9 +187,9 @@ class CSimulator(BNGSimulator):
         c_file = f"{self.model.model_name}_cvode_py.c"
         obj_file = f"{self.model.model_name}_cvode_py.o"
         lib_file = f"{self.model.model_name}_cvode_py"
-        # import IPython;IPython.embed()
+        # compile objects with fPIC for the shared lib we'll link
         self.compiler.compile([c_file], extra_preargs=["-fPIC"])
-        # now link cvode
+        # now link cvode and nvecserial and make a shared lib
         self.compiler.link_shared_lib(
             [obj_file], lib_file, libraries=["sundials_cvode", "sundials_nvecserial"]
         )

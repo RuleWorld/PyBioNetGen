@@ -596,7 +596,7 @@ class ActionBlock(ModelBlock):
             print("Item {} not found".format(key))
 
     def __iter__(self):
-        return self.items.__iter__()
+        return range(len(self.items)).__iter__()
 
     def __contains__(self, key) -> bool:
         return (key in self.items) or (key in [x.name for x in self.items])
