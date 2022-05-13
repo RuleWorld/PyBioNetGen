@@ -3,7 +3,7 @@ import cement
 import subprocess, os
 import bionetgen as bng
 from cement.core.exc import CaughtSignal
-from .core.exc import BioNetGenError
+from .core.exc import BNGError
 from .core.exc import BNGVersionError
 from .core.main import runCLI
 from .core.main import plotDAT
@@ -672,8 +672,8 @@ def main():
 
                 traceback.print_exc()
 
-        except BioNetGenError as e:
-            print("BioNetGenError > %s" % e.args[0])
+        except BNGError as e:
+            print("BNGError > %s" % e.args[0])
             app.exit_code = 1
 
             if app.debug is True:
