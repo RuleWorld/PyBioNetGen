@@ -1,6 +1,7 @@
 import copy
 
 from bionetgen.main import BioNetGen
+from bionetgen.core.exc import BNGModelError
 from tempfile import TemporaryFile
 from .bngparser import BNGParser
 from .blocks import (
@@ -79,6 +80,7 @@ class bngmodel:
             "actions",
         ]
         self.model_name = ""
+        self.model_path = bngl_model
         self.bngparser = BNGParser(bngl_model, generate_network=generate_network)
         self.bngparser.parse_model(self)
         for block in self.block_order:
@@ -293,7 +295,10 @@ class bngmodel:
                         tpath, xml_type="sbml", bngl_str=str(self)
                     )
                 ):
-                    raise ValueError("SBML couldn't be generated for libRR simulator")
+                    raise BNGModelError(
+                        self.model_path,
+                        message="SBML couldn't be generated for libRR simulator",
+                    )
                 # TODO: Only clear the writeSBML action
                 # by adding a mechanism to do so
                 self.actions.clear_actions()

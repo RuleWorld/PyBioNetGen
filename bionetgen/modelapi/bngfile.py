@@ -2,6 +2,7 @@ import bionetgen as bng
 import os, re
 
 from bionetgen.main import BioNetGen
+from bionetgen.core.exc import BNGFileError
 from bionetgen.utils.utils import find_BNG_path, run_command, ActionList
 from tempfile import TemporaryDirectory
 
@@ -125,17 +126,15 @@ class BNGFile:
             if remove_from > 0:
                 # we have a begin/end actions block
                 if remove_to < 0:
-                    raise RuntimeError(
-                        f'There is a "begin actions" statement at line {remove_from} without a matching "end actions" statement'
-                    )
+                    msg = f'There is a "begin actions" statement at line {remove_from} without a matching "end actions" statement'
+                    raise BNGFileError(model_path, message=msg)
                 stripped_lines = (
                     stripped_lines[:remove_from] + stripped_lines[remove_to + 1 :]
                 )
             if remove_to > 0:
                 if remove_from < 0:
-                    raise RuntimeError(
-                        f'There is an "end actions" statement at line {remove_to} without a matching "begin actions" statement'
-                    )
+                    msg = f'There is an "end actions" statement at line {remove_to} without a matching "begin actions" statement'
+                    raise BNGFileError(model_path, message=msg)
         # TODO: read stripped lines and store the actions
         # open new file and write just the model
         stripped_model = os.path.join(folder, model_file)

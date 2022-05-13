@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import xmltodict, copy, os, json
 
 
@@ -54,10 +55,10 @@ class BNGGdiff:
                 "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
             }
         else:
-            raise RuntimeError(f"Color type {type(colors)} not recognized")
+            raise ValueError(f"Color type {type(colors)} not recognized")
         self.available_modes = ["matrix", "union"]
         if mode not in self.available_modes:
-            raise RuntimeError(
+            raise ValueError(
                 f"Mode {mode} is not a valid mode, please choose from {self.available_modes}"
             )
         self.mode = mode
@@ -159,7 +160,7 @@ class BNGGdiff:
             graphs[union_name] = union_gml
             return graphs
         else:
-            raise RuntimeError(
+            raise ValueError(
                 f"Mode {self.mode} is not a valid mode, please choose from {self.available_modes}"
             )
 

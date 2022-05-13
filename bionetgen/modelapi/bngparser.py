@@ -1,6 +1,7 @@
 import xmltodict, re
 
 from bionetgen.main import BioNetGen
+from bionetgen.core.exc import BNGParseError, BNGModelError
 from tempfile import TemporaryFile
 
 from .bngfile import BNGFile
@@ -73,7 +74,9 @@ class BNGParser:
                     self.parse_xml(xmlstr, model_obj)
                     model_obj.reset_compilation_tags()
                 else:
-                    raise ValueError("XML file couldn't be generated")
+                    raise BNGModelError(
+                        self.bngfile.path, message="XML file couldn't be generated"
+                    )
         elif model_file.endswith(".xml"):
             with open(model_file, "r") as f:
                 xml_str = f.read()
@@ -103,7 +106,9 @@ class BNGParser:
                 try:
                     action_list = self.alist.action_parser.parseString(action)
                 except Exception as e:
-                    raise ValueError(f"failed to parse action {action}")
+                    raise BNGParseError(
+                        self.bngfile.path, f"Failed to parse action {action}"
+                    )
                 # we could have ";" in the action, so we need to remove it
                 if action_list[-1] == ";":
                     _ = action_list.pop(-1)
@@ -157,7 +162,9 @@ class BNGParser:
                         arg_name = action_list.pop(0)
                         connector = action_list.pop(0)
                         if connector != "=>":
-                            raise ValueError(f"Action {action} is malformed")
+                            raise BNGParseError(
+                                self.bngfile.path, f"Action {action} is malformed"
+                            )
                         if arg_name in self.alist.irregular_args:
                             arg_type = self.alist.irregular_args[arg_name]
                             if arg_type == "dict":
@@ -165,7 +172,10 @@ class BNGParser:
                                 start_curly = action_list.pop(0)
                                 # make sure we are actually reading a dict
                                 if start_curly != "{":
-                                    raise ValueError(f"Action {action} is malformed")
+                                    raise BNGParseError(
+                                        self.bngfile.path,
+                                        f"Action {action} is malformed",
+                                    )
                                 value_str = "{"
                                 end_curly = None
                                 while end_curly is None:
@@ -181,8 +191,9 @@ class BNGParser:
                                         dict_conn = action_list.pop(0)
                                         dict_val = action_list.pop(0)
                                         if dict_conn != "=>":
-                                            raise ValueError(
-                                                f"Action {action} is malformed"
+                                            raise BNGParseError(
+                                                self.bngfile.path,
+                                                f"Action {action} is malformed",
                                             )
                                         value_str += dict_key + dict_conn + dict_val
                                 value_str += "}"
@@ -192,7 +203,10 @@ class BNGParser:
                                 start_curly = action_list.pop(0)
                                 # make sure we are actually reading a dict
                                 if start_curly != "[":
-                                    raise ValueError(f"Action {action} is malformed")
+                                    raise BNGParseError(
+                                        self.bngfile.path,
+                                        f"Action {action} is malformed",
+                                    )
                                 value_str = "["
                                 end_curly = None
                                 while end_curly is None:
@@ -211,7 +225,9 @@ class BNGParser:
                     ablock.add_action(atype, arg_dict)
                     continue
                 else:
-                    raise ValueError(f"We don't know the action type {atype}.")
+                    raise BNGParseError(
+                        self.bngfile.path, f"Action type {atype} is not recognized."
+                    )
             model_obj.add_block(ablock)
 
     def parse_xml(self, xml_str, model_obj) -> None:
@@ -219,8 +235,9 @@ class BNGParser:
         # catch non-BNG XML files
         if "sbml" not in xml_dict:
             if "model" not in xml_dict["sbml"]:
-                raise RuntimeError(
-                    "Input model is invalid. Please ensure model is in proper BNGL or BNG-XML format"
+                raise BNGParseError(
+                    self.bngfile.path,
+                    "Input model is invalid. Please ensure model is in proper BNGL or BNG-XML format",
                 )
         model_obj.xml_dict = xml_dict
         first_key = list(xml_dict.keys())[0]

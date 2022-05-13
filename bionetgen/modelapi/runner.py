@@ -35,7 +35,7 @@ def run(inp, out=None, suppress=False, timeout=None):
             except Exception as e:
                 os.chdir(cur_dir)
                 # TODO: Better error reporting
-                print("Couldn't run the simulation")
+                print("Couldn't run the simulation, see error")
                 print(e)
                 raise
     else:
@@ -47,7 +47,7 @@ def run(inp, out=None, suppress=False, timeout=None):
         except Exception as e:
             os.chdir(cur_dir)
             # TODO: Better error reporting
-            print("Couldn't run the simulation")
+            print("Couldn't run the simulation, see error")
             print(e)
             raise
     return cli.result

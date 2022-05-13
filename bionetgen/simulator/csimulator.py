@@ -6,6 +6,7 @@ from distutils import ccompiler
 import bionetgen
 
 from bionetgen.main import BioNetGen
+from bionetgen.core.exc import BNGCompileError
 
 # This allows access to the CLIs config setup
 app = BioNetGen()
@@ -225,7 +226,7 @@ class CSimulator(BNGSimulator):
                 num_spec_init=len(self.model.species),
             )
         except:
-            raise RuntimeError("Couldn't setup CSimWrapper")
+            raise BNGCompileError(self.model)
 
     def simulate(self, t_start=0, t_end=10, n_steps=10):
         # set parameters and initial species values

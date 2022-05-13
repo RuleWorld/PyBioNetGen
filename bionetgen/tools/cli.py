@@ -1,4 +1,5 @@
 import os, subprocess
+from bionetgen.core.exc import BNGRunError
 
 
 class BNGCLI:
@@ -143,8 +144,4 @@ class BNGCLI:
                 stderr_str = out.stderr.decode("utf-8")
             else:
                 stderr_str = "No stderr in result"
-            raise RuntimeError(
-                "Failed to run your BNGL file, there might be an issue with your model!",
-                stdout_str,
-                stderr_str,
-            )
+            raise BNGRunError(command, stdout=stdout_str, stderr=stderr_str)
