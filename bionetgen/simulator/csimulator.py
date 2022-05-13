@@ -55,6 +55,7 @@ class CSimWrapper:
         """
         Set the initial species values array
         """
+        # TODO: Transition to BNGErrors and logging
         assert len(arr) == self.num_spec_init
         self.species_init = np.array(arr, dtype=np.float64)
 
@@ -62,6 +63,7 @@ class CSimWrapper:
         """
         Set the parameter values array
         """
+        # TODO: Transition to BNGErrors and logging
         assert len(arr) == self.num_params
         self.parameters = np.array(arr, dtype=np.float64)
 

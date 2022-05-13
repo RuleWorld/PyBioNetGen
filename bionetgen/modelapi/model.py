@@ -168,6 +168,7 @@ class bngmodel:
 
     def add_parameters_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, ParameterBlock)
             self.parameters = block
             if "parameters" not in self.active_blocks:
@@ -177,6 +178,7 @@ class bngmodel:
 
     def add_compartments_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, CompartmentBlock)
             self.compartments = block
             if "compartments" not in self.active_blocks:
@@ -186,6 +188,7 @@ class bngmodel:
 
     def add_molecule_types_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, MoleculeTypeBlock)
             self.molecule_types = block
             if "molecule_types" not in self.active_blocks:
@@ -195,6 +198,7 @@ class bngmodel:
 
     def add_species_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, SpeciesBlock)
             self.species = block
             if "species" not in self.active_blocks:
@@ -204,6 +208,7 @@ class bngmodel:
 
     def add_observables_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, ObservableBlock)
             self.observables = block
             if "observables" not in self.active_blocks:
@@ -213,6 +218,7 @@ class bngmodel:
 
     def add_functions_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, FunctionBlock)
             self.functions = block
             if "functions" not in self.active_blocks:
@@ -222,6 +228,7 @@ class bngmodel:
 
     def add_rules_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, RuleBlock)
             self.rules = block
             if "rules" not in self.active_blocks:
@@ -231,6 +238,7 @@ class bngmodel:
 
     def add_energy_patterns_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, EnergyPatternBlock)
             self.energy_patterns = block
             if "energy_patterns" not in self.active_blocks:
@@ -240,6 +248,7 @@ class bngmodel:
 
     def add_population_maps_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, PopulationMapBlock)
             self.population_maps = block
             if "population_maps" not in self.active_blocks:
@@ -249,6 +258,7 @@ class bngmodel:
 
     def add_actions_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, ActionBlock)
             self.actions = block
             if "actions" not in self.active_blocks:

@@ -122,6 +122,7 @@ class Network:
 
     def add_parameters_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, NetworkParameterBlock)
             self.parameters = block
             if "parameters" not in self.active_blocks:
@@ -140,6 +141,7 @@ class Network:
 
     def add_species_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, NetworkSpeciesBlock)
             self.species = block
             if "species" not in self.active_blocks:
@@ -149,6 +151,7 @@ class Network:
 
     def add_groups_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, NetworkGroupBlock)
             self.groups = block
             if "groups" not in self.active_blocks:
@@ -158,6 +161,7 @@ class Network:
 
     def add_reactions_block(self, block=None):
         if block is not None:
+            # TODO: Transition to BNGErrors and logging
             assert isinstance(block, NetworkReactionBlock)
             self.reactions = block
             if "reactions" not in self.active_blocks:

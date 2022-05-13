@@ -42,6 +42,7 @@ class BNGCLI:
         self.bngpath = bngpath
         # setting up bng2.pl
         self.bng_exec = os.path.join(self.bngpath, "BNG2.pl")
+        # TODO: Transition to BNGErrors and logging
         assert os.path.exists(self.bng_exec), "BNG2.pl is not found!"
         if "BNGPATH" in os.environ:
             self.old_bngpath = os.environ["BNGPATH"]
@@ -139,9 +140,9 @@ class BNGCLI:
             if hasattr(out, "stdout"):
                 stdout_str = out.stdout.decode("utf-8")
             else:
-                stdout_str = "No stdout in result"
+                stdout_str = None
             if hasattr(out, "stdout"):
                 stderr_str = out.stderr.decode("utf-8")
             else:
-                stderr_str = "No stderr in result"
+                stderr_str = None
             raise BNGRunError(command, stdout=stdout_str, stderr=stderr_str)

@@ -1,5 +1,5 @@
 import os
-from re import sub
+from bionetgen.core.exc import BNGPerlError
 import subprocess
 from distutils import spawn
 
@@ -543,7 +543,7 @@ def find_BNG_path(BNGPATH=None):
     return BNGPATH, bngexec
 
 
-def test_perl(perl_path=None):
+def test_perl(app=None, perl_path=None):
     """
     Test if perl is working
 
@@ -552,18 +552,18 @@ def test_perl(perl_path=None):
     perl_path : str
         (optional) path to the folder that contains perl
     """
+    if app is not None:
+        app.log.debug("Checking if perl is installed.", f"{__file__} : test_perl()")
     # find path to perl binary
     if perl_path is None:
         perl_path = spawn.find_executable("perl")
     if perl_path is None:
-        return False
+        raise BNGPerlError
     # check if perl is actually working
-    command = [perl_path]
+    command = [perl_path, "-v"]
     rc, _ = run_command(command, suppress=True)
-    if rc == 0:
-        return True
-    else:
-        return False
+    if rc != 0:
+        raise BNGPerlError
 
 
 def test_bngexec(bngexec):

@@ -67,7 +67,7 @@ class BNGPlotter:
                 continue
             ax = sbrn.lineplot(x=self.data[x_name], y=self.data[name], label=name)
             ctr += 1
-
+        # TODO: Transition to BNGErrors and logging
         assert ax is not None, "No data columns are found in file {}".format(
             self.result.direct_path
         )
@@ -82,7 +82,7 @@ class BNGPlotter:
         xmax = self.kwargs.get("xmax", False) or oxmax
         ymin = self.kwargs.get("ymin", False) or oymin
         ymax = self.kwargs.get("ymax", False) or oymax
-
+        # TODO: Transition to BNGErrors and logging
         assert xmax > xmin, "--xmin is bigger than --xmax!"
         assert ymax > ymin, "--ymin is bigger than --ymax!"
 

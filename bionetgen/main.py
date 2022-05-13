@@ -12,6 +12,7 @@ from .core.main import printInfo
 from .core.main import visualizeModel
 from .core.main import graphDiff
 from .core.notebook import BNGNotebook
+from .utils.utils import test_perl
 
 # pull defaults defined in core/defaults
 CONF = bng.defaults
@@ -129,8 +130,9 @@ class BNGBase(cement.Controller):
         in the command line and the configuraions set by the defaults
         as well as the end-user.
         """
-        args = self.app.pargs
-        runCLI(self.app.config, args)
+        test_perl(app=self.app)
+        self.app.log.debug("Running a BNGL model using runCLI", f"{__file__} : run()")
+        runCLI(self.app)
 
     @cement.ex(
         help="Starts a Jupyter notebook to help run and analyze \
@@ -173,18 +175,23 @@ class BNGBase(cement.Controller):
         The default base template is agnostic to the model and if -i is given
         the template then will be adjusted to load in the model supplied.
         """
+        test_perl(app=self.app)
+        self.app.log.debug("Generating a notebook", f"{__file__} : notebook()")
         args = self.app.pargs
         if args.input is not None:
             # we want to use the template to write a custom notebok
+            # TODO: Transition to BNGErrors and logging
             assert args.input.endswith(
                 ".bngl"
             ), f"File {args.input} doesn't have bngl extension!"
             try:
+                self.app.log.debug("Loading model", f"{__file__} : notebook()")
                 import bionetgen
 
                 m = bionetgen.bngmodel(args.input)
                 str(m)
             except:
+                self.app.log.error("Failed to load model", f"{__file__} : notebook()")
                 raise RuntimeError(f"Couldn't import given model: {args.input}!")
             notebook = BNGNotebook(
                 self.app.config["bionetgen"]["notebook"]["template"],
@@ -208,8 +215,11 @@ class BNGBase(cement.Controller):
                 mname = self.app.config["bionetgen"]["notebook"]["name"]
                 fname = os.path.join(args.output, mname)
 
+        self.app.log.debug(f"Writing notebook to file: {fname}", f"{__file__} : notebook()")
         notebook.write(fname)
         # open the notebook with nbopen
+        # TODO: deal with stdout/err
+        self.app.log.debug(f"Attempting to open notebook {fname} with nbopen", f"{__file__} : notebook()")
         stdout = getattr(subprocess, self.app.config["bionetgen"]["stdout"])
         stderr = getattr(subprocess, self.app.config["bionetgen"]["stderr"])
         if args.open:
@@ -303,14 +313,16 @@ class BNGBase(cement.Controller):
 
         See bionetgen plot -h for all the allowed options.
         """
+        self.app.log.debug("Plotting a gdat/cdat/scan file", f"{__file__} : plot()")
         args = self.app.pargs
         # we need to have gdat/cdat files
+        # TODO: Transition to BNGErrors and logging
         assert (
             args.input.endswith(".gdat")
             or args.input.endswith(".cdat")
             or args.input.endswith(".scan")
         ), "Input file has to be either a gdat or a cdat file"
-        plotDAT(args.input, args.output, kw=dict(args._get_kwargs()))
+        plotDAT(self.app)
 
     @cement.ex(
         help="Provides version information for BNG and dependencies",
@@ -332,8 +344,8 @@ class BNGBase(cement.Controller):
         Currently provides version information for BioNetGen, the BNG CLI, Perl,
         numpy, pandas, and libroadrunner. Also provides BNG2.pl and pyBNG paths.
         """
-        args = self.app.pargs
-        printInfo(self.app.config, args)
+        self.app.debug("Gathering info on the installation with printInfo", f"{__file__} : info()")
+        printInfo(self.app)
 
     @cement.ex(
         help="Provides a simple way to get various visualizations of the model.",
@@ -378,8 +390,9 @@ class BNGBase(cement.Controller):
         - Contact map: Visualize the contact map of the model
         - Regulatory graph: Visualize the regulatory graph of the model, also called atom rule graph
         """
-        args = self.app.pargs
-        visualizeModel(self.app.config, args)
+        test_perl(app=self.app)
+        self.app.debug("Visualizing model", f"{__file__} : visualize()")
+        visualizeModel(self.app)
 
     @cement.ex(
         help="A subcommand to compare two contact maps made by BioNetGen. "
@@ -443,8 +456,9 @@ class BNGBase(cement.Controller):
     )
     def graphdiff(self):
         """ """
-        args = self.app.pargs
-        graphDiff(self.app.config, args)
+        test_perl(app=self.app)
+        self.app.debug("Running graphdiff tool", f"{__file__} : graphdiff()")
+        graphDiff(self.app)
 
     @cement.ex(
         help="SBML to BNGL translator",
@@ -584,8 +598,8 @@ class BNGBase(cement.Controller):
         ],
     )
     def atomize(self):
-        args = self.app.pargs
-        runAtomizeTool(self.app.config, args)
+        self.app.debug("Atomizing given BNGL model", f"{__file__} : atomize()")
+        runAtomizeTool(self.app)
 
 
 class BioNetGen(cement.App):
@@ -666,20 +680,22 @@ def main():
         except AssertionError as e:
             print("AssertionError > %s" % e.args[0])
             app.exit_code = 1
+            # TODO: figure out if this is what we want, 
+            # rn it prints stuff twice
+            # if app.debug is True:
+            #     import traceback
 
-            if app.debug is True:
-                import traceback
-
-                traceback.print_exc()
+            #     traceback.print_exc()
 
         except BNGError as e:
             print("BNGError > %s" % e.args[0])
             app.exit_code = 1
+            # TODO: figure out if this is what we want, 
+            # rn it prints stuff twice
+            # if app.debug is True:
+            #     import traceback
 
-            if app.debug is True:
-                import traceback
-
-                traceback.print_exc()
+            #     traceback.print_exc()
 
         except CaughtSignal as e:
             # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)

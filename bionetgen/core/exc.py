@@ -13,6 +13,16 @@ class BNGVersionError(BNGError):
         self.req_version = req_version
         super().__init__(self.message)
 
+class BNGPerlError(BNGError):
+    """Error related to BNG2.pl/existence of perl."""
+
+    def __init__(
+        self
+    ):
+        full_msg = "Perl doesn't seem to be installed, please install perl"
+        full_msg += "We recommend strawberry perl (https://strawberryperl.com/) for Windows users."
+        self.message = full_msg
+        super().__init__(self.message)
 
 class BNGParseError(BNGError):
     """Error related to parsing a BNGL file."""
@@ -55,7 +65,7 @@ class BNGRunError(BNGError):
     def __init__(
         self,
         command,
-        message="There was an issue with running BNG2.pl. There might be an issue with your model and please make sure perl is installed",
+        message="There was an issue with running BNG2.pl. There might be an issue with your model.",
         stdout=None,
         stderr=None,
     ):
@@ -64,8 +74,10 @@ class BNGRunError(BNGError):
         self.stderr = stderr
         full_msg = f"Tried to run command: {command}\n"
         full_msg += message + "\n"
-        full_msg += f"Stdout was: {stdout}\n"
-        full_msg += f"Stderr was: {stderr}\n"
+        if stdout is not None:
+            full_msg += f"Stdout was: {stdout}\n"
+        if stderr is not None:
+            full_msg += f"Stderr was: {stderr}\n"
         self.message = full_msg
         super().__init__(self.message)
 

@@ -142,6 +142,7 @@ class BNGResult:
         with open(path, "r") as f:
             header = f.readline()
         # Ensure the header info is actually there
+        # TODO: Transition to BNGErrors and logging
         assert header.startswith("#"), "No header line that starts with #"
         # Now turn it into a list of names for our struct array
         header = header.replace("#", "")
