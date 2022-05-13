@@ -13,16 +13,16 @@ class BNGVersionError(BNGError):
         self.req_version = req_version
         super().__init__(self.message)
 
+
 class BNGPerlError(BNGError):
     """Error related to BNG2.pl/existence of perl."""
 
-    def __init__(
-        self
-    ):
+    def __init__(self):
         full_msg = "Perl doesn't seem to be installed, please install perl"
         full_msg += "We recommend strawberry perl (https://strawberryperl.com/) for Windows users."
         self.message = full_msg
         super().__init__(self.message)
+
 
 class BNGParseError(BNGError):
     """Error related to parsing a BNGL file."""

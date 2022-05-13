@@ -215,11 +215,16 @@ class BNGBase(cement.Controller):
                 mname = self.app.config["bionetgen"]["notebook"]["name"]
                 fname = os.path.join(args.output, mname)
 
-        self.app.log.debug(f"Writing notebook to file: {fname}", f"{__file__} : notebook()")
+        self.app.log.debug(
+            f"Writing notebook to file: {fname}", f"{__file__} : notebook()"
+        )
         notebook.write(fname)
         # open the notebook with nbopen
         # TODO: deal with stdout/err
-        self.app.log.debug(f"Attempting to open notebook {fname} with nbopen", f"{__file__} : notebook()")
+        self.app.log.debug(
+            f"Attempting to open notebook {fname} with nbopen",
+            f"{__file__} : notebook()",
+        )
         stdout = getattr(subprocess, self.app.config["bionetgen"]["stdout"])
         stderr = getattr(subprocess, self.app.config["bionetgen"]["stderr"])
         if args.open:
@@ -344,7 +349,9 @@ class BNGBase(cement.Controller):
         Currently provides version information for BioNetGen, the BNG CLI, Perl,
         numpy, pandas, and libroadrunner. Also provides BNG2.pl and pyBNG paths.
         """
-        self.app.debug("Gathering info on the installation with printInfo", f"{__file__} : info()")
+        self.app.debug(
+            "Gathering info on the installation with printInfo", f"{__file__} : info()"
+        )
         printInfo(self.app)
 
     @cement.ex(
@@ -680,7 +687,7 @@ def main():
         except AssertionError as e:
             print("AssertionError > %s" % e.args[0])
             app.exit_code = 1
-            # TODO: figure out if this is what we want, 
+            # TODO: figure out if this is what we want,
             # rn it prints stuff twice
             # if app.debug is True:
             #     import traceback
@@ -690,7 +697,7 @@ def main():
         except BNGError as e:
             print("BNGError > %s" % e.args[0])
             app.exit_code = 1
-            # TODO: figure out if this is what we want, 
+            # TODO: figure out if this is what we want,
             # rn it prints stuff twice
             # if app.debug is True:
             #     import traceback

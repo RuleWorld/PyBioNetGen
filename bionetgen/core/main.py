@@ -61,7 +61,7 @@ def plotDAT(app):
     args = app.pargs
     inp = args.input
     out = args.output
-    kw=dict(args._get_kwargs())
+    kw = dict(args._get_kwargs())
     # if we want to plot directly into the folder
     # we are in we need to get the path correctly
     if out == ".":
