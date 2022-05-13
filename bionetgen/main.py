@@ -349,7 +349,7 @@ class BNGBase(cement.Controller):
         Currently provides version information for BioNetGen, the BNG CLI, Perl,
         numpy, pandas, and libroadrunner. Also provides BNG2.pl and pyBNG paths.
         """
-        self.app.debug(
+        self.app.log.debug(
             "Gathering info on the installation with printInfo", f"{__file__} : info()"
         )
         printInfo(self.app)
@@ -398,7 +398,7 @@ class BNGBase(cement.Controller):
         - Regulatory graph: Visualize the regulatory graph of the model, also called atom rule graph
         """
         test_perl(app=self.app)
-        self.app.debug("Visualizing model", f"{__file__} : visualize()")
+        self.app.log.debug("Visualizing model", f"{__file__} : visualize()")
         visualizeModel(self.app)
 
     @cement.ex(
@@ -464,7 +464,7 @@ class BNGBase(cement.Controller):
     def graphdiff(self):
         """ """
         test_perl(app=self.app)
-        self.app.debug("Running graphdiff tool", f"{__file__} : graphdiff()")
+        self.app.log.debug("Running graphdiff tool", f"{__file__} : graphdiff()")
         graphDiff(self.app)
 
     @cement.ex(
@@ -605,7 +605,7 @@ class BNGBase(cement.Controller):
         ],
     )
     def atomize(self):
-        self.app.debug("Atomizing given BNGL model", f"{__file__} : atomize()")
+        self.app.log.debug("Atomizing given BNGL model", f"{__file__} : atomize()")
         runAtomizeTool(self.app)
 
 

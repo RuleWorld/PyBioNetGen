@@ -77,7 +77,7 @@ def plotDAT(app):
 
 def runAtomizeTool(app):
     # pull args/config
-    args = app.args
+    args = app.pargs
     config = app.config
     # run AtomizeTool
     from bionetgen.atomizer import AtomizeTool
@@ -112,7 +112,9 @@ def visualizeModel(app):
     out = args.output
     vtype = args.type
     # if you set args.bngpath it should take precedence
-    viz = BNGVisualize(inp, output=out, vtype=vtype)
+    config_bngpath = config.get("bionetgen", "bngpath")
+    # run visualize tool
+    viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath)
     viz.run()
 
 
