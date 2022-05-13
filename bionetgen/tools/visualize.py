@@ -115,10 +115,8 @@ class BNGVisualize:
                     return vis_res
                 except Exception as e:
                     os.chdir(cur_dir)
-                    # TODO: Better error reporting, improve consistency of reporting
-                    print("Couldn't run the simulation")
-                    print(e)
-                    raise
+                    print("Couldn't run the simulation, see error.")
+                    raise e
         else:
             # instantiate a CLI object with the info
             cli = BNGCLI(model, self.output, self.bngpath, suppress=self.suppress)
@@ -135,7 +133,5 @@ class BNGVisualize:
                 return vis_res
             except Exception as e:
                 os.chdir(cur_dir)
-                # TODO: Better error reporting, improve consistency of reporting
-                print("Couldn't run the simulation")
-                print(e)
-                raise
+                print("Couldn't run the simulation, see error.")
+                raise e

@@ -1,10 +1,10 @@
-class BioNetGenError(Exception):
+class BNGError(Exception):
     """Base class for all PyBNG exceptions."""
 
     pass
 
 
-class BioNetGenVersionError(Exception):
+class BNGVersionError(BNGError):
     """Error related to mismatching required PyBNG."""
 
     def __init__(self, cur_version, req_version):
@@ -14,7 +14,7 @@ class BioNetGenVersionError(Exception):
         super().__init__(self.message)
 
 
-class BNGParseError(BioNetGenError):
+class BNGParseError(BNGError):
     """Error related to parsing a BNGL file."""
 
     def __init__(
@@ -28,7 +28,7 @@ class BNGParseError(BioNetGenError):
         super().__init__(self.message)
 
 
-class BNGFileError(BioNetGenError):
+class BNGFileError(BNGError):
     """Error related to the BNGL file."""
 
     def __init__(self, bngl_path, message="There was an issue with your BNGL file"):
@@ -37,7 +37,7 @@ class BNGFileError(BioNetGenError):
         super().__init__(self.message)
 
 
-class BNGModelError(BioNetGenError):
+class BNGModelError(BNGError):
     """Error related to the BNG model object."""
 
     def __init__(self, model, message="There was an issue with your BNG model"):
@@ -49,7 +49,7 @@ class BNGModelError(BioNetGenError):
         super().__init__(self.message)
 
 
-class BNGRunError(BioNetGenError):
+class BNGRunError(BNGError):
     """Error related to running BNG2.pl."""
 
     def __init__(
@@ -70,7 +70,7 @@ class BNGRunError(BioNetGenError):
         super().__init__(self.message)
 
 
-class BNGCompileError(BioNetGenError):
+class BNGCompileError(BNGError):
     """Error related to compiling C/Py file of BNG model."""
 
     def __init__(

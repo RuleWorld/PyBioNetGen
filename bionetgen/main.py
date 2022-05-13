@@ -4,7 +4,7 @@ import subprocess, os
 import bionetgen as bng
 from cement.core.exc import CaughtSignal
 from .core.exc import BioNetGenError
-from .core.exc import BioNetGenVersionError
+from .core.exc import BNGVersionError
 from .core.main import runCLI
 from .core.main import plotDAT
 from .core.main import runAtomizeTool
@@ -37,11 +37,7 @@ class requireAction(argparse.Action):
             # if we don't meet requirement, warn user
             sys.tracebacklimit = 0
             if not (cur_version >= req_version):
-                raise BioNetGenVersionError(cur_version, req_version)
-        # RuntimeError(
-        #             f"Version {values} is required but current version is {cver}. \n"
-        #             + "Try running `pip install bionetgen --upgrade`"
-        #         )
+                raise BNGVersionError(cur_version, req_version)
         # return super().__call__(parser, namespace, values, option_string=option_string)
 
 
