@@ -26,7 +26,7 @@ class BNGPlotter:
         output file the class is initialized with
     """
 
-    def __init__(self, inp, out, **kwargs):
+    def __init__(self, inp, out, app=None, **kwargs):
         # read input and output paths
         self.inp = inp
         self.out = out

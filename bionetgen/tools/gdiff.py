@@ -37,6 +37,7 @@ class BNGGdiff:
             "g2": ["#ff9e81", "#ffbfaa", "#ffdfd4"],
             "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
         },
+        app=None,
     ) -> None:
         self.input = inp1
         self.input2 = inp2

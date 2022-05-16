@@ -31,11 +31,14 @@ def runCLI(app):
     output = args.output
     log_file = args.log_file
     # if you set args.bngpath it should take precedence
+    app.log.debug("Pulling BNG path from config", f"{__file__} : runCLI()")
     config_bngpath = config.get("bionetgen", "bngpath")
     # and instantiates the CLI object
-    cli = BNGCLI(inp_file, output, config_bngpath, log_file=log_file)
+    app.log.debug("Instantiating BNGCLI object", f"{__file__} : runCLI()")
+    cli = BNGCLI(inp_file, output, config_bngpath, log_file=log_file, app=app)
     cli.stdout = config.get("bionetgen", "stdout")
     cli.stderr = config.get("bionetgen", "stderr")
+    app.log.debug("Running", f"{__file__} : runCLI()")
     cli.run()
 
 
@@ -71,7 +74,9 @@ def plotDAT(app):
     # use the plotter object to get the plot
     from bionetgen.tools import BNGPlotter
 
-    plotter = BNGPlotter(inp, out, **kw)
+    app.log.debug("Instantiating BNGPlotter object", f"{__file__} : plotDAT()")
+    plotter = BNGPlotter(inp, out, app=app, **kw)
+    app.log.debug("Plotting", f"{__file__} : plotDAT()")
     plotter.plot()
 
 
@@ -82,8 +87,10 @@ def runAtomizeTool(app):
     # run AtomizeTool
     from bionetgen.atomizer import AtomizeTool
 
-    a = AtomizeTool(parser_namespace=args)
+    app.log.debug("Instantiating AtomizeTool object", f"{__file__} : runAtomizeTool()")
+    a = AtomizeTool(parser_namespace=args, app=app)
     # do config specific stuff here if need be, or remove the config requirement
+    app.log.debug("Atomizing", f"{__file__} : runAtomizeTool()")
     a.run()
 
 
@@ -93,7 +100,9 @@ def printInfo(app):
     arguments and config from Cement framework.
     """
     config = app.config
-    info = BNGInfo(config=config)
+    app.log.debug("Instantiating BNGInfo object", f"{__file__} : printInfo()")
+    info = BNGInfo(config=config, app=app)
+    app.log.debug("Gathering and printing info", f"{__file__} : printInfo()")
     info.gatherInfo()
     info.messageGeneration()
     info.run()
@@ -111,10 +120,13 @@ def visualizeModel(app):
     inp = args.input
     out = args.output
     vtype = args.type
+    app.log.debug("Pulling BNG path from config", f"{__file__} : visualizeModel()")
     # if you set args.bngpath it should take precedence
     config_bngpath = config.get("bionetgen", "bngpath")
     # run visualize tool
-    viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath)
+    app.log.debug("Instantiating BNGVisualize object", f"{__file__} : visualizeModel()")
+    viz = BNGVisualize(inp, output=out, vtype=vtype, bngpath=config_bngpath, app=app)
+    app.log.debug("Visualizing", f"{__file__} : visualizeModel()")
     viz.run()
 
 
@@ -122,6 +134,7 @@ def graphDiff(app):
     # pull args and config for the tool
     args = app.pargs
     # if you set args.bngpath it should take precedence
+    app.log.debug("Instantiating BNGGdiff object", f"{__file__} : graphDiff()")
     gdiff = BNGGdiff(
         args.input,
         args.input2,
@@ -129,5 +142,7 @@ def graphDiff(app):
         out2=args.output2,
         mode=args.mode,
         colors=args.colors,
+        app=app,
     )
+    app.log.debug("Calculating graph diff", f"{__file__} : graphDiff()")
     gdiff.run()

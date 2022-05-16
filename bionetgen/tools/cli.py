@@ -25,8 +25,20 @@ class BNGCLI:
     """
 
     def __init__(
-        self, inp_file, output, bngpath, suppress=False, log_file=None, timeout=None
+        self,
+        inp_file,
+        output,
+        bngpath,
+        suppress=False,
+        log_file=None,
+        timeout=None,
+        app=None,
     ):
+        self.app = app
+        if self.app is not None:
+            self.app.log.debug(
+                "Setting up BNGCLI object", f"{__file__} : BNGCLI.__init__()"
+            )
         self.inp_file = inp_file
         import bionetgen.modelapi.model as mdl
 
@@ -57,6 +69,10 @@ class BNGCLI:
         self.timeout = timeout
 
     def _set_output(self, output):
+        if self.app is not None:
+            self.app.log.debug(
+                "Setting up output path", f"{__file__} : BNGCLI._set_output()"
+            )
         # setting up output area
         self.output = output
         if os.path.isdir(output):
@@ -67,6 +83,8 @@ class BNGCLI:
             os.chdir(output)
 
     def run(self):
+        if self.app is not None:
+            self.app.log.debug("Running", f"{__file__} : BNGCLI.run()")
         from bionetgen.utils.utils import run_command
 
         try:
@@ -79,19 +97,37 @@ class BNGCLI:
             stderr_loc = subprocess.STDOUT
         # run BNG2.pl
         if self.is_bngmodel:
+            if self.app is not None:
+                self.app.log.debug(
+                    "The given model is a bngmodel object", f"{__file__} : BNGCLI.run()"
+                )
+                self.app.log.debug(
+                    "Writing the model to a file", f"{__file__} : BNGCLI.run()"
+                )
             write_to = self.inp_file.model_name + ".bngl"
             write_to = os.path.abspath(write_to)
             if os.path.isfile(write_to):
-                print(f"WARNIING: Overwriting file {write_to}")
+                if self.app is not None:
+                    self.app.log.warning(
+                        f"Overwriting file {write_to}", f"{__file__} : BNGCLI.run()"
+                    )
             with open(write_to, "w") as tfile:
                 tfile.write(str(self.inp_file))
             command = ["perl", self.bng_exec, write_to]
         else:
+            if self.app is not None:
+                self.app.log.debug(
+                    "The given model is a file", f"{__file__} : BNGCLI.run()"
+                )
             fname = os.path.basename(self.inp_path)
             fname = fname.replace(".bngl", "")
             command = ["perl", self.bng_exec, self.inp_path]
+        if self.app is not None:
+            self.app.log.debug("Running command", f"{__file__} : BNGCLI.run()")
         rc, out = run_command(command, suppress=self.suppress, timeout=self.timeout)
         if self.log_file is not None:
+            if self.app is not None:
+                self.app.log.debug("Setting up log file", f"{__file__} : BNGCLI.run()")
             # test if we were given a path
             # TODO: This is a simple hack, might need to adjust it
             # trying to check if given file is an absolute/relative
@@ -110,7 +146,8 @@ class BNGCLI:
                 # doesn't exist, so we assume it's a file
                 # and we keep it as is
                 full_log_path = self.log_file
-
+            if self.app is not None:
+                self.app.log.debug("Writing log file", f"{__file__} : BNGCLI.run()")
             with open(full_log_path, "w") as f:
                 f.write("\n".join(out))
 
@@ -123,6 +160,10 @@ class BNGCLI:
         # if rc.stderr is not None:
         #     print(rc.stderr.decode('utf-8'))
         if rc == 0:
+            if self.app is not None:
+                self.app.log.debug(
+                    "Command ran successfully", f"{__file__} : BNGCLI.run()"
+                )
             from bionetgen.tools import BNGResult
 
             # load in the result
@@ -133,6 +174,10 @@ class BNGCLI:
             if self.old_bngpath is not None:
                 os.environ["BNGPATH"] = self.old_bngpath
         else:
+            if self.app is not None:
+                self.app.log.error(
+                    "Command failed to run", f"{__file__} : BNGCLI.run()"
+                )
             self.result = None
             # set BNGPATH back
             if self.old_bngpath is not None:

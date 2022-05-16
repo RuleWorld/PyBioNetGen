@@ -24,7 +24,7 @@ class BNGResult:
         numpy.recarray
     """
 
-    def __init__(self, path=None, direct_path=None):
+    def __init__(self, path=None, direct_path=None, app=None):
         # defaults
         self.process_return = None
         self.output = None

@@ -10,7 +10,7 @@ class BNGInfo:
     Requires a configuration file. An additional set of arguments are optional.
     """
 
-    def __init__(self, config, args=None):
+    def __init__(self, config, args=None, app=None):
         self.config = config
         self.args = args
 
