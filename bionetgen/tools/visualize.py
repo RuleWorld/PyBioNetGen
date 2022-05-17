@@ -47,7 +47,7 @@ class VisResult:
 
 class BNGVisualize:
     def __init__(
-        self, input_file, output=None, vtype=None, bngpath=None, suppress=None
+        self, input_file, output=None, vtype=None, bngpath=None, suppress=None, app=None
     ) -> None:
         # set input, required
         self.input = input_file

@@ -6,7 +6,9 @@ d = BNGDefaults()
 
 
 class AtomizeTool:
-    def __init__(self, input_file=None, options_dict=None, parser_namespace=None):
+    def __init__(
+        self, input_file=None, options_dict=None, parser_namespace=None, app=None
+    ):
         # we generate our defaults first and override it with
         # the dictionary first and then the namespace
         config = {
