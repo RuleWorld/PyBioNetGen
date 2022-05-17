@@ -27,11 +27,20 @@ class BNGPlotter:
     """
 
     def __init__(self, inp, out, app=None, **kwargs):
+        self.app = app
+        if self.app is not None:
+            self.app.log.debug(
+                "Setting up BNGPlotter object", f"{__file__} : BNGPlotter.__init__()"
+            )
         # read input and output paths
         self.inp = inp
         self.out = out
         # load in the result
-        self.result = BNGResult(direct_path=inp)
+        if self.app is not None:
+            self.app.log.debug(
+                f"Loading BNG result file {inp}", f"{__file__} : BNGPlotter.__init__()"
+            )
+        self.result = BNGResult(direct_path=inp, app=self.app)
         # get the keyword arguments
         self.kwargs = kwargs
 
@@ -41,16 +50,32 @@ class BNGPlotter:
             self.result.file_extension == ".gdat"
             or self.result.file_extension == ".cdat"
         ):
+            if self.app is not None:
+                self.app.log.debug(
+                    "Input is a .gdat/.cdat file", f"{__file__} : BNGPlotter.plot()"
+                )
             self._datplot()
         elif self.result.file_extension == ".scan":
+            if self.app is not None:
+                self.app.log.debug(
+                    "Input is a .scan file", f"{__file__} : BNGPlotter.plot()"
+                )
             self._datplot()
         else:
+            if self.app is not None:
+                self.app.log.error(
+                    "File type not recognized, only gdat/cdat and scan files are implemented", f"{__file__} : BNGPlotter.plot()"
+                )
             print(
                 "File type not recognized, only gdat/cdat and scan files are implemented"
             )
             raise NotImplementedError
 
     def _datplot(self):
+        if self.app is not None:
+            self.app.log.debug(
+                f"Plotting .gdat/.cdat/.scan file {self.result.file_name}", f"{__file__} : BNGPlotter._datplot()"
+            )
         import seaborn as sbrn
         import matplotlib.pyplot as plt
 
@@ -93,5 +118,9 @@ class BNGPlotter:
         _ = plt.ylabel(self.kwargs.get("ylabel") or "concentration")
         _ = plt.title(self.kwargs.get("title") or self.result.file_name)
 
+        if self.app is not None:
+            self.app.log.debug(
+                f"Saving figure to {self.out}", f"{__file__} : BNGPlotter._datplot()"
+            )
         # save the figure
         plt.savefig(self.out)

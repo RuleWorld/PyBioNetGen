@@ -39,10 +39,19 @@ class BNGGdiff:
         },
         app=None,
     ) -> None:
+        self.app = app
+        if self.app is not None:
+            self.app.log.debug(
+                "Setting up BNGGdiff object", f"{__file__} : BNGGdiff.__init__()"
+            )
         self.input = inp1
         self.input2 = inp2
         self.output = out
         self.output2 = out2
+        if self.app is not None:
+            self.app.log.debug(
+                "Loading graph colors", f"{__file__} : BNGGdiff.__init__()"
+            )
         if isinstance(colors, dict):
             self.colors = colors
         elif isinstance(colors, str):
@@ -63,6 +72,11 @@ class BNGGdiff:
                 f"Mode {mode} is not a valid mode, please choose from {self.available_modes}"
             )
         self.mode = mode
+
+        if self.app is not None:
+            self.app.log.debug(
+                f"Loading graphml files {self.input} and {self.input2}", f"{__file__} : BNGGdiff.__init__()"
+            )
 
         with open(self.input, "r") as f:
             self.gdict_1 = xmltodict.parse(f.read())
@@ -114,9 +128,17 @@ class BNGGdiff:
             `xmltodict` function `unparse`. Each key in the dictionary returned by
             this function is the intended file name for that graph.
         """
+        if self.app is not None:
+            self.app.log.debug(
+                "Calculating diff for graphs", f"{__file__} : BNGGdiff.diff_graphs()"
+            )
         # first do a deepcopy so we don't have to
         # manually do add boilerpate
         if self.mode == "matrix":
+            if self.app is not None:
+                self.app.log.debug(
+                    "Matrix mode", f"{__file__} : BNGGdiff.diff_graphs()"
+                )
             iname1 = os.path.basename(self.input).replace(".graphml", "")
             iname2 = os.path.basename(self.input2).replace(".graphml", "")
             if self.output is None:
@@ -149,6 +171,10 @@ class BNGGdiff:
             graphs[self.output2] = diff_gml_2
             return graphs
         elif self.mode == "union":
+            if self.app is not None:
+                self.app.log.debug(
+                    "Union mode", f"{__file__} : BNGGdiff.diff_graphs()"
+                )
             graphs = {}
             g1_name = os.path.basename(self.input).replace(".graphml", "")
             # write recolored g2
@@ -203,6 +229,10 @@ class BNGGdiff:
             A dictionary for the XML file of the difference graph. Can be converted
             back to an XML file using `xmltodict` function `unparse`.
         """
+        if self.app is not None:
+            self.app.log.debug(
+                "Calculating union diff", f"{__file__} : BNGGdiff._find_diff_union()"
+            )
         # we first want to do the regular diff
         # we'll need to remap g2 names
         dg, rename_map = self._find_diff(g1, g2, dg=dg, colors=colors)
@@ -289,6 +319,10 @@ class BNGGdiff:
             "intersect": ["#c4ed9e", "#d9f4be", "#ecf9df"],
         },
     ):
+        if self.app is not None:
+            self.app.log.debug(
+                "Calculating diff", f"{__file__} : BNGGdiff._find_diff()"
+            )
         if dg is None:
             dg = copy.deepcopy(g1)
         # keep track of naming
@@ -375,6 +409,10 @@ class BNGGdiff:
         return dg, rename_map
 
     def _recolor_graph(self, g, color_list):
+        if self.app is not None:
+            self.app.log.debug(
+                "Recoloring graphs", f"{__file__} : BNGGdiff._recolor_graph()"
+            )
         recol_g = copy.deepcopy(g)
         node_stack = [(["graphml"], [], recol_g["graphml"])]
         while len(node_stack) > 0:
@@ -403,6 +441,10 @@ class BNGGdiff:
         return recol_g
 
     def _resize_fonts(self, g, add_to_font):
+        if self.app is not None:
+            self.app.log.debug(
+                "Resizing fonts", f"{__file__} : BNGGdiff._resize_fonts()"
+            )
         node_stack = [(["graphml"], [], g["graphml"])]
         while len(node_stack) > 0:
             curr_keys, curr_names, curr_node = node_stack.pop(-1)
@@ -697,6 +739,10 @@ class BNGGdiff:
         return copied_node
 
     def run(self) -> dict:
+        if self.app is not None:
+            self.app.log.debug(
+                "Running", f"{__file__} : BNGGdiff.run()"
+            )
         # Now we have the graphml files, now we do diff
         graphs = self.diff_graphs(self.gdict_1, self.gdict_2, self.colors)
         for graph_name in graphs.keys():

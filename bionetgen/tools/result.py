@@ -25,6 +25,11 @@ class BNGResult:
     """
 
     def __init__(self, path=None, direct_path=None, app=None):
+        self.app = app
+        if self.app is not None:
+            self.app.log.debug(
+                    "Setting up BNGResult object", f"{__file__} : BNGResult.__init__()"
+                )
         # defaults
         self.process_return = None
         self.output = None
@@ -81,6 +86,10 @@ class BNGResult:
         return self.gdats.__iter__()
 
     def load(self, fpath):
+        if self.app is not None:
+            self.app.log.debug(
+                    f"Loading file {fpath}", f"{__file__} : BNGResult.load()"
+                )
         path, fname = os.path.split(fpath)
         fnoext, fext = os.path.splitext(fname)
         if fext == ".gdat" or fext == ".cdat":
@@ -95,6 +104,10 @@ class BNGResult:
         return self._load_dat(fpath)
 
     def find_dat_files(self):
+        if self.app is not None:
+            self.app.log.debug(
+                    f"Scanning for valid files in folder {self.path}", f"{__file__} : BNGResult.find_dat_files()"
+                )
         files = os.listdir(self.path)
         ext = "gdat"
         gdat_files = filter(lambda x: x.endswith(f".{ext}"), files)
@@ -115,6 +128,10 @@ class BNGResult:
             self.snames[name] = dat_file
 
     def load_results(self):
+        if self.app is not None:
+            self.app.log.debug(
+                    f"Loading results from {self.path}", f"{__file__} : BNGResult.load_results()"
+                )
         # load gdat files
         for name in self.gnames:
             gdat_path = os.path.join(self.path, self.gnames[name])

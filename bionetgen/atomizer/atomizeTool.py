@@ -9,6 +9,11 @@ class AtomizeTool:
     def __init__(
         self, input_file=None, options_dict=None, parser_namespace=None, app=None
     ):
+        self.app = app
+        if self.app is not None:
+            self.app.log.debug(
+                    "Setting up AtomizeTool object", f"{__file__} : AtomizeTool.__init__()"
+                )
         # we generate our defaults first and override it with
         # the dictionary first and then the namespace
         config = {
@@ -49,6 +54,10 @@ class AtomizeTool:
         self.config = self.checkConfig(config)
 
     def checkConfig(self, config):
+        if self.app is not None:
+            self.app.log.debug(
+                    "Validating config options", f"{__file__} : AtomizeTool.checkConfig()"
+                )
         options = {}
         options["inputFile"] = config["input"]  # TODO: ensure this is not None
         conv, useID, naming = ls2b.selectReactionDefinitions(options["inputFile"])
@@ -89,6 +98,10 @@ class AtomizeTool:
         return options
 
     def run(self):
+        if self.app is not None:
+            self.app.log.debug(
+                    "Analyzing SBML file", f"{__file__} : AtomizeTool.run()"
+                )
         self.returnArray = ls2b.analyzeFile(
             self.config["inputFile"],
             self.config["conventionFile"],
@@ -106,7 +119,12 @@ class AtomizeTool:
             quietMode=self.config["quietMode"],
             logLevel=self.config["logLevel"],
             obs_map_file=self.config["obs_map_file"],
+            app=self.app,
         )
+        if self.app is not None:
+            self.app.log.debug(
+                    "Post-analysis", f"{__file__} : AtomizeTool.run()"
+                )
         try:
             if self.config["bionetgenAnalysis"] and self.returnArray:
                 ls2b.postAnalyzeFile(
@@ -117,8 +135,17 @@ class AtomizeTool:
                     obs_map_file=self.config["obs_map_file"],
                 )
         except Exception as e:
+            if self.app is not None:
+                self.app.log.warning(
+                        "Post-analysis failed", f"{__file__} : AtomizeTool.run()"
+                    )
             print("Post analysis failed")
             print(e)
+
+        if self.app is not None:
+            self.app.log.debug(
+                    "Writing annotation file", f"{__file__} : AtomizeTool.run()"
+                )
 
         try:
             if self.config["annotation"] and self.returnArray:
@@ -127,6 +154,10 @@ class AtomizeTool:
                         yaml.dump(self.returnArray.annotation, default_flow_style=False)
                     )
         except Exception as e:
+            if self.app is not None:
+                self.app.log.warning(
+                        "Failed to write annotation file", f"{__file__} : AtomizeTool.run()"
+                    )
             print("annotation file writing failed")
             print(e)
         return self.returnArray

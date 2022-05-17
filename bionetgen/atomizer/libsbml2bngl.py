@@ -700,6 +700,7 @@ def analyzeFile(
     quietMode=False,
     logLevel="WARNING",
     obs_map_file=None,
+    app=None,
 ):
     """
     one of the library's main entry methods. Process data from a file
