@@ -1,6 +1,4 @@
-from bionetgen.utils.utils import run_command
 import cement
-import subprocess, os
 import bionetgen as bng
 from cement.core.exc import CaughtSignal
 from .core.exc import BNGError
@@ -11,7 +9,7 @@ from .core.main import runAtomizeTool
 from .core.main import printInfo
 from .core.main import visualizeModel
 from .core.main import graphDiff
-from .core.notebook import BNGNotebook
+from .core.main import generate_notebook
 from .utils.utils import test_perl
 
 # pull defaults defined in core/defaults
@@ -177,59 +175,7 @@ class BNGBase(cement.Controller):
         """
         test_perl(app=self.app)
         self.app.log.debug("Generating a notebook", f"{__file__} : notebook()")
-        args = self.app.pargs
-        if args.input is not None:
-            # we want to use the template to write a custom notebok
-            # TODO: Transition to BNGErrors and logging
-            assert args.input.endswith(
-                ".bngl"
-            ), f"File {args.input} doesn't have bngl extension!"
-            try:
-                self.app.log.debug("Loading model", f"{__file__} : notebook()")
-                import bionetgen
-
-                m = bionetgen.bngmodel(args.input)
-                str(m)
-            except:
-                self.app.log.error("Failed to load model", f"{__file__} : notebook()")
-                raise RuntimeError(f"Couldn't import given model: {args.input}!")
-            notebook = BNGNotebook(
-                self.app.config["bionetgen"]["notebook"]["template"],
-                INPUT_ARG=args.input,
-            )
-        else:
-            # just use the basic notebook
-            notebook = BNGNotebook(self.app.config["bionetgen"]["notebook"]["path"])
-        # find our file name
-        if len(args.output) == 0:
-            fname = self.app.config["bionetgen"]["notebook"]["name"]
-        else:
-            fname = args.output
-        # write the notebook out
-        if os.path.isdir(fname):
-            if args.input is not None:
-                basename = os.path.basename(args.input)
-                mname = basename.replace(".bngl", "")
-                fname = mname + ".ipynb"
-            else:
-                mname = self.app.config["bionetgen"]["notebook"]["name"]
-                fname = os.path.join(args.output, mname)
-
-        self.app.log.debug(
-            f"Writing notebook to file: {fname}", f"{__file__} : notebook()"
-        )
-        notebook.write(fname)
-        # open the notebook with nbopen
-        # TODO: deal with stdout/err
-        self.app.log.debug(
-            f"Attempting to open notebook {fname} with nbopen",
-            f"{__file__} : notebook()",
-        )
-        stdout = getattr(subprocess, self.app.config["bionetgen"]["stdout"])
-        stderr = getattr(subprocess, self.app.config["bionetgen"]["stderr"])
-        if args.open:
-            command = ["nbopen", fname]
-            rc, _ = run_command(command)
+        generate_notebook(self.app)
 
     @cement.ex(
         help="Rudimentary plotting of gdat/cdat/scan files",
@@ -319,14 +265,6 @@ class BNGBase(cement.Controller):
         See bionetgen plot -h for all the allowed options.
         """
         self.app.log.debug("Plotting a gdat/cdat/scan file", f"{__file__} : plot()")
-        args = self.app.pargs
-        # we need to have gdat/cdat files
-        # TODO: Transition to BNGErrors and logging
-        assert (
-            args.input.endswith(".gdat")
-            or args.input.endswith(".cdat")
-            or args.input.endswith(".scan")
-        ), "Input file has to be either a gdat or a cdat file"
         plotDAT(self.app)
 
     @cement.ex(

@@ -1,8 +1,10 @@
-import os
+import subprocess, os
 from bionetgen.tools import BNGInfo
 from bionetgen.tools import BNGVisualize
 from bionetgen.tools import BNGCLI
 from bionetgen.tools import BNGGdiff
+from bionetgen.core.notebook import BNGNotebook
+from bionetgen.utils.utils import run_command
 
 import os, sys
 
@@ -62,6 +64,13 @@ def plotDAT(app):
         pass for certain matplotlib options. Check -h for details
     """
     args = app.pargs
+    # we need to have gdat/cdat files
+    # TODO: Transition to BNGErrors and logging
+    assert (
+        args.input.endswith(".gdat")
+        or args.input.endswith(".cdat")
+        or args.input.endswith(".scan")
+    ), "Input file has to be either a gdat or a cdat file"
     inp = args.input
     out = args.output
     kw = dict(args._get_kwargs())
@@ -146,3 +155,57 @@ def graphDiff(app):
     )
     app.log.debug("Calculating graph diff", f"{__file__} : graphDiff()")
     gdiff.run()
+
+
+def generate_notebook(app):
+    args = app.pargs
+    if args.input is not None:
+        # we want to use the template to write a custom notebok
+        # TODO: Transition to BNGErrors and logging
+        assert args.input.endswith(
+            ".bngl"
+        ), f"File {args.input} doesn't have bngl extension!"
+        try:
+            app.log.debug("Loading model", f"{__file__} : notebook()")
+            import bionetgen
+
+            m = bionetgen.bngmodel(args.input)
+            str(m)
+        except:
+            app.log.error("Failed to load model", f"{__file__} : notebook()")
+            raise RuntimeError(f"Couldn't import given model: {args.input}!")
+        notebook = BNGNotebook(
+            app.config["bionetgen"]["notebook"]["template"],
+            INPUT_ARG=args.input,
+        )
+    else:
+        # just use the basic notebook
+        notebook = BNGNotebook(app.config["bionetgen"]["notebook"]["path"])
+    # find our file name
+    if len(args.output) == 0:
+        fname = app.config["bionetgen"]["notebook"]["name"]
+    else:
+        fname = args.output
+    # write the notebook out
+    if os.path.isdir(fname):
+        if args.input is not None:
+            basename = os.path.basename(args.input)
+            mname = basename.replace(".bngl", "")
+            fname = mname + ".ipynb"
+        else:
+            mname = app.config["bionetgen"]["notebook"]["name"]
+            fname = os.path.join(args.output, mname)
+
+    app.log.debug(f"Writing notebook to file: {fname}", f"{__file__} : notebook()")
+    notebook.write(fname)
+    # open the notebook with nbopen
+    # TODO: deal with stdout/err
+    app.log.debug(
+        f"Attempting to open notebook {fname} with nbopen",
+        f"{__file__} : notebook()",
+    )
+    stdout = getattr(subprocess, app.config["bionetgen"]["stdout"])
+    stderr = getattr(subprocess, app.config["bionetgen"]["stderr"])
+    if args.open:
+        command = ["nbopen", fname]
+        rc, _ = run_command(command)
