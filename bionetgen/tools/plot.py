@@ -64,7 +64,8 @@ class BNGPlotter:
         else:
             if self.app is not None:
                 self.app.log.error(
-                    "File type not recognized, only gdat/cdat and scan files are implemented", f"{__file__} : BNGPlotter.plot()"
+                    "File type not recognized, only gdat/cdat and scan files are implemented",
+                    f"{__file__} : BNGPlotter.plot()",
                 )
             print(
                 "File type not recognized, only gdat/cdat and scan files are implemented"
@@ -74,7 +75,8 @@ class BNGPlotter:
     def _datplot(self):
         if self.app is not None:
             self.app.log.debug(
-                f"Plotting .gdat/.cdat/.scan file {self.result.file_name}", f"{__file__} : BNGPlotter._datplot()"
+                f"Plotting .gdat/.cdat/.scan file {self.result.file_name}",
+                f"{__file__} : BNGPlotter._datplot()",
             )
         import seaborn as sbrn
         import matplotlib.pyplot as plt

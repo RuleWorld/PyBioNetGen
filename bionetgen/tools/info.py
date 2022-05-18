@@ -27,9 +27,7 @@ class BNGInfo:
         import roadrunner
 
         if self.app is not None:
-            self.app.log.debug(
-                "Gathering info", f"{__file__} : BNGInfo.gatherInfo()"
-            )
+            self.app.log.debug("Gathering info", f"{__file__} : BNGInfo.gatherInfo()")
 
         self.info = {}
 
@@ -37,9 +35,7 @@ class BNGInfo:
         self.info["\nThe following are related to BioNetGen and its execution"] = ""
 
         if self.app is not None:
-            self.app.log.debug(
-                "BNG info", f"{__file__} : BNGInfo.gatherInfo()"
-            )
+            self.app.log.debug("BNG info", f"{__file__} : BNGInfo.gatherInfo()")
         # Get BNG version
         with open(
             os.path.join(
@@ -56,9 +52,7 @@ class BNGInfo:
         )
 
         if self.app is not None:
-            self.app.log.debug(
-                "Perl info", f"{__file__} : BNGInfo.gatherInfo()"
-            )
+            self.app.log.debug("Perl info", f"{__file__} : BNGInfo.gatherInfo()")
         # Get Perl version
         # Read in CLI text
         result = subprocess.run(["perl", "-v"], stdout=subprocess.PIPE)
@@ -70,9 +64,7 @@ class BNGInfo:
         self.info["Perl version"] = text[num_start:num_end] + " (used to run BNG2.pl)"
 
         if self.app is not None:
-            self.app.log.debug(
-                "PyBNG info", f"{__file__} : BNGInfo.gatherInfo()"
-            )
+            self.app.log.debug("PyBNG info", f"{__file__} : BNGInfo.gatherInfo()")
         # Get CLI version
         with open(
             os.path.join(*[os.path.dirname(bionetgen.__file__), "assets", "VERSION"]),
@@ -88,7 +80,8 @@ class BNGInfo:
 
         if self.app is not None:
             self.app.log.debug(
-                "Info on installed python libraries", f"{__file__} : BNGInfo.gatherInfo()"
+                "Info on installed python libraries",
+                f"{__file__} : BNGInfo.gatherInfo()",
             )
 
         # Add some description for the following information
@@ -134,8 +127,6 @@ class BNGInfo:
         Simply prints out the created information message.
         """
         if self.app is not None:
-            self.app.log.debug(
-                "Printing message", f"{__file__} : BNGInfo.run()"
-            )
+            self.app.log.debug("Printing message", f"{__file__} : BNGInfo.run()")
 
         print(self.message)

@@ -75,7 +75,8 @@ class BNGGdiff:
 
         if self.app is not None:
             self.app.log.debug(
-                f"Loading graphml files {self.input} and {self.input2}", f"{__file__} : BNGGdiff.__init__()"
+                f"Loading graphml files {self.input} and {self.input2}",
+                f"{__file__} : BNGGdiff.__init__()",
             )
 
         with open(self.input, "r") as f:
@@ -172,9 +173,7 @@ class BNGGdiff:
             return graphs
         elif self.mode == "union":
             if self.app is not None:
-                self.app.log.debug(
-                    "Union mode", f"{__file__} : BNGGdiff.diff_graphs()"
-                )
+                self.app.log.debug("Union mode", f"{__file__} : BNGGdiff.diff_graphs()")
             graphs = {}
             g1_name = os.path.basename(self.input).replace(".graphml", "")
             # write recolored g2
@@ -740,9 +739,7 @@ class BNGGdiff:
 
     def run(self) -> dict:
         if self.app is not None:
-            self.app.log.debug(
-                "Running", f"{__file__} : BNGGdiff.run()"
-            )
+            self.app.log.debug("Running", f"{__file__} : BNGGdiff.run()")
         # Now we have the graphml files, now we do diff
         graphs = self.diff_graphs(self.gdict_1, self.gdict_2, self.colors)
         for graph_name in graphs.keys():
