@@ -74,6 +74,14 @@ class BNGBase(cement.Controller):
             #                        help="Optional path to SED-ML file, if available the simulation \
             #                              protocol described in SED-ML will be ran")),
             (["-req", "--require"], dict(action=requireAction, type=str, default=None)),
+            (
+                ["-ll", "--log-level"],
+                {
+                    "help": 'This option allows you to select a logging level, from quietest to loudest options are: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG". Default is set to INFO',
+                    "default": None,
+                    "type": str,
+                },
+            ),
         ]
 
     # This overwrites the default behavior and runs the CLI object from core/main
@@ -515,14 +523,6 @@ class BNGBase(cement.Controller):
                     "help": "this option will supress logging into STDIO and instead will write the logging into a file",
                     "default": False,
                     "action": "store_true",
-                },
-            ),
-            (
-                ["-ll", "--log-level"],
-                {
-                    "help": 'This option allows you to select a logging level, from quietest to loudest options are: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG". Default is set to WARNING',
-                    "default": "WARNING",
-                    "type": str,
                 },
             ),
             (

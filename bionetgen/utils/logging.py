@@ -1,3 +1,4 @@
+from telnetlib import IP
 import colorlog
 
 # global log level, can be set using
@@ -24,9 +25,21 @@ handler.setFormatter(fmter)
 class BNGLogger:
     def __init__(self, app=None, level="INFO"):
         self.app = app
-        # TODO: Find a good way to set this level from library
+        # global ll overrides everything
         if log_level is not None:
             self.level = log_level
+        # cli is second most important
+        elif self.app is not None:
+            if self.app.pargs.debug:
+                self.level = "DEBUG"
+                if self.level != self.app.log.get_level():
+                    self.app.log.set_level(self.level)
+            elif self.app.pargs.log_level is not None:
+                self.level = app.pargs.log_level
+                if self.level != self.app.log.get_level():
+                    self.app.log.set_level(self.level)
+        # what this is instantiated with is the least
+        # at least for now
         else:
             self.level = level
 

@@ -53,6 +53,14 @@ class AtomizeTool:
             for key in config:
                 if hasattr(parser_namespace, key):
                     config[key] = getattr(parser_namespace, key)
+        # special handling of log level
+        if self.app is not None:
+            # we called this from the CLI
+            if self.app.pargs.debug:
+                config["log_level"] = "DEBUG"
+            elif self.app.pargs.log_level is not None:
+                config["log_level"] = self.app.pargs.log_level
+        # check config options
         self.config = self.checkConfig(config)
 
     def checkConfig(self, config):
