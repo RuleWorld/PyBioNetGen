@@ -1,14 +1,16 @@
 import os, bionetgen, glob
 from tempfile import TemporaryDirectory
 
+from bionetgen.utils.logging import BNGLogger
+
 
 class VisResult:
     def __init__(self, input_folder, name=None, vtype=None, app=None) -> None:
         self.app = app
-        if self.app is not None:
-            self.app.log.debug(
-                "Setting up VisResult object", f"{__file__} : VisResult.__init__()"
-            )
+        self.logger = BNGLogger(app=self.app)
+        self.logger.debug(
+            "Setting up VisResult object", loc=f"{__file__} : VisResult.__init__()"
+        )
         self.input_folder = input_folder
         self.name = name
         self.vtype = vtype
@@ -20,10 +22,9 @@ class VisResult:
         self._load_files()
 
     def _load_files(self) -> None:
-        if self.app is not None:
-            self.app.log.debug(
-                "Loading graphml/gml files", f"{__file__} : VisResult._load_files()"
-            )
+        self.logger.debug(
+            "Loading graphml/gml files", loc=f"{__file__} : VisResult._load_files()"
+        )
         # we need to assume some sort of GML output
         # at least for now
         # use the name, if given, search for GMLs if not
@@ -47,10 +48,9 @@ class VisResult:
                     self.file_strs[gfile] = l
 
     def _dump_files(self, folder) -> None:
-        if self.app is not None:
-            self.app.log.debug(
-                "Writing graphml/gml files", f"{__file__} : VisResult._dump_files()"
-            )
+        self.logger.debug(
+            "Writing graphml/gml files", loc=f"{__file__} : VisResult._dump_files()"
+        )
         os.chdir(folder)
         for gfile in self.files:
             g_name = os.path.split(gfile)[-1]
@@ -63,11 +63,11 @@ class BNGVisualize:
         self, input_file, output=None, vtype=None, bngpath=None, suppress=None, app=None
     ) -> None:
         self.app = app
-        if self.app is not None:
-            self.app.log.debug(
-                "Setting up BNGVisualize object",
-                f"{__file__} : BNGVisualize.__init__()",
-            )
+        self.logger = BNGLogger(app=self.app)
+        self.logger.debug(
+            "Setting up BNGVisualize object",
+            loc=f"{__file__} : BNGVisualize.__init__()",
+        )
         # set input, required
         self.input = input_file
         # set valid types
@@ -98,16 +98,14 @@ class BNGVisualize:
         self.bngpath = bngpath
 
     def run(self) -> VisResult:
-        if self.app is not None:
-            self.app.log.debug("Running", f"{__file__} : BNGVisualize.run()")
+        self.logger.debug("Running", loc=f"{__file__} : BNGVisualize.run()")
         return self._normal_mode()
 
     def _normal_mode(self):
-        if self.app is not None:
-            self.app.log.debug(
-                f"Running on normal mode, loading model {self.input}",
-                f"{__file__} : BNGVisualize._normal_mode()",
-            )
+        self.logger.debug(
+            f"Running on normal mode, loading model {self.input}",
+            loc=f"{__file__} : BNGVisualize._normal_mode()",
+        )
         model = bionetgen.modelapi.bngmodel(self.input)
         model.actions.clear_actions()
         if self.vtype == "all":
@@ -122,11 +120,10 @@ class BNGVisualize:
         cur_dir = os.getcwd()
         from bionetgen.core.main import BNGCLI
 
-        if self.app is not None:
-            self.app.log.debug(
-                "Generating visualization files",
-                f"{__file__} : BNGVisualize._normal_mode()",
-            )
+        self.logger.debug(
+            "Generating visualization files",
+            loc=f"{__file__} : BNGVisualize._normal_mode()",
+        )
 
         if self.output is None:
             with TemporaryDirectory() as out:
@@ -164,11 +161,10 @@ class BNGVisualize:
                 os.chdir(cur_dir)
                 return vis_res
             except Exception as e:
-                if self.app is not None:
-                    self.app.log.error(
-                        "Failed to run file",
-                        f"{__file__} : BNGVisualize._normal_mode()",
-                    )
+                self.logger.error(
+                    "Failed to run file",
+                    loc=f"{__file__} : BNGVisualize._normal_mode()",
+                )
                 os.chdir(cur_dir)
                 print("Couldn't run the simulation, see error.")
                 raise e

@@ -1,3 +1,6 @@
+from bionetgen.utils.logging import BNGLogger
+
+
 class BNGInfo:
     """
     Used by the Cement app to execute the info subcommand, which involves gathering, preparing, and printing
@@ -14,6 +17,7 @@ class BNGInfo:
         self.config = config
         self.args = args
         self.app = app
+        self.logger = BNGLogger(app=self.app)
 
     def gatherInfo(self):
         """
@@ -26,16 +30,14 @@ class BNGInfo:
         import pandas
         import roadrunner
 
-        if self.app is not None:
-            self.app.log.debug("Gathering info", f"{__file__} : BNGInfo.gatherInfo()")
+        self.logger.debug("Gathering info", loc=f"{__file__} : BNGInfo.gatherInfo()")
 
         self.info = {}
 
         # Add some description for the following information
         self.info["\nThe following are related to BioNetGen and its execution"] = ""
 
-        if self.app is not None:
-            self.app.log.debug("BNG info", f"{__file__} : BNGInfo.gatherInfo()")
+        self.logger.debug("BNG info", loc=f"{__file__} : BNGInfo.gatherInfo()")
         # Get BNG version
         with open(
             os.path.join(
@@ -51,8 +53,7 @@ class BNGInfo:
             self.config.get("bionetgen", "bngpath") + " (the main executable for BNG)"
         )
 
-        if self.app is not None:
-            self.app.log.debug("Perl info", f"{__file__} : BNGInfo.gatherInfo()")
+        self.logger.debug("Perl info", loc=f"{__file__} : BNGInfo.gatherInfo()")
         # Get Perl version
         # Read in CLI text
         result = subprocess.run(["perl", "-v"], stdout=subprocess.PIPE)
@@ -63,8 +64,7 @@ class BNGInfo:
         # Save version info
         self.info["Perl version"] = text[num_start:num_end] + " (used to run BNG2.pl)"
 
-        if self.app is not None:
-            self.app.log.debug("PyBNG info", f"{__file__} : BNGInfo.gatherInfo()")
+        self.logger.debug("PyBNG info", loc=f"{__file__} : BNGInfo.gatherInfo()")
         # Get CLI version
         with open(
             os.path.join(*[os.path.dirname(bionetgen.__file__), "assets", "VERSION"]),
@@ -78,11 +78,10 @@ class BNGInfo:
             os.path.dirname(bionetgen.__file__) + " (the PyBNG installation)"
         )
 
-        if self.app is not None:
-            self.app.log.debug(
-                "Info on installed python libraries",
-                f"{__file__} : BNGInfo.gatherInfo()",
-            )
+        self.logger.debug(
+            "Info on installed python libraries",
+            loc=f"{__file__} : BNGInfo.gatherInfo()",
+        )
 
         # Add some description for the following information
         self.info["\nThe following libraries are required by PyBioNetGen"] = ""
@@ -104,10 +103,9 @@ class BNGInfo:
         Takes the dictionary created by gatherInfo() and
         converts it to a string of text for printing.
         """
-        if self.app is not None:
-            self.app.log.debug(
-                "Generating message", f"{__file__} : BNGInfo.messageGeneration()"
-            )
+        self.logger.debug(
+            "Generating message", loc=f"{__file__} : BNGInfo.messageGeneration()"
+        )
 
         self.message = " "
 
@@ -126,7 +124,6 @@ class BNGInfo:
         """
         Simply prints out the created information message.
         """
-        if self.app is not None:
-            self.app.log.debug("Printing message", f"{__file__} : BNGInfo.run()")
+        self.logger.debug("Printing message", loc=f"{__file__} : BNGInfo.run()")
 
         print(self.message)

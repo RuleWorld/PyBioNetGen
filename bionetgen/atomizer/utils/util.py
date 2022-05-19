@@ -8,6 +8,7 @@ from __future__ import division
 import json
 from functools import partial
 import marshal
+from bionetgen.utils.logging import BNGLogger
 
 from pyparsing import (
     Literal,
@@ -33,6 +34,8 @@ import sys
 import fnmatch
 import functools
 import pylru
+
+logger = BNGLogger()
 
 
 def pmemoize(obj):
@@ -310,18 +313,18 @@ def logMess(logType, logMessage):
 
     level = logType.split(":")[0]
     module = logType.split(":")[1]
-    logger = logging.getLogger(module)
+    # logger = logging.getLogger(module)
 
     if level == "INFO":
-        logger.info(logMessage)
+        logger.info(logMessage, name=module)
     elif level == "DEBUG":
-        logger.debug(logMessage)
+        logger.debug(logMessage, name=module)
     elif level == "WARNING":
-        logger.warning(logMessage)
+        logger.warning(logMessage, name=module)
     elif level == "CRITICAL":
-        logger.critical(logMessage)
+        logger.critical(logMessage, name=module)
     elif level == "ERROR":
-        logger.error(logMessage)
+        logger.error(logMessage, name=module)
 
 
 def testBNGFailure(fileName):

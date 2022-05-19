@@ -613,12 +613,3 @@ def run_command(command, suppress=False, timeout=None):
                     print(o)
             rc = process.wait()
             return rc, out
-
-
-# def log(message, type=None, loc=None, app=None, name=None):
-#     if app is not None:
-#         if type is not None:
-#         else:
-#     else:
-#         if type is not None:
-#         else:
