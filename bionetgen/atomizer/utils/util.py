@@ -316,15 +316,15 @@ def logMess(logType, logMessage):
     # logger = logging.getLogger(module)
 
     if level == "INFO":
-        logger.info(logMessage, name=module)
+        logger.info(logMessage, loc=f"{__file__} : {module}.logMess()")
     elif level == "DEBUG":
-        logger.debug(logMessage, name=module)
+        logger.debug(logMessage, loc=f"{__file__} : {module}.logMess()")
     elif level == "WARNING":
-        logger.warning(logMessage, name=module)
+        logger.warning(logMessage, loc=f"{__file__} : {module}.logMess()")
     elif level == "CRITICAL":
-        logger.critical(logMessage, name=module)
+        logger.critical(logMessage, loc=f"{__file__} : {module}.logMess()")
     elif level == "ERROR":
-        logger.error(logMessage, name=module)
+        logger.error(logMessage, loc=f"{__file__} : {module}.logMess()")
 
 
 def testBNGFailure(fileName):

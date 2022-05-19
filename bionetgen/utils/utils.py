@@ -3,6 +3,8 @@ from bionetgen.core.exc import BNGPerlError
 import subprocess
 from distutils import spawn
 
+from bionetgen.utils.logging import BNGLogger
+
 
 class ActionList:
     def __init__(self):
@@ -552,8 +554,8 @@ def test_perl(app=None, perl_path=None):
     perl_path : str
         (optional) path to the folder that contains perl
     """
-    if app is not None:
-        app.log.debug("Checking if perl is installed.", f"{__file__} : test_perl()")
+    logger = BNGLogger(app=app)
+    logger.debug("Checking if perl is installed.", loc=f"{__file__} : test_perl()")
     # find path to perl binary
     if perl_path is None:
         perl_path = spawn.find_executable("perl")

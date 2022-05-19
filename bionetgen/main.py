@@ -137,7 +137,6 @@ class BNGBase(cement.Controller):
         as well as the end-user.
         """
         test_perl(app=self.app)
-        self.app.log.debug("Running a BNGL model using runCLI", f"{__file__} : run()")
         runCLI(self.app)
 
     @cement.ex(
@@ -182,7 +181,6 @@ class BNGBase(cement.Controller):
         the template then will be adjusted to load in the model supplied.
         """
         test_perl(app=self.app)
-        self.app.log.debug("Generating a notebook", f"{__file__} : notebook()")
         generate_notebook(self.app)
 
     @cement.ex(
@@ -272,7 +270,6 @@ class BNGBase(cement.Controller):
 
         See bionetgen plot -h for all the allowed options.
         """
-        self.app.log.debug("Plotting a gdat/cdat/scan file", f"{__file__} : plot()")
         plotDAT(self.app)
 
     @cement.ex(
@@ -295,9 +292,6 @@ class BNGBase(cement.Controller):
         Currently provides version information for BioNetGen, the BNG CLI, Perl,
         numpy, pandas, and libroadrunner. Also provides BNG2.pl and pyBNG paths.
         """
-        self.app.log.debug(
-            "Gathering info on the installation with printInfo", f"{__file__} : info()"
-        )
         printInfo(self.app)
 
     @cement.ex(
@@ -344,7 +338,6 @@ class BNGBase(cement.Controller):
         - Regulatory graph: Visualize the regulatory graph of the model, also called atom rule graph
         """
         test_perl(app=self.app)
-        self.app.log.debug("Visualizing model", f"{__file__} : visualize()")
         visualizeModel(self.app)
 
     @cement.ex(
@@ -411,7 +404,6 @@ class BNGBase(cement.Controller):
         # TODO: add documentation here
         """ """
         test_perl(app=self.app)
-        self.app.log.debug("Running graphdiff tool", f"{__file__} : graphdiff()")
         graphDiff(self.app)
 
     @cement.ex(
@@ -544,7 +536,6 @@ class BNGBase(cement.Controller):
         ],
     )
     def atomize(self):
-        self.app.log.debug("Atomizing given BNGL model", f"{__file__} : atomize()")
         runAtomizeTool(self.app)
 
 

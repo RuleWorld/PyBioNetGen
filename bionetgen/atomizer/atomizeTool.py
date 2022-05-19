@@ -2,7 +2,8 @@ import bionetgen.atomizer.libsbml2bngl as ls2b
 from bionetgen.core.defaults import BNGDefaults
 import yaml, os
 
-from bionetgen.utils.logging import BNGLogger
+from bionetgen.utils.logging import BNGLogger, log_level
+
 
 d = BNGDefaults()
 
@@ -54,12 +55,21 @@ class AtomizeTool:
                 if hasattr(parser_namespace, key):
                     config[key] = getattr(parser_namespace, key)
         # special handling of log level
-        if self.app is not None:
+        if log_level is not None:
+            config["log_level"] = log_level
+        elif self.app is not None:
             # we called this from the CLI
             if self.app.pargs.debug:
                 config["log_level"] = "DEBUG"
             elif self.app.pargs.log_level is not None:
                 config["log_level"] = self.app.pargs.log_level
+            else:
+                # we called the CLI but didn't give any log_level info
+                config["log_level"] = "INFO"
+        else:
+            # we called from library but no log_level info exists
+            config["log_level"] = "INFO"
+
         # check config options
         self.config = self.checkConfig(config)
 
