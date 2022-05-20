@@ -25,9 +25,6 @@ from collections import Counter, namedtuple
 import bionetgen.atomizer.utils.structures as structures
 from bionetgen.atomizer.utils.util import (
     logMess,
-    setupLog,
-    setupStreamLog,
-    finishStreamLog,
     TranslationException,
 )
 from bionetgen.atomizer.utils import consoleCommands
@@ -177,12 +174,12 @@ def readFromString(
     one of the library's main entry methods. Process data from a string
     """
 
-    console = None
-    if loggingStream:
-        console = logging.StreamHandler(loggingStream)
-        console.setLevel(logging.DEBUG)
+    # console = None
+    # if loggingStream:
+    #     console = logging.StreamHandler(loggingStream)
+    #     console.setLevel(logging.DEBUG)
 
-        setupStreamLog(console)
+    #     # setupStreamLog(console)
 
     reader = libsbml.SBMLReader()
     document = reader.readSBMLFromString(inputString)
@@ -225,8 +222,8 @@ def readFromString(
     else:
         translator = {}
     # logging.getLogger().flush()
-    if loggingStream:
-        finishStreamLog(console)
+    # if loggingStream:
+    #     finishStreamLog(console)
     returnArray = analyzeHelper(
         document,
         reactionDefinitions,
@@ -710,9 +707,10 @@ def analyzeFile(
     pr = cProfile.Profile()
     pr.enable()
     """
-    setupLog(
-        outputFile + ".log", getattr(logging, logLevel.upper()), quietMode=quietMode
-    )
+    # TODO: replace this setup log with our own logging system
+    # setupLog(
+    #     outputFile + ".log", getattr(logging, logLevel.upper()), quietMode=quietMode
+    # )
 
     logMess.log = []
     logMess.counter = -1

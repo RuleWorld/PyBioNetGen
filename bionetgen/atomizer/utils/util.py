@@ -7,7 +7,7 @@ Created on Sun Mar 25 21:26:49 2012
 from __future__ import division
 import json
 from functools import partial
-import marshal
+import marshal, colorlog
 from bionetgen.utils.logging import BNGLogger
 
 from pyparsing import (
@@ -26,12 +26,8 @@ from pyparsing import (
 )
 import math
 import operator
-import logging
-import pickle
 import os
 from subprocess import call
-import sys
-import fnmatch
 import functools
 import pylru
 
@@ -281,39 +277,38 @@ def defaultReactionDefinition():
         json.dump(final, fp)
 
 
-def setupLog(fileName, level, quietMode=False):
-    if quietMode:
-        logging.basicConfig(filename=fileName, level=level, filemode="w")
-    else:
-        logging.basicConfig(level=level)
+# def setupLog(fileName, level, quietMode=False):
+#     if quietMode:
+#         colorlog.basicConfig(filename=fileName, level=level, filemode="w")
+#     else:
+#         colorlog.basicConfig(level=level)
 
 
-def setupStreamLog(console):
-    formatter = logging.Formatter("%(name)-10s:%(levelname)-8s:%(message)s")
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    logging.getLogger().addHandler(console)
+# def setupStreamLog(console):
+#     # set colorlog handler
+#     fmter = colorlog.ColoredFormatter(
+#         "%(log_color)s%(levelname)s:%(name)s:%(message)s",
+#         log_colors={
+#             "DEBUG": "cyan",
+#             "INFO": "green",
+#             "WARNING": "yellow",
+#             "ERROR": "red",
+#             "CRITICAL": "red",
+#         },
+#     )
+#     # tell the handler to use this format
+#     console.setFormatter(fmter)
+#     # colorlog.getLogger().addHandler(console)
 
-    # set a format which is simpler for console use
-    # formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-    # console.setFormatter(formatter)
-    # add the handler to the root logger
-    # console = logging.StreamHandler()
-    # console.setLevel(logging.WARNING)
-    # logging.getLogger('').addHandler(console)
 
-    # logging.basicConfig(stream=stream, level=level, filemode='w')
-
-
-def finishStreamLog(console):
-    logging.getLogger().removeHandler(console)
+# def finishStreamLog(console):
+#     colorlog.getLogger().removeHandler(console)
 
 
 def logMess(logType, logMessage):
 
     level = logType.split(":")[0]
     module = logType.split(":")[1]
-    # logger = logging.getLogger(module)
 
     if level == "INFO":
         logger.info(logMessage, loc=f"{__file__} : {module}.logMess()")
@@ -332,8 +327,6 @@ def testBNGFailure(fileName):
         result = call(["bngdev", fileName], stdout=f)
     return result
 
-
-import os.path
 
 '''
 def getValidFiles(directory, extension):
@@ -370,15 +363,3 @@ def generateBNGXML(directory):
         if os.path.isfile(xmlfile):
             shutil.move(xmlfile, directory)
 '''
-
-
-if __name__ == "__main__":
-    """
-    with open('failure.dump','rb') as f:
-        failedFiles = pickle.load(f)
-    failedFiles.sort()
-    for bng in failedFiles:
-        sys.stderr.write(bng)
-        testBNGFailure(bng)
-    """
-    generateBNGXML("new_non_curated")

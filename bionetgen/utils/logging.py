@@ -1,4 +1,3 @@
-from telnetlib import IP
 import colorlog
 
 # global log level, can be set using
@@ -8,7 +7,6 @@ import colorlog
 log_level = None
 
 # set colorlog handler
-handler = colorlog.StreamHandler()
 fmter = colorlog.ColoredFormatter(
     "%(log_color)s%(levelname)s:%(name)s:%(message)s",
     log_colors={
@@ -19,7 +17,6 @@ fmter = colorlog.ColoredFormatter(
         "CRITICAL": "red",
     },
 )
-handler.setFormatter(fmter)
 
 
 class BNGLogger:
@@ -50,7 +47,10 @@ class BNGLogger:
             loc_full = loc.split(":")[-1]
             module_name = loc_full.split(".")[0].strip()
             logger = colorlog.getLogger(module_name)
-        logger.addHandler(handler)
+        if not logger.hasHandlers():
+            handler = colorlog.StreamHandler()
+            handler.setFormatter(fmter)
+            logger.addHandler(handler)
         logger.setLevel(self.level)
         return logger
 
