@@ -3,7 +3,7 @@ import os, re
 
 from bionetgen.main import BioNetGen
 from bionetgen.core.exc import BNGFileError
-from bionetgen.utils.utils import find_BNG_path, run_command, ActionList
+from bionetgen.core.utils.utils import find_BNG_path, run_command, ActionList
 from tempfile import TemporaryDirectory
 
 # This allows access to the CLIs config setup

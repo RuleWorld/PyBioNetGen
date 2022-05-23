@@ -9,7 +9,7 @@ from .xmlparsers import ParameterBlockXML, CompartmentBlockXML, ObservableBlockX
 from .xmlparsers import SpeciesBlockXML, MoleculeTypeBlockXML, FunctionBlockXML
 from .xmlparsers import RuleBlockXML, EnergyPatternBlockXML, PopulationMapBlockXML
 from .blocks import ActionBlock
-from bionetgen.utils.utils import ActionList
+from bionetgen.core.utils.utils import ActionList
 
 # This allows access to the CLIs config setup
 app = BioNetGen()

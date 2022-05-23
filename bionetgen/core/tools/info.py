@@ -1,4 +1,4 @@
-from bionetgen.utils.logging import BNGLogger
+from bionetgen.core.utils.logging import BNGLogger
 
 
 class BNGInfo:

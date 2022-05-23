@@ -1,7 +1,7 @@
 import os, bionetgen, glob
 from tempfile import TemporaryDirectory
 
-from bionetgen.utils.logging import BNGLogger
+from bionetgen.core.utils.logging import BNGLogger
 
 
 class VisResult:

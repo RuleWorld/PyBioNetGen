@@ -1,6 +1,6 @@
 import os, subprocess
 from bionetgen.core.exc import BNGRunError
-from bionetgen.utils.logging import BNGLogger
+from bionetgen.core.utils.logging import BNGLogger
 
 
 class BNGCLI:
@@ -84,7 +84,7 @@ class BNGCLI:
 
     def run(self):
         self.logger.debug("Running", loc=f"{__file__} : BNGCLI.run()")
-        from bionetgen.utils.utils import run_command
+        from bionetgen.core.utils.utils import run_command
 
         try:
             stdout_loc = getattr(subprocess, self.stdout)
@@ -156,7 +156,7 @@ class BNGCLI:
             self.logger.debug(
                 "Command ran successfully", loc=f"{__file__} : BNGCLI.run()"
             )
-            from bionetgen.tools import BNGResult
+            from bionetgen.core.tools import BNGResult
 
             # load in the result
             self.result = BNGResult(os.getcwd())

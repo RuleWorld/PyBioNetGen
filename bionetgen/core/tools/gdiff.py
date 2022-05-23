@@ -1,7 +1,7 @@
 from multiprocessing.sharedctypes import Value
 import xmltodict, copy, os, json
 
-from bionetgen.utils.logging import BNGLogger
+from bionetgen.core.utils.logging import BNGLogger
 
 
 class BNGGdiff:

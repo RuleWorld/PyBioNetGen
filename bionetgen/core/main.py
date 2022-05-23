@@ -1,10 +1,10 @@
 import subprocess, os
-from bionetgen.tools import BNGInfo
-from bionetgen.tools import BNGVisualize
-from bionetgen.tools import BNGCLI
-from bionetgen.tools import BNGGdiff
+from bionetgen.core.tools import BNGInfo
+from bionetgen.core.tools import BNGVisualize
+from bionetgen.core.tools import BNGCLI
+from bionetgen.core.tools import BNGGdiff
 from bionetgen.core.notebook import BNGNotebook
-from bionetgen.utils.utils import run_command
+from bionetgen.core.utils.utils import run_command
 
 import os, sys
 
@@ -81,7 +81,7 @@ def plotDAT(app):
         fnoext, ext = os.path.splitext(fname)
         out = os.path.join(path, "{}.png".format(fnoext))
     # use the plotter object to get the plot
-    from bionetgen.tools import BNGPlotter
+    from bionetgen.core.tools import BNGPlotter
 
     app.log.debug("Instantiating BNGPlotter object", f"{__file__} : plotDAT()")
     plotter = BNGPlotter(inp, out, app=app, **kw)

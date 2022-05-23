@@ -10,7 +10,7 @@ from .core.main import printInfo
 from .core.main import visualizeModel
 from .core.main import graphDiff
 from .core.main import generate_notebook
-from .utils.utils import test_perl
+from .core.utils.utils import test_perl
 
 # pull defaults defined in core/defaults
 CONF = bng.defaults

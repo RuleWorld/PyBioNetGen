@@ -2,7 +2,7 @@ import bionetgen.atomizer.libsbml2bngl as ls2b
 from bionetgen.core.defaults import BNGDefaults
 import yaml, os
 
-from bionetgen.utils.logging import BNGLogger, log_level
+from bionetgen.core.utils.logging import BNGLogger, log_level
 
 
 d = BNGDefaults()

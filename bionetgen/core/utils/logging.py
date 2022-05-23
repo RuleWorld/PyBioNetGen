@@ -1,7 +1,7 @@
 import colorlog
 
 # global log level, can be set using
-# from bionetgen.utils import logging
+# from bionetgen.core.utils import logging
 # logging.log_level = "DEBUG"
 # options are "INFO","DEBUG","WARNING","ERROR","CRITICAL"
 log_level = None

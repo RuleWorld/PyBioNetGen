@@ -8,7 +8,7 @@ from __future__ import division
 import json
 from functools import partial
 import marshal, colorlog
-from bionetgen.utils.logging import BNGLogger
+from bionetgen.core.utils.logging import BNGLogger
 
 from pyparsing import (
     Literal,

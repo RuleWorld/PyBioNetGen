@@ -3,7 +3,7 @@ from bionetgen.core.exc import BNGPerlError
 import subprocess
 from distutils import spawn
 
-from bionetgen.utils.logging import BNGLogger
+from bionetgen.core.utils.logging import BNGLogger
 
 
 class ActionList:

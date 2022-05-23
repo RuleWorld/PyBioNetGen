@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from bionetgen.utils.logging import BNGLogger
+from bionetgen.core.utils.logging import BNGLogger
 
 
 class BNGResult:
