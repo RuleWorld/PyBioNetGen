@@ -1,3 +1,7 @@
+from bionetgen.core.utils.logging import BNGLogger
+
+logger = BNGLogger()
+
 # All classes that deal with patterns
 class Pattern:
     """
@@ -34,6 +38,46 @@ class Pattern:
         self.relation = None
         self.quantity = None
 
+    def __eq__(self, other):
+        loc = f"{__file__} : Pattern.__eq__()"
+        if isinstance(other, Pattern):
+            logger.debug(f"Comparison class matches: {other.__class__}", loc=loc)
+            # checking pattern-wide properties
+            if (other.compartment == self.compartment) and (other.label == self.label):
+                logger.debug(
+                    f"Compartment or label matches: {other.compartment}, {other.label}",
+                    loc=loc,
+                )
+                # checking mods
+                if (other.fixed == self.fixed) and (other.MatchOnce == self.MatchOnce):
+                    logger.debug(
+                        f"fixed or matchonce matches: {other.fixed}, {other.MatchOnce}",
+                        loc=loc,
+                    )
+                    # checking quantifiers
+                    if (other.relation == self.relation) and (
+                        other.quantity == self.quantity
+                    ):
+                        logger.debug(
+                            f"relation or quantity matches: {other.relation}, {other.quantity}",
+                            loc=loc,
+                        )
+                        # now we can check contents
+                        for molecule in self.molecules:
+                            if molecule not in other.molecules:
+                                import IPython
+
+                                IPython.embed()
+                                logger.debug(
+                                    f"molecule doesn't match: {molecule}", loc=loc
+                                )
+                                return False
+                        # TODO: molecules match, check bonds
+                        # Bonds match, patterns are the same
+                        logger.debug("patterns match!", loc=loc)
+                        return True
+        return False
+
     @property
     def compartment(self):
         return self._compartment
@@ -44,10 +88,6 @@ class Pattern:
         # outer compartment
         # print("Warning: Logical checks are not complete")
         self._compartment = value
-        # by default, once the outer compartment is set
-        # we will set the compartment of each molecule
-        # to that new compartment.
-        self.consolidate_molecule_compartments()
 
     def consolidate_molecule_compartments(self):
         # if the molecule compartment matches overall pattern
@@ -55,9 +95,7 @@ class Pattern:
         overall_comp = self.compartment
         if overall_comp is not None:
             for molec in self.molecules:
-                if molec.compartment != overall_comp:
-                    molec.compartment = overall_comp
-                else:
+                if molec.compartment == overall_comp:
                     molec.compartment = None
 
     @property
@@ -138,6 +176,31 @@ class Molecule:
         self._components = components
         self._compartment = compartment
         self._label = label
+
+    def __eq__(self, other):
+        loc = f"{__file__} : Molecule.__eq__()"
+        # check object type
+        if isinstance(other, Molecule):
+            logger.debug(f"Comparison class matches: {other.__class__}", loc=loc)
+            # check attributes
+            if (
+                (other.name == self.name)
+                and (other.compartment == self.compartment)
+                and (other.label == self.label)
+            ):
+                logger.debug(
+                    f"name, compartment and labels match: {other.name}, {other.compartment}, {other.label}",
+                    loc=loc,
+                )
+                # check components now
+                for component in self.components:
+                    if component not in other.components:
+                        logger.debug(f"component doesn't match: {component}", loc=loc)
+                        return False
+                # everything matches
+                logger.debug("molecules match", loc=loc)
+                return True
+        return False
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -258,6 +321,35 @@ class Component:
         self._state = None
         self._states = []
         self._bonds = []
+
+    def __eq__(self, other):
+        loc = f"{__file__} : Component.__eq__()"
+        # check type
+        if isinstance(other, Component):
+            logger.debug(f"Comparison class matches: {other.__class__}", loc=loc)
+            # check attributes
+            if (other.name == self.name) and (other.label == self.label):
+                logger.debug(
+                    f"name and labels match: {other.name}, {other.label}", loc=loc
+                )
+                # check states
+                if len(other.states) == len(self.states):
+                    logger.debug(f"state lists match: {other.states}", loc=loc)
+                    # check current state
+                    if other.state == self.state:
+                        logger.debug(f"states match: {other.state}", loc=loc)
+                        # check bonds
+                        # TODO: try to decide if A(b!1).B(a!1) is the same
+                        # as A(b!2).B(a!2), if so, the bond check is much harder
+                        for bond in self.bonds:
+                            if bond not in other.bonds:
+                                logger.debug(
+                                    f"bonds don't match!: {other.bonds}", loc=loc
+                                )
+                                return False
+                        logger.debug("components match", loc=loc)
+                        return True
+        return False
 
     def __repr__(self):
         return str(self)
