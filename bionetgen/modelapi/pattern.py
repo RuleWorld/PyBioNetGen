@@ -77,7 +77,11 @@ class Pattern:
         sstr = ""
         # we first deal with the pattern compartment
         if self.compartment is not None:
-            sstr += "@{}:".format(self.compartment)
+            sstr += "@{}".format(self.compartment)
+        if self.label is not None:
+            sstr += "%{}".format(self.label)
+        if self.label is not None or self.compartment is not None:
+            sstr += ":"
         # now loop over all molecules
         for imol, mol in enumerate(self.molecules):
             if imol == 0:
@@ -85,9 +89,6 @@ class Pattern:
                     sstr += "$"
                 if self.MatchOnce:
                     sstr += "{MatchOnce}"
-            # FIXME: This label also probably behaves like compartments
-            if imol == 0 and self.label is not None:
-                sstr += "%{}:".format(self.label)
             if imol > 0:
                 sstr += "."
             sstr += str(mol)
