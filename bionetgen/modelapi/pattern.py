@@ -65,9 +65,6 @@ class Pattern:
                         # now we can check contents
                         for molecule in self.molecules:
                             if molecule not in other.molecules:
-                                import IPython
-
-                                IPython.embed()
                                 logger.debug(
                                     f"molecule doesn't match: {molecule}", loc=loc
                                 )
