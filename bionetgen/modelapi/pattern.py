@@ -1,3 +1,4 @@
+from xml.etree.ElementTree import canonicalize
 from bionetgen.core.utils.logging import BNGLogger
 
 logger = BNGLogger()
@@ -28,7 +29,9 @@ class Pattern:
         used for matchOnce syntax, "{MatchOnce}PatternStr"
     """
 
-    def __init__(self, molecules=[], bonds=None, compartment=None, label=None):
+    def __init__(
+        self, molecules=[], bonds=None, compartment=None, label=None, canonicalize=False
+    ):
         self.molecules = molecules
         self._bonds = bonds
         self.compartment = compartment
@@ -37,11 +40,94 @@ class Pattern:
         self.MatchOnce = False
         self.relation = None
         self.quantity = None
+        self.nautyG = None
+        self.canonical_certificate = None
+        if canonicalize:
+            self.canonicalize()
+
+    def canonicalize(self):
+        # pynauty to canonicalize the labeling
+        import pynauty
+
+        lmol = len(self.molecules)
+        lcomp = sum([len(x.components) for x in self.molecules])
+        node_cnt = lmol + lcomp
+        G = pynauty.Graph(node_cnt)
+        # going to need to figure out bonding
+        bond_dict = {}
+        rev_grpIds = {}
+        grpIds = {}
+        node_ptrs = {}
+        currId = 0
+        # import ipdb;ipdb.set_trace()
+        copyId = 0
+        for molec in self.molecules:
+            if (molec.name, None, copyId) in grpIds:
+                copyId += 1
+                grpIds[(molec.name, None, copyId)] = currId
+            else:
+                grpIds[(molec.name, None, copyId)] = currId
+            rev_grpIds[currId] = (molec.name, None, copyId)
+            node_ptrs[currId] = molec
+            currId += 1
+            for comp in molec.components:
+                grpIds[(molec.name, comp.name, copyId)] = currId
+                G.connect_vertex(grpIds[(molec.name, None, copyId)], [currId])
+                rev_grpIds[currId] = (molec.name, comp.name, copyId)
+                node_ptrs[currId] = comp
+                currId += 1
+                if len(comp._bonds) != 0:
+                    for bond in comp._bonds:
+                        if bond not in bond_dict.keys():
+                            bond_dict[bond] = [(molec.name, comp.name, copyId)]
+                        else:
+                            bond_dict[bond].append((molec.name, comp.name, copyId))
+        # now we got everything, we implement it in the graph
+        for bond in bond_dict:
+            # if len(bond_dict[bond]) == 0:
+            #     print("no bonds, why was this added?")
+            # elif len(bond_dict[bond]) == 1:
+            #     print("dangling bonds")
+            #     print(bond_dict[bond][0])
+            if len(bond_dict[bond]) == 2:
+                # print("correct bonding")
+                id1 = bond_dict[bond][0]
+                id1 = grpIds[id1]
+                id2 = bond_dict[bond][1]
+                id2 = grpIds[id2]
+                G.connect_vertex(id1, [id2])
+            else:
+                print("incorrect bonding")
+        self.nautyG = G
+        # canon_label = pynauty.canon_label(G)
+        # canon_dict = {}
+        # for i, canon_label in enumerate(canon_label):
+        #     canon_dict[rev_grpIds[canon_label]] = i
+        # # let's add the canonical labels
+        # for molec in self.molecules:
+        #     molec.canonical_label = canon_dict[(molec.name,None)]
+        #     for comp in molec.components:
+        #         comp.canonical_label = canon_dict[(molec.name,comp.name)]
+        self.canonical_certificate = pynauty.certificate(self.nautyG)
+        # import IPython;IPython.embed()
+
+    def __contains__(self, val):
+        return val in self.molecules
 
     def __eq__(self, other):
         loc = f"{__file__} : Pattern.__eq__()"
         if isinstance(other, Pattern):
             logger.debug(f"Comparison class matches: {other.__class__}", loc=loc)
+            # we can try pynauty here
+            if (self.canonical_certificate is not None) and (
+                other.canonical_certificate is not None
+            ):
+                if self.canonical_certificate != other.canonical_certificate:
+                    return False
+            # can use isomorphism here too if we wanted
+            # if self.nautyG and other.nautyG:
+            #     import pynauty
+            #     return pynauty.isomorphic(self.nautyG, other.nautyG)
             # checking pattern-wide properties
             if (other.compartment == self.compartment) and (other.label == self.label):
                 logger.debug(
@@ -63,7 +149,7 @@ class Pattern:
                             loc=loc,
                         )
                         # now we can check contents
-                        for molecule in self.molecules:
+                        for molecule in self:
                             if molecule not in other.molecules:
                                 logger.debug(
                                     f"molecule doesn't match: {molecule}", loc=loc
@@ -173,6 +259,10 @@ class Molecule:
         self._components = components
         self._compartment = compartment
         self._label = label
+        self.canonical_label = None
+
+    def __contains__(self, val):
+        return val in self.components
 
     def __eq__(self, other):
         loc = f"{__file__} : Molecule.__eq__()"
@@ -189,8 +279,14 @@ class Molecule:
                     f"name, compartment and labels match: {other.name}, {other.compartment}, {other.label}",
                     loc=loc,
                 )
+                if (self.canonical_label is not None) and (
+                    other.canonical_label is not None
+                ):
+                    # we can check canonical labels
+                    if self.canonical_label != other.canonical_label:
+                        return False
                 # check components now
-                for component in self.components:
+                for component in self:
                     if component not in other.components:
                         logger.debug(f"component doesn't match: {component}", loc=loc)
                         return False
@@ -210,8 +306,6 @@ class Molecule:
 
     def __str__(self):
         mol_str = self.name
-        if self.label is not None:
-            mol_str += "%{}".format(self.label)
         # we have a null species
         if not self.name == "0":
             mol_str += "("
@@ -228,6 +322,8 @@ class Molecule:
             mol_str += ")"
         if self.compartment is not None:
             mol_str += "@{}".format(self.compartment)
+        if self.label is not None:
+            mol_str += "%{}".format(self.label)
         return mol_str
 
     ### PROPERTIES ###
@@ -335,17 +431,24 @@ class Component:
                     # check current state
                     if other.state == self.state:
                         logger.debug(f"states match: {other.state}", loc=loc)
+                        if (self.canonical_label is not None) and (
+                            other.canonical_label is not None
+                        ):
+                            # we can check canonical labels
+                            if self.canonical_label != other.canonical_label:
+                                return False
                         # check bonds
                         # TODO: try to decide if A(b!1).B(a!1) is the same
                         # as A(b!2).B(a!2), if so, the bond check is much harder
-                        for bond in self.bonds:
-                            if bond not in other.bonds:
-                                logger.debug(
-                                    f"bonds don't match!: {other.bonds}", loc=loc
-                                )
-                                return False
-                        logger.debug("components match", loc=loc)
-                        return True
+                        # for bond in self.bonds:
+                        #     if bond not in other.bonds:
+                        #         logger.debug(
+                        #             f"bonds don't match!: {other.bonds}", loc=loc
+                        #         )
+                        #         return False
+                        if len(self.bonds) == len(other.bonds):
+                            logger.debug("components match", loc=loc)
+                            return True
         return False
 
     def __repr__(self):

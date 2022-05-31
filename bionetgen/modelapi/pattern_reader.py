@@ -261,4 +261,5 @@ class BNGPatternReader:
             )
             pattern.molecules.append(molecule)
         # ship the finalized pattern object
+        pattern.canonicalize()
         return pattern

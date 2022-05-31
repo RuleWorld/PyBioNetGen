@@ -182,5 +182,6 @@ setup(
         "python-libsbml",
         "pylru",
         "pyparsing",
+        "pynauty",
     ],
 )
