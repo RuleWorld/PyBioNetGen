@@ -1,4 +1,3 @@
-from xml.etree.ElementTree import canonicalize
 from bionetgen.core.utils.logging import BNGLogger
 
 logger = BNGLogger()
