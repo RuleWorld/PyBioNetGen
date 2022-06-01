@@ -13,4 +13,3 @@ networkx
 python-libsbml
 pylru
 pyparsing
-pynauty

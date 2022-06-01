@@ -50,7 +50,10 @@ class Pattern:
         try:
             import pynauty
         except ImportError:
-            logger.warning(f"Importing pynauty failed, cannot canonicalize. Pattern equality checking is not guaranteed to work for highly symmetrical species.", loc=loc)
+            logger.warning(
+                f"Importing pynauty failed, cannot canonicalize. Pattern equality checking is not guaranteed to work for highly symmetrical species.",
+                loc=loc,
+            )
             return
 
         lmol = len(self.molecules)
@@ -154,7 +157,10 @@ class Pattern:
                         if (self.canonical_certificate is not None) and (
                             other.canonical_certificate is not None
                         ):
-                            if self.canonical_certificate != other.canonical_certificate:
+                            if (
+                                self.canonical_certificate
+                                != other.canonical_certificate
+                            ):
                                 return False
                         else:
                             # now we can check contents
