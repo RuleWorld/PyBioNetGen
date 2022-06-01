@@ -45,8 +45,13 @@ class Pattern:
             self.canonicalize()
 
     def canonicalize(self):
+        loc = f"{__file__} : Pattern.canonicalize()"
         # pynauty to canonicalize the labeling
-        import pynauty
+        try:
+            import pynauty
+        except ImportError:
+            logger.warning(f"Importing pynauty failed, cannot canonicalize. Pattern equality checking is not guaranteed to work for highly symmetrical species.", loc=loc)
+            return
 
         lmol = len(self.molecules)
         lcomp = sum([len(x.components) for x in self.molecules])
@@ -59,28 +64,37 @@ class Pattern:
         node_ptrs = {}
         currId = 0
         # import ipdb;ipdb.set_trace()
-        copyId = 0
+        mCopyId = 0
+        cCopyId = 0
         for molec in self.molecules:
-            if (molec.name, None, copyId) in grpIds:
-                copyId += 1
-                grpIds[(molec.name, None, copyId)] = currId
+            parent_id = (molec.name, None, mCopyId, cCopyId)
+            if parent_id in grpIds:
+                mCopyId += 1
+                parent_id = (molec.name, None, mCopyId, cCopyId)
+                grpIds[parent_id] = currId
             else:
-                grpIds[(molec.name, None, copyId)] = currId
-            rev_grpIds[currId] = (molec.name, None, copyId)
+                grpIds[parent_id] = currId
+            rev_grpIds[currId] = parent_id
             node_ptrs[currId] = molec
             currId += 1
             for comp in molec.components:
-                grpIds[(molec.name, comp.name, copyId)] = currId
-                G.connect_vertex(grpIds[(molec.name, None, copyId)], [currId])
-                rev_grpIds[currId] = (molec.name, comp.name, copyId)
+                chid_id = (molec.name, comp.name, mCopyId, cCopyId)
+                G.connect_vertex(grpIds[parent_id], [currId])
+                if chid_id in grpIds:
+                    cCopyId += 1
+                    chid_id = (molec.name, comp.name, mCopyId, cCopyId)
+                    grpIds[chid_id] = currId
+                else:
+                    grpIds[chid_id] = currId
+                rev_grpIds[currId] = chid_id
                 node_ptrs[currId] = comp
                 currId += 1
                 if len(comp._bonds) != 0:
                     for bond in comp._bonds:
                         if bond not in bond_dict.keys():
-                            bond_dict[bond] = [(molec.name, comp.name, copyId)]
+                            bond_dict[bond] = [chid_id]
                         else:
-                            bond_dict[bond].append((molec.name, comp.name, copyId))
+                            bond_dict[bond].append(chid_id)
         # now we got everything, we implement it in the graph
         for bond in bond_dict:
             # if len(bond_dict[bond]) == 0:
@@ -108,7 +122,6 @@ class Pattern:
         #     for comp in molec.components:
         #         comp.canonical_label = canon_dict[(molec.name,comp.name)]
         self.canonical_certificate = pynauty.certificate(self.nautyG)
-        # import IPython;IPython.embed()
 
     def __contains__(self, val):
         return val in self.molecules
@@ -117,16 +130,6 @@ class Pattern:
         loc = f"{__file__} : Pattern.__eq__()"
         if isinstance(other, Pattern):
             logger.debug(f"Comparison class matches: {other.__class__}", loc=loc)
-            # we can try pynauty here
-            if (self.canonical_certificate is not None) and (
-                other.canonical_certificate is not None
-            ):
-                if self.canonical_certificate != other.canonical_certificate:
-                    return False
-            # can use isomorphism here too if we wanted
-            # if self.nautyG and other.nautyG:
-            #     import pynauty
-            #     return pynauty.isomorphic(self.nautyG, other.nautyG)
             # checking pattern-wide properties
             if (other.compartment == self.compartment) and (other.label == self.label):
                 logger.debug(
@@ -147,13 +150,20 @@ class Pattern:
                             f"relation or quantity matches: {other.relation}, {other.quantity}",
                             loc=loc,
                         )
-                        # now we can check contents
-                        for molecule in self:
-                            if molecule not in other.molecules:
-                                logger.debug(
-                                    f"molecule doesn't match: {molecule}", loc=loc
-                                )
+                        # we can try pynauty here
+                        if (self.canonical_certificate is not None) and (
+                            other.canonical_certificate is not None
+                        ):
+                            if self.canonical_certificate != other.canonical_certificate:
                                 return False
+                        else:
+                            # now we can check contents
+                            for molecule in self:
+                                if molecule not in other.molecules:
+                                    logger.debug(
+                                        f"molecule doesn't match: {molecule}", loc=loc
+                                    )
+                                    return False
                         # TODO: molecules match, check bonds
                         # Bonds match, patterns are the same
                         logger.debug("patterns match!", loc=loc)
@@ -413,6 +423,7 @@ class Component:
         self._state = None
         self._states = []
         self._bonds = []
+        self.canonical_label = None
 
     def __eq__(self, other):
         loc = f"{__file__} : Component.__eq__()"
