@@ -65,11 +65,17 @@ class Pattern:
         rev_grpIds = {}
         grpIds = {}
         node_ptrs = {}
+        colors = {}
         currId = 0
         # import ipdb;ipdb.set_trace()
         mCopyId = 0
         cCopyId = 0
         for molec in self.molecules:
+            color_id = (molec.name, None, None)
+            if color_id in colors:
+                colors[color_id].add(currId)
+            else:
+                colors[color_id] = set([currId])
             parent_id = (molec.name, None, mCopyId, cCopyId)
             if parent_id in grpIds:
                 mCopyId += 1
@@ -81,6 +87,11 @@ class Pattern:
             node_ptrs[currId] = molec
             currId += 1
             for comp in molec.components:
+                comp_color_id = (molec.name, comp.name, comp.state)
+                if comp_color_id in colors:
+                    colors[comp_color_id].add(currId)
+                else:
+                    colors[comp_color_id] = set([currId])
                 chid_id = (molec.name, comp.name, mCopyId, cCopyId)
                 G.connect_vertex(grpIds[parent_id], [currId])
                 if chid_id in grpIds:
@@ -114,6 +125,8 @@ class Pattern:
                 G.connect_vertex(id1, [id2])
             else:
                 print("incorrect bonding")
+        color_sets = list(colors.values())
+        G.set_vertex_coloring(color_sets)
         self.nautyG = G
         # canon_label = pynauty.canon_label(G)
         # canon_dict = {}
