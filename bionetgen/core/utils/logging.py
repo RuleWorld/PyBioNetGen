@@ -20,8 +20,9 @@ fmter = colorlog.ColoredFormatter(
 
 
 class BNGLogger:
-    def __init__(self, app=None, level="INFO"):
+    def __init__(self, app=None, level="INFO", loc=None):
         self.app = app
+        self.loc = loc
         # global ll overrides everything
         if log_level is not None:
             self.level = log_level
@@ -42,7 +43,12 @@ class BNGLogger:
 
     def get_logger(self, loc=None):
         if loc is None:
-            logger = colorlog.getLogger()
+            if self.loc is None:
+                logger = colorlog.getLogger()
+            else:
+                loc_full = self.loc.split(":")[-1]
+                module_name = loc_full.split(".")[0].strip()
+                logger = colorlog.getLogger(module_name)
         else:
             loc_full = loc.split(":")[-1]
             module_name = loc_full.split(".")[0].strip()
@@ -57,6 +63,10 @@ class BNGLogger:
     def debug(self, msg, loc=None):
         if self.app is None:
             logger = self.get_logger(loc=loc)
+            if loc is not None:
+                msg = f"from: {loc} : {msg}"
+            elif self.loc is not None:
+                msg = f"from: {self.loc} : {msg}"
             logger.debug(msg)
         else:
             self.app.log.debug(msg, loc)
@@ -64,6 +74,10 @@ class BNGLogger:
     def info(self, msg, loc=None):
         if self.app is None:
             logger = self.get_logger(loc=loc)
+            if loc is not None:
+                msg = f"from: {loc} : {msg}"
+            elif self.loc is not None:
+                msg = f"from: {self.loc} : {msg}"
             logger.info(msg)
         else:
             self.app.log.info(msg, loc)
@@ -71,6 +85,10 @@ class BNGLogger:
     def warning(self, msg, loc=None):
         if self.app is None:
             logger = self.get_logger(loc=loc)
+            if loc is not None:
+                msg = f"from: {loc} : {msg}"
+            elif self.loc is not None:
+                msg = f"from: {self.loc} : {msg}"
             logger.warning(msg)
         else:
             self.app.log.warning(msg, loc)
@@ -78,6 +96,10 @@ class BNGLogger:
     def error(self, msg, loc=None):
         if self.app is None:
             logger = self.get_logger(loc=loc)
+            if loc is not None:
+                msg = f"from: {loc} : {msg}"
+            elif self.loc is not None:
+                msg = f"from: {self.loc} : {msg}"
             logger.error(msg)
         else:
             self.app.log.error(msg, loc)
@@ -85,6 +107,10 @@ class BNGLogger:
     def critical(self, msg, loc=None):
         if self.app is None:
             logger = self.get_logger(loc=loc)
+            if loc is not None:
+                msg = f"from: {loc} : {msg}"
+            elif self.loc is not None:
+                msg = f"from: {self.loc} : {msg}"
             logger.critical(msg)
         else:
             self.app.log.critical(msg, loc)

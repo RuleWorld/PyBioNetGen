@@ -45,8 +45,9 @@ class Pattern:
             self.canonicalize()
 
     def canonicalize(self):
+        # set a location for logging
         loc = f"{__file__} : Pattern.canonicalize()"
-        # pynauty to canonicalize the labeling
+        # try importing pynauty to canonicalize the labeling
         try:
             import pynauty
         except ImportError:
@@ -55,27 +56,33 @@ class Pattern:
                 loc=loc,
             )
             return
-
+        # find how many vertices we need
         lmol = len(self.molecules)
         lcomp = sum([len(x.components) for x in self.molecules])
         node_cnt = lmol + lcomp
+        # initialize our pynauty graph
         G = pynauty.Graph(node_cnt)
         # going to need to figure out bonding
         bond_dict = {}
+        # save our IDs
         rev_grpIds = {}
         grpIds = {}
+        # also pointers to each object
         node_ptrs = {}
+        # we'll need to seutp coloring
         colors = {}
         currId = 0
-        # import ipdb;ipdb.set_trace()
         mCopyId = 0
         cCopyId = 0
+        # let's loop over everything in the pattern
         for molec in self.molecules:
+            # setting colors
             color_id = (molec.name, None, None)
             if color_id in colors:
                 colors[color_id].add(currId)
             else:
                 colors[color_id] = set([currId])
+            # saving IDs
             parent_id = (molec.name, None, mCopyId, cCopyId)
             if parent_id in grpIds:
                 mCopyId += 1
@@ -86,14 +93,18 @@ class Pattern:
             rev_grpIds[currId] = parent_id
             node_ptrs[currId] = molec
             currId += 1
+            # now looping over components
             for comp in molec.components:
+                # saving component coloring
                 comp_color_id = (molec.name, comp.name, comp.state)
                 if comp_color_id in colors:
                     colors[comp_color_id].add(currId)
                 else:
                     colors[comp_color_id] = set([currId])
                 chid_id = (molec.name, comp.name, mCopyId, cCopyId)
+                # connecting the component to the molecule
                 G.connect_vertex(grpIds[parent_id], [currId])
+                # saving component IDs
                 if chid_id in grpIds:
                     cCopyId += 1
                     chid_id = (molec.name, comp.name, mCopyId, cCopyId)
@@ -103,6 +114,7 @@ class Pattern:
                 rev_grpIds[currId] = chid_id
                 node_ptrs[currId] = comp
                 currId += 1
+                # saving bonds
                 if len(comp._bonds) != 0:
                     for bond in comp._bonds:
                         if bond not in bond_dict.keys():
@@ -111,32 +123,26 @@ class Pattern:
                             bond_dict[bond].append(chid_id)
         # now we got everything, we implement it in the graph
         for bond in bond_dict:
-            # if len(bond_dict[bond]) == 0:
-            #     print("no bonds, why was this added?")
-            # elif len(bond_dict[bond]) == 1:
-            #     print("dangling bonds")
-            #     print(bond_dict[bond][0])
+            # check if each of our bonds have exactly two end points
             if len(bond_dict[bond]) == 2:
-                # print("correct bonding")
                 id1 = bond_dict[bond][0]
                 id1 = grpIds[id1]
                 id2 = bond_dict[bond][1]
                 id2 = grpIds[id2]
                 G.connect_vertex(id1, [id2])
             else:
-                print("incorrect bonding")
+                # raise a warning
+                logger.warning(
+                    f"Bond {bond} doesn't have exactly 2 end points, please check that you don't have any dangling bonds.",
+                    loc=loc,
+                )
+        # we get our color sets
         color_sets = list(colors.values())
+        # set vertex coloring
         G.set_vertex_coloring(color_sets)
+        # save our graph
         self.nautyG = G
-        # canon_label = pynauty.canon_label(G)
-        # canon_dict = {}
-        # for i, canon_label in enumerate(canon_label):
-        #     canon_dict[rev_grpIds[canon_label]] = i
-        # # let's add the canonical labels
-        # for molec in self.molecules:
-        #     molec.canonical_label = canon_dict[(molec.name,None)]
-        #     for comp in molec.components:
-        #         comp.canonical_label = canon_dict[(molec.name,comp.name)]
+        # generate the canonical label for the entire graph
         self.canonical_certificate = pynauty.certificate(self.nautyG)
 
     def __contains__(self, val):
