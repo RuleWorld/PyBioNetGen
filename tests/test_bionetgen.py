@@ -1,5 +1,4 @@
 import os, glob
-from lxml import etree
 from pytest import raises
 import bionetgen as bng
 from bionetgen.main import BioNetGenTest
@@ -246,6 +245,33 @@ def test_network_parse():
     except:
         res = False
     assert res is True
+
+
+def test_pattern_reader():
+    patfile = os.path.join(tfold, "patterns.txt")
+    from bionetgen.modelapi.pattern_reader import BNGPatternReader
+
+    try:
+        with open(patfile, "r") as f:
+            patterns = f.readlines()
+            for pattern in patterns:
+                pat_obj = BNGPatternReader(pattern).pattern
+                reparsed_pat = BNGPatternReader(str(pat_obj)).pattern
+                if pat_obj != reparsed_pat:
+                    raise RuntimeError(
+                        f"Pattern can't be reparsed correctly, og: {pat_obj}, reparsed: {reparsed_pat}"
+                    )
+        res = True
+    except:
+        res = False
+    assert res is True
+
+
+# def test_pattern_canonicalization():
+#     # for now, if the platform is windows, just skip
+#     if os.name == "nt":
+#         assert True is True
+#     # otherwise we will test canonicalization
 
 
 # def test_graphdiff_matrix():

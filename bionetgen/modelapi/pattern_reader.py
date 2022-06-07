@@ -223,7 +223,9 @@ class BNGPatternReader:
                     split_components = self.parsers.components_parser.parseString(
                         parsed_val
                     )
-                    self.logger.debug(split_components, loc=log_loc)
+                    self.logger.debug(
+                        f"split components: {split_components}", loc=log_loc
+                    )
                     for component_str in split_components:
                         # each component is parsed separately now
                         parsed_component = self.parsers.component.parseString(
@@ -254,7 +256,9 @@ class BNGPatternReader:
                         # import IPython;IPython.embed()
                         # self._label = None
                         molecule.components.append(component)
-                        self.logger.debug(parsed_component, loc=log_loc)
+                        self.logger.debug(
+                            f"split components: {split_components}", loc=log_loc
+                        )
             self.logger.debug(
                 f"molecule parsed: {molecule}",
                 loc=log_loc,
