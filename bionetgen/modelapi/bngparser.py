@@ -93,6 +93,7 @@ class BNGParser:
         if len(self.bngfile.parsed_actions) > 0:
             ablock = ActionBlock()
             # we have actions in file, let's get them
+            # import ipdb;ipdb.set_trace()
             left = []
             for action in self.bngfile.parsed_actions:
                 # some cleanup, first we remove comments
@@ -158,6 +159,7 @@ class BNGParser:
                     arg_dict = {}
                     if len(action_list) == 0:
                         ablock.add_action(atype, arg_dict)
+                        continue
                     while len(action_list) > 0:
                         arg_name = action_list.pop(0)
                         connector = action_list.pop(0)
