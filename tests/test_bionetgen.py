@@ -267,11 +267,27 @@ def test_pattern_reader():
     assert res is True
 
 
-# def test_pattern_canonicalization():
-#     # for now, if the platform is windows, just skip
-#     if os.name == "nt":
-#         assert True is True
-#     # otherwise we will test canonicalization
+def test_pattern_canonicalization():
+    # for now, if the platform is windows, just skip
+    if os.name == "nt":
+        assert True is True
+    # otherwise we will test canonicalization
+    from bionetgen.modelapi.pattern_reader import BNGPatternReader
+
+    tests = {
+        ("A(a!1,a).A(a!1,a!2).A(a!2,a)", "A(a!1,a!3).A(a!1,a!2).A(a!2,a!3)", False),
+        ("A(a!1,a).A(a!1,a!2).A(a!2,a)", "A(a!2,a).A(a!2,a!1).A(a!1,a)", True),
+        ("A(a!1,a).A(a!1,a!2).A(a!2,a)", "A(a!1,a!2).A(a!1,a).A(a!2,a)", True),
+        ("A(a!1,a).A(a!1,a!2).A(a!2,a)", "A(a!2,a).A(a!1,a).A(a!1,a!2)", True),
+    }
+    res = True
+    for test in tests:
+        pat1 = BNGPatternReader(test[0]).pattern
+        pat2 = BNGPatternReader(test[1]).pattern
+        if not ((pat1 == pat2) is test[2]):
+            res = False
+            break
+    assert res is True
 
 
 # def test_graphdiff_matrix():
