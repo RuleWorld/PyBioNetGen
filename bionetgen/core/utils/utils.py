@@ -7,6 +7,40 @@ from bionetgen.core.utils.logging import BNGLogger
 
 
 class ActionList:
+    """
+    Class to store everything related to BioNetGen actions.
+    This class stores information about the list of BNG actions, their
+    arguments as well as their syntax information. The class also provides
+    an argument parser using pyparsing.
+
+    Usage: ActionList()
+
+    Attributes
+    ----------
+    normal_types : list
+
+    no_setter_syntax : list
+        actions without => syntax
+    square_braces : list
+        actions that use [] syntax in them
+    before_model : list
+        actions that are supposed to come before the model
+    possible_types : list
+        the list of all possible actions
+    arg_dict : dict
+        dictionary that contains every argument of every action
+    irregular_args : dict
+        actions that have arguments that aren't simply arg=>val
+
+    Methods
+    ---------
+    is_before_model : bool
+        checks if a given action is supposed to come before `begin model`
+    define_parser : None
+        sets ActionList.action_parser to a pyparsing parser that's capable of
+        splitting up any BNG action into parts
+    """
+
     def __init__(self):
         # these are all the action types, categorized
         # by their argument syntax
@@ -588,6 +622,14 @@ def test_bngexec(bngexec):
 
 
 def run_command(command, suppress=False, timeout=None):
+    """
+    A convenience function to run a given command. The command should be
+    given as a list of values e.g. ['command', 'arg1', 'arg2'] etc.
+
+    Suppress kwarg suppresses all output from the command and timeout kwarg
+    allows you to set a time period in seconds after which the command will
+    be killed.
+    """
     if timeout is not None:
         # I am unsure how to do both timeout and the live polling of stdo
         rc = subprocess.run(command, timeout=timeout, capture_output=True)
