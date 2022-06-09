@@ -20,6 +20,48 @@ fmter = colorlog.ColoredFormatter(
 
 
 class BNGLogger:
+    """
+    Logger class that handles all logging in PyBNG. This class
+    specifically tries to bridge the gap of using colorlog by
+    itself and Cement frameworks own logging system.
+
+    See [python logging](https://docs.python.org/3/howto/logging.html)
+    for more information how logging in python works in general.
+
+    Usage: BNGLogger()
+           BNGLogger(app=app, level="DEBUG")
+
+    Attributes
+    ----------
+    app : Cement App
+        if using the logger with Cement framework, this will be the
+        Cement app and each method will call app.log
+    loc : str
+        this attribute keeps track of the location string for better
+        error reporting. for cement app this will be passed directly
+        to app.log, for regular logging this will be parsed to get
+        the right logger
+    log_level : str
+        this attribute sets the logging level to output. Options are
+        the same as regular python logging, "DEBUG", "INFO", "WARNING",
+        "ERROR", "CRITICAL"
+
+    Methods
+    -------
+    get_logger : logger
+        this method returns the correct logger after parsing the loc string
+    debug : None
+        same as all python logging, writes a message at DEBUG level
+    info : None
+        same as all python logging, writes a message at INFO level
+    warning : None
+        same as all python logging, writes a message at WARNING level
+    error : None
+        same as all python logging, writes a message at ERROR level
+    critical : None
+        same as all python logging, writes a message at CRITICAL level
+    """
+
     def __init__(self, app=None, level="INFO", loc=None):
         self.app = app
         self.loc = loc
@@ -42,6 +84,12 @@ class BNGLogger:
             self.level = level
 
     def get_logger(self, loc=None):
+        """
+        From a given loc string returns the correct python
+        logger. Loc string should be of the form:
+
+        'FILE_PATH : MODULE.METHOD'
+        """
         if loc is None:
             if self.loc is None:
                 logger = colorlog.getLogger()
@@ -61,6 +109,9 @@ class BNGLogger:
         return logger
 
     def debug(self, msg, loc=None):
+        """
+        Debug level messages
+        """
         if self.app is None:
             logger = self.get_logger(loc=loc)
             if loc is not None:
@@ -72,6 +123,9 @@ class BNGLogger:
             self.app.log.debug(msg, loc)
 
     def info(self, msg, loc=None):
+        """
+        Info level messages
+        """
         if self.app is None:
             logger = self.get_logger(loc=loc)
             if loc is not None:
@@ -83,6 +137,9 @@ class BNGLogger:
             self.app.log.info(msg, loc)
 
     def warning(self, msg, loc=None):
+        """
+        Warning level messages
+        """
         if self.app is None:
             logger = self.get_logger(loc=loc)
             if loc is not None:
@@ -94,6 +151,9 @@ class BNGLogger:
             self.app.log.warning(msg, loc)
 
     def error(self, msg, loc=None):
+        """
+        Error level messages
+        """
         if self.app is None:
             logger = self.get_logger(loc=loc)
             if loc is not None:
@@ -105,6 +165,9 @@ class BNGLogger:
             self.app.log.error(msg, loc)
 
     def critical(self, msg, loc=None):
+        """
+        Critical level messages
+        """
         if self.app is None:
             logger = self.get_logger(loc=loc)
             if loc is not None:

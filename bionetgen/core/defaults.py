@@ -5,6 +5,9 @@ from .version import get_version
 
 
 def get_latest_bng_version():
+    """
+    Pulls the currently used BNG version from assets/BNGVERSION file
+    """
     # get the version tag for the BNG version used
     libpath = os.path.abspath(__file__)
     libpath = libpath.split(os.path.sep)
