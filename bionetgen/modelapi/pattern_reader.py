@@ -13,6 +13,40 @@ class BNGParsers:
 
 
 class BNGPatternReader:
+    """
+    Class that generates parsers to read BNG pattern strings and
+    form Pattern objects from them.
+
+    Usage: BNGPatternReader(pattern_string)
+
+    Arguments
+    ---------
+    pattern_str : str
+        The pattern string to read and generate a Pattern object from
+
+    Attributes
+    ----------
+    pattern : Pattern
+        The Pattern object formed from the parsed string
+    parsers : BNGParsers
+        Container object that has parsers for various parts of a
+        BNG pattern string
+
+    Methods
+    -------
+    define_parsers : None
+        runs other defined parser commands to setup all parsers
+    define_component_parser : None
+        defines pyparsing parser for components
+    define_molecule_parser : None
+        defines pyparsing parser for molecules
+    define_pattern_parser : None
+        defines pyparsing parser for overall patterns
+    make_pattern : Pattern
+        forms the actual Pattern object from the pattern string
+        using the defined parsers
+    """
+
     def __init__(self, pattern_str) -> None:
         self.logger = BNGLogger()
         self.pattern_str = pattern_str
@@ -26,6 +60,9 @@ class BNGPatternReader:
         self.define_pattern_parser()
 
     def define_component_parser(self):
+        """
+        Defines specific parsers for BNG components
+        """
         # bng names are alpha numericals and _1
         self.parsers.base_name = pp.Word(pp.alphas, pp.alphanums + "_")
         # components have optional states and bonds
@@ -51,6 +88,9 @@ class BNGPatternReader:
         )
 
     def define_molecule_parser(self):
+        """
+        Defines specific parsers for BNG molecules
+        """
         # molecules can have tags
         self.parsers.tag = pp.Combine(
             pp.Word("%") + (self.parsers.base_name ^ pp.Word(pp.nums))
@@ -82,6 +122,9 @@ class BNGPatternReader:
         )
 
     def define_pattern_parser(self):
+        """
+        Defines specific parsers for overall BNG patterns
+        """
         # a pattern can start with a tag or a compartment
         mods = pp.Word("$") ^ pp.Word("{MatchOnce}")
         # zero molecule is a simple 0
@@ -117,6 +160,10 @@ class BNGPatternReader:
         self.parsers.pattern = pattern ^ zeroMolecule
 
     def make_pattern(self, pattern_str):
+        """
+        Forms the Pattern object from the given string using the
+        parsed defined above.
+        """
         # if pattern_str == "X()":
         #     # import ipdb;ipdb.set_trace()
         #     import IPython,sys;IPython.embed();sys.exit()
