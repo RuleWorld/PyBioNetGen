@@ -30,7 +30,9 @@ for asset in assets:
         linux_url = browser_url
     elif "mac" in browser_url:
         mac_url = browser_url
-    elif "win" in browser_url and "tgz" in browser_url:
+    elif ("win" in browser_url and "tgz" in browser_url) or (
+        "win" in browser_url and "tar.gz" in browser_url
+    ):
         windows_url = browser_url
 
 # next download and place the appropriate files
