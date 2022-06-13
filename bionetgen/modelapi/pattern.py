@@ -41,6 +41,7 @@ class Pattern:
         self.quantity = None
         self.nautyG = None
         self.canonical_certificate = None
+        self.canonical_label = None
         if canonicalize:
             self.canonicalize()
 
@@ -69,6 +70,7 @@ class Pattern:
         grpIds = {}
         # also pointers to each object
         node_ptrs = {}
+        bond_node_ptrs = {}
         # we'll need to seutp coloring
         colors = {}
         currId = 0
@@ -142,8 +144,80 @@ class Pattern:
         G.set_vertex_coloring(color_sets)
         # save our graph
         self.nautyG = G
-        # generate the canonical label for the entire graph
+        # generate the canonical certificate for the entire graph
         self.canonical_certificate = pynauty.certificate(self.nautyG)
+        # generate the canonical label for the entire graph
+        # first, we give every node their canonical order
+        canon_order = pynauty.canon_label(self.nautyG)
+        for iordr, ordr in enumerate(canon_order):
+            node_ptrs[ordr].canonical_order = iordr
+        # relabeling bonds
+        relabeling_bond_dict = {}
+        for bond in bond_dict:
+            # check if each of our bonds have exactly two end points
+            if len(bond_dict[bond]) == 2:
+                id1 = bond_dict[bond][0]
+                id1 = grpIds[id1]
+                comp1 = node_ptrs[id1]
+                id2 = bond_dict[bond][1]
+                id2 = grpIds[id2]
+                comp2 = node_ptrs[id2]
+                parent_order = min(
+                    comp1.parent_molecule.canonical_order,
+                    comp2.parent_molecule.canonical_order,
+                )
+                comp_order = min(comp1.canonical_order, comp2.canonical_order)
+                relabeling_bond_dict[(parent_order, comp_order)] = (comp1, comp2)
+            else:
+                # raise a warning
+                logger.warning(
+                    f"Bond {bond} doesn't have exactly 2 end points, please check that you don't have any dangling bonds.",
+                    loc=loc,
+                )
+        # this will give us the keys to canonically sorted bonds
+        sorted_order = sorted(relabeling_bond_dict.keys())
+        for ibond, sbond in enumerate(sorted_order):
+            # now we add a canonical bond ID to each component
+            c1, c2 = relabeling_bond_dict[sbond]
+            if c1.canonical_bonds is None:
+                c1.canonical_bonds = [str(ibond + 1)]
+            else:
+                c1.canonical_bonds.append(str(ibond + 1))
+            if c2.canonical_bonds is None:
+                c2.canonical_bonds = [str(ibond + 1)]
+            else:
+                c2.canonical_bonds.append(str(ibond + 1))
+        # and now we can get the canonical label
+        self.canonical_label = self.print_canonical()
+
+    def print_canonical(self):
+        # need to make sure we don't print useless compartments
+        self.consolidate_molecule_compartments()
+        canon_label = ""
+        # we first deal with the pattern compartment
+        if self.compartment is not None:
+            canon_label += "@{}".format(self.compartment)
+        if self.label is not None:
+            canon_label += "%{}".format(self.label)
+        if self.label is not None or self.compartment is not None:
+            canon_label += ":"
+        # now loop over all molecules in canonical order
+        canon_ords = [m.canonical_order for m in self.molecules]
+        canon_ord_pairs = zip(range(len(self.molecules)), canon_ords)
+        sorted_canon_ord_pairs = sorted(canon_ord_pairs, key=lambda x: x[1])
+        for imol, mol in enumerate(sorted_canon_ord_pairs):
+            mol_id = mol[0]
+            if imol == 0:
+                if self.fixed:
+                    canon_label += "$"
+                if self.MatchOnce:
+                    canon_label += "{MatchOnce}"
+            if imol > 0:
+                canon_label += "."
+            canon_label += self.molecules[mol_id].print_canonical()
+        if self.relation is not None:
+            canon_label += f"{self.relation}{self.quantity}"
+        return canon_label
 
     def __contains__(self, val):
         return val in self.molecules
@@ -172,7 +246,19 @@ class Pattern:
                             f"relation or quantity matches: {other.relation}, {other.quantity}",
                             loc=loc,
                         )
-                        # we can try pynauty here
+                        # if we made the label, we can just compare the two
+                        if (self.canonical_label is not None) and (
+                            other.canonical_label is not None
+                        ):
+                            return self.canonical_label == other.canonical_label
+                        # now we can check contents
+                        for molecule in self:
+                            if molecule not in other.molecules:
+                                logger.debug(
+                                    f"molecule doesn't match: {molecule}", loc=loc
+                                )
+                                return False
+                        # isomorphism check if we have the certificate
                         if (self.canonical_certificate is not None) and (
                             other.canonical_certificate is not None
                         ):
@@ -181,14 +267,6 @@ class Pattern:
                                 != other.canonical_certificate
                             ):
                                 return False
-                        else:
-                            # now we can check contents
-                            for molecule in self:
-                                if molecule not in other.molecules:
-                                    logger.debug(
-                                        f"molecule doesn't match: {molecule}", loc=loc
-                                    )
-                                    return False
                         # TODO: molecules match, check bonds
                         # Bonds match, patterns are the same
                         logger.debug("patterns match!", loc=loc)
@@ -293,7 +371,9 @@ class Molecule:
         self._components = components
         self._compartment = compartment
         self._label = label
+        self.canonical_order = None
         self.canonical_label = None
+        self.parent_pattern = None
 
     def __contains__(self, val):
         return val in self.components
@@ -359,6 +439,33 @@ class Molecule:
         if self.label is not None:
             mol_str += "%{}".format(self.label)
         return mol_str
+
+    def print_canonical(self):
+        # print in canonical order
+        canon_label = self.name
+        # we have a null species
+        if not self.name == "0":
+            canon_label += "("
+        # we _could_ just not do () if components
+        # don't exist but that has other issues,
+        # especially for extension highlighting
+        if len(self.components) > 0:
+            canon_ords = [c.canonical_order for c in self.components]
+            canon_ord_pairs = zip(range(len(self.components)), canon_ords)
+            sorted_canon_ord_pairs = sorted(canon_ord_pairs, key=lambda x: x[1])
+            for icomp, comp in enumerate(sorted_canon_ord_pairs):
+                comp_id = comp[0]
+                if icomp > 0:
+                    canon_label += ","
+                canon_label += self.components[comp_id].print_canonical()
+        # we have a null species
+        if not self.name == "0":
+            canon_label += ")"
+        if self.compartment is not None:
+            canon_label += "@{}".format(self.compartment)
+        if self.label is not None:
+            canon_label += "%{}".format(self.label)
+        return canon_label
 
     ### PROPERTIES ###
     @property
@@ -449,10 +556,14 @@ class Component:
         self._states = []
         self._bonds = []
         self.canonical_label = None
+        self.canonical_order = None
+        self.canonical_bonds = None
+        self.parent_molecule = None
 
     def __eq__(self, other):
         loc = f"{__file__} : Component.__eq__()"
         # check type
+        # import ipdb;ipdb.set_trace()
         if isinstance(other, Component):
             logger.debug(f"Comparison class matches: {other.__class__}", loc=loc)
             # check attributes
@@ -502,6 +613,22 @@ class Component:
             comp_str += "%{}".format(self.label)
         if len(self.bonds) > 0:
             for bond in self.bonds:
+                comp_str += "!{}".format(bond)
+        return comp_str
+
+    def print_canonical(self):
+        comp_str = self.name
+        # only for molecule types
+        if len(self.states) > 0:
+            for istate, state in enumerate(self.states):
+                comp_str += "~{}".format(state)
+        # for any other pattern
+        if self.state is not None:
+            comp_str += "~{}".format(self.state)
+        if self.label is not None:
+            comp_str += "%{}".format(self.label)
+        if self.canonical_bonds is not None:
+            for bond in self.canonical_bonds:
                 comp_str += "!{}".format(bond)
         return comp_str
 
