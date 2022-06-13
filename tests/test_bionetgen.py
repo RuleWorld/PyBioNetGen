@@ -271,6 +271,12 @@ def test_pattern_canonicalization():
     # for now, if the platform is windows, just skip
     if os.name == "nt":
         assert True is True
+    # if pynauty is uninstalled, skip the test
+    try:
+        import pynauty
+    except ImportError:
+        assert True is True
+        return
     # otherwise we will test canonicalization
     from bionetgen.modelapi.pattern_reader import BNGPatternReader
 
