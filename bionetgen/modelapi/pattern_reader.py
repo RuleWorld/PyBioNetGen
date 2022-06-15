@@ -222,7 +222,9 @@ class BNGPatternReader:
                 continue
             elif parsed_val == "0":
                 # this is a zero molecule
-                pattern.molecules.append(Molecule(components=[]))
+                m = Molecule(components=[])
+                m.parent_pattern = pattern
+                pattern.molecules.append(m)
                 self.logger.debug(f"found zero molecule in {parsed_val}", loc=log_loc)
                 continue
             # only molecules should be remaining
@@ -238,6 +240,7 @@ class BNGPatternReader:
         self.logger.debug(f"molecules: {split_molecs}", loc=log_loc)
         for molec_str in split_molecs:
             molecule = Molecule(components=[])
+            molecule.parent = pattern
             # each molec str is a molecule string with all features
             parsed_molec = self.parsers.molecule.parseString(molec_str)
             self.logger.debug(f"parsed molecule: {parsed_molec}", loc=log_loc)
@@ -280,6 +283,7 @@ class BNGPatternReader:
                         )
 
                         component = Component()
+                        component.parent_molecule = molecule
                         # import ipdb;ipdb.set_trace()
                         for icomp, comp in enumerate(parsed_component):
                             if icomp == 0:
