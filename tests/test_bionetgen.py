@@ -280,19 +280,27 @@ def test_pattern_canonicalization():
     # otherwise we will test canonicalization
     from bionetgen.modelapi.pattern_reader import BNGPatternReader
 
-    tests = {
-        ("A(a!1,a).A(a!1,a!2).A(a!2,a)", "A(a!1,a!3).A(a!1,a!2).A(a!2,a!3)", False),
-        ("A(a!1,a).A(a!1,a!2).A(a!2,a)", "A(a!2,a).A(a!2,a!1).A(a!1,a)", True),
-        ("A(a!1,a).A(a!1,a!2).A(a!2,a)", "A(a!1,a!2).A(a!1,a).A(a!2,a)", True),
-        ("A(a!1,a).A(a!1,a!2).A(a!2,a)", "A(a!2,a).A(a!1,a).A(a!1,a!2)", True),
-    }
+    # the testing file
+    testfile = os.path.join(tfold, "canon_label_testing.txt")
+    with open(testfile, "r+") as f:
+        tests = f.readlines()
+    # loop over tests
     res = True
-    for test in tests:
-        pat1 = BNGPatternReader(test[0]).pattern
-        pat2 = BNGPatternReader(test[1]).pattern
-        if not ((pat1 == pat2) is test[2]):
+    for ipat, pat in enumerate(tests):
+        pat_splt = pat.split("    ")
+        pat1, pat2 = pat_splt[0], pat_splt[1]
+        try:
+            # read patterns
+            pat1_obj = BNGPatternReader(pat1).pattern
+            pat2_obj = BNGPatternReader(pat2).pattern
+            # compare them
+            if pat1_obj != pat2_obj:
+                res = False
+                break
+        except:
             res = False
             break
+    # assert that everything matched up
     assert res is True
 
 
