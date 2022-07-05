@@ -35,6 +35,8 @@ def sim_getter(model_file=None, model_str=None, sim_type="libRR"):
             model_file_obj.write(model_str)
             model_file = model_file_obj.name
             if sim_type == "libRR":
+                # need to go back to beginning of the file for this to work
+                model_file_obj.seek(0)
                 return libRRSimulator(model_file=model_file)
             elif sim_type == "cpy":
                 return CSimulator(model_file=model_file, generate_network=True)

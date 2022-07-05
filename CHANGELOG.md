@@ -213,3 +213,6 @@ Added a set of custom exceptions and replaced most errors raised with custom exc
 
 ## 0.7.5
 Fixed a bug where calling simulators with just the model string was failing. 
+
+## 0.7.6
+BNGResult representation didn't have spaces between model names. 

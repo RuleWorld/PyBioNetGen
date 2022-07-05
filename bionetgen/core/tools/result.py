@@ -66,15 +66,15 @@ class BNGResult:
     def __repr__(self) -> str:
         s = f"gdats from {len(self.gdats)} models: "
         for r in self.gdats.keys():
-            s += f"{r}"
+            s += f"{r} "
         if len(self.cdats) > 0:
             s += f"\ncdats from {len(self.cdats)} models: "
             for r in self.cdats.keys():
-                s += f"{r}"
+                s += f"{r} "
         if len(self.scans) > 0:
             s += f"\nscans from {len(self.scans)} models: "
             for r in self.scans.keys():
-                s += f"{r}"
+                s += f"{r} "
         return s
 
     def __getitem__(self, key):
