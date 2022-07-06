@@ -210,3 +210,9 @@ Added an experimental parser for `.net` files. Added simulator object that can u
 
 ## 0.7.4
 Added a set of custom exceptions and replaced most errors raised with custom exceptions for more descriptive errors. Added proper logging. Added a pattern reader and experimental canonicalization of pattern objects using PyNauty. This feature is not fully functional yet. 
+
+## 0.7.5
+Fixed a bug where calling simulators with just the model string was failing. 
+
+## 0.7.6
+BNGResult representation didn't have spaces between model names. 
