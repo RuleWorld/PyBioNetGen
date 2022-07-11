@@ -144,10 +144,13 @@ class BNGVisualize:
         model.actions.clear_actions()
         if self.vtype == "all":
             for valid_type in self.valid_types:
-                model.add_action("visualize", action_args={"type": f"'{valid_type}'"})
+                if valid_type == "regulatory":
+                    model.add_action("visualize", action_args={"type": f"'{valid_type}'","background": 1, "ruleNames": 1})
+                else:
+                    model.add_action("visualize", action_args={"type": f"'{valid_type}'"})
         else:
             if self.vtype == "atom_rule":
-                model.add_action("visualize", action_args={"type": f"'regulatory'"})
+                model.add_action("visualize", action_args={"type": f"'regulatory'","background": 1, "ruleNames": 1})
             else:
                 model.add_action("visualize", action_args={"type": f"'{self.vtype}'"})
         # TODO: Work in temp folder
