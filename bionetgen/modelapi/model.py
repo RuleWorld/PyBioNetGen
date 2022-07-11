@@ -1,8 +1,8 @@
-import copy
+import copy, tempfile, shutil
 
 from bionetgen.main import BioNetGen
 from bionetgen.core.exc import BNGModelError
-from tempfile import TemporaryFile
+
 from .bngparser import BNGParser
 from .blocks import (
     ActionBlock,
@@ -297,30 +297,32 @@ class bngmodel:
             self.actions.clear_actions()
             self.add_action("generate_network", {"overwrite": 1})
             self.add_action("writeSBML", {})
-            # temporary file
-            with TemporaryFile(mode="w+") as tpath:
+            # temporary folder instead to make it work
+            # with windows
+            try:
+                tmp_folder = tempfile.mkdtemp()
+                sbml_name = f"{self.model_name}_sbml.xml"
                 # write the sbml
-                if not (
-                    self.bngparser.bngfile.write_xml(
-                        tpath, xml_type="sbml", bngl_str=str(self)
-                    )
-                ):
-                    raise BNGModelError(
-                        self.model_path,
-                        message="SBML couldn't be generated for libRR simulator",
-                    )
-                # TODO: Only clear the writeSBML action
-                # by adding a mechanism to do so
+                with open(sbml_name, "w+") as f:
+                    if not (
+                        self.bngparser.bngfile.write_xml(
+                            f, xml_type="sbml", bngl_str=str(self)
+                        )
+                    ):
+                        raise BNGModelError(
+                            self.model_path,
+                            message="SBML couldn't be generated for libRR simulator",
+                        )
                 self.actions.clear_actions()
                 # get the simulator
                 import bionetgen as bng
 
-                self.simulator = bng.sim_getter(
-                    model_str=tpath.read(), sim_type=sim_type
-                )
+                self.simulator = bng.sim_getter(model_file=sbml_name, sim_type=sim_type)
                 # let's deal with observables here
                 selections = ["time"] + [obs for obs in self.observables]
                 self.simulator.simulator.timeCourseSelections = selections
+            finally:
+                shutil.rmtree(tmp_folder)
             self.actions = curr_actions
         elif sim_type == "cpy":
             # get the simulator
