@@ -185,9 +185,9 @@ class CSimulator(BNGSimulator):
         # for now run and write the .c file in the current folder
         bionetgen.run(self.model, out=os.path.abspath(os.getcwd()))
         # compile CPY file
-        c_file = f"{self.model.model_name}_cvode_py.c"
-        obj_file = f"{self.model.model_name}_cvode_py.o"
-        lib_file = f"{self.model.model_name}_cvode_py"
+        c_file = f'"{self.model.model_name}_cvode_py.c"'
+        obj_file = f'"{self.model.model_name}_cvode_py.o"'
+        lib_file = f'"{self.model.model_name}_cvode_py"'
         # compile objects with fPIC for the shared lib we'll link
         self.compiler.compile([c_file], extra_preargs=["-fPIC"])
         # now link cvode and nvecserial and make a shared lib
@@ -198,7 +198,7 @@ class CSimulator(BNGSimulator):
         self.cfile = os.path.abspath(c_file)
         self.obj_file = os.path.abspath(obj_file)
         # compiler tacks on the lib at the beginning and .so at the end
-        lib_file = f"lib{self.model.model_name}_cvode_py.so"
+        lib_file = f'"lib{self.model.model_name}_cvode_py.so"'
         self.lib_file = os.path.abspath(lib_file)
 
     @property

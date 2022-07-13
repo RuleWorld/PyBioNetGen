@@ -216,3 +216,6 @@ Fixed a bug where calling simulators with just the model string was failing.
 
 ## 0.7.6
 BNGResult representation didn't have spaces between model names. 
+
+## 0.7.7
+Defaults for regulatory visualization are changed. `setup_simulator` now uses `mkdtemp` to avoid issues with Windows temporary file system. 

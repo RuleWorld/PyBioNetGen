@@ -433,6 +433,7 @@ class ActionList:
             "level",
             "textonly",
             "opts",
+            "ruleNames",
         ]
         # no_setter_syntax
         self.arg_dict["setConcentration"] = []
