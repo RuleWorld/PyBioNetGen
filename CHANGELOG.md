@@ -219,3 +219,6 @@ BNGResult representation didn't have spaces between model names.
 
 ## 0.7.7
 Defaults for regulatory visualization are changed. `setup_simulator` now uses `mkdtemp` to avoid issues with Windows temporary file system. 
+
+## 0.7.8
+Bugfixes to various parts of cpy simulator code. cpy simulator now tries to identify independent parameters to pass to the c simulator and also returns the time points used for integration. 
