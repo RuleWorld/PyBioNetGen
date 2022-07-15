@@ -1,4 +1,4 @@
-import ctypes, os, tempfile, bionetgen
+import ctypes, os, tempfile, bionetgen, copy
 import numpy as np
 
 from distutils import ccompiler
@@ -127,7 +127,7 @@ class CSimWrapper:
         self.lib.free_result(ctypes.byref(self.result))
         del self.result
         # return named numpy arrays
-        return (obs_all, spcs_all)
+        return (timepoints, obs_all, spcs_all)
 
 
 class CSimulator(BNGSimulator):
@@ -154,9 +154,11 @@ class CSimulator(BNGSimulator):
             cd = os.getcwd()
             with tempfile.TemporaryDirectory() as tmpdirname:
                 os.chdir(tmpdirname)
-                self.model.write_model(f"{self.model.model_name}.bngl")
+                self.model.actions.clear_actions()
+                self.model.write_model(f"{self.model.model_name}_cpy.bngl")
                 self.model = bionetgen.bngmodel(
-                    f"{self.model.model_name}.bngl", generate_network=generate_network
+                    f"{self.model.model_name}_cpy.bngl",
+                    generate_network=generate_network,
                 )
             os.chdir(cd)
         else:
@@ -185,9 +187,9 @@ class CSimulator(BNGSimulator):
         # for now run and write the .c file in the current folder
         bionetgen.run(self.model, out=os.path.abspath(os.getcwd()))
         # compile CPY file
-        c_file = f'"{self.model.model_name}_cvode_py.c"'
-        obj_file = f'"{self.model.model_name}_cvode_py.o"'
-        lib_file = f'"{self.model.model_name}_cvode_py"'
+        c_file = f"{self.model.model_name}_cvode_py.c"
+        obj_file = f"{self.model.model_name}_cvode_py.o"
+        lib_file = f"{self.model.model_name}_cvode_py"
         # compile objects with fPIC for the shared lib we'll link
         self.compiler.compile([c_file], extra_preargs=["-fPIC"])
         # now link cvode and nvecserial and make a shared lib
@@ -198,7 +200,7 @@ class CSimulator(BNGSimulator):
         self.cfile = os.path.abspath(c_file)
         self.obj_file = os.path.abspath(obj_file)
         # compiler tacks on the lib at the beginning and .so at the end
-        lib_file = f'"lib{self.model.model_name}_cvode_py.so"'
+        lib_file = f"lib{self.model.model_name}_cvode_py.so"
         self.lib_file = os.path.abspath(lib_file)
 
     @property
@@ -215,11 +217,17 @@ class CSimulator(BNGSimulator):
     def simulator(self, lib_file):
         # use CSimWrapper under the hood
         try:
-            n_param = len(
-                list(
-                    filter(lambda x: not x.startswith("_"), list(self.model.parameters))
-                )
-            )
+            valid_params = []
+            for pname in self.model.parameters:
+                if pname.startswith("_"):
+                    continue
+                val = self.model.parameters[pname]
+                try:
+                    ftry = float(val.expr)
+                    valid_params.append(ftry)
+                except:
+                    pass
+            n_param = len(valid_params)
             self._simulator = CSimWrapper(
                 os.path.abspath(lib_file),
                 num_params=n_param,
@@ -240,10 +248,21 @@ class CSimulator(BNGSimulator):
                 count = float(self.model.parameters[p_name].value)
                 spcs.append(count)
         self.simulator.set_species_init(spcs)
-        params = list(filter(lambda x: not x.startswith("_"), self.model.parameters))
-        params = [float(self.model.parameters[p].value) for p in params]
+        params = []
+        for pname in self.model.parameters:
+            if pname.startswith("_"):
+                continue
+            try:
+                val = self.model.parameters[pname]
+                ftry = float(val.expr)
+                params.append(ftry)
+            except:
+                pass
+
+        # params = list(filter(lambda x: not x.startswith("_"), self.model.parameters))
+        # params = [float(self.model.parameters[p].value) for p in params]
         self.simulator.set_parameters(params)
         # now that we have CSimWrapper setup correctly, run the simulation
-        obs_all, spcs_all = self.simulator.simulate(t_start, t_end, n_steps)
+        timepoints, obs_all, spcs_all = self.simulator.simulate(t_start, t_end, n_steps)
         # return our results
-        return (obs_all, spcs_all)
+        return (timepoints, obs_all, spcs_all)
