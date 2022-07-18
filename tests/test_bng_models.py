@@ -117,3 +117,15 @@ def test_model_running_lib():
     print("fail: {}".format(fails))
     print(sorted(fail))
     assert fails == 0
+
+
+def test_setup_simulator():
+    fpath = os.path.join(tfold, "test.bngl")
+    fpath = os.path.abspath(fpath)
+    try:
+        m = bng.bngmodel(fpath)
+        librr_simulator = m.setup_simulator()
+        res = librr_simulator.simulate(0, 1, 10)
+    except:
+        res = None
+    assert res is not None
