@@ -222,3 +222,6 @@ Defaults for regulatory visualization are changed. `setup_simulator` now uses `m
 
 ## 0.7.8
 Bugfixes to various parts of cpy simulator code. cpy simulator now tries to identify independent parameters to pass to the c simulator and also returns the time points used for integration. 
+
+## 0.7.9 
+Behavior change, now most calls to `BNG2.pl` won't result in verbose output, the default has changed to suppress output. The only call that retains the output is a command line call to the subcommand `run`. 

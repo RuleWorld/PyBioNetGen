@@ -64,7 +64,9 @@ class bngmodel:
         type of simulator is libRR for libRoadRunner simulator.
     """
 
-    def __init__(self, bngl_model, BNGPATH=def_bng_path, generate_network=False):
+    def __init__(
+        self, bngl_model, BNGPATH=def_bng_path, generate_network=False, suppress=True
+    ):
         self.active_blocks = []
         # We want blocks to be printed in the same order every time
         self.block_order = [
@@ -81,7 +83,9 @@ class bngmodel:
         ]
         self.model_name = ""
         self.model_path = bngl_model
-        self.bngparser = BNGParser(bngl_model, generate_network=generate_network)
+        self.bngparser = BNGParser(
+            bngl_model, generate_network=generate_network, suppress=True
+        )
         self.bngparser.parse_model(self)
         for block in self.block_order:
             if block not in self.active_blocks:

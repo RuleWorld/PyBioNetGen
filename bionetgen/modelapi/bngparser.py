@@ -40,10 +40,15 @@ class BNGParser:
     """
 
     def __init__(
-        self, path, BNGPATH=def_bng_path, parse_actions=True, generate_network=False
+        self,
+        path,
+        BNGPATH=def_bng_path,
+        parse_actions=True,
+        generate_network=False,
+        suppress=True,
     ) -> None:
         self.to_parse_actions = parse_actions
-        self.bngfile = BNGFile(path, generate_network=generate_network)
+        self.bngfile = BNGFile(path, generate_network=generate_network, suppress=True)
         self.alist = ActionList()
         self.alist.define_parser()
 
