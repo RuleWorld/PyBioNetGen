@@ -31,7 +31,7 @@ def test_bionetgen_input():
         assert file_list.sort() == to_match.sort()
 
 
-def test_plot():
+def test_bionetgen_plot():
     argv = [
         "plot",
         "-i",
