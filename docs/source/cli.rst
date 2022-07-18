@@ -56,6 +56,28 @@ Resulting plots should look similar to this:
 
 .. image:: ./assets/SIR.png
 
+Visualize
+=========
+This subcommand creates .graphml files to be used by an external graph editor (`yEd <https://www.yworks.com/products/yed>`_)
+for model visualization, including contact maps.
+
+.. code-block:: shell
+   
+   bionetgen visualize -i mymodel.bngl -o output_folder
+
+You can see all the available options by running :code:`bionetgen visualize -h` 
+
+.. code-block:: shell
+
+   optional arguments:
+      -h, --help            show this help message and exit
+   -i INPUT, --input INPUT
+                           Path to BNGL model to visualize
+   -o OUTPUT, --output OUTPUT
+                           (optional) Output folder, defaults to current folder
+   -t TYPE, --type TYPE  (optional) Type of visualization requested. Valid options are: 'ruleviz_pattern','ruleviz_operation', 'contactmap', 'regulatory' and
+                           'atom_rule'. Regulatory and atom rule graphs are the same thing, defaults to 'contactmap'.
+
 Notebook
 ========
 
@@ -72,9 +94,14 @@ Info
 
 This subcommand simply prints out information about software versions and installation paths.
 
-.. code-block: shell
+.. code-block:: shell
 
    bionetgen info
+
+Atomize
+=======
+
+The CLI includes one more subcommand, :code:`atomize`, which is detailed further in :ref:`atomizer`.
 
 Tutorial
 ========

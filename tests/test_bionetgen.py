@@ -31,7 +31,7 @@ def test_bionetgen_input():
         assert file_list.sort() == to_match.sort()
 
 
-def test_plot():
+def test_bionetgen_plot():
     argv = [
         "plot",
         "-i",
@@ -302,6 +302,18 @@ def test_pattern_canonicalization():
             break
     # assert that everything matched up
     assert res is True
+
+
+def test_setup_simulator():
+    fpath = os.path.join(tfold, "test.bngl")
+    fpath = os.path.abspath(fpath)
+    try:
+        m = bng.bngmodel(fpath)
+        librr_simulator = m.setup_simulator()
+        res = librr_simulator.simulate(0, 1, 10)
+    except:
+        res = None
+    assert res is not None
 
 
 # def test_graphdiff_matrix():
