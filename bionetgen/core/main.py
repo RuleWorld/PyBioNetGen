@@ -1,4 +1,4 @@
-import subprocess, os
+import subprocess, os, sys
 from bionetgen.core.tools import BNGInfo
 from bionetgen.core.tools import BNGVisualize
 from bionetgen.core.tools import BNGCLI
@@ -6,12 +6,7 @@ from bionetgen.core.tools import BNGGdiff
 from bionetgen.core.notebook import BNGNotebook
 from bionetgen.core.utils.utils import run_command
 
-import os, sys
 
-
-# TODO Consolidate how config is being accessed. It's
-# almost like each function accesses the configs from
-# a different path
 def runCLI(app):
     """
     Convenience function to run BNG2.pl from the CLI app

@@ -598,7 +598,7 @@ def test_perl(app=None, perl_path=None):
         raise BNGPerlError
     # check if perl is actually working
     command = [perl_path, "-v"]
-    rc, _ = run_command(command, suppress=True)
+    rc, _ = run_command(command)
     if rc != 0:
         raise BNGPerlError
 
@@ -615,14 +615,14 @@ def test_bngexec(bngexec):
         path to BNG2.pl to test
     """
     command = ["perl", bngexec]
-    rc, _ = run_command(command, suppress=True)
+    rc, _ = run_command(command)
     if rc == 0:
         return True
     else:
         return False
 
 
-def run_command(command, suppress=False, timeout=None):
+def run_command(command, suppress=True, timeout=None):
     """
     A convenience function to run a given command. The command should be
     given as a list of values e.g. ['command', 'arg1', 'arg2'] etc.

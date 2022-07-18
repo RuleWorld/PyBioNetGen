@@ -41,9 +41,12 @@ class BNGFile:
         given a bngl file or a string, writes an SBML or BNG-XML from it
     """
 
-    def __init__(self, path, BNGPATH=def_bng_path, generate_network=False) -> None:
+    def __init__(
+        self, path, BNGPATH=def_bng_path, generate_network=False, suppress=True
+    ) -> None:
         self.path = path
         self.generate_network = generate_network
+        self.suppress = suppress
         AList = ActionList()
         self._action_list = [i + "(" for i in AList.possible_types]
         BNGPATH, bngexec = find_BNG_path(BNGPATH)
@@ -66,7 +69,9 @@ class BNGFile:
             # run with --xml
             os.chdir(temp_folder)
             # TODO: take stdout option from app instead
-            rc, _ = run_command(["perl", self.bngexec, "--xml", stripped_bngl])
+            rc, _ = run_command(
+                ["perl", self.bngexec, "--xml", stripped_bngl], suppress=self.suppress
+            )
             if rc == 1:
                 # if we fail, print out what we have to
                 # let the user know what BNG2.pl says
@@ -172,7 +177,9 @@ class BNGFile:
             # run with --xml
             # TODO: Make output supression an option somewhere
             if xml_type == "bngxml":
-                rc, _ = run_command(["perl", self.bngexec, "--xml", "temp.bngl"])
+                rc, _ = run_command(
+                    ["perl", self.bngexec, "--xml", "temp.bngl"], suppress=self.suppress
+                )
                 if rc == 1:
                     print("XML generation failed")
                     # go back to our original location
@@ -189,7 +196,7 @@ class BNGFile:
                     return True
             elif xml_type == "sbml":
                 command = ["perl", self.bngexec, "temp.bngl"]
-                rc, _ = run_command(command)
+                rc, _ = run_command(command, suppress=self.suppress)
                 if rc == 1:
                     print("SBML generation failed")
                     # go back to our original location
