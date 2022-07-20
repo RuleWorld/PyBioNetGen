@@ -30,7 +30,7 @@ class BNGParser:
     ----------
     bngfile : BNGFile
         BNGFile object that's responsible for .bngl file manipulations
-    parse_actions : bool
+    to_parse_actions : bool
         whether to parse the actions in a BNGL file or not
     alist : ActionList
         action list object that is used to deal with all things related to actions
@@ -51,7 +51,7 @@ class BNGParser:
         generate_network=False,
         suppress=True,
     ) -> None:
-        self.parse_actions = parse_actions
+        self.to_parse_actions = parse_actions
         self.bngfile = BNGFile(path, generate_network=generate_network, suppress=True)
         self.alist = ActionList()
         self.alist.define_parser()
@@ -62,7 +62,7 @@ class BNGParser:
         parser
         """
         self._parse_model_bngpl(model_obj)
-        if self.parse_actions:
+        if self.to_parse_actions:
             self.parse_actions(model_obj)
 
     def _parse_model_bngpl(self, model_obj) -> None:

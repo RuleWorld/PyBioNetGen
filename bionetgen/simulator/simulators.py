@@ -19,8 +19,8 @@ def sim_getter(model_file=None, model_str=None, sim_type="libRR"):
         string instead.
     sim_type : str, optional
         The name of the type of simulator object to get. At the moment only
-        libRoadRunner type simulators are allowed. This will get updated
-        as differenty types of simulators are added.
+        libRoadRunner and CPY type simulators are allowed, allowed values are
+        "libRR" and "cpy".
 
     Returns
     -------
