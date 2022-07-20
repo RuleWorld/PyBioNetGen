@@ -19,6 +19,11 @@ class ModelBlock:
     """
     Base block object that will be used for each block in the model.
 
+    These objects will implement the following python internal functions
+    to make them feel more natural in a python environment:
+        __str__, __repr__, __len__, __getitem__, __setitem__,
+        __delitem__, __iter__, __contains__
+
     Attributes
     ----------
     name : str

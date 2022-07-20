@@ -1,4 +1,4 @@
-import ctypes, os, tempfile, bionetgen, copy
+import ctypes, os, tempfile, bionetgen
 import numpy as np
 
 from distutils import ccompiler

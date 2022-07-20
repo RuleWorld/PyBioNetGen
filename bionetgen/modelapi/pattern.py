@@ -5,7 +5,7 @@ logger = BNGLogger()
 # All classes that deal with patterns
 class Pattern:
     """
-    Pattern object. Fundamentally it's just a list of molecules
+    Pattern object. Fundamentally it's a list of molecules
     which are defined later.
 
     Attributes
@@ -26,6 +26,34 @@ class Pattern:
         pattern string
     MatchOnce : bool
         used for matchOnce syntax, "{MatchOnce}PatternStr"
+    relation : str
+        alongside quantity this is only used for patterns of the form
+        e.g. pattern==5, pattern<=3 etc
+    quantity : str
+        alongside relation this is only used for patterns of the form
+        e.g. pattern==5, pattern<=3 etc
+    nautyG : Graph
+        if canonicalization was done on the pattern this will return a graph
+        object from the library `pynauty` which is just python bindings to the
+        canonical labelling library `nauty`.
+    canonical_certificate : str
+        if canonicalization was done on the pattern this will return a
+        string that has the canonical labelling for the underlying graph.
+        this doesn't take into account node names so it can only be used to
+        compare the graph topology
+    canonical_label : str
+        if canonicalization was done on the pattern this will return a canonical
+        label for the entire molecule that's unique and all isomorphic patterns will
+        have the same label. comparing this label to another molecules canonical label
+        will tell you if they are the same molecule or not.
+
+    Methods
+    -------
+    canonicalize : None
+        This method will generate a canonical label stored in `canonical_label` attribute.
+        This label can be used to compare patterns to see if they are the same pattern quickly.
+        This method will only run if `pynauty` is installed. See [nauty documentation](https://users.cecs.anu.edu.au/~bdm/nauty/)
+        for more information
     """
 
     def __init__(
@@ -46,6 +74,10 @@ class Pattern:
             self.canonicalize()
 
     def canonicalize(self):
+        """
+        This method will use `pynauty` library to generate a canonical label
+        for the pattern. This pattern will be stored in `canonical_label` attribute.
+        """
         # set a location for logging
         loc = f"{__file__} : Pattern.canonicalize()"
         # try importing pynauty to canonicalize the labeling

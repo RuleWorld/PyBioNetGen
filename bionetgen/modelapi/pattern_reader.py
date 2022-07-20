@@ -17,7 +17,7 @@ class BNGPatternReader:
     Class that generates parsers to read BNG pattern strings and
     form Pattern objects from them.
 
-    Usage: BNGPatternReader(pattern_string)
+    Usage: BNGPatternReader(pattern_str)
 
     Arguments
     ---------

@@ -42,9 +42,11 @@ class bngmodel:
         BNGParser object that's responsible for .bngl file reading and model setup
     model_name : str
         name of the model, generally set from the given BNGL file
+    model_path : str
+        path to the model file initially given
     recompile : bool
         a tag to keep track if any changes have been made to the model
-        via the XML API by the user
+        via the XML API by the user that requires model recompilation
     changes : dict
         a list of changes the user have made to the model
 
@@ -62,6 +64,12 @@ class bngmodel:
     setup_simulator(sim_type)
         sets up a simulator in bngmodel.simulator where the only current supported
         type of simulator is libRR for libRoadRunner simulator.
+    add_block(BlockObject)
+        adds a given block object (e.g. ParametersBlock) to the model
+    add_empty_block(block_type)
+        adds an empty block of type block_type to the model where block_type can be one of: "parameters",
+        "compartments", "molecule_types", "species", "observables", "functions", "energy_patterns",
+        "population_maps", "rules", "reaction_rules", "actions".
     """
 
     def __init__(
@@ -69,7 +77,7 @@ class bngmodel:
     ):
         self.active_blocks = []
         # We want blocks to be printed in the same order every time
-        self.block_order = [
+        self._block_order = [
             "parameters",
             "compartments",
             "molecule_types",
@@ -87,7 +95,7 @@ class bngmodel:
             bngl_model, generate_network=generate_network, suppress=True
         )
         self.bngparser.parse_model(self)
-        for block in self.block_order:
+        for block in self._block_order:
             if block not in self.active_blocks:
                 self.add_empty_block(block)
         # Check to see if there are no active blocks
@@ -123,7 +131,7 @@ class bngmodel:
                 for baction in ablock.before_model:
                     model_str += str(baction) + "\n"
         model_str += "begin model\n"
-        for block in self.block_order:
+        for block in self._block_order:
             # ensure we didn't get new items into a
             # previously inactive block, if we did
             # add them to the active blocks
@@ -150,7 +158,7 @@ class bngmodel:
 
     def __iter__(self):
         active_ordered_blocks = [
-            getattr(self, i) for i in self.block_order if i in self.active_blocks
+            getattr(self, i) for i in self._block_order if i in self.active_blocks
         ]
         return active_ordered_blocks.__iter__()
 

@@ -1,6 +1,6 @@
 from .bngsimulator import BNGSimulator
 
-# TODO: Unified API for all simulator objects here
+
 class libRRSimulator(BNGSimulator):
     """
     libRoadRunner simulator wrapper

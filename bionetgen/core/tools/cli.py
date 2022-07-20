@@ -143,15 +143,6 @@ class BNGCLI:
             self.logger.debug("Writing log file", loc=f"{__file__} : BNGCLI.run()")
             with open(full_log_path, "w") as f:
                 f.write("\n".join(out))
-
-        # if self.is_bngmodel:
-        #     os.remove(tfile.name)
-        # write out stdout/err if they exist
-        # TODO Maybe indicate that we are printing out stdout/stderr before printing
-        # if rc.stdout is not None:
-        #     print(rc.stdout.decode('utf-8'))
-        # if rc.stderr is not None:
-        #     print(rc.stderr.decode('utf-8'))
         if rc == 0:
             self.logger.debug(
                 "Command ran successfully", loc=f"{__file__} : BNGCLI.run()"

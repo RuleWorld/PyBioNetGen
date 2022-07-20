@@ -1,6 +1,5 @@
-import os
+import os, subprocess
 from bionetgen.core.exc import BNGPerlError
-import subprocess
 from distutils import spawn
 
 from bionetgen.core.utils.logging import BNGLogger

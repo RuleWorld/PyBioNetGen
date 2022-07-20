@@ -1,4 +1,3 @@
-import bionetgen as bng
 import os, re
 
 from bionetgen.main import BioNetGen

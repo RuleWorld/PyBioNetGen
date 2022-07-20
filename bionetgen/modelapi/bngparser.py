@@ -30,10 +30,14 @@ class BNGParser:
     ----------
     bngfile : BNGFile
         BNGFile object that's responsible for .bngl file manipulations
+    parse_actions : bool
+        whether to parse the actions in a BNGL file or not
+    alist : ActionList
+        action list object that is used to deal with all things related to actions
 
     Methods
     -------
-    parse_model(model_file)
+    parse_model(model_obj)
         parses the BNGL model at the given path and adds everything to a given model object
     parse_xml(xml_str)
         parses given xml string and adds everything to a given model object
@@ -47,7 +51,7 @@ class BNGParser:
         generate_network=False,
         suppress=True,
     ) -> None:
-        self.to_parse_actions = parse_actions
+        self.parse_actions = parse_actions
         self.bngfile = BNGFile(path, generate_network=generate_network, suppress=True)
         self.alist = ActionList()
         self.alist.define_parser()
@@ -58,10 +62,14 @@ class BNGParser:
         parser
         """
         self._parse_model_bngpl(model_obj)
-        if self.to_parse_actions:
+        if self.parse_actions:
             self.parse_actions(model_obj)
 
     def _parse_model_bngpl(self, model_obj) -> None:
+        """
+        Uses BNG2.pl to generate the BNG-XML file and passes that
+        to parse_xml method to fill up the model object appropriately
+        """
         # get file path
         model_file = self.bngfile.path
 
@@ -95,6 +103,10 @@ class BNGParser:
             )
 
     def parse_actions(self, model_obj):
+        """
+        Uses ActionList object to parse actions and turn them into
+        action objects and fill up the ActionsBlock with them.
+        """
         if len(self.bngfile.parsed_actions) > 0:
             ablock = ActionBlock()
             # we have actions in file, let's get them
@@ -238,6 +250,12 @@ class BNGParser:
             model_obj.add_block(ablock)
 
     def parse_xml(self, xml_str, model_obj) -> None:
+        """
+        The main parsing method that parses the contents of a dictionary
+        created from the BNG-XML file using `xmltodict` library. This method
+        will use XML parser objects to generate each block to attach to the
+        model object
+        """
         xml_dict = xmltodict.parse(xml_str)
         # catch non-BNG XML files
         if "sbml" not in xml_dict:
