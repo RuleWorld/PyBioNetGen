@@ -803,6 +803,7 @@ def analyzeFile(
         f.write(returnArray.finalString)
     # with open('{0}.dict'.format(outputFile), 'wb') as f:
     #    pickle.dump(returnArray[-1], f)
+    model = returnArray.model
     if atomize and onlySynDec:
         returnArray = list(returnArray)
         # returnArray.translator = -1
@@ -811,7 +812,7 @@ def analyzeFile(
             list(returnArray[0:-3])
             + [database]
             + [returnArray[-1]]
-            + [returnArray.model]
+            + [model]
         )
     )
     return returnArray
