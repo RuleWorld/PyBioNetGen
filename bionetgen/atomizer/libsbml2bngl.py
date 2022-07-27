@@ -808,12 +808,7 @@ def analyzeFile(
         returnArray = list(returnArray)
         # returnArray.translator = -1
     returnArray = AnalysisResults(
-        *(
-            list(returnArray[0:-3])
-            + [database]
-            + [returnArray[-1]]
-            + [model]
-        )
+        *(list(returnArray[0:-3]) + [database] + [returnArray[-1]] + [model])
     )
     return returnArray
 
