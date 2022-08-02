@@ -631,9 +631,19 @@ def run_command(command, suppress=True, timeout=None):
     be killed.
     """
     if timeout is not None:
-        # I am unsure how to do both timeout and the live polling of stdo
-        rc = subprocess.run(command, timeout=timeout, capture_output=True)
-        return rc.returncode, rc
+        if suppress:
+            # I am unsure how to do both timeout and the live polling of stdo
+            rc = subprocess.run(
+                command,
+                timeout=timeout,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return rc.returncode, rc
+        else:
+            # I am unsure how to do both timeout and the live polling of stdo
+            rc = subprocess.run(command, timeout=timeout, capture_output=True)
+            return rc.returncode, rc
     else:
         if suppress:
             process = subprocess.Popen(
