@@ -1,6 +1,4 @@
 import re, pyparsing, sympy, json
-from typing import Reversible
-from telnetlib import IP
 from bionetgen.atomizer.utils.util import logMess
 from bionetgen.atomizer.writer.bnglWriter import rindex
 
@@ -1503,6 +1501,7 @@ class bngModel:
             return
         if len(self.compartments) == 0:
             return
+        # import ipdb;ipdb.set_trace()
         for rule_name in self.rules:
             rule = self.rules[rule_name]
             # if rule.raw_splt:
@@ -1521,13 +1520,13 @@ class bngModel:
                             #     break
                             if spec_name in frate.definition:
                                 # means we got a volume to divide by
-                                # TODO: Wtf happens if this has multiple species?
+                                # TODO: Wtf happens if this has multiple species
                                 sp = self.species[spec_name]
                                 comp = self.compartments[sp.compartment]
                                 vol = comp.size
-                                frate.definition = frate.definition.replace(
-                                    spec_name, f"({spec_name}/{vol})"
-                                )
+                                sub_from = r"(\W|^)({0})(\W|$)".format(spec_name)
+                                sub_to = r"\g<1>({0}/{1})\g<3>".format(spec_name, vol)
+                                frate.definition = re.sub(sub_from,sub_to,frate.definition)
                                 # frate.volume_adjusted = True
                                 # break
                                 corrected = True

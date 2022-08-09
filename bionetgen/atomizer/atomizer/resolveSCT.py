@@ -83,6 +83,11 @@ class SCTSolver:
                 list(atoAux.parseReactions(reaction)),
                 classification,
             )
+
+        # let's store each step separately for analysis downstream
+        self.database.scts = {}
+        self.database.scts["01_binding_sct"] = deepcopy(self.database.dependencyGraph)
+        
         # lexical dependency graph contains lexically induced binding compositions. atomizer gives preference to binding obtained this way as opposed to stoichiometry
         # stronger bounds on stoichiometry based binding can be defined in
         # reactionDefinitions.json.
@@ -139,6 +144,9 @@ class SCTSolver:
                     # to indicate it is given less priority
                     self.database.dependencyGraph[molecule] = []
 
+        # let's store each step separately for analysis downstream
+        self.database.scts["02_post_lexical_sct"] = deepcopy(self.database.dependencyGraph)
+
         # user defined transformations
         for key in userEquivalenceTranslator:
             for namingEquivalence in userEquivalenceTranslator[key]:
@@ -149,6 +157,9 @@ class SCTSolver:
                 atoAux.addToDependencyGraph(
                     self.database.dependencyGraph, modElement, [baseElement]
                 )
+
+        # let's store each step separately for analysis downstream
+        self.database.scts["03_post_user_sct"] = deepcopy(self.database.dependencyGraph)
 
         # self.database.eequivalence translator contains 1:1 equivalences
         # FIXME: do we need this update step or is it enough with the later one?
@@ -204,6 +215,9 @@ class SCTSolver:
                     self.database.dependencyGraph[
                         self.database.userLabelDictionary[element][0][0]
                     ] = []
+
+        # let's store each step separately for analysis downstream
+        self.database.scts["04_post_label_sct"] = deepcopy(self.database.dependencyGraph)
 
         # add species elements defined by the user into the naming convention
         # definition
@@ -339,6 +353,9 @@ class SCTSolver:
                             ),
                         )
 
+        # let's store each step separately for analysis downstream
+        self.database.scts["05_post_lex_catalysis_sct"] = deepcopy(self.database.dependencyGraph)
+
         # non lexical-analysis catalysis reactions
         if self.database.forceModificationFlag:
             for reaction, classification in zip(rules, self.database.classifications):
@@ -441,6 +458,9 @@ class SCTSolver:
                                     continue
                         self.database.dependencyGraph[mod] = [[base]]
 
+        # let's store each step separately for analysis downstream
+        self.database.scts["06_post_nonlex_catalysis_sct"] = deepcopy(self.database.dependencyGraph)
+
         """
         #complex catalysis reactions
         for key in indirectEquivalenceTranslator:
@@ -511,6 +531,9 @@ class SCTSolver:
                     list(self.database.lexicalLabelDictionary[element][0])
                 ]
 
+        # let's store each step separately for analysis downstream
+        self.database.scts["07_post_similarity_sct"] = deepcopy(self.database.dependencyGraph)
+
         # Now let's go for annotation analysis and last resort stuff on the remaining orphaned molecules
         orphanedSpecies = [
             x
@@ -559,6 +582,9 @@ class SCTSolver:
                         atoAux.addToDependencyGraph(
                             self.database.dependencyGraph, element, []
                         )
+
+        # let's store each step separately for analysis downstream
+        self.database.scts["08_post_annotation_sct"] = deepcopy(self.database.dependencyGraph)
 
         # can we now add information to the non orphaned species? maybe annotation tells me stuff that contradicts the reaction-network
         nonOrphanedSpecies = [x for x in strippedMolecules if x not in orphanedSpecies]
@@ -619,6 +645,9 @@ class SCTSolver:
                             self.database.dependencyGraph, instance[0], []
                         )
 
+        # let's store each step separately for analysis downstream
+        self.database.scts["09_post_tiebreaker_sct"] = deepcopy(self.database.dependencyGraph)
+
         orphanedSpecies = [
             x
             for x in strippedMolecules
@@ -650,6 +679,13 @@ class SCTSolver:
                         reactant, greedyMatch
                     ),
                 )
+        # let's store each step separately for analysis downstream
+        self.database.scts["10_post_greedy_lex_sct"] = deepcopy(self.database.dependencyGraph)
+
+        # for key in self.database.scts:
+        #     print(key)
+        #     print(self.database.scts[key])
+
         if len(self.database.constructedSpecies) > 0:
             logMess(
                 "INFO:SCT031",

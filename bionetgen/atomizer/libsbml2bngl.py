@@ -619,7 +619,6 @@ def postAnalyzeFile(
     Performs a postcreation file analysis based on context information
     """
     # print('Transforming generated BNG file to BNG-XML representation for analysis')
-
     postAnalysisHelper(outputFile, bngLocation, database)
 
     # recreate file using information from the post analysis
@@ -1419,6 +1418,10 @@ def analyzeHelper(
     for iobs, obs_str in enumerate(observables):
         oname = obs_str.split()[2]
         comp = None
+        # we can have multiple patterns and/or molecules, if so
+        # let's assume they are useful
+        if "." in oname:
+            continue
         if "@" in oname:
             if len(oname.split(":")) > 1:
                 # using @comp:spec
