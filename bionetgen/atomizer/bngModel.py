@@ -1526,7 +1526,9 @@ class bngModel:
                                 vol = comp.size
                                 sub_from = r"(\W|^)({0})(\W|$)".format(spec_name)
                                 sub_to = r"\g<1>({0}/{1})\g<3>".format(spec_name, vol)
-                                frate.definition = re.sub(sub_from,sub_to,frate.definition)
+                                frate.definition = re.sub(
+                                    sub_from, sub_to, frate.definition
+                                )
                                 # frate.volume_adjusted = True
                                 # break
                                 corrected = True
