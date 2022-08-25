@@ -149,6 +149,7 @@ class SBML2BNGL:
         self.speciesAnnotation = None
         self.speciesCompartments = None
         self.unitDefinitions = self.getUnitDefinitions()
+        self.bngModel.unitDefinitions = self.unitDefinitions
         self.convertSubstanceUnits = False
         # keep track of obs names
         self.obs_names = []
@@ -298,29 +299,13 @@ class SBML2BNGL:
         name = species.getName()
         if name == "":
             name = identifier
+
         if species.isSetInitialConcentration():
             initialValue = species.getInitialConcentration()
-            # if we have compartments and a set volume
-            # we need to convert this to species counts
-            # species_comp = species.compartment
-            # compVol = self.compartmentDict[species_comp]
-            # # TODO: Handle unit conversions here if units are given
-            # initialValue *= float(compVol)
-            # if not species.getHasOnlySubstanceUnits():
-            #     initialValue *= 6.022e23
         else:
             initialValue = species.getInitialAmount()
-            # we need to ensure we have concentrations
-            species_comp = species.compartment
-            compVol = self.compartmentDict[species_comp]
-            # TODO: Handle unit conversions here if units are given
-            # if compVol > 0:
-            #     initialValue /= float(compVol)
-            # TODO: If using moles of stuff
-            # initialValue *= 6.022e23
         isConstant = species.getConstant()
         isBoundary = species.getBoundaryCondition()
-
         # FIXME: this condition means that a variable/species can be changed
         # by rules and/or events. this means that we effectively need a variable
         # changed by a function that tracks this value, and all references
@@ -1806,7 +1791,7 @@ class SBML2BNGL:
         # We want to keep track of the molecules/species we
         # actually used in the reactions
         functionTitle = "fRate"
-        self.unitDefinitions = self.getUnitDefinitions()
+        # self.unitDefinitions = self.getUnitDefinitions()
         database.rawreactions = []
 
         if len(self.model.getListOfReactions()) == 0:
@@ -2820,7 +2805,6 @@ class SBML2BNGL:
         parameterSpecs["value"] = parameter.getValue()
         parameterSpecs["name"] = parameter.getName()
         parameterSpecs["units"] = parameter.getUnits()
-
         return parameterSpecs
 
     def getParameters(self):
@@ -2863,7 +2847,6 @@ class SBML2BNGL:
                 param_obj.cts = True
             self.bngModel.add_parameter(param_obj)
         self.bngModel.param_repl = self.param_repl
-
         return parameters, zparam
 
     # ASS - trying to implement a more complete solution for
@@ -2927,7 +2910,7 @@ class SBML2BNGL:
         self.bngModel._reset()
 
         # find concentration units
-        unitDefinitions = self.getUnitDefinitions()
+        unitDefinitions = self.unitDefinitions
 
         if "substance" in unitDefinitions:
             substance = "*".join([x["name"] for x in unitDefinitions["substance"]])
@@ -3096,6 +3079,10 @@ class SBML2BNGL:
                                 rawSpecies["compartment"]
                             ).getSize()
                         newParameter = compartmentSize * newParameter
+                        # temp testing AS
+                        spec_obj.val = newParameter
+                        spec_obj.isConc = False
+                        # temp testing AS
                         if unitFlag:
                             if self.noCompartment:
                                 speciesText.append(

@@ -985,6 +985,7 @@ class bngModel:
         self.obs_map = {}
         self.molecule_mod_dict = {}
         self.parsed_func = {}
+        self.unitDefinitions = {}
         self.noCompartment = None
         self.useID = False
         self.replaceLocParams = False
@@ -1461,6 +1462,65 @@ class bngModel:
                     s.val = s.initConc * comp.size
                     s.concCorrected = True
                     s.isConc = False
+
+    # def adjust_concentrations(self):
+    #     # some species are given as concentrations
+    #     # we need to convert them to amounts
+    #     if not self.noCompartment:
+    #         for spec in self.species:
+    #             s = self.species[spec]
+    #             if s.isConc:
+    #                 # pass
+    #                 # s.val = s.val * 1e-9
+    #                 # import IPython;IPython.embed()
+    #                 # conc = s.initConc * 6.022140857e23 * 1e-9
+    #                 conc = s.initConc
+    #                 if s.compartment in self.compartments:
+    #                     comp = self.compartments[s.compartment]
+    #                     # s.val = conc * comp.size
+    #                     s.val = conc
+    #                     s.concCorrected = True
+    #                     s.isConc = False
+    #                 else:
+    #                     s.val = conc
+    # we need to convert to amount
+    # if "substance" in unitDefinitions:
+    #     newParameterStr = self.convertToStandardUnitString(
+    #         rawSpecies["initialConcentration"],
+    #         unitDefinitions["substance"],
+    #     )
+    #     newParameter = self.convertToStandardUnits(
+    #         rawSpecies["initialConcentration"],
+    #         unitDefinitions["substance"],
+    #     )  # conversion to moles
+    # else:
+    #     newParameter = rawSpecies["initialConcentration"]
+    #     newParameterStr = str(rawSpecies["initialConcentration"])
+    # newParameter = (
+    #     newParameter * 6.022e23
+    # )  # convertion to molecule counts
+    # for factor in unitDefinition:
+    #     if factor["multiplier"] != 1:
+    #         parameterValue = "({0} * {1})".format(
+    #             parameterValue, factor["multiplier"]
+    #         )
+    #     if factor["exponent"] != 1:
+    #         parameterValue = "({0} ^ {1})".format(
+    #             parameterValue, factor["exponent"]
+    #         )
+    #     if factor["scale"] != 0:
+    #         parameterValue = "({0} * 1e{1})".format(parameterValue, factor["scale"])
+
+    # convert to molecule counts
+    #
+    # # get compartment size
+    # if self.noCompartment:
+    #     compartmentSize = 1.0
+    # else:
+    #     compartmentSize = self.model.getCompartment(
+    #         rawSpecies["compartment"]
+    #     ).getSize()
+    # newParameter = compartmentSize * newParameter
 
     def adjust_volume_corrections(self):
         if self.noCompartment:

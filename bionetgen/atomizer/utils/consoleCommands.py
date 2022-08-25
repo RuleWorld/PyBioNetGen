@@ -18,7 +18,7 @@ def getBngExecutable():
 
 def bngl2xml(bnglFile, timeout=60):
     mdl = bionetgen.modelapi.bngmodel(bnglFile)
-    xml_file = bnglFile.replace(".bngl", ".xml")
+    xml_file = bnglFile.replace(".bngl", "_bngxml.xml")
     with open(xml_file, "w+") as f:
         mdl.bngparser.bngfile.write_xml(f, xml_type="bngxml", bngl_str=str(mdl))
     # TODO: Deal with timeout here

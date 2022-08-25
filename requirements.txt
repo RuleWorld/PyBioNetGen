@@ -13,3 +13,4 @@ networkx
 python-libsbml
 pylru
 pyparsing
+pyyed

@@ -525,6 +525,22 @@ class BNGBase(cement.Controller):
                     "type": str,
                 },
             ),
+            (
+                ["-sct", "--write-scts"],
+                {
+                    "help": "If this option is selected, the SCTs used for atomization will be dumped. Useful for understanding what atomizer is doing and debugging.",
+                    "default": False,
+                    "action": "store_true",
+                },
+            ),
+            (
+                ["-wsg", "--write-sct-graphs"],
+                {
+                    "help": "If this option is selected along with --write-scts, each step of the SCT update will be outputted as graphs in graphml format.",
+                    "default": False,
+                    "action": "store_true",
+                },
+            ),
             # (
             #     ["-cu", "--convert-units"],
             #     {

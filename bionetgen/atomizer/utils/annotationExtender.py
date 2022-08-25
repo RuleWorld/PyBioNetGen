@@ -443,7 +443,7 @@ def createDataStructures(bnglContent):
     retval = os.getcwd()
     os.chdir(tempfile.tempdir)
     consoleCommands.bngl2xml(pointer[1])
-    xmlfilename = ".".join(pointer[1].split(".")[0:-1]) + ".xml"
+    xmlfilename = ".".join(pointer[1].split(".")[0:-1]) + "_bngxml.xml"
     os.chdir(retval)
     return readBNGXML.parseXML(xmlfilename)
 

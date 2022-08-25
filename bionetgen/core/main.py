@@ -98,7 +98,35 @@ def runAtomizeTool(app):
     a = AtomizeTool(parser_namespace=args, app=app)
     # do config specific stuff here if need be, or remove the config requirement
     app.log.debug("Atomizing", f"{__file__} : runAtomizeTool()")
-    a.run()
+    resArr = a.run()
+    if args.write_scts:
+        import json
+
+        model_name = os.path.splitext(args.input)[0]
+        with open(f"{model_name}_scts.json", "w") as f:
+            json.dump(resArr.database.scts, f, ensure_ascii=False, indent=4)
+        if args.write_sct_graphs:
+            import pyyed
+
+            for graph_name in resArr.database.scts:
+                G = pyyed.Graph()
+                graph_dict = resArr.database.scts[graph_name]
+                for node_name in graph_dict:
+                    if node_name not in G.nodes:
+                        G.add_node(
+                            node_name, shape="roundrectangle", shape_fill="#c6c6c6"
+                        )
+                    for node_arr in graph_dict[node_name]:
+                        # this is still a list
+                        for conn_name in node_arr:
+                            if conn_name not in G.nodes:
+                                G.add_node(
+                                    conn_name,
+                                    shape="roundrectangle",
+                                    shape_fill="#c6c6c6",
+                                )
+                            G.add_edge(node_name, conn_name)
+                G.write_graph(f"{model_name}_{graph_name}.graphml", pretty_print=True)
 
 
 def printInfo(app):

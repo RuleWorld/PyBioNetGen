@@ -244,7 +244,9 @@ def obtainDifferences(redundantDict, transformationContext):
 def extractStatistics():
     number = 151
     console.bngl2xml("complex/output{0}.bngl".format(number))
-    species, rules, parameterDict = readBNGXML.parseXML("output{0}.xml".format(number))
+    species, rules, parameterDict = readBNGXML.parseXML(
+        "output{0}_bngxml.xml".format(number)
+    )
 
     transformationCenter = []
     transformationContext = []
@@ -363,7 +365,7 @@ def extractRedundantContext(rules, transformationCenter, transformationContext):
 def main():
     fileName = "complex/output19.bngl"
     console.bngl2xml(fileName)
-    species, rules, par = readBNGXML.parseXML("output19.xml")
+    species, rules, par = readBNGXML.parseXML("output19_bngxml.xml")
     # print rules
 
     transformationCenter = []

@@ -141,7 +141,7 @@ def main():
             try:
                 console.bngl2xml("complex/output{0}.bngl".format(number))
                 species, rules, parameterDict, observableList = readBNGXML.parseXML(
-                    "output{0}.xml".format(number)
+                    "output{0}_bngxml.xml".format(number)
                 )
 
             except:

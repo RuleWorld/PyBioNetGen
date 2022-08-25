@@ -593,7 +593,7 @@ def postAnalysisHelper(outputFile, bngLocation, database):
     consoleCommands.bngl2xml(outputFile.split(os.sep)[-1])
     if outputDir != "":
         os.chdir(retval)
-    bngxmlFile = ".".join(outputFile.split(".")[:-1]) + ".xml"
+    bngxmlFile = ".".join(outputFile.split(".")[:-1]) + "_bngxml.xml"
     # print('Sending BNG-XML file to context analysis engine')
     contextAnalysis = postAnalysis.ModelLearning(bngxmlFile)
     # analysis of redundant bonds
@@ -638,7 +638,7 @@ def postAnalyzeFile(
         f.write(returnArray.finalString)
     # recompute bng-xml file
     consoleCommands.bngl2xml(outputFile)
-    bngxmlFile = ".".join(outputFile.split(".")[:-1]) + ".xml"
+    bngxmlFile = ".".join(outputFile.split(".")[:-1]) + "_bngxml.xml"
     # recompute context information
     contextAnalysis = postAnalysis.ModelLearning(bngxmlFile)
 
