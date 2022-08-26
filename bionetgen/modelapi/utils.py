@@ -2,9 +2,10 @@ from typing import OrderedDict
 
 
 class Operation:
-    '''
+    """
     Class for rule operations
-    '''
+    """
+
     # valid operation types
     valid_ops = [
         "AddBond",
@@ -15,25 +16,26 @@ class Operation:
         "Delete",
     ]
     valid_args = [
-            "@site1",
-            "@site2",
-            "@id",
-            "@source",
-            "@destination",
-            "@flipOrientation",
-            "@moveConnected",
-            "@site",
-            "@finalState",
-            "@DeleteMolecules",
+        "@site1",
+        "@site2",
+        "@id",
+        "@source",
+        "@destination",
+        "@flipOrientation",
+        "@moveConnected",
+        "@site",
+        "@finalState",
+        "@DeleteMolecules",
     ]
+
     def __init__(self, op_type=None) -> None:
         self.type = op_type
         self.args = []
-    
+
     def __str__(self) -> str:
         opstr = f"Operation of type {self.type}"
         return opstr
-    
+
     def __repr__(self) -> str:
         return str(self)
 

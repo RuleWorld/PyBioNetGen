@@ -1622,6 +1622,7 @@ def detectCustomDefinitions(bioNumber):
         return "{0}/speciesEquivalence{1}.json".format(directory, bioNumber)
     return None
 
+
 def isActivated(statusVector):
     if statusVector[0] != "" or statusVector[1] not in ["", "0"]:
         return True

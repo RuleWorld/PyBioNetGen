@@ -5,6 +5,7 @@ import networkx as nx
 from collections import defaultdict, Counter
 from collections.abc import MutableSet
 
+
 def extractMolecules(action, site1, site2, chemicalArray, differentiateDimers=False):
     """
     this method goes through the chemicals in a given array 'chemicalArray'
@@ -178,7 +179,6 @@ class OrderedEdgeSet(MutableSet):
         return set(self) == set(other)
 
 
-
 def getStateTransitionDiagram(
     labels, centers, products, contexts, actions, molecules, rules, parameters
 ):
@@ -338,7 +338,6 @@ def getStateTransitionDiagram(
     return nodeList, edgeList
 
 
-
 def getContextRequirementsFromNamespace(namespace, excludeReverse=False):
     (
         label,
@@ -360,34 +359,36 @@ def getContextRequirementsFromNamespace(namespace, excludeReverse=False):
         namespace["parameters"],
     )
 
+
 #####
+
 
 class STDGraph:
     def __init__(self, inp, app=None):
         self.app = app
         self.logger = BNGLogger(app=self.app)
-        self.logger.info( # debug
+        self.logger.info(  # debug
             "Setting up STDGraph object", loc=f"{__file__} : STDGraph.__init__()"
         )
         if isinstance(inp, str):
             if inp.endswith(".bngl") or inp.endswith(".xml"):
-                self.logger.info( # debug
-                    f"Loading model from file {inp}", 
-                    loc=f"{__file__} : STDGraph.__init__()"
+                self.logger.info(  # debug
+                    f"Loading model from file {inp}",
+                    loc=f"{__file__} : STDGraph.__init__()",
                 )
                 self.model = bngmodel(inp)
             else:
-                self.logger.info( # error
-                f"Input {inp} is not recognized for STD graph generation",
-                loc=f"{__file__} : STDGraph.__init__()"
+                self.logger.info(  # error
+                    f"Input {inp} is not recognized for STD graph generation",
+                    loc=f"{__file__} : STDGraph.__init__()",
                 )
         elif isinstance(inp, bngmodel):
             # we got the model directly
             self.model = bngmodel
         else:
-            self.logger.info( # error
+            self.logger.info(  # error
                 f"Input {inp} is not recognized for STD graph generation",
-                loc=f"{__file__} : STDGraph.__init__()"
+                loc=f"{__file__} : STDGraph.__init__()",
             )
         self.ID_counter = 0
 
@@ -400,8 +401,7 @@ class STDGraph:
         nodeList, edgeList = self.getContextRequirements(excludeReverse=False)
         graph = self.generateSTD(nodeList, edgeList, simplifiedText)
         return graph
-    
-    
+
     def getContextRequirements(
         self, collapse=True, motifFlag=False, excludeReverse=False
     ):
@@ -423,8 +423,7 @@ class STDGraph:
         return getStateTransitionDiagram(
             label, center, product, context, actions, molecules, rules, parameters
         )
-    
-    
+
     def extractCenterContext(self, rules, excludeReverse=False):
         transformationCenter = []
         transformationContext = []
@@ -464,9 +463,7 @@ class STDGraph:
             doubleModificationRules,
         )
 
-
-
-#####
+    #####
     def createNode(self, graph, name, graphicsDict, labelGraphicsDict, isGroup, gid):
         idNumber = self.getID()
         if isGroup:
@@ -496,7 +493,7 @@ class STDGraph:
                 id=idNumber,
             )
         return idNumber
-        
+
     def createBitNode(self, graph, molecule, nodeList, simplifiedText):
         """
         creates the bit nodes
@@ -564,7 +561,7 @@ class STDGraph:
             0,
             graph.node[molecule]["id"],
         )
-    
+
     def createBitEdge(self, graph, molecule, edge, edgeList):
         nodeId0 = [x[0] for x in edge[0] if x[1]]
         nodeId1 = [x[0] for x in edge[1] if x[1]]
@@ -590,6 +587,7 @@ class STDGraph:
                     "{0}_{1}".format(molecule, "/".join(nodeId1)),
                     graphics={"fill": "#000000", "targetArrow": "standard"},
                 )
+
     def createPDLabelNode(self, graph, molecule, nodeList):
         globalLabelDict = {}
         for node in nodeList[molecule]:
@@ -758,7 +756,7 @@ class STDGraph:
                     graphics={"fill": "#000000", "targetArrow": "standard", "width": 3},
                 )
         return bidirectional
-    
+
     def generateSTD(self, nodeList, edgeList, simplifiedText=False):
         graph = nx.DiGraph()
         globalLabelDict = {}
@@ -794,20 +792,20 @@ class STDGraph:
                     bidirectionalList.append([edge[1], edge[0]])
 
         return graph
-    
+
     def outputGraph(self, graph, fileName):
         nx.write_graphml(graph, fileName)
 
 
-
 if __name__ == "__main__":
     import sys
+
     i = sys.argv[1]
     g = STDGraph(i)
-    import IPython;IPython.embed()
+    import IPython
+
+    IPython.embed()
     # gml = g.generateSTDGML()
-
-
 
 
 # if __name__ == "__main__":
