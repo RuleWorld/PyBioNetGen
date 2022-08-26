@@ -6,8 +6,8 @@ Created on Thu Nov 28 17:17:12 2013
 """
 # import sys
 # sys.path.insert(0, '../utils/')
-import utils.consoleCommands as console
-from .utils import readBNGXML
+import bionetgen.atomizer.utils.consoleCommands as console
+from bionetgen.atomizer.utils import readBNGXML
 import networkx as nx
 import cPickle as pickle
 from collections import Counter

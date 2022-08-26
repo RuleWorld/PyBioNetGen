@@ -12,17 +12,12 @@ Created on Tue Dec  6 17:42:31 2011
 @author: proto
 """
 from copy import deepcopy, copy
-from . import analyzeSBML
 import bionetgen.atomizer.utils.structures as st
 from bionetgen.atomizer.utils.util import logMess
 import re
 
-# import biogrid
-import marshal
-import functools
 import bionetgen.atomizer.utils.pathwaycommons as pwcm
 from collections import Counter, defaultdict
-import itertools
 from .atomizerUtils import BindingException
 from . import resolveSCT
 from . import atomizationAux as atoAux

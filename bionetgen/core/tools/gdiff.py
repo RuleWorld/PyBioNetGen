@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 import xmltodict, copy, os, json
 
 from bionetgen.core.utils.logging import BNGLogger

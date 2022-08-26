@@ -1,5 +1,5 @@
 from bionetgen.modelapi.pattern import Molecule, Pattern
-from bionetgen.modelapi.rulemod import RuleMod
+from bionetgen.modelapi.utils import RuleMod
 from bionetgen.core.utils.utils import ActionList
 from bionetgen.core.exc import BNGParseError
 

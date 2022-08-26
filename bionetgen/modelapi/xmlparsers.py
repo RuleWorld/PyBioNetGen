@@ -5,7 +5,7 @@ from .blocks import EnergyPatternBlock, PopulationMapBlock
 
 from .pattern import Pattern, Molecule, Component
 
-from .rulemod import RuleMod
+from .utils import RuleMod, Operation
 
 ###### Base object  ######
 class XMLObj:
@@ -659,36 +659,18 @@ class RuleBlockXML(XMLObj):
             print("Can't parse rule XML {}".format(xml))
 
     def get_operations(self, xml):
-        # TODO: create working operations class
         ops = []
-        # List all possible operations & arguments
-        ops_types = [
-            "AddBond",
-            "DeleteBond",
-            "ChangeCompartment",
-            "StateChange",
-            "Add",
-            "Delete",
-        ]
-        op_args = [
-            "@site1",
-            "@site2",
-            "@id",
-            "@source",
-            "@destination",
-            "@flipOrientation",
-            "@moveConnected",
-            "@site",
-            "@finalState",
-            "@DeleteMolecules",
-        ]
         # Loop through valid arguments and record
-        for op_type in ops_types:
-            if op_type in xml:
-                for op_arg in op_args:
-                    if op_arg in xml:
-                        n_op = xml[op_arg]
-                        ops.append(n_op)
+        for op in xml:
+            if op in Operation.valid_ops:
+                # a valid type
+                opobj = Operation(op)
+                for op_val in xml[op]:
+                    # op_val is also an ordereddict
+                    for key in op_val:
+                        if key in Operation.valid_args:
+                            opobj.args.append((key, op_val[key]))
+                ops.append(opobj)
         return ops
 
     def get_rule_mod(self, xml):
@@ -867,19 +849,3 @@ class PopulationMapBlockXML(XMLObj):
         else:
             print("don't recognize rate law type")
         return rate_cts
-
-
-class Operation:
-    """
-    To be used for parsing & storing ListOfOperations information.
-    """
-
-    # valid operation types
-    valid_ops = [
-        "AddBond",
-        "DeleteBond",
-        "ChangeCompartment",
-        "StateChange",
-        "Add",
-        "Delete",
-    ]
