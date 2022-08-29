@@ -439,6 +439,7 @@ class Rule(ModelObj):
         rate_constants=(),
         rule_mod=RuleMod(),
         operations=[],
+        xmlID=None,
     ) -> None:
         super().__init__()
         self.name = name
@@ -450,6 +451,7 @@ class Rule(ModelObj):
             self.rule_mod = rule_mod
         self.operations = operations
         self.set_rate_constants(rate_constants)
+        self.xmlID = xmlID
 
     def set_rate_constants(self, rate_cts):
         if len(rate_cts) == 1:

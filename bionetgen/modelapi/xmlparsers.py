@@ -145,6 +145,8 @@ class PatternXML(XMLObj):
     def parse_xml(self, xml) -> Pattern:
         # initialize
         pattern = Pattern()
+        if "@id" in xml:
+            pattern.xmlID = xml["@id"]
         if "ListOfBonds" in xml:
             # TODO: FIX THIS
             bonds = BondsXML(xml["ListOfBonds"]["Bond"])
@@ -200,6 +202,8 @@ class PatternXML(XMLObj):
         """ """
         # initialize
         molecule = Molecule()
+        if "@id" in xml:
+            molecule.xmlID = xml["@id"]
         #
         if "@name" in xml:
             molecule.name = xml["@name"]
@@ -227,6 +231,8 @@ class PatternXML(XMLObj):
             for icomp, comp in enumerate(xml):
                 component = Component()
                 component.name = comp["@name"]
+                if "@id" in comp:
+                    component.xmlID = comp["@id"]
                 if "@label" in comp:
                     component.label = comp["@label"]
                 if "@state" in comp:
@@ -241,6 +247,8 @@ class PatternXML(XMLObj):
             # single comp, this is a dict
             component = Component()
             component.name = xml["@name"]
+            if "@id" in xml:
+                component.xmlID = xml["@id"]
             if "@label" in xml:
                 component.label = xml["@label"]
             if "@state" in xml:
@@ -550,6 +558,10 @@ class RuleBlockXML(XMLObj):
         if isinstance(xml, list):
             for irule, rule in enumerate(xml):
                 name = rule["@name"]
+                if "@id" in rule:
+                    xmlID = rule["@id"]
+                else:
+                    xmlID = None
                 reactants = self.resolve_rxn_side(rule["ListOfReactantPatterns"])
                 products = self.resolve_rxn_side(rule["ListOfProductPatterns"])
                 if "RateLaw" not in rule:
@@ -569,9 +581,14 @@ class RuleBlockXML(XMLObj):
                     rate_constants=rate_constants,
                     rule_mod=rule_modifier,
                     operations=operations,
+                    xmlID=xmlID,
                 )
         else:
             name = xml["@name"]
+            if "@id" in rule:
+                xmlID = rule["@id"]
+            else:
+                xmlID = None
             reactants = self.resolve_rxn_side(xml["ListOfReactantPatterns"])
             products = self.resolve_rxn_side(xml["ListOfProductPatterns"])
             if "RateLaw" not in xml:
@@ -589,6 +606,7 @@ class RuleBlockXML(XMLObj):
                 rate_constants=rate_constants,
                 rule_mod=rule_modifier,
                 operations=operations,
+                xmlID=xmlID,
             )
         block.consolidate_rules()
         return block

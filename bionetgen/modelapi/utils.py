@@ -1,6 +1,3 @@
-from typing import OrderedDict
-
-
 class Operation:
     """
     Class for rule operations

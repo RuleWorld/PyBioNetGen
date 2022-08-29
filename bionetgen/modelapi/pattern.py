@@ -70,6 +70,7 @@ class Pattern:
         self.nautyG = None
         self.canonical_certificate = None
         self.canonical_label = None
+        self.xmlID = None
         if canonicalize:
             self.canonicalize()
 
@@ -403,6 +404,7 @@ class Molecule:
         self._components = components
         self._compartment = compartment
         self._label = label
+        self.xmlID = None
         self.canonical_order = None
         self.canonical_label = None
         self.parent_pattern = None
@@ -587,6 +589,7 @@ class Component:
         self._state = None
         self._states = []
         self._bonds = []
+        self.xmlID = None
         self.canonical_label = None
         self.canonical_order = None
         self.canonical_bonds = None
