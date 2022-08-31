@@ -585,8 +585,8 @@ class RuleBlockXML(XMLObj):
                 )
         else:
             name = xml["@name"]
-            if "@id" in rule:
-                xmlID = rule["@id"]
+            if "@id" in xml:
+                xmlID = xml["@id"]
             else:
                 xmlID = None
             reactants = self.resolve_rxn_side(xml["ListOfReactantPatterns"])
