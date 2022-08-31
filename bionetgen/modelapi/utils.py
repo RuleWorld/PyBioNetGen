@@ -27,7 +27,7 @@ class Operation:
 
     def __init__(self, op_type=None) -> None:
         self.type = op_type
-        self.args = []
+        self.args = {}
 
     def __str__(self) -> str:
         opstr = f"Operation of type {self.type}"

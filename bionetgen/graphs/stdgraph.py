@@ -67,60 +67,6 @@ def getMapping(mapp, site):
             return [x for x in mapping if x != site][0]
 
 
-def extractTransformations(rules, differentiateDimers=False):
-    """
-    goes through the list of rules and extracts its reactioncenter,context and product
-    atomic patterns per transformation action
-    """
-    atomicArray = {}
-    transformationCenter = []
-    transformationContext = []
-    productElements = []
-    actionName = []
-    index = 0
-    label = []
-    for rule, _, reationRate, reactionSymbol in rules:
-        index += 1
-        for action in rule.actions:
-            atomic, reactionCenter, context = extractMolecules(
-                action.action,
-                action.site1,
-                action.site2,
-                rule.reactants,
-                differentiateDimers,
-            )
-            transformationCenter.append(reactionCenter)
-            transformationContext.append(context)
-            atomicArray.update(atomic)
-            productSites = [
-                getMapping(rule.mapping, action.site1),
-                getMapping(rule.mapping, action.site2),
-            ]
-            atomic, rc, _ = extractMolecules(
-                action.action,
-                productSites[0],
-                productSites[1],
-                rule.products,
-                differentiateDimers,
-            )
-            productElements.append(rc)
-            atomicArray.update(atomic)
-            actionName.append("%i-%s" % (index, action.action))
-            r = "+".join([str(x) for x in rule.reactants])
-            p = "+".join([str(x) for x in rule.products])
-            label.append("->".join([r, p, "%i-%s" % (index, action.action)]))
-
-    solveWildcards(atomicArray)
-    return (
-        atomicArray,
-        transformationCenter,
-        transformationContext,
-        productElements,
-        actionName,
-        label,
-    )
-
-
 class OrderedEdgeSet(MutableSet):
     def __init__(self, iterable=None):
         self.end = end = []
@@ -424,7 +370,7 @@ class STDGraph:
             label, center, product, context, actions, molecules, rules, parameters
         )
 
-    def extractCenterContext(self, rules, excludeReverse=False):
+    def extractCenterContext(self, excludeReverse=False):
         transformationCenter = []
         transformationContext = []
         transformationProduct = []
@@ -432,7 +378,7 @@ class STDGraph:
         actionNames = []
         label = []
         doubleModificationRules = []
-        for idx, rule in enumerate(rules):
+        for idx, rule in enumerate(self.model.rules):
             (
                 tatomicArray,
                 ttransformationCenter,
@@ -461,6 +407,59 @@ class STDGraph:
             atomicArray,
             actionNames,
             doubleModificationRules,
+        )
+
+    def extractTransformations(self, rules, differentiateDimers=False):
+        """
+        goes through the list of rules and extracts its reactioncenter,context and product
+        atomic patterns per transformation action
+        """
+        atomicArray = {}
+        transformationCenter = []
+        transformationContext = []
+        productElements = []
+        actionName = []
+        index = 0
+        label = []
+        for rule, _, reationRate, reactionSymbol in rules:
+            index += 1
+            for action in rule.actions:
+                atomic, reactionCenter, context = extractMolecules(
+                    action.action,
+                    action.site1,
+                    action.site2,
+                    rule.reactants,
+                    differentiateDimers,
+                )
+                transformationCenter.append(reactionCenter)
+                transformationContext.append(context)
+                atomicArray.update(atomic)
+                productSites = [
+                    getMapping(rule.mapping, action.site1),
+                    getMapping(rule.mapping, action.site2),
+                ]
+                atomic, rc, _ = extractMolecules(
+                    action.action,
+                    productSites[0],
+                    productSites[1],
+                    rule.products,
+                    differentiateDimers,
+                )
+                productElements.append(rc)
+                atomicArray.update(atomic)
+                actionName.append("%i-%s" % (index, action.action))
+                r = "+".join([str(x) for x in rule.reactants])
+                p = "+".join([str(x) for x in rule.products])
+                label.append("->".join([r, p, "%i-%s" % (index, action.action)]))
+
+        solveWildcards(atomicArray)
+        return (
+            atomicArray,
+            transformationCenter,
+            transformationContext,
+            productElements,
+            actionName,
+            label,
         )
 
     #####

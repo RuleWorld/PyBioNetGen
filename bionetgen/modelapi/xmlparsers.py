@@ -682,13 +682,20 @@ class RuleBlockXML(XMLObj):
         for op in xml:
             if op in Operation.valid_ops:
                 # a valid type
-                opobj = Operation(op)
-                for op_val in xml[op]:
-                    # op_val is also an ordereddict
-                    for key in op_val:
-                        if key in Operation.valid_args:
-                            opobj.args.append((key, op_val[key]))
-                ops.append(opobj)
+                # check if we have multiple actions
+                if isinstance(xml[op], list):
+                    # we have multiple actions of this type
+                    for op_val in xml[op]:
+                        opobj = Operation(op)
+                        for arg_key in op_val:
+                            opobj.args[arg_key] = op_val[arg_key]
+                        ops.append(opobj)
+                else:
+                    # this is a single action
+                    opobj = Operation(op)
+                    for arg_key in xml[op]:
+                        opobj.args[arg_key] = xml[op][arg_key]
+                    ops.append(opobj)
         return ops
 
     def get_rule_mod(self, xml):
