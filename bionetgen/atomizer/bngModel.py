@@ -1561,7 +1561,6 @@ class bngModel:
             return
         if len(self.compartments) == 0:
             return
-        # import ipdb;ipdb.set_trace()
         for rule_name in self.rules:
             rule = self.rules[rule_name]
             # if rule.raw_splt:
