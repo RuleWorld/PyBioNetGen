@@ -35,9 +35,12 @@ jobs:
           ${{ runner.os }}-
     - name: Install dependencies
       run: |
-        sudo apt-get install libncurses5-dev libncursesw5-dev
+        if [ "$RUNNER_OS" == "Linux" ]; then
+              apt install libncurses5-dev libncursesw5-dev
+        fi
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
+      shell: bash
     - name: Build
       run: |
         python setup.py install
