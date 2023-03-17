@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - network_parsing
 
 jobs:
   deploy:
@@ -36,6 +35,7 @@ jobs:
           ${{ runner.os }}-
     - name: Install dependencies
       run: |
+        sudo apt-get install libncurses5-dev libncursesw5-dev
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
     - name: Build
