@@ -93,7 +93,7 @@ class Species:
         """
         temporary transitional method
         """
-        for (tag, components) in zip(tags, moleculesComponents):
+        for tag, components in zip(tags, moleculesComponents):
             if self.contains(tag):
                 tmp = self.getMolecule(tag)
             else:
@@ -125,8 +125,7 @@ class Species:
             list2 = sorted(species.molecules, key=lambda x: len(x.components))
             list2 = sorted(list2, key=lambda x: x.name)
 
-            for (selement, oelement) in zip(list1, list2):
-
+            for selement, oelement in zip(list1, list2):
                 cocomponents = Counter([x.name for x in oelement.components])
                 for component in oelement.components:
                     refcomponents = Counter([x.name for x in selement.components])
@@ -141,10 +140,8 @@ class Species:
         else:
             for element in species.molecules:
                 if element.name not in [x.name for x in self.molecules]:
-
                     self.addMolecule(deepcopy(element), update)
                 else:
-
                     bond1 = sum([x.bonds for x in element.components], [])
                     bondList = []
                     for x in [z for z in self.molecules if z.name == element.name]:

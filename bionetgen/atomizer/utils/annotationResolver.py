@@ -56,7 +56,6 @@ def resolveAnnotationHelper(annotation):
     # tAnnotation = re.search(':([^:]+:[^:]+$)',tAnnotation).group(1)
     try:
         if "obo.go" in annotation or "/go/GO" in annotation:
-
             res = resolveAnnotation.qg.Term(tAnnotation)
             finalArray = []
             if type(res) not in [int]:
@@ -77,7 +76,6 @@ def resolveAnnotationHelper(annotation):
             finalAnnotation = resolveAnnotation.db[annotation]
 
         elif "kegg" in annotation:
-
             data = resolveAnnotation.k.get(tAnnotation)
             dict_data = resolveAnnotation.k.parse(data)
             if type(dict_data) == int:

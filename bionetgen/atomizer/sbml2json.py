@@ -40,7 +40,6 @@ class SBML2JSON:
         for unitDefinition in self.model.getListOfUnitDefinitions():
             unitList = []
             for unit in unitDefinition.getListOfUnits():
-
                 unitList.append([unit.getKind(), unit.getScale(), unit.getExponent()])
 
             self.unitDictionary[unitDefinition.getId()] = unitList
@@ -229,7 +228,6 @@ time	 second	 second
         return math
 
     def getInstanceRate(self, math, compartmentList, reversible, rReactant, rProduct):
-
         # remove compartments from expression
         math = self.getPrunnedTree(math, compartmentList)
 
@@ -255,7 +253,6 @@ time	 second	 second
         return rateL, rateR
 
     def removeFactorFromMath(self, math, reactants, products):
-
         remainderPatterns = []
         highStoichoiMetryFactor = 1
         for x in reactants:
@@ -388,7 +385,6 @@ time	 second	 second
 
 
 def main():
-
     # command line arguments
     parser = OptionParser()
     parser.add_option(

@@ -7,6 +7,7 @@ from .pattern import Pattern, Molecule, Component
 
 from .rulemod import RuleMod
 
+
 ###### Base object  ######
 class XMLObj:
     """

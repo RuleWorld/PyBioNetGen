@@ -921,7 +921,6 @@ class Rule:
                 ):
                     txt += " 1*{}{}".format(self.rate_cts[0], conv)
                 else:
-
                     txt += " {}{}".format(self.rate_cts[0], conv)
 
         comment = ""

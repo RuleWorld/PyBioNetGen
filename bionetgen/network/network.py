@@ -18,6 +18,7 @@ app.setup()
 conf = app.config["bionetgen"]
 def_bng_path = conf["bngpath"]
 
+
 ###### CORE OBJECT AND PARSING FRONT-END ######
 class Network:
     """

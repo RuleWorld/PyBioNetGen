@@ -12,6 +12,7 @@ try:
 except ImportError:
     from collections import OrderedDict
 
+
 ###### BLOCK OBJECTS ######
 class NetworkBlock:
     """

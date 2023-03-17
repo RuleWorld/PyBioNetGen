@@ -45,7 +45,6 @@ class ModelComparison:
         )
         componentNameIntersection = defaultdict(lambda: defaultdict(str))
         for molecule in nameIntersection:
-
             for component in moleculeName1[molecule].components:
                 if component.name in [
                     x.name for x in moleculeName2[nameIntersection[molecule]].components

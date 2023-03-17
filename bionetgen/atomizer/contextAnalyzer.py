@@ -103,7 +103,6 @@ def createMetaRule(ruleSet, differences):
     metaRule = moleculeDict[0]
     matchedArray = {}
     for idx in range(1, len(moleculeDict)):
-
         for element in metaRule:
             if element in moleculeDict[idx]:
                 matchedArray = matchElements(

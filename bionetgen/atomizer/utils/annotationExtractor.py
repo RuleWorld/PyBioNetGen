@@ -219,7 +219,6 @@ class AnnotationExtractor:
         annotationToSpeciesDict = {}
         for element in database.weights:
             if len(sct[element[0]]) > 0:
-
                 if len(sct[element[0]][0]) == 1:
                     buildingBlock = sct[element[0]][0][0]
                     if len(annotationDict[element[0]]) == 0:
@@ -284,14 +283,12 @@ class AnnotationExtractor:
         return database.prunnedDependencyGraph, database, document
 
     def getAnnotationSystem(self):
-
         annotationDict, speciesNameDict = self.buildAnnotationDict(self.sbmlDocument)
         # self.buildAnnotationTree(annotationDict, self.sct, self.database)
 
         return annotationDict
 
     def getModelAnnotations(self):
-
         model = self.sbmlDocument.getModel()
         annotationXML = model.getAnnotation()
         lista = libsbml.CVTermList()

@@ -248,7 +248,6 @@ class ModelLearning:
                 frozenset(["nullrequirement", "independent"]),
                 frozenset(["requirement", "independent"]),
             ]:
-
                 for molecule in motifInformationDict[motifInformation]:
                     if len(motifInformationDict[motifInformation][molecule]) == 0:
                         continue
@@ -396,7 +395,6 @@ class ModelLearning:
 
     def analyzeComplexReactions(self, threshold=2):
         def getActionableComponentPartners(actions, molecule):
-
             actionableComponents = []
             for action in actions:
                 if action[1] and action[1] in molecule.lower():

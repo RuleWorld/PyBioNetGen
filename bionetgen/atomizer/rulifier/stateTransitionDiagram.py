@@ -223,7 +223,6 @@ def getStateTransitionDiagram(
         for element in tmpSourceCounter:
             destinationCounter[element].subtract(tmpSourceCounter[element])
         for molecule in sourceCounter:
-
             if molecule in destinationCounter:
                 localMoleculeCounter = Counter(moleculeDict[molecule])
                 # get total list of nodes. this is important because of symmetric components

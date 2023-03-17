@@ -22,6 +22,7 @@ from sympy.abc import _clash
 from sympy.printing.str import StrPrinter
 from sympy.core.sympify import SympifyError
 
+
 # Define 2 and 3 argument functions
 # for sympy parsing
 class sympyPiece(Function):
@@ -129,7 +130,6 @@ class SBML2BNGL:
     """
 
     def __init__(self, model, useID=True, replaceLocParams=True, obs_map_file=None):
-
         self.bngModel = bngModel()
         self.bngModel.useID = useID
         self.bngModel.replaceLocParams = replaceLocParams
@@ -236,7 +236,6 @@ class SBML2BNGL:
         return metaInformation
 
     def getMetaInformation(self, additionalNotes):
-
         # get unit information
         unitList = self.getUnitDefinitions()
 
@@ -1445,7 +1444,6 @@ class SBML2BNGL:
 
         for element in reactant:
             if element[0] in translator:
-
                 for molecule in translator[element[0]].molecules:
                     for component in molecule.components:
                         molecule.sort()
@@ -1465,7 +1463,6 @@ class SBML2BNGL:
                 for molecule in translator[element[0]].molecules:
                     molecule.sort()
                     for component in molecule.components:
-
                         componentList = Counter([(molecule.signature(breactionCenter))])
                         for _ in range(0, int(element[1])):
                             pcomponent[
@@ -2775,7 +2772,6 @@ class SBML2BNGL:
         )
 
     def convertToStandardUnits(self, parameterValue, unitDefinition):
-
         for factor in unitDefinition:
             if factor["scale"] != 0:
                 parameterValue *= 10 ** factor["scale"]
@@ -3200,7 +3196,6 @@ class SBML2BNGL:
                     rawSpecies["compartment"] != ""
                     and len(list(self.model.getListOfCompartments())) > 1
                 ):
-
                     self.obs_names.append(modifiedName)
                     # self.obs_map[rawSpecies["identifier"]] = "{0}_{1}".format(
                     #     modifiedName, rawSpecies["compartment"]

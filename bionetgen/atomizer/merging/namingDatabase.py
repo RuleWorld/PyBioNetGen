@@ -174,7 +174,6 @@ class NamingDatabase:
                         ) or fileSpecies[idx]["annotationName"].intersection(
                             fileSpecies[idx2]["annotationName"]
                         ):
-
                             # print 'hello',fileSpecies[idx]['annotationName'],fileSpecies[idx2]['annotationName']
                             fileSpeciesCopy[idx]["name"] = fileSpeciesCopy[idx][
                                 "name"

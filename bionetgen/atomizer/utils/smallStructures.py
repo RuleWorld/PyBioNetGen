@@ -132,7 +132,6 @@ class Species:
         else:
             counter = 1
             for element in self.molecules:
-
                 if element.name == molecule.name:
                     if iteration == counter:
                         element.extend(molecule)
@@ -185,7 +184,7 @@ class Species:
         """
         temporary transitional method
         """
-        for (tag, components) in zip(tags, moleculesComponents):
+        for tag, components in zip(tags, moleculesComponents):
             if self.contains(tag):
                 tmp = self.getMolecule(tag)
             else:
@@ -212,7 +211,7 @@ class Species:
 
     def extend(self, species, update=True):
         if len(self.molecules) == len(species.molecules):
-            for (selement, oelement) in zip(self.molecules, species.molecules):
+            for selement, oelement in zip(self.molecules, species.molecules):
                 for component in oelement.components:
                     if component.name not in [x.name for x in selement.components]:
                         selement.components.append(component)
@@ -224,7 +223,6 @@ class Species:
         else:
             for element in species.molecules:
                 if element.name not in [x.name for x in self.molecules]:
-
                     self.addMolecule(deepcopy(element), update)
                 else:
                     for molecule in self.molecules:
@@ -247,7 +245,6 @@ class Species:
             for component in element.components:
                 for index in range(0, len(component.bonds)):
                     if int(component.bonds[index]) in intersection:
-
                         if component.bonds[index] in correspondence:
                             component.bonds[index] = correspondence[
                                 component.bonds[index]
@@ -754,7 +751,6 @@ class Component:
         return compDictionary
 
     def createGraph(self, identifier):
-
         return component, compDictionary
 
 

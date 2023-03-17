@@ -30,7 +30,6 @@ def ato_write_gml(graph, fileName, labelGraphics):
     gml.write("graph [\n")
     gml.write("\tdirected 1\n")
     for node in graph.node:
-
         writeDict(gml, "node", node, graph.node[node], "\t", labelGraphics)
 
     flag = False
@@ -384,14 +383,12 @@ def generateSTD(nodeList, edgeList, simplifiedText=False):
         createBitNode(graph, molecule, nodeList, simplifiedText)
 
     for molecule in nodeList:
-
         bidirectionalList = []
         cedgeList = list(edgeList[molecule])
         for edge in cedgeList:
             if "_reverse" in edge[2]:
                 continue
             if list([edge[0], edge[1]]) not in bidirectionalList:
-
                 bidirectional = createPDEdge(graph, molecule, edge, edgeList)
             if bidirectional:
                 bidirectionalList.append([edge[1], edge[0]])
@@ -427,7 +424,6 @@ def generateSTDGML(inputFile, simplifiedText=False):
 
 
 if __name__ == "__main__":
-
     parser = defineConsole()
     namespace = parser.parse_args()
     inputFile = namespace.input

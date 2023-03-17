@@ -323,7 +323,6 @@ def speciesAnnotationsToSBML(sbmlDocument, annotationDict, speciesNameDict):
         if len(annotationDict[transformedName]) == 0:
             continue
         for element in annotationDict[transformedName]:
-
             term = libsbml.CVTerm()
             if element.startswith("BQB"):
                 term.setQualifierType(libsbml.BIOLOGICAL_QUALIFIER)
@@ -449,7 +448,6 @@ def createDataStructures(bnglContent):
 
 
 def expandAnnotation(fileName, bnglFile):
-
     sct, database, sbmlDocument, _ = obtainSCT(
         fileName,
         "config/reactionDefinitions.json",

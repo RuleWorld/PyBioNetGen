@@ -200,7 +200,6 @@ def parseFunction(function):
 
 
 def parseFunctions(functions):
-
     functionDescription = []
 
     for function in functions:

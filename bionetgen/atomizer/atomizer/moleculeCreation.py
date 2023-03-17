@@ -179,7 +179,6 @@ def solveComplexBinding(totalComplex, pathwaycommonsFlag, parser, compositionEnt
         return sortedMolecule[-1]
 
     def getNamedMolecule(array, name):
-
         for molecule in sortMolecules(array, True):
             if molecule.name == name:
                 return molecule
@@ -222,7 +221,6 @@ def solveComplexBinding(totalComplex, pathwaycommonsFlag, parser, compositionEnt
         # one that doesn't overlap with an already exising pair)
         finalDBpair = []
         if len(dbPair) > 1:
-
             for element in dbPair:
                 mset1 = Counter(element)
                 mset2 = Counter(names1)
@@ -237,7 +235,6 @@ def solveComplexBinding(totalComplex, pathwaycommonsFlag, parser, compositionEnt
             dbPair = finalDBpair
 
         if len(dbPair) > 1:
-
             # @FIXME: getNamedMolecule should never receive parameters that cause it to return null, but somehow that's what is happening
             # when you receive a malformed user definition file. The error
             # should be caught way before we reach this point
@@ -294,7 +291,6 @@ def solveComplexBinding(totalComplex, pathwaycommonsFlag, parser, compositionEnt
             )
 
     else:
-
         # mol1 = getBiggestMolecule(totalComplex[0])
         # mol2 = getBiggestMolecule(totalComplex[1])
         """
@@ -354,7 +350,6 @@ def getComplexationComponents2(
         return sortedMolecule[-1]
 
     def getNamedMolecule(array, name):
-
         for molecule in sortMolecules(array, True):
             if molecule.name == name:
                 return molecule
@@ -406,7 +401,6 @@ def getComplexationComponents2(
                                 rhs = set([])
                                 repeatedFlag = False
                                 for pair in pairedMolecules:
-
                                     if x in pair:
                                         lhs.add(pair[0])
                                         lhs.add(pair[1])
@@ -491,7 +485,6 @@ def getComplexationComponents2(
                 break
     # now we process those molecules where we need to create a new component
     for element in orphanedMolecules:
-
         for mol1 in species.molecules:
             # when adding orphaned molecules make sure it's not already in
             # the list
@@ -499,7 +492,6 @@ def getComplexationComponents2(
                 totalComplex.append(set([mol1]))
     # now we process for those molecules we are not sure how do they bind
     while len(totalComplex) > 1:
-
         if len(totalComplex[0]) == 1 and len(totalComplex[1]) == 1:
             mol1 = list(totalComplex[0])[0]
             mol2 = list(totalComplex[1])[0]
@@ -1233,7 +1225,6 @@ def transformMolecules(
     doubleModifications = {"Double-Phosporylation": "Phosporylation"}
 
     for element in doubleModifications:
-
         if doubleModifications[element] not in database.eequivalenceTranslator:
             continue
         if element not in database.eequivalenceTranslator:
@@ -1258,7 +1249,6 @@ def transformMolecules(
                 database.eequivalenceTranslator[element].append(eq)
 
         for eq in deleteEquivalences:
-
             if eq in database.eequivalenceTranslator[doubleModifications[element]]:
                 database.eequivalenceTranslator[doubleModifications[element]].remove(eq)
 

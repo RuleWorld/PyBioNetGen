@@ -2,6 +2,7 @@ from bionetgen.core.utils.logging import BNGLogger
 
 logger = BNGLogger()
 
+
 # All classes that deal with patterns
 class Pattern:
     """

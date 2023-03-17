@@ -93,7 +93,6 @@ class SCTSolver:
         # reactionDefinitions.json.
 
         for element in lexicalDependencyGraph:
-
             if (
                 element in self.database.dependencyGraph
                 and element not in self.database.userLabelDictionary
@@ -203,7 +202,6 @@ class SCTSolver:
                 len(self.database.userLabelDictionary[element][0]) == 0
                 or element == self.database.userLabelDictionary[element][0][0]
             ):
-
                 self.database.dependencyGraph[element] = []
             else:
                 self.database.dependencyGraph[element] = [
@@ -249,7 +247,6 @@ class SCTSolver:
         # catalysis reactions
         for key in self.database.eequivalenceTranslator2:
             for namingEquivalence in self.database.eequivalenceTranslator2[key]:
-
                 baseElement = min(namingEquivalence, key=len)
                 modElement = max(namingEquivalence, key=len)
                 # dont overwrite user information
@@ -381,7 +378,6 @@ class SCTSolver:
                         self.database.dependencyGraph[mod] == []
                         and mod not in self.database.userLabelDictionary
                     ):
-
                         if (
                             base in self.database.userLabelDictionary
                             and self.database.userLabelDictionary[base] == 0
@@ -761,7 +757,6 @@ class SCTSolver:
                 combinationParticle[0] in annotationDict
                 and combinationParticle[1] in annotationDict
             ):
-
                 sortedPair = sorted(list(combinationParticle), key=len)
                 # get unary keys
                 unaryAnnotation1 = [
@@ -808,7 +803,6 @@ class SCTSolver:
                 ]
                 # unary keys match
                 if any([x in unaryAnnotation2 for x in unaryAnnotation1]):
-
                     exactMatches[sortedPair[1]].append([sortedPair[0]])
                 # one composes the other
                 elif any([x in compositionalAnnotation1 for x in unaryAnnotation2]):
@@ -839,7 +833,6 @@ class SCTSolver:
                 elif any(
                     [x in compositionalAnnotation2 for x in compositionalAnnotation1]
                 ):
-
                     intersectionMatches[sortedPair[1]].append([sortedPair[0]])
                     # intersectionMatches[combinationParticle[0]].append(combinationParticle[1])
         # create unary groups
@@ -967,7 +960,6 @@ class SCTSolver:
             equivalenceTranslator=equivalenceTranslator,
             equivalenceDictionary=equivalenceDictionary,
         ):
-
             tmpCandidates = []
             modifiedElementsPerCandidate = []
             unevenElements = []
@@ -980,7 +972,6 @@ class SCTSolver:
                         continue
                     modifiedElements = []
                     for chemical in individualAnswer:
-
                         # we cannot handle tuple naming conventions for now
                         if type(chemical) == tuple:
                             flag = False
@@ -1377,7 +1368,6 @@ class SCTSolver:
                                 # print self.database.userLabelDictionary
                                 return None, None, None
                         else:
-
                             if not self.database.softConstraints:
                                 if loginformation:
                                     modification = (
@@ -1570,7 +1560,6 @@ class SCTSolver:
                         namingtmpCandidates
                         and tmpCandidates[0] != namingtmpCandidates[0]
                     ):
-
                         if loginformation:
                             if (
                                 namingtmpCandidates[0][0]

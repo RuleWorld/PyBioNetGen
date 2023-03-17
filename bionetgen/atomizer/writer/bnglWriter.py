@@ -298,7 +298,6 @@ def bnglFunction(
                     parsedString += symbolDict[argList[idx]].join(elementArray)
                     idx += 1
                 elif argList[idx] == "lambda":
-
                     tmp = "("
                     # ASS2019 - I'm not sure if this is an actual solution or
                     # this should just never happen. argList[idx+1] sometimes

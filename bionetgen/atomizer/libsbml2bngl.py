@@ -364,7 +364,6 @@ def getMoleculeByName(species, atom):
             stateVector = []
             for component in molecule.components:
                 if component.name == atom[1]:
-
                     # get whatever species this atom is bound to
                     if len(component.bonds) > 0:
                         comp = bondPartners(species, component.bonds[0])
@@ -554,7 +553,6 @@ def reorderFunctions(functions):
     functionNames = []
     tmp = []
     for function in functions:
-
         m = re.split("(?<=\()[\w)]", function)
         functionName = m[0]
         if "=" in functionName:
@@ -1130,7 +1128,6 @@ def analyzeHelper(
             initialConditions[flag] = "#" + initialConditions[flag]
 
     for flag in sorted(deleteMolecules, reverse=True):
-
         if deleteMoleculesFlag:
             logMess(
                 "WARNING:SIM101",

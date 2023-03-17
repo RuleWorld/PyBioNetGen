@@ -422,7 +422,6 @@ class SBMLAnalyzer:
                     similarList = [[x, splitp] for x in similarList]
                     if len(similarList) > 0:
                         for similarity in similarList:
-
                             # compare close lexical proximity
                             fuzzyList = self.processAdHocNamingConventions(
                                 similarity[0],
@@ -619,7 +618,6 @@ class SBMLAnalyzer:
                     if self.testAgainstExistingConventions(
                         fuzzyList[0][1], self.namingConventions["modificationList"]
                     ):
-
                         if (
                             particle in annotationDict
                             and comparisonParticle in annotationDict
@@ -655,7 +653,6 @@ class SBMLAnalyzer:
                                 )
                                 # we stil ahve to check that they both reference the same database
                                 if len(baseDB.intersection(modDB)) > 0:
-
                                     logMess(
                                         "ERROR:ANN202",
                                         "{0}:{1}:can be mapped through naming conventions but the annotation information does not match".format(
@@ -683,7 +680,6 @@ class SBMLAnalyzer:
                         len(common_root) > 0
                         and common_root not in originalDependencyGraph
                     ):
-
                         fuzzyList = self.processAdHocNamingConventions(
                             common_root,
                             comparisonParticle,
@@ -973,7 +969,6 @@ class SBMLAnalyzer:
         return equivalences, modifiedElement
 
     def processNamingConventions2(self, molecules, threshold=4, onlyUser=False):
-
         # normal naming conventions
         strippedMolecules = [x.strip("()") for x in molecules]
 
@@ -1066,7 +1061,6 @@ class SBMLAnalyzer:
                 ]
             # string share a common subset but they contain mutually exclusive appendixes: a_b,a_c
             else:
-
                 commonRoot = detectOntology.findLongestSubstring(reactant, product)
 
                 if len(commonRoot) > longEnough or commonRoot in moleculeSet:
@@ -1173,7 +1167,6 @@ class SBMLAnalyzer:
                 else:
                     return None, []
         else:
-
             if reactant not in product:
                 closeMatch = get_close_matches(reactant, product)
                 if len(closeMatch) == 1:
@@ -1223,7 +1216,6 @@ class SBMLAnalyzer:
                         treactant2[-1], strippedMolecules
                     )
                     if len(tailDifferences) > 0:
-
                         tdr = max(
                             [0]
                             + [
@@ -1261,7 +1253,6 @@ class SBMLAnalyzer:
                         "_".join(treactant2), strippedMolecules
                     )
                     if len(tailDifferences) > 0:
-
                         tdr = max(
                             [0]
                             + [
@@ -1335,7 +1326,6 @@ class SBMLAnalyzer:
                         "_".join(tproduct2), strippedMolecules
                     )
                     if len(tailDifferences) > 0:
-
                         tdr = max(
                             [0]
                             + [
@@ -1408,7 +1398,6 @@ class SBMLAnalyzer:
                         if "_".join(treactant) in strippedMolecules:
                             finalReactant = "_".join(treactant)
                         else:
-
                             reactantMatches = get_close_matches(
                                 "_".join(treactant), strippedMolecules
                             )
@@ -1426,7 +1415,6 @@ class SBMLAnalyzer:
                                 finalReactant = "_".join(treactant)
 
                         if "_".join(tproduct) in strippedMolecules:
-
                             finalProduct = "_".join(tproduct)
                         else:
                             productMatches = get_close_matches(
@@ -1706,7 +1694,7 @@ class SBMLAnalyzer:
         ruleComplianceMatrix = np.zeros(
             (len(rules), len(reactionDefinition["reactions"]))
         )
-        for (idx, rule) in enumerate(rules):
+        for idx, rule in enumerate(rules):
             reaction2 = rule  # list(parseReactions(rule))
             ruleComplianceMatrix[idx] = self.identifyReactions2(
                 reaction2, reactionDefinition
@@ -1964,7 +1952,6 @@ class SBMLAnalyzer:
                 for i in range(1, len(chemicalCandidates) + 1):
                     combinations = list(itertools.permutations(chemicalCandidates, i))
                     for x in combinations:
-
                         score = difflib.SequenceMatcher(
                             None, "_".join(x), chemical
                         ).quick_ratio()
@@ -2281,7 +2268,6 @@ class SBMLAnalyzer:
                 productString = [[y for y in x if y != ""] for x in productString]
 
             else:
-
                 reactantString = []
                 productString = []
                 # check how the reactants are composed and add it to the list

@@ -329,7 +329,6 @@ def writeSBML(document, fileName):
 
 
 def reduceAnnotations(fileName):
-
     sct, database, sbmlDocument = obtainSCT(
         fileName,
         "config/reactionDefinitions.json",

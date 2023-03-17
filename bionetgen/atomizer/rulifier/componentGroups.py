@@ -193,7 +193,6 @@ def getRestrictedChemicalStates(labelArray, products, contexts, doubleAction):
                         cDict[molecule].append(pattern)
             for molecule in pDict:
                 for componentState in pDict[molecule]:
-
                     # FIXME: This is to account for dimers where or places where there is more than one components with the same name. Truly this should be enother kind of classification
                     for componentState2 in [
                         x for x in cDict[molecule] if x[0] != componentState[0]
@@ -405,7 +404,6 @@ def removeIndirectDependencies(dependencies, stateSpace, motifFlag=False):
     relationship = "ordering" if motifFlag else "requirement"
     indirect = defaultdict(set)
     for molecule in dependencies:
-
         for requirement in set([x[1] for x in dependencies[molecule][relationship]]):
             prerequirements = [
                 x[0]
@@ -643,7 +641,6 @@ def getContextRequirements(
         for molecule in [x for x in requirementDependencies if x in doubleActionDict]:
             for motif in requirementDependencies[molecule]:
                 for relationship in requirementDependencies[molecule][motif]:
-
                     for combination1 in [True, False]:
                         for combination2 in [True, False]:
                             if (
@@ -753,7 +750,6 @@ def reverseContextDict(dependencies):
                         ] = "independent"
             else:
                 for relationship in dependencies[molecule][dependencyType]:
-
                     if dependencyType == "exclusion":
                         reverseDependencies[molecule][
                             (relationship[1][0], relationship[0][0])

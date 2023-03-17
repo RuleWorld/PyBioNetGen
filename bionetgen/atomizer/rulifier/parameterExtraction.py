@@ -52,7 +52,6 @@ class PrettyDefaultDict(collections.defaultdict):
 
 
 def getParameterDictionary(bnglNamespace):
-
     parameterDict = PrettyDefaultDict(lambda: PrettyDefaultDict(set))
     simpleParameterDict = collections.defaultdict(set)
 
