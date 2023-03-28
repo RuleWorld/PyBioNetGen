@@ -43,6 +43,7 @@ class BNGDefaults:
     banner : str
         app banner that gets printed when ran with -v
     """
+
     def __init__(self):
         # determine what bng we are using
         system = platform.system()

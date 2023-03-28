@@ -165,7 +165,7 @@ class bngmodel:
 
     def add_block(self, block):
         """
-        Adds the given block object to the model, uses the 
+        Adds the given block object to the model, uses the
         name of the block object to determine what block it is
         """
         bname = block.name.replace(" ", "_")
@@ -178,7 +178,7 @@ class bngmodel:
     def add_empty_block(self, block_name):
         """
         Makes an empty block object from a given block name and
-        adds it to the model object. 
+        adds it to the model object.
         """
         bname = block_name.replace(" ", "_")
         # TODO: fix this exception
@@ -330,7 +330,7 @@ class bngmodel:
         """
         Adds an action to the actions block of the model object.
         If an actions block doesn't exist, this will make an empty
-        actions block and append the action to the block. 
+        actions block and append the action to the block.
 
         Arguments
         ---------
