@@ -225,3 +225,6 @@ Bugfixes to various parts of cpy simulator code. cpy simulator now tries to iden
 
 ## 0.7.9 
 Behavior change, now most calls to `BNG2.pl` won't result in verbose output, the default has changed to suppress output. The only call that retains the output is a command line call to the subcommand `run`. Bugfix where the library run function didn't respect suppress option if timeout keyword was used. Bugfix to atomizer where atomization failed if the model only had syn/desyn rules.
+
+## 0.8.0 
+Updated underlying BNG and NFsim versions, expanded documentation and preparing for a full release.
