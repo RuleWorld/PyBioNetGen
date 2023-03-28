@@ -224,6 +224,9 @@ class Pattern:
         self.canonical_label = self.print_canonical()
 
     def print_canonical(self):
+        """
+        Returns canonical label for the pattern
+        """
         # need to make sure we don't print useless compartments
         self.consolidate_molecule_compartments()
         canon_label = ""
@@ -474,6 +477,9 @@ class Molecule:
         return mol_str
 
     def print_canonical(self):
+        """
+        Returns canonical label for the pattern
+        """
         # print in canonical order
         canon_label = self.name
         # we have a null species
@@ -650,6 +656,9 @@ class Component:
         return comp_str
 
     def print_canonical(self):
+        """
+        Returns canonical label for the pattern
+        """
         comp_str = self.name
         # only for molecule types
         if len(self.states) > 0:

@@ -116,6 +116,9 @@ class ModelBlock:
             self.__dict__[name] = value
 
     def gen_string(self) -> str:
+        """
+        Generates the string for the block from the object.
+        """
         # each block can have a comment at the start
         if self.comment[0] is not None:
             block_lines = ["\nbegin {} #{}".format(self.name, self.comment[0])]
@@ -133,6 +136,9 @@ class ModelBlock:
         return "\n".join(block_lines)
 
     def reset_compilation_tags(self) -> None:
+        """
+        Resets the change history for this block.
+        """
         # TODO: Make these properties such that it checks each
         # item for changes/recompile tags
         # for item in self.items:
@@ -142,6 +148,10 @@ class ModelBlock:
         self._recompile = False
 
     def add_item(self, item_tpl) -> None:
+        """
+        Adds an item to the block from the item tuple given.
+        Exact mechanism is slightly different for each block.
+        """
         # TODO: try adding evaluation of the parameter here
         # for the future, in case we want people to be able
         # to adjust the math
@@ -164,6 +174,9 @@ class ModelBlock:
         self._recompile = True
 
     def add_items(self, item_list) -> None:
+        """
+        Calls `add_item` for each tuple for a list of tuples.
+        """
         for item in item_list:
             self.add_item(item)
 

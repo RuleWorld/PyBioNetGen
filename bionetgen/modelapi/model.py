@@ -164,6 +164,10 @@ class bngmodel:
         return active_ordered_blocks.__iter__()
 
     def add_block(self, block):
+        """
+        Adds the given block object to the model, uses the 
+        name of the block object to determine what block it is
+        """
         bname = block.name.replace(" ", "_")
         # TODO: fix this exception
         if bname == "reaction_rules":
@@ -172,6 +176,10 @@ class bngmodel:
         block_adder(block)
 
     def add_empty_block(self, block_name):
+        """
+        Makes an empty block object from a given block name and
+        adds it to the model object. 
+        """
         bname = block_name.replace(" ", "_")
         # TODO: fix this exception
         if bname == "reaction_rules":
@@ -180,6 +188,9 @@ class bngmodel:
         block_adder()
 
     def add_parameters_block(self, block=None):
+        """
+        Adds a parameters block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, ParameterBlock)
@@ -190,6 +201,9 @@ class bngmodel:
             self.parameters = ParameterBlock()
 
     def add_compartments_block(self, block=None):
+        """
+        Adds a compartments block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, CompartmentBlock)
@@ -200,6 +214,9 @@ class bngmodel:
             self.compartments = CompartmentBlock()
 
     def add_molecule_types_block(self, block=None):
+        """
+        Adds a molecule types block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, MoleculeTypeBlock)
@@ -210,6 +227,9 @@ class bngmodel:
             self.molecule_types = MoleculeTypeBlock()
 
     def add_species_block(self, block=None):
+        """
+        Adds a species block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, SpeciesBlock)
@@ -220,6 +240,9 @@ class bngmodel:
             self.species = SpeciesBlock()
 
     def add_observables_block(self, block=None):
+        """
+        Adds an observable block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, ObservableBlock)
@@ -230,6 +253,9 @@ class bngmodel:
             self.observables = ObservableBlock()
 
     def add_functions_block(self, block=None):
+        """
+        Adds a functions block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, FunctionBlock)
@@ -240,6 +266,9 @@ class bngmodel:
             self.functions = FunctionBlock()
 
     def add_rules_block(self, block=None):
+        """
+        Adds a rules block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, RuleBlock)
@@ -250,6 +279,9 @@ class bngmodel:
             self.rules = RuleBlock()
 
     def add_energy_patterns_block(self, block=None):
+        """
+        Adds an energy patterns block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, EnergyPatternBlock)
@@ -260,6 +292,9 @@ class bngmodel:
             self.energy_patterns = EnergyPatternBlock()
 
     def add_population_maps_block(self, block=None):
+        """
+        Adds a population maps block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, PopulationMapBlock)
@@ -270,6 +305,9 @@ class bngmodel:
             self.population_maps = PopulationMapBlock()
 
     def add_actions_block(self, block=None):
+        """
+        Adds an actions block to the model object.
+        """
         if block is not None:
             # TODO: Transition to BNGErrors and logging
             assert isinstance(block, ActionBlock)
@@ -280,10 +318,29 @@ class bngmodel:
             self.actions = ActionBlock()
 
     def reset_compilation_tags(self):
+        """
+        This function resets all internal tags used for keeping
+        track of changes done to a model after it's loaded. Resetting
+        these tags will remove all history of changes.
+        """
         for block in self.active_blocks:
             getattr(self, block).reset_compilation_tags()
 
     def add_action(self, action_type, action_args=[]):
+        """
+        Adds an action to the actions block of the model object.
+        If an actions block doesn't exist, this will make an empty
+        actions block and append the action to the block. 
+
+        Arguments
+        ---------
+        action_type: str
+            the type of action being added
+        action_args: List[Tuple(str,str)]
+            a list of tuples of strings where first item in the tuple
+            is the argument type for the action and second item is the
+            value of that argument.
+        """
         # add actions block and to active list
         if not hasattr(self, "actions"):
             self.actions = ActionBlock()
