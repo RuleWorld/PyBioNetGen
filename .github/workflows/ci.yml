@@ -73,7 +73,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: user/pybionetgen:latest
+          tags: ruleworld/pybionetgen:latest
               
 #   - name: Publish
 #     env:
