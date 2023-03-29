@@ -73,7 +73,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ secrets.GHCR_USER }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -86,7 +86,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/ruleworld/pybionetgen:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
               
 #   - name: Publish
 #     env:
