@@ -11,7 +11,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  
+
 jobs:
   deploy:
 
@@ -81,7 +81,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - uses: docker/build-push-action@v4.0.0
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           push: true
