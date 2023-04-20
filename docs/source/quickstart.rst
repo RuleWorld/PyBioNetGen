@@ -43,7 +43,7 @@ PyBioNetGen's library can also be used to run a BNGL model
 .. code-block:: shell
 
    import bionetgen
-   result = bionetgen.run("mymodel.bngl", output="myfolder")
+   result = bionetgen.run("mymodel.bngl", out="myfolder")
 
 which will create numpy record arrays.
 For other methods or more information on how to use PyBioNetGen's library, please see :ref:`library`.
