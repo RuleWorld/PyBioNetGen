@@ -10,6 +10,7 @@ from .core.main import printInfo
 from .core.main import visualizeModel
 from .core.main import graphDiff
 from .core.main import generate_notebook
+from .core.main import writeJSvis
 from .core.utils.utils import test_perl
 
 # pull defaults defined in core/defaults
@@ -554,6 +555,34 @@ class BNGBase(cement.Controller):
     def atomize(self):
         runAtomizeTool(self.app)
 
+    @cement.ex(
+        help="Writes a JSON file for JavaScript visualization.",
+        arguments=[
+            (
+                ["-i", "--input"],
+                {
+                    "help": "Path to BNGL model to use with JS visualization.",
+                    "default": None,
+                    "type": str,
+                    "required": True,
+                },
+            ),
+            (
+                ["-o", "--output"],
+                {
+                    "help": "(optional) Output file, defaults to `vis_settings.json`",
+                    "default": "vis_settings.json",
+                    "type": str,
+                },
+            ),
+        ],
+    )
+    def jsvis(self):
+        """
+        Subcommand to generate a settings file for JavaScript visualizations.
+        """
+        test_perl(app=self.app)
+        writeJSvis(self.app)
 
 class BioNetGen(cement.App):
     """

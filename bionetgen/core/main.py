@@ -3,6 +3,7 @@ from bionetgen.core.tools import BNGInfo
 from bionetgen.core.tools import BNGVisualize
 from bionetgen.core.tools import BNGCLI
 from bionetgen.core.tools import BNGGdiff
+from bionetgen.core.tools import BNGJSVisualize
 from bionetgen.core.notebook import BNGNotebook
 from bionetgen.core.utils.utils import run_command
 
@@ -243,3 +244,23 @@ def generate_notebook(app):
     if args.open:
         command = ["nbopen", fname]
         rc, _ = run_command(command)
+
+def writeJSvis(app):
+    """
+    Uses BNGJSVisualize class to write default JavaScript visualization settings
+    from the BNGL models using arguments and configuration.
+    """
+    # pull args/config from app
+    args = app.pargs
+    config = app.config
+    # pull relevant arguments for the tool
+    inp = args.input
+    out = args.output
+    app.log.debug("Pulling BNG path from config", f"{__file__} : writeJSvis()")
+    # if you set args.bngpath it should take precedence
+    config_bngpath = config.get("bionetgen", "bngpath")
+    # run visualize tool
+    app.log.debug("Instantiating BNGJSVisualize object", f"{__file__} : writeJSvis()")
+    jsviz = BNGJSVisualize(inp, output=out, bngpath=config_bngpath, app=app)
+    app.log.debug("Visualizing", f"{__file__} : writeJSvis()")
+    jsviz.run()

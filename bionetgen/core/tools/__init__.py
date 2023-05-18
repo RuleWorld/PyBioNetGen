@@ -6,4 +6,5 @@ from .plot import BNGPlotter
 from .info import BNGInfo
 from .cli import BNGCLI
 from .visualize import BNGVisualize
+from .jsvis import BNGJSVisualize
 from .gdiff import BNGGdiff
