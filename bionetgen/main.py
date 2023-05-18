@@ -584,6 +584,7 @@ class BNGBase(cement.Controller):
         test_perl(app=self.app)
         writeJSvis(self.app)
 
+
 class BioNetGen(cement.App):
     """
     Cement app for BioNetGen CLI

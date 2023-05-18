@@ -245,6 +245,7 @@ def generate_notebook(app):
         command = ["nbopen", fname]
         rc, _ = run_command(command)
 
+
 def writeJSvis(app):
     """
     Uses BNGJSVisualize class to write default JavaScript visualization settings
