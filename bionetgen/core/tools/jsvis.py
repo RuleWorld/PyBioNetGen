@@ -69,10 +69,12 @@ class BNGJSVisualize:
             for istate, state in enumerate(states):
                 state_name = state["@id"]
                 state["svg_name"] = state_name
+                state['state_id'] = istate
                 svgs[state_name] = self.parse_state(state)
         else:
             state_name = states["@id"]
             states["svg_name"] = state_name
+            state['state_id'] = 0
             svgs[state_name] = self.parse_state(states)
 
     def parse_molec(self, molec_dict, svgs):
@@ -89,8 +91,10 @@ class BNGJSVisualize:
             comps = molec_dict["ListOfComponentTypes"]["ComponentType"]
             if isinstance(comps, list):
                 for icomp, comp in enumerate(comps):
+                    comps[icomp]['pos'] = [0,0]
                     if "ListOfAllowedStates" in comp:
                         self.parse_comp(comp, svgs)
             else:
+                comps['pos'] = [0,0]
                 if "ListOfAllowedStates" in comps:
                     self.parse_comp(comps, svgs)
