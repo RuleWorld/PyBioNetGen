@@ -102,6 +102,11 @@ class bngmodel:
         # Check to see if there are no active blocks
         # If not, model is most likely not in BNGL format
         if not self.active_blocks:
+            # TODO: consider raising a BNGModelError() here
+            # raise BNGModelError(
+            #                 self.model_path,
+            #                 message="WARNING: No active blocks. Please ensure model is in proper BNGL or BNG-XML format",
+            #             )
             print(
                 "WARNING: No active blocks. Please ensure model is in proper BNGL or BNG-XML format"
             )
@@ -113,6 +118,7 @@ class bngmodel:
             recompile = recompile or getattr(self, block)._recompile
         return recompile
 
+    # TODO: Ensure this works when you edit attributes
     @property
     def changes(self):
         changes = {}
@@ -326,7 +332,7 @@ class bngmodel:
         for block in self.active_blocks:
             getattr(self, block).reset_compilation_tags()
 
-    def add_action(self, action_type, action_args=[]):
+    def add_action(self, action_type, action_args={}):
         """
         Adds an action to the actions block of the model object.
         If an actions block doesn't exist, this will make an empty
@@ -336,10 +342,9 @@ class bngmodel:
         ---------
         action_type: str
             the type of action being added
-        action_args: List[Tuple(str,str)]
-            a list of tuples of strings where first item in the tuple
-            is the argument type for the action and second item is the
-            value of that argument.
+        action_args: dict
+            a dictionary where the key is the argument type and the value
+            is the value of that argument.
         """
         # add actions block and to active list
         if not hasattr(self, "actions"):

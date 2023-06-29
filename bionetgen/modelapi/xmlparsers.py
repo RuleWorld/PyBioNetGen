@@ -870,6 +870,7 @@ class PopulationMapBlockXML(XMLObj):
         return rate_cts
 
 
+# TODO: Store operations!
 class Operation:
     """
     To be used for parsing & storing ListOfOperations information.

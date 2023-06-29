@@ -304,7 +304,6 @@ class BNGPatternReader:
                             elif "%" in comp:
                                 # this is a label, need to parse this
                                 pass
-                        # import IPython;IPython.embed()
                         # self._label = None
                         molecule.components.append(component)
                         self.logger.debug(

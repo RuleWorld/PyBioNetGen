@@ -15,7 +15,7 @@ class RuleMod:
             return self.type
 
     def __repr__(self) -> str:
-        return f"Rule modifier of tyoe {self.type}"
+        return f"Rule modifier of type {self.type}"
 
     @property
     def type(self):
