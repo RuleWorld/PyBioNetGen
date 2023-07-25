@@ -228,3 +228,6 @@ Behavior change, now most calls to `BNG2.pl` won't result in verbose output, the
 
 ## 0.8.0 
 Updated underlying BNG and NFsim versions, expanded documentation and preparing for a full release.
+
+## 0.8.1
+Updated underlying BNG and NFsim versions.
