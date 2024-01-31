@@ -163,11 +163,13 @@ class BNGCLI:
             if self.old_bngpath is not None:
                 os.environ["BNGPATH"] = self.old_bngpath
             if hasattr(out, "stdout"):
-                stdout_str = out.stdout.decode("utf-8")
+                if out.stdout is not None:
+                    stdout_str = out.stdout.decode("utf-8")
             else:
                 stdout_str = None
-            if hasattr(out, "stdout"):
-                stderr_str = out.stderr.decode("utf-8")
+            if hasattr(out, "stderr"):
+                if out.stderr is not None:
+                    stderr_str = out.stderr.decode("utf-8")
             else:
                 stderr_str = None
             raise BNGRunError(command, stdout=stdout_str, stderr=stderr_str)
