@@ -700,15 +700,15 @@ class RuleBlockXML(XMLObj):
         # determine which rule mod is being used, if any
         if "Delete" in list_ops:
             del_op = list_ops["Delete"]
-            # check if modifier was called or automatic
-            # for op in del_op:
-            #     print(op)
             if not isinstance(del_op, list):
-                mod_call = del_op["@DeleteMolecules"]
-                if mod_call == "1":
-                    # get mod information & add to string
-                    rule_mod.type = "DeleteMolecules"
-                    rule_mod.id = del_op["@id"]
+                del_op = [del_op] # Make sure del_op is list
+            dmvals= [op['@DeleteMolecules'] for op in del_op]
+            # All Delete operations in rule must have DeleteMolecules attribute or 
+            # it does not apply to the whole rule
+            if (all(dmvals)==1):
+                rule_mod.type = "DeleteMolecules"
+                # JRF: I don't believe the id of the specific op rule_mod is currently used 
+                #rule_mod.id = op["@id"]
         elif "ChangeCompartment" in list_ops:
             move_op = list_ops["ChangeCompartment"]
             if not isinstance(move_op, list):
