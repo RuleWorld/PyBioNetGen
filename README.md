@@ -6,7 +6,7 @@
 [![Downloads](https://static.pepy.tech/badge/bionetgen)](https://pepy.tech/project/bionetgen)
 [![Downloads](https://static.pepy.tech/badge/bionetgen/week)](https://pepy.tech/project/bionetgen)
 
-This is a simple CLI and a library for [BioNetGen modelling language](http://bionetgen.org/). PyBioNetGen also includes a heavily updated version of [Atomizer](https://github.com/RuleWorld/atomizer) which allows for conversion of models written in [Systems Biology Markup Language (SBML)](https://synonym.caltech.edu/) into BioNetGen language (BNGL) format. 
+This is a simple CLI and a library for [BioNetGen modeling language](http://bionetgen.org/). PyBioNetGen also includes a heavily updated version of [Atomizer](https://github.com/RuleWorld/atomizer) which allows for conversion of models written in [Systems Biology Markup Language (SBML)](https://synonym.caltech.edu/) into BioNetGen language (BNGL) format. 
 
 Please see the [documentation](https://pybionetgen.readthedocs.io/en/latest/) to learn how to use PyBioNetGen. 
 
