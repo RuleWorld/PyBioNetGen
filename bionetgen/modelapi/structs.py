@@ -132,8 +132,6 @@ class Compartment(ModelObj):
         size/volume of the compartment
     outside : str
         parent compartment, if exists
-    write_expr : bool
-        boolean that describes if the size is a volume or an expression
     """
 
     def __init__(self, name, dim, size, outside=None):
