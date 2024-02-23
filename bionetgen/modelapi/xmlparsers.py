@@ -301,19 +301,18 @@ class ParameterBlockXML(XMLObj):
                 # add content to line
                 name = b["@id"]
                 value = b["@value"]
-                expression = None
+                # If "@expr" is set, it supercedes value 
                 if "@expr" in b:
-                    expression = b["@expr"]
-                block.add_parameter(name, value, expr=expression)
+                    value = b["@expr"]
+                block.add_parameter(name, value)
         else:
             # add content to line
             name = xml["@id"]
             value = xml["@value"]
-            expression = None
             if "@expr" in xml:
-                expression = xml["@expr"]
+                value = xml["@expr"]
             # add to list of lines
-            block.add_parameter(name, value, expr=expression)
+            block.add_parameter(name, value)
         block.reset_compilation_tags()
         return block
 
@@ -702,6 +701,8 @@ class RuleBlockXML(XMLObj):
         if "Delete" in list_ops:
             del_op = list_ops["Delete"]
             # check if modifier was called or automatic
+            # for op in del_op:
+            #     print(op)
             if not isinstance(del_op, list):
                 mod_call = del_op["@DeleteMolecules"]
                 if mod_call == "1":

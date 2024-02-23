@@ -100,29 +100,15 @@ class Parameter(ModelObj):
     value : str
         value of the parameter, if loaded from XML this will always
         exist since NFsim needs the value and not the expression
-    expr : str
-        this exists if the parameter is a math expression, not necerssary
-    write_expr : bool
-        this is a boolean that determines if the generated string has
-        is in expression form or in value form.
     """
 
-    def __init__(self, name, value, expr=None):
+    def __init__(self, name, value):
         super().__init__()
         self.name = name
         self.value = value
-        self.expr = expr
-        try:
-            test = float(expr)
-            self.write_expr = False
-        except:
-            self.write_expr = True
 
     def gen_string(self) -> str:
-        if self.write_expr:
-            return "{} {}".format(self.name, self.expr)
-        else:
-            return "{} {}".format(self.name, self.value)
+        return "{} {}".format(self.name, self.value)
 
 
 class Compartment(ModelObj):
@@ -155,11 +141,6 @@ class Compartment(ModelObj):
         self.name = name
         self.dim = dim
         self.size = size
-        try:
-            test = float(size)
-            self.write_expr = False
-        except:
-            self.write_expr = True
         self.outside = outside
 
     def gen_string(self) -> str:

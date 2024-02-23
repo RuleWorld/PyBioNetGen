@@ -1,0 +1,15 @@
+# Created by BioNetGen 2.9.0
+begin parameters
+    1 k1  10  # Constant
+    2 k2  10*k1  # ConstantExpression
+end parameters
+begin species
+    1 A() 0
+end species
+begin reactions
+    1 0 1 k1 #_R1
+    2 1 0 k2 #_reverse__R1
+end reactions
+begin groups
+    1 A                    1
+end groups

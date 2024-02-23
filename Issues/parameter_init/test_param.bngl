@@ -1,0 +1,23 @@
+begin model
+
+begin parameters
+  k1 10
+  k2 10*k1
+end parameters
+
+begin species
+  A() 0
+end species
+
+begin observables
+  Molecules A A()
+end observables
+
+begin reaction rules
+    0 <-> A() k1, k2
+end reaction rules
+
+end model
+
+generate_network({overwrite=>1})
+writeXML()
