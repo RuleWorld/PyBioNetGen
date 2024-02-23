@@ -21,5 +21,5 @@ begin reaction rules
 end reaction rules
 end model
 
-#writeModel({suffix=>"changed",evaluate_expressions=>1,overwrite=>1})
-writeXML()
+writeModel({suffix=>"changed",evaluate_expressions=>1,overwrite=>1})
+#writeXML()

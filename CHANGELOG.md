@@ -231,3 +231,6 @@ Updated underlying BNG and NFsim versions, expanded documentation and preparing 
 
 ## 0.8.1
 Updated underlying BNG and NFsim versions.
+
+## 0.8.2
+Fixed bug in reading `DeleteMolecules` keyword when multiple molecules were deleted at once. Also, first installment of cleaning up constructor functions for model elements to allow programmatic model building (as opposed to just reading from BNGL file).

@@ -7,3 +7,6 @@ tests/models/cli_test_runs/*
 bionetgen/bng-*
 temp_testing/*
 .vscode/*
+build
+dist
+Issues/rule_keywords/test_DeleteMolecules_changed.bngl
