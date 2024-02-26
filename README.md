@@ -4,8 +4,9 @@
 [![Open in Remote - Containers](https://img.shields.io/static/v1?label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/RuleWorld/PyBioNetGen)
 [![Documentation Status](https://readthedocs.org/projects/pybionetgen/badge/?version=latest)](https://pybionetgen.readthedocs.io/en/latest/?badge=latest)
 [![Downloads](https://static.pepy.tech/badge/bionetgen)](https://pepy.tech/project/bionetgen)
+[![Downloads](https://static.pepy.tech/badge/bionetgen/week)](https://pepy.tech/project/bionetgen)
 
-This is a simple CLI and a library for [BioNetGen modelling language](http://bionetgen.org/). PyBioNetGen also includes a heavily updated version of [Atomizer](https://github.com/RuleWorld/atomizer) which allows for conversion of models written in [Systems Biology Markup Language (SBML)](https://synonym.caltech.edu/) into BioNetGen language (BNGL) format. 
+This is a simple CLI and a library for [BioNetGen modeling language](http://bionetgen.org/). PyBioNetGen also includes a heavily updated version of [Atomizer](https://github.com/RuleWorld/atomizer) which allows for conversion of models written in [Systems Biology Markup Language (SBML)](https://synonym.caltech.edu/) into BioNetGen language (BNGL) format. 
 
 Please see the [documentation](https://pybionetgen.readthedocs.io/en/latest/) to learn how to use PyBioNetGen. 
 
