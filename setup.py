@@ -1,5 +1,16 @@
 from setuptools import setup, find_packages
 import sys, os, json, urllib, subprocess
+import shutil, tarfile, zipfile
+
+# Utility function for Mac idiosyncracy
+def get_folder (arch):
+    for fname in arch.getnames():
+        if (fname.startswith('._')):
+            continue
+        else:
+            break
+    print(fname)
+    return(fname)
 
 subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
 import urllib.request
@@ -22,7 +33,7 @@ with open(os.path.join(*ghapi_plist), "r") as f:
 bng_version_tag = rls_json["tag_name"]
 with open("bionetgen/assets/BNGVERSION", "w") as f:
     f.write(bng_version_tag)
-# get assests
+# get assets
 assets = rls_json["assets"]
 for asset in assets:
     browser_url = asset["browser_download_url"]
@@ -36,7 +47,6 @@ for asset in assets:
         windows_url = browser_url
 
 # next download and place the appropriate files
-import os, shutil, tarfile, zipfile
 
 bng_downloaded = False
 for iurl, bng_url in enumerate([linux_url, mac_url, windows_url]):
@@ -72,13 +82,17 @@ for iurl, bng_url in enumerate([linux_url, mac_url, windows_url]):
     ext = bng_url.split(".")[-1]
     fname = "bng.{}".format(ext)
     # download bng distro
+    print(bng_url, fname)
     urllib.request.urlretrieve(bng_url, fname)
     # file extension dependent actions, tar for
     # mac and linux, zip for windows
     if iurl < 2:
         # if "tgz" == ext or "gz" == etx:
         bng_arch = tarfile.open(fname)
-        fold_name = bng_arch.getnames()[0]
+        # Find containing folder of the archive.
+        # On macs may need to skip first item because
+        # filesystem makes shadow files with `._` prepended.
+        fold_name = get_folder(bng_arch)
         bng_arch.extractall()
         # make sure bionetgen/bng exists
         if iurl == 0:
@@ -114,7 +128,7 @@ for iurl, bng_url in enumerate([linux_url, mac_url, windows_url]):
         # fold_name = bng_arch.namelist()[0]
         # bng_arch.extractall()
         bng_arch = tarfile.open(fname)
-        fold_name = bng_arch.getnames()[0]
+        fold_name = get_folder(bng_arch)
         bng_arch.extractall()
         # bng folder
         if iurl == 2:
