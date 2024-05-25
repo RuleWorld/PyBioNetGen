@@ -3,10 +3,11 @@
 
 name: ci-testing
 
-on: 
+on:
   push:
-    branches:
-      - main
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 env:
   REGISTRY: ghcr.io
