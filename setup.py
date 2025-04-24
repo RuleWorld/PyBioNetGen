@@ -57,6 +57,7 @@ for iurl, bng_url in enumerate([linux_url, mac_url, windows_url]):
             ["BNG2.pl"],
             ["bin", "NFsim"],
             ["bin", "run_network"],
+            # JRF: not needed?
             ["bin", "sundials-config"],
             ["Perl2"],
             ["VERSION"],
@@ -66,6 +67,7 @@ for iurl, bng_url in enumerate([linux_url, mac_url, windows_url]):
             ["BNG2.pl"],
             ["bin", "NFsim.exe"],
             ["bin", "run_network.exe"],
+            # JRF: not needed?
             ["bin", "sundials-config"],
             ["Perl2"],
             ["VERSION"],
@@ -74,9 +76,6 @@ for iurl, bng_url in enumerate([linux_url, mac_url, windows_url]):
             ["bin", "cygwin1.dll"],
             ["bin", "cygz.dll"],
             ["bin", "cygzstd-1.dll"],
-            ["bin", "libgcc_s_seh-1.dll"],
-            ["bin", "libstdc++-6.dll"],
-            ["bin", "libwinpthread-1.dll"],
         ]
     # import file and download libraries
     ext = bng_url.split(".")[-1]
