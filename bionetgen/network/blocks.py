@@ -7,12 +7,6 @@ from .structs import NetworkParameter, NetworkCompartment, NetworkGroup
 from .structs import NetworkSpecies, NetworkFunction, NetworkReaction
 from .structs import NetworkEnergyPattern, NetworkPopulationMap
 
-# this import fails on some python versions
-try:
-    from typing import OrderedDict
-except ImportError:
-    from collections import OrderedDict
-
 logger = BNGLogger()
 
 
@@ -146,6 +140,60 @@ class NetworkBlock:
         for item in item_list:
             self.add_item(item)
 
+    def _set_item_attribute(
+        self,
+        name,
+        value,
+        *,
+        item_cls,
+        str_field,
+        kind,
+        num_field=None,
+        write_expr_field=None,
+    ) -> None:
+        """Shared `__setattr__` path for blocks that hold named items."""
+        if not hasattr(self, "items"):
+            self.__dict__[name] = value
+            return
+        if name not in self.items:
+            self.__dict__[name] = value
+            return
+        changed = False
+        if isinstance(value, item_cls):
+            changed = True
+            self.items[name] = value
+        elif isinstance(value, str):
+            if self.items[name][str_field] != value:
+                changed = True
+                self.items[name][str_field] = value
+                if write_expr_field is not None:
+                    setattr(self.items[name], write_expr_field, True)
+        elif num_field is not None:
+            try:
+                new_value = float(value)
+            except (TypeError, ValueError):
+                logger.warning(
+                    f"Unable to set {kind} {self.items[name]['name']!r} to"
+                    f" {value!r}; keeping existing {kind}",
+                    loc=f"{__file__} : {self.__class__.__name__}.__setattr__()",
+                )
+            else:
+                if self.items[name][num_field] != new_value:
+                    changed = True
+                    self.items[name][num_field] = new_value
+                    if write_expr_field is not None:
+                        setattr(self.items[name], write_expr_field, False)
+                    value = new_value
+        else:
+            logger.warning(
+                f"Unable to set {kind} {self.items[name]['name']!r} to"
+                f" {value!r}; keeping existing {kind}",
+                loc=f"{__file__} : {self.__class__.__name__}.__setattr__()",
+            )
+        if changed:
+            self._changes[name] = value
+            self.__dict__[name] = value
+
 
 class NetworkParameterBlock(NetworkBlock):
     """
@@ -163,45 +211,15 @@ class NetworkParameterBlock(NetworkBlock):
         self.name = "parameters"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, NetworkParameter):
-                    # New parameter object
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    # A new expression
-                    if self.items[name]["value"] != value:
-                        changed = True
-                        self.items[name]["value"] = value
-                        self.items[name].write_expr = True
-                else:
-                    try:
-                        # try a new value, we need to make sure
-                        # to stop printing out the expression
-                        new_value = float(value)
-                        if self.items[name]["value"] != new_value:
-                            changed = True
-                            self.items[name]["value"] = new_value
-                            self.items[name].write_expr = False
-                            value = new_value
-                    except (TypeError, ValueError):
-                        logger.warning(
-                            "Unable to set parameter {!r} to {!r}; keeping existing value {!r}".format(
-                                self.items[name]["name"],
-                                value,
-                                self.items[name]["value"],
-                            ),
-                            loc=f"{__file__} : NetworkParameterBlock.__setattr__()",
-                        )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=NetworkParameter,
+            str_field="value",
+            num_field="value",
+            write_expr_field="write_expr",
+            kind="parameter",
+        )
 
     def add_parameter(self, *args, **kwargs) -> None:
         p = NetworkParameter(*args, **kwargs)
@@ -224,39 +242,14 @@ class NetworkCompartmentBlock(NetworkBlock):
         self.name = "compartments"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, NetworkCompartment):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    try:
-                        new_value = float(value)
-                        if self.items[name]["size"] != new_value:
-                            changed = True
-                            self.items[name]["size"] = new_value
-                            value = new_value
-                    except (TypeError, ValueError):
-                        logger.warning(
-                            "Unable to set compartment {!r} to {!r}; keeping existing size {!r}".format(
-                                self.items[name]["name"],
-                                value,
-                                self.items[name]["size"],
-                            ),
-                            loc=f"{__file__} : NetworkCompartmentBlock.__setattr__()",
-                        )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=NetworkCompartment,
+            str_field="name",
+            num_field="size",
+            kind="compartment",
+        )
 
     def add_compartment(self, *args, **kwargs) -> None:
         c = NetworkCompartment(*args, **kwargs)
@@ -279,32 +272,13 @@ class NetworkGroupBlock(NetworkBlock):
         self.name = "groups"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, NetworkGroup):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    logger.warning(
-                        "Unable to set group {!r} to {!r}; keeping existing group {!r}".format(
-                            self.items[name]["name"],
-                            value,
-                            self.items[name]["name"],
-                        ),
-                        loc=f"{__file__} : NetworkGroupBlock.__setattr__()",
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=NetworkGroup,
+            str_field="name",
+            kind="group",
+        )
 
     def add_group(self, *args, **kwargs) -> None:
         g = NetworkGroup(*args, **kwargs)
@@ -327,32 +301,13 @@ class NetworkSpeciesBlock(NetworkBlock):
         self.name = "species"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, NetworkSpecies):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    logger.warning(
-                        "Unable to set species {!r} to {!r}; keeping existing species {!r}".format(
-                            self.items[name]["name"],
-                            value,
-                            self.items[name]["name"],
-                        ),
-                        loc=f"{__file__} : NetworkSpeciesBlock.__setattr__()",
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=NetworkSpecies,
+            str_field="name",
+            kind="species",
+        )
 
     def __getitem__(self, key):
         return self.items[key]
@@ -382,29 +337,13 @@ class NetworkFunctionBlock(NetworkBlock):
         self.name = "functions"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, NetworkFunction):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["expr"] != value:
-                        changed = True
-                        self.items[name]["expr"] = value
-                else:
-                    print(
-                        "can't set function {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=NetworkFunction,
+            str_field="expr",
+            kind="function",
+        )
 
     def add_function(self, *args, **kwargs) -> None:
         f = NetworkFunction(*args, **kwargs)
@@ -432,29 +371,13 @@ class NetworkReactionBlock(NetworkBlock):
         self.name = "reactions"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, NetworkReaction):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    print(
-                        "can't set rule {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=NetworkReaction,
+            str_field="name",
+            kind="reaction",
+        )
 
     def add_reaction(self, *args, **kwargs) -> None:
         r = NetworkReaction(*args, **kwargs)
@@ -477,29 +400,13 @@ class NetworkEnergyPatternBlock(NetworkBlock):
         self.name = "energy patterns"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, NetworkEnergyPattern):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    print(
-                        "can't set energy pattern {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=NetworkEnergyPattern,
+            str_field="name",
+            kind="energy pattern",
+        )
 
     def add_energy_pattern(self, *args, **kwargs) -> None:
         ep = NetworkEnergyPattern(*args, **kwargs)
@@ -522,29 +429,13 @@ class NetworkPopulationMapBlock(NetworkBlock):
         self.name = "population maps"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, NetworkPopulationMap):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    print(
-                        "can't set population map {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=NetworkPopulationMap,
+            str_field="name",
+            kind="population map",
+        )
 
     def add_population_map(self, *args, **kwargs) -> None:
         pm = NetworkPopulationMap(*args, **kwargs)

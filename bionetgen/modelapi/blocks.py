@@ -3,17 +3,11 @@ try:
 except ImportError:
     from collections import OrderedDict
 from bionetgen.core.utils.logging import BNGLogger
+from bionetgen.core.utils.utils import ActionList
 from .structs import Parameter, Compartment, Observable
 from .structs import MoleculeType, Species, Function
 from .structs import Rule, Action
 from .structs import EnergyPattern, PopulationMap
-from bionetgen.core.utils.utils import ActionList
-
-# this import fails on some python versions
-try:
-    from typing import OrderedDict
-except ImportError:
-    from collections import OrderedDict
 
 logger = BNGLogger()
 
@@ -185,6 +179,60 @@ class ModelBlock:
         for item in item_list:
             self.add_item(item)
 
+    def _set_item_attribute(
+        self,
+        name,
+        value,
+        *,
+        item_cls,
+        str_field,
+        kind,
+        num_field=None,
+        write_expr_field=None,
+    ) -> None:
+        """Shared `__setattr__` path for blocks that hold named items."""
+        if not hasattr(self, "items"):
+            self.__dict__[name] = value
+            return
+        if name not in self.items:
+            self.__dict__[name] = value
+            return
+        changed = False
+        if isinstance(value, item_cls):
+            changed = True
+            self.items[name] = value
+        elif isinstance(value, str):
+            if self.items[name][str_field] != value:
+                changed = True
+                self.items[name][str_field] = value
+                if write_expr_field is not None:
+                    setattr(self.items[name], write_expr_field, True)
+        elif num_field is not None:
+            try:
+                new_value = float(value)
+            except (TypeError, ValueError):
+                logger.warning(
+                    f"Unable to set {kind} {self.items[name]['name']!r} to"
+                    f" {value!r}; keeping existing {kind}",
+                    loc=f"{__file__} : {self.__class__.__name__}.__setattr__()",
+                )
+            else:
+                if self.items[name][num_field] != new_value:
+                    changed = True
+                    self.items[name][num_field] = new_value
+                    if write_expr_field is not None:
+                        setattr(self.items[name], write_expr_field, False)
+                    value = new_value
+        else:
+            logger.warning(
+                f"Unable to set {kind} {self.items[name]['name']!r} to"
+                f" {value!r}; keeping existing {kind}",
+                loc=f"{__file__} : {self.__class__.__name__}.__setattr__()",
+            )
+        if changed:
+            self._changes[name] = value
+            self.__dict__[name] = value
+
 
 class ParameterBlock(ModelBlock):
     """
@@ -202,45 +250,15 @@ class ParameterBlock(ModelBlock):
         self.name = "parameters"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, Parameter):
-                    # New parameter object
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    # A new expression
-                    if self.items[name]["value"] != value:
-                        changed = True
-                        self.items[name]["value"] = value
-                        self.items[name].write_expr = True
-                else:
-                    try:
-                        # try a new value, we need to make sure
-                        # to stop printing out the expression
-                        new_value = float(value)
-                        if self.items[name]["value"] != new_value:
-                            changed = True
-                            self.items[name]["value"] = new_value
-                            self.items[name].write_expr = False
-                            value = new_value
-                    except (TypeError, ValueError):
-                        logger.warning(
-                            "Unable to set parameter {!r} to {!r}; keeping existing value {!r}".format(
-                                self.items[name]["name"],
-                                value,
-                                self.items[name]["value"],
-                            ),
-                            loc=f"{__file__} : ParameterBlock.__setattr__()",
-                        )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=Parameter,
+            str_field="value",
+            num_field="value",
+            write_expr_field="write_expr",
+            kind="parameter",
+        )
 
     def add_parameter(self, *args, **kwargs) -> None:
         p = Parameter(*args, **kwargs)
@@ -263,39 +281,14 @@ class CompartmentBlock(ModelBlock):
         self.name = "compartments"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, Compartment):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    try:
-                        new_value = float(value)
-                        if self.items[name]["size"] != new_value:
-                            changed = True
-                            self.items[name]["size"] = new_value
-                            value = new_value
-                    except (TypeError, ValueError):
-                        logger.warning(
-                            "Unable to set compartment {!r} to {!r}; keeping existing size {!r}".format(
-                                self.items[name]["name"],
-                                value,
-                                self.items[name]["size"],
-                            ),
-                            loc=f"{__file__} : CompartmentBlock.__setattr__()",
-                        )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=Compartment,
+            str_field="name",
+            num_field="size",
+            kind="compartment",
+        )
 
     def add_compartment(self, *args, **kwargs) -> None:
         c = Compartment(*args, **kwargs)
@@ -318,32 +311,13 @@ class ObservableBlock(ModelBlock):
         self.name = "observables"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, Observable):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    logger.warning(
-                        "Unable to set observable {!r} to {!r}; keeping existing observable {!r}".format(
-                            self.items[name]["name"],
-                            value,
-                            self.items[name]["name"],
-                        ),
-                        loc=f"{__file__} : ObservableBlock.__setattr__()",
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=Observable,
+            str_field="name",
+            kind="observable",
+        )
 
     def add_observable(self, *args, **kwargs) -> None:
         o = Observable(*args, **kwargs)
@@ -366,32 +340,13 @@ class SpeciesBlock(ModelBlock):
         self.name = "species"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, Species):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    logger.warning(
-                        "Unable to set species {!r} to {!r}; keeping existing species {!r}".format(
-                            self.items[name]["name"],
-                            value,
-                            self.items[name]["name"],
-                        ),
-                        loc=f"{__file__} : SpeciesBlock.__setattr__()",
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=Species,
+            str_field="name",
+            kind="species",
+        )
 
     def __getitem__(self, key):
         return self.items[key]
@@ -421,29 +376,13 @@ class MoleculeTypeBlock(ModelBlock):
         self.name = "molecule types"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, MoleculeType):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    print(
-                        "can't set molecule type {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=MoleculeType,
+            str_field="name",
+            kind="molecule type",
+        )
 
     def add_molecule_type(self, name, components) -> None:
         mt = MoleculeType(name=name, components=components)
@@ -466,29 +405,13 @@ class FunctionBlock(ModelBlock):
         self.name = "functions"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, Function):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["expr"] != value:
-                        changed = True
-                        self.items[name]["expr"] = value
-                else:
-                    print(
-                        "can't set function {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=Function,
+            str_field="expr",
+            kind="function",
+        )
 
     def add_function(self, *args, **kwargs) -> None:
         f = Function(*args, **kwargs)
@@ -516,29 +439,13 @@ class RuleBlock(ModelBlock):
         self.name = "reaction rules"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, Rule):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    print(
-                        "can't set rule {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=Rule,
+            str_field="name",
+            kind="rule",
+        )
 
     def add_rule(self, *args, **kwargs) -> None:
         r = Rule(*args, **kwargs)
@@ -695,29 +602,13 @@ class EnergyPatternBlock(ModelBlock):
         self.name = "energy patterns"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, EnergyPattern):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    print(
-                        "can't set energy pattern {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=EnergyPattern,
+            str_field="name",
+            kind="energy pattern",
+        )
 
     def add_energy_pattern(self, *args, **kwargs) -> None:
         ep = EnergyPattern(*args, **kwargs)
@@ -740,29 +631,13 @@ class PopulationMapBlock(ModelBlock):
         self.name = "population maps"
 
     def __setattr__(self, name, value) -> None:
-        changed = False
-        if hasattr(self, "items"):
-            if name in self.items:
-                if isinstance(value, PopulationMap):
-                    changed = True
-                    self.items[name] = value
-                elif isinstance(value, str):
-                    if self.items[name]["name"] != value:
-                        changed = True
-                        self.items[name]["name"] = value
-                else:
-                    print(
-                        "can't set population map {} to {}".format(
-                            self.items[name]["name"], value
-                        )
-                    )
-                if changed:
-                    self._changes[name] = value
-                    self.__dict__[name] = value
-            else:
-                self.__dict__[name] = value
-        else:
-            self.__dict__[name] = value
+        self._set_item_attribute(
+            name,
+            value,
+            item_cls=PopulationMap,
+            str_field="name",
+            kind="population map",
+        )
 
     def add_population_map(self, *args, **kwargs) -> None:
         pm = PopulationMap(*args, **kwargs)
