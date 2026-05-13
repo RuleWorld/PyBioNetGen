@@ -177,14 +177,14 @@ MODEL_CASES = [
         _make_parameter_block,
         object(),
         "Unable to set parameter 'k1'",
-        "keeping existing parameter",
+        "keeping existing value",
         "ParameterBlock.__setattr__()",
     ),
     (
         _make_compartment_block,
         object(),
         "Unable to set compartment 'EC'",
-        "keeping existing compartment",
+        "keeping existing size",
         "CompartmentBlock.__setattr__()",
     ),
     (
@@ -244,14 +244,14 @@ NETWORK_CASES = [
         _make_network_parameter_block,
         object(),
         "Unable to set parameter 'k1'",
-        "keeping existing parameter",
+        "keeping existing value",
         "NetworkParameterBlock.__setattr__()",
     ),
     (
         _make_network_compartment_block,
         object(),
         "Unable to set compartment 'cytoplasm'",
-        "keeping existing compartment",
+        "keeping existing size",
         "NetworkCompartmentBlock.__setattr__()",
     ),
     (

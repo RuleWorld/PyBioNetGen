@@ -174,7 +174,8 @@ class NetworkBlock:
             except (TypeError, ValueError):
                 logger.warning(
                     f"Unable to set {kind} {self.items[name]['name']!r} to"
-                    f" {value!r}; keeping existing {kind}",
+                    f" {value!r}; keeping existing {num_field}"
+                    f" {self.items[name][num_field]!r}",
                     loc=f"{__file__} : {self.__class__.__name__}.__setattr__()",
                 )
             else:
