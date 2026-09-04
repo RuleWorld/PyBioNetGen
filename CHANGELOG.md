@@ -234,3 +234,6 @@ Updated underlying BNG and NFsim versions.
 
 ## 0.8.2
 Fixed bug in reading `DeleteMolecules` keyword when multiple molecules were deleted at once. Also, first installment of cleaning up constructor functions for model elements to allow programmatic model building (as opposed to just reading from BNGL file).
+
+## 0.8.7
+Released the fix (already on `master` since June 2026, but never published) for `ImportError: cannot import name 'packaging' from 'pkg_resources'` on newer `setuptools` (>=71), which broke every CLI invocation on Python 3.12+ once `setuptools` stopped re-exporting `packaging` through `pkg_resources`. `main.py` now imports `from packaging import version as packaging_version` directly, and `packaging` is declared explicitly in `install_requires` instead of being relied on transitively.
