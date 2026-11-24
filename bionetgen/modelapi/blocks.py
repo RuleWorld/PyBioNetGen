@@ -3,6 +3,7 @@ try:
 except ImportError:
     from collections import OrderedDict
 from bionetgen.core.utils.logging import BNGLogger
+from bionetgen.core.utils.safe_expr import fold_numeric
 from .structs import Parameter, Compartment, Observable
 from .structs import MoleculeType, Species, Function
 from .structs import Rule, Action
@@ -185,17 +186,8 @@ class ModelBlock:
                 f"Item must be an iterable of length 2 (name, value), got {type(item_tpl)}"
             )
 
-        try:
-            import sympy
-
-            if hasattr(value, "value") and isinstance(value.value, str):
-                sval = sympy.sympify(value.value)
-                if sval.is_Number:
-                    value.value = str(float(sval))
-                elif sval.is_constant():
-                    value.value = str(float(sval.evalf()))
-        except Exception:
-            pass
+        if hasattr(value, "value") and isinstance(value.value, str):
+            value.value = fold_numeric(value.value)
         # allow for empty addition, uses index
         if name is None:
             name = len(self.items)
@@ -260,17 +252,8 @@ class ParameterBlock(ModelBlock):
         except (ValueError, TypeError):
             pass
         else:
-            try:
-                import sympy
-
-                if hasattr(value, "value") and isinstance(value.value, str):
-                    sval = sympy.sympify(value.value)
-                    if sval.is_Number:
-                        value.value = str(float(sval))
-                    elif sval.is_constant():
-                        value.value = str(float(sval.evalf()))
-            except Exception:
-                pass
+            if hasattr(value, "value") and isinstance(value.value, str):
+                value.value = fold_numeric(value.value)
         super().add_item(item_tpl)
 
     def __setattr__(self, name, value) -> None:
