@@ -3,6 +3,7 @@ try:
 except ImportError:
     from collections import OrderedDict
 from bionetgen.core.utils.logging import BNGLogger
+from bionetgen.core.utils.safe_expr import fold_numeric
 from .structs import NetworkParameter, NetworkCompartment, NetworkGroup
 from .structs import NetworkSpecies, NetworkFunction, NetworkReaction
 from .structs import NetworkEnergyPattern, NetworkPopulationMap
@@ -176,17 +177,8 @@ class NetworkParameterBlock(NetworkBlock):
 
     def add_item(self, item_tpl) -> None:
         name, value = item_tpl
-        try:
-            import sympy
-
-            if hasattr(value, "value") and isinstance(value.value, str):
-                sval = sympy.sympify(value.value)
-                if sval.is_Number:
-                    value.value = str(float(sval))
-                elif sval.is_constant():
-                    value.value = str(float(sval.evalf()))
-        except Exception:
-            pass
+        if hasattr(value, "value") and isinstance(value.value, str):
+            value.value = fold_numeric(value.value)
         super().add_item((name, value))
 
     def __setattr__(self, name, value) -> None:
